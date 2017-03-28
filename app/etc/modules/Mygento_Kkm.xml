@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Mygento_Kkm>
+            <active>true</active>
+            <codePool>community</codePool>
+        </Mygento_Kkm>
+    </modules>
+</config>
