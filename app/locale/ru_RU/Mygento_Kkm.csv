@@ -1,0 +1,7 @@
+"INN","ИНН"
+"Payment Address","Адрес расчётов"
+"SNO","Система налогооблажения"
+"Tax all", "Код налоговой ставки"
+"List of payment methods", "Выбор платежных методов"
+"Auto send after invoice", "Автоотправка при <b>оплате</b> заказа"
+"Auto send after cancel", "Автоотправка при <b>отмене</b> заказа"

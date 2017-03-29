@@ -1,0 +1,22 @@
+<?php
+
+/**
+ *
+ *
+ * @category Mygento
+ * @package Mygento_Kkm
+ * @copyright Copyright 2017 NKS LLC. (http://www.mygento.ru)
+ */
+class Mygento_Kkm_Model_Source_Payments {
+
+    /**
+     * Options getter
+     *
+     * @return array
+     */
+    public function toOptionArray()
+    {
+        return Mage::helper("payment")->getPaymentMethodList(true, true, true);
+    }
+
+}

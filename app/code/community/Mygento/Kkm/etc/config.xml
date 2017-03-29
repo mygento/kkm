@@ -21,6 +21,24 @@
                 <class>Mygento_Kkm_Model</class>
             </kkm>
         </models>
+        <events>
+            <sales_order_invoice_save_after>
+                <observers>
+                    <kkm_sales_order_invoice_save_after>
+                        <class>kkm/observer</class>
+                        <method>sendCheque</method>
+                    </kkm_sales_order_invoice_save_after>
+                </observers>
+            </sales_order_invoice_save_after>
+            <sales_order_save_commit_after>
+                <observers>
+                    <kkm_sales_order_save_commit_after>
+                        <class>kkm/observer</class>
+                        <method>cancelCheque</method>
+                    </kkm_sales_order_save_commit_after>
+                </observers>
+            </sales_order_save_commit_after>
+        </events>  
     </global>
     <adminhtml>
         <translate>
@@ -57,6 +75,9 @@
             <general>
                 <enabled>0</enabled>
                 <debug>0</debug>
+                <tax_all>1</tax_all>
+                <auto_send_after_invoice>1</auto_send_after_invoice>
+                <auto_send_after_cancel>1</auto_send_after_cancel>
             </general>
         </kkm>
     </default>

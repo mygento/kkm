@@ -1,0 +1,163 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @category   Mygento
+ * @package    Mygento_Kkm
+ * @copyright  Copyright © 2017 NKS LLC. (http://www.mygento.ru)
+ */
+-->
+<config>
+    <sections>
+        <kkm translate="label" module="kkm">
+            <label>Kkm интеграция</label>
+            <tab>allmygento</tab>
+            <frontend_type>text</frontend_type>
+            <sort_order>100</sort_order>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <groups>
+                <general translate="label">
+                    <label>Kkm Settings</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>10</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <enabled translate="label">
+                            <label>Enabled</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </enabled>
+                        <vendor translate="label">
+                            <label>Vendor</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>kkm/source_vendor</source_model> 
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>  
+                            <can_be_empty>0</can_be_empty>
+                        </vendor>
+                        <login translate="label">
+                            <label>Kkm login</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </login>
+                        <password translate="label">
+                            <label>Kkm password</label>
+                            <frontend_type>obscure</frontend_type>
+                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </password>
+                        <inn translate="label">
+                            <label>INN</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>50</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <validate>validate-digits</validate>
+                        </inn>
+                        <kkm_pul translate="label">
+                            <label>Kkm Pul</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>60</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </kkm_pul>
+                        <payment_address translate="label comment">
+                            <label>Payment Address</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>70</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>
+                                <![CDATA[Адрес расчётов]]>
+                            </comment> 
+                        </payment_address>
+                        <sno translate="label comment">
+                            <label>SNO</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>kkm/source_sno</source_model> 
+                            <sort_order>80</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store> 
+                            <comment>
+                                <![CDATA[Система налогооблажения]]>
+                            </comment> 
+                        </sno>
+                        <tax_all translate="label comment">
+                            <label>Tax all</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>90</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>
+                                <![CDATA[Единый всем]]>
+                            </comment>
+                        </tax_all>
+                        <tax_options translate="label">
+                            <label>Tax options</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>kkm/source_taxoption</source_model> 
+                            <sort_order>100</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <tax_all>0</tax_all>
+                            </depends>
+                        </tax_options>
+                        <payment_methods translate="label comment">
+                            <label>List of payment methods</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>kkm/source_payments</source_model>
+                            <sort_order>110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>
+                                <![CDATA[Choose payment methods. Limit 1-10.]]>
+                            </comment>
+                        </payment_methods>
+                        <auto_send_after_invoice translate="label">
+                            <label>Auto send after invoice</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_send_after_invoice>
+                        <auto_send_after_cancel translate="label">
+                            <label>Auto send after cancel</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </auto_send_after_cancel>
+                    </fields>
+                </general>
+            </groups>
+        </kkm>
+    </sections>
+</config>
