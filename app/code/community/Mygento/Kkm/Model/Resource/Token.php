@@ -15,4 +15,3 @@ class Mygento_Kkm_Model_Resource_Token extends Mage_Core_Model_Resource_Db_Abstr
         $this->_init('kkm/token', 'id');
     }
 }
-

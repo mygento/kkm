@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 {
 
     /**
-     * 
+     *
      * @param type $text
      */
     public function addLog($text)
@@ -22,7 +22,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
-     * 
+     *
      * @param type string
      * @return mixed
      */

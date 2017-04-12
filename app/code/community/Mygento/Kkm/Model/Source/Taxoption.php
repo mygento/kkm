@@ -11,7 +11,7 @@ class Mygento_Kkm_Model_Source_Taxoption
 {
 
     /**
-     * Options getter
+     * Options source
      *
      * @return array
      */

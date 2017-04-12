@@ -11,7 +11,7 @@ class Mygento_Kkm_Model_Source_Vendor
 {
 
     /**
-     * Options getter
+     * Options source
      *
      * @return array
      */

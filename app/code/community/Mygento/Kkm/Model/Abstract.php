@@ -17,7 +17,7 @@ abstract class Mygento_Kkm_Model_Abstract
     abstract protected function updateCheque($invoice);
 
     /**
-     * 
+     *
      * @param type $param
      * @return type
      */
@@ -27,7 +27,7 @@ abstract class Mygento_Kkm_Model_Abstract
     }
 
     /**
-     * 
+     *
      * @return type
      */
     protected function getVendor()

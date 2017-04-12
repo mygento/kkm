@@ -9,6 +9,7 @@
  */
 class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controller_Action
 {
+
     protected function _initAction()
     {
         $this->loadLayout()->_setActiveMenu('kkm/cheque')->_addBreadcrumb(Mage::helper('adminhtml')->__('Cheque Manager'), Mage::helper('adminhtml')->__('Cheque Manager'));
@@ -51,12 +52,10 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
     {
         if ($data = $this->getRequest()->getPost()) {
             $model = Mage::getModel('kkm/cheque');
-            foreach ($data as $key => $value)
-            {
-              if (is_array($value))
-              {
-                $data[$key] = implode(',', $this->getRequest()->getParam($key));
-              }
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    $data[$key] = implode(',', $this->getRequest()->getParam($key));
+                }
             }
             $model->setData($data)->setId($this->getRequest()->getParam('id'));
             try {

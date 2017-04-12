@@ -16,4 +16,3 @@ class Mygento_Kkm_Model_Resource_Cheque_Collection extends Mage_Core_Model_Resou
         $this->_init('kkm/cheque');
     }
 }
-

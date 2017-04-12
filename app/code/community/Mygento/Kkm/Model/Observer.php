@@ -11,7 +11,7 @@ abstract class Mygento_Kkm_Model_Observer
 {
 
     /**
-     * 
+     *
      * @param type $observer
      */
     public function sendCheque($observer)
@@ -27,7 +27,7 @@ abstract class Mygento_Kkm_Model_Observer
     }
 
     /**
-     * 
+     *
      * @param type $observer
      */
     public function cancelCheque($observer)

@@ -7,30 +7,27 @@
  * @package Mygento_Kkm
  * @copyright Copyright 2017 NKS LLC. (http://www.mygento.ru)
  */
-class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
-{
+class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract {
 
     const _URL = 'https://online.atol.ru/possystem/v3/';
     const _code = 'atol';
-    const _groupCode = 'Nestle-Test';
 
     /**
      * 
      * @param type $invoice
      */
-    public function sendCheque($invoice)
-    {
+    public function sendCheque($invoice) {
         $post = [];
 
         $token = $this->getToken();
-        
+
         if (!$token) {
             return false;
         }
 
         $operation = 'sell';
 
-        $url = self::_URL . self::_groupCode . '/' . $operation . '?' . $token;
+        $url = self::_URL . $this->getConfig('group') . '/' . $operation . '?' . $token;
 
         $post['service'] = [
             'payment_address' => $this->getConfig('payment_address'),
@@ -58,8 +55,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      * 
      * @param type $order
      */
-    public function cancelCheque($order)
-    {
+    public function cancelCheque($order) {
 
         /* process next */
     }
@@ -68,8 +64,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      * 
      * @param type $invoice
      */
-    public function updateCheque($invoice)
-    {
+    public function updateCheque($invoice) {
         
     }
 
@@ -77,8 +72,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      * 
      * @return string
      */
-    public function getToken()
-    {
+    public function getToken() {
         $tokenModel = Mage::getModel('kkm/token');
 
         $token = $tokenModel->load(self::_code, 'vendor');
@@ -117,4 +111,5 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         return $tokenValue;
     }
+
 }
