@@ -5,6 +5,17 @@
             <version>1.0.0</version>
         </Mygento_Kkm>
     </modules>
+    <frontend>
+        <routers>
+            <kkm>
+                <use>standard</use>
+                <args>
+                    <module>Mygento_Kkm</module>
+                    <frontName>kkm</frontName>
+                </args>
+            </kkm>
+        </routers>
+    </frontend>
     <global>
         <blocks>
             <kkm>
@@ -19,7 +30,17 @@
         <models>
             <kkm>
                 <class>Mygento_Kkm_Model</class>
+                <resourceModel>kkm_resource</resourceModel>
             </kkm>
+            <kkm_resource>
+                <class>Mygento_Kkm_Model_Resource</class>
+                <deprecatedNode>kkm_mysql4</deprecatedNode>
+                <entities>
+                    <token>
+                        <table>mygento_kkm_token</table>
+                    </token>
+                </entities>
+            </kkm_resource>
         </models>
         <events>
             <sales_order_invoice_save_after>
@@ -38,7 +59,17 @@
                     </kkm_sales_order_save_commit_after>
                 </observers>
             </sales_order_save_commit_after>
-        </events>  
+        </events> 
+        <resources>
+            <kkm_setup>
+                <setup>
+                    <module>Mygento_Kkm</module>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </kkm_setup>
+        </resources> 
     </global>
     <adminhtml>
         <translate>

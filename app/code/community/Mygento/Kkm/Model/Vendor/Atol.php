@@ -10,6 +10,10 @@
 class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 {
 
+    const _URL = 'https://online.atol.ru/possystem/v3/';
+    const _code = 'atol';
+    const _groupCode = 'Nestle-Test';
+
     /**
      * 
      * @param type $invoice
@@ -18,9 +22,19 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     {
         $post = [];
 
+        $token = $this->getToken();
+        
+        if (!$token) {
+            return false;
+        }
+
+        $operation = 'sell';
+
+        $url = self::_URL . self::_groupCode . '/' . $operation . '?' . $token;
+
         $post['service'] = [
             'payment_address' => $this->getConfig('payment_address'),
-            'callback_url' => $this->getConfig('callback_url'),
+            'callback_url' => 'http://testbalance',
             'inn' => $this->getConfig('inn')
         ];
         $post['timestamp'] = date('d-m-YY', time());
@@ -57,5 +71,50 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     public function updateCheque($invoice)
     {
         
+    }
+
+    /**
+     * 
+     * @return string
+     */
+    public function getToken()
+    {
+        $tokenModel = Mage::getModel('kkm/token');
+
+        $token = $tokenModel->load(self::_code, 'vendor');
+
+        if ($token->getId() && strtotime($token->getExpireDate()) > time()) {
+            return $token->getToken();
+        }
+
+        $data = [
+            'login' => $this->getConfig('general/login'),
+            'pass' => Mage::helper('core')->decrypt($this->getConfig('general/password'))
+        ];
+
+        $getRequest = Mage::helper('kkm')->requestApiPost(self::_URL . 'getToken', json_encode($data));
+
+        if (!$getRequest) {
+            return false;
+        }
+
+        $decodedResult = json_decode($getRequest);
+
+        if (!$decodedResult->token || $decodedResult->token == '') {
+            return false;
+        }
+
+        $tokenValue = $decodedResult->token;
+
+        if (!$token->getId()) {
+            $tokenModel->setVendor(self::_code);
+            $tokenModel->setToken($tokenValue);
+            $tokenModel->setExpireDate(time() + (24 * 60 * 60))->save();
+        } else {
+            $token->setToken($tokenValue);
+            $token->setExpireDate(time() + (24 * 60 * 60))->save();
+        }
+
+        return $tokenValue;
     }
 }

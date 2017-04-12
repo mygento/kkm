@@ -10,11 +10,11 @@
 abstract class Mygento_Kkm_Model_Abstract
 {
 
-    abstract protected function sendCheque();
+    abstract protected function sendCheque($invoice);
 
-    abstract protected function cancelCheque();
+    abstract protected function cancelCheque($order);
 
-    abstract protected function updateCheque();
+    abstract protected function updateCheque($invoice);
 
     /**
      * 
@@ -23,7 +23,7 @@ abstract class Mygento_Kkm_Model_Abstract
      */
     protected function getConfig($param)
     {
-        return Mage::getStoreConfig('mygento/kkm/' . $param);
+        return Mage::getStoreConfig('kkm/' . $param);
     }
 
     /**
