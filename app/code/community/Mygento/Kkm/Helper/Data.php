@@ -28,7 +28,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getConfig($param)
     {
-        return Mage::getStoreConfig('mygento/kkm/' . $param);
+        return Mage::getStoreConfig('kkm/' . $param);
     }
 
     public function requestApiPost($url, $arpost)
@@ -49,5 +49,18 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         // @codingStandardsIgnoreEnd
         $this->addLog($result);
         return $result;
+    }
+    
+    //single function for sum
+    public function calcSum($invoice)
+    {
+        if ($invoice->getOrderCurrencyCode() != 'RUB') {
+            return round(Mage::helper('directory')->currencyConvert(
+                $invoice->getBaseGrandTotal(),
+                $invoice->getBaseCurrencyCode(),
+                'RUB'
+            ), 2);
+        }
+        return round($invoice->getGrandTotal(), 2);
     }
 }

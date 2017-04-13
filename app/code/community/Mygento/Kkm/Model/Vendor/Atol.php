@@ -7,16 +7,19 @@
  * @package Mygento_Kkm
  * @copyright Copyright 2017 NKS LLC. (http://www.mygento.ru)
  */
-class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract {
+class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
+{
 
     const _URL = 'https://online.atol.ru/possystem/v3/';
     const _code = 'atol';
+    const _callbackUrl = 'http://testbalance';
 
     /**
      * 
      * @param type $invoice
      */
-    public function sendCheque($invoice) {
+    public function sendCheque($invoice, $order)
+    {
         $post = [];
 
         $token = $this->getToken();
@@ -24,30 +27,76 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract {
         if (!$token) {
             return false;
         }
-
         $operation = 'sell';
 
-        $url = self::_URL . $this->getConfig('group') . '/' . $operation . '?' . $token;
+        $url = self::_URL . $this->getConfig('general/group_code') . '/' . $operation . '?tokenid=' . $token;
+
+        $post['external_id'] = $order->getIncrementId();
 
         $post['service'] = [
-            'payment_address' => $this->getConfig('payment_address'),
-            'callback_url' => 'http://testbalance',
-            'inn' => $this->getConfig('inn')
+            'payment_address' => $this->getConfig('general/payment_address'),
+            'callback_url' => self::_callbackUrl,
+            'inn' => $this->getConfig('general/inn')
         ];
-        $post['timestamp'] = date('d-m-YY', time());
+
+        $now_time = Mage::getModel('core/date')->timestamp(time());
+        $post['timestamp'] = date('d-m-Y H:i:s', $now_time);
+
         $post['receipt'] = [
             'attributes' => [
-                $this->getConfig('sno'),
-                'phone' => $this->getConfig('phone'),
-                'email' => $this->getConfig('email'),
+                'sno' => $this->getConfig('general/sno'),
+                'phone' => $order->getShippingAddress()->getTelephone(),
+                'email' => $order->getCustomerEmail(),
             ],
-            'total' => null,
-            'payments' => [
-                'sum' => $invoice->getAmount(),
-                'type' => null
-            ]
+            'total' => Mage::helper('kkm')->calcSum($invoice)
         ];
-        $post['receipt']['items'] = [];
+
+        $post['receipt']['payments'][] = [
+            'sum' => Mage::helper('kkm')->calcSum($invoice),
+            'type' => 1
+        ];
+
+        $items = $invoice->getAllItems();
+
+        foreach ($items as $item) {
+            if (!$item->getRowTotal()) {
+                continue;
+            }
+            $orderItem = [];
+
+            $tax_value = $this->getConfig('general/tax_options');
+
+            if (!$this->getConfig('general/tax_all')) {
+                $attribute_code = $this->getConfig('general/product_tax_attr');
+                $tax_value = Mage::getResourceModel('catalog/product')->getAttributeRawValue($item->getProductId(), $attribute_code, $order->getStore());
+            }
+
+            $itemSum = $item->getRowTotal();
+
+            if ($item->getDiscountAmount()) {
+                $itemSum = $itemSum - $item->getDiscountAmount();
+            }
+
+            $orderItem['price'] = round($item->getPrice(), 2);
+            $orderItem['name'] = $item->getName();
+            $orderItem['quantity'] = round($item->getQty(), 2);
+            $orderItem['sum'] = round($itemSum, 2);
+            $orderItem['tax'] = $tax_value;
+            $post['receipt']['items'][] = $orderItem;
+        }
+
+        $shippingItem = [];
+        $shippingItem['name'] = $this->getConfig('general/default_shipping_name') ? $order->getShippingDescription() : $this->getConfig('general/custom_shipping_name');
+        $shippingItem['price'] = round($invoice->getShippingAmount(), 2);
+        $shippingItem['quantity'] = 1.0;
+        $shippingItem['sum'] = round($invoice->getShippingAmount(), 2);
+        $shippingItem['tax'] = $this->getConfig('general/shipping_tax');
+        $post['receipt']['items'][] = $shippingItem;
+
+//        $getRequest = Mage::helper('kkm')->requestApiPost($url, json_encode($post));
+
+        return json_encode($post);
+
         /* process next */
     }
 
@@ -55,7 +104,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract {
      * 
      * @param type $order
      */
-    public function cancelCheque($order) {
+    public function cancelCheque($order)
+    {
 
         /* process next */
     }
@@ -64,7 +114,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract {
      * 
      * @param type $invoice
      */
-    public function updateCheque($invoice) {
+    public function updateCheque($invoice)
+    {
         
     }
 
@@ -72,7 +123,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract {
      * 
      * @return string
      */
-    public function getToken() {
+    public function getToken()
+    {
         $tokenModel = Mage::getModel('kkm/token');
 
         $token = $tokenModel->load(self::_code, 'vendor');
@@ -111,5 +163,4 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract {
 
         return $tokenValue;
     }
-
 }
