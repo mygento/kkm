@@ -9,7 +9,6 @@
  */
 class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 {
-
     /**
      *
      * @param type $text
@@ -34,7 +33,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     public function requestApiPost($url, $arpost)
     {
         // @codingStandardsIgnoreStart
-        $ch = curl_init();
+        $ch     = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($arpost) ? http_build_query($arpost) : $arpost);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -50,17 +49,16 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         $this->addLog($result);
         return $result;
     }
-    
+
     //single function for sum
-    public function calcSum($invoice)
+    public function calcSum($receipt)
     {
-        if ($invoice->getOrderCurrencyCode() != 'RUB') {
+        if ($receipt->getOrderCurrencyCode() != 'RUB') {
             return round(Mage::helper('directory')->currencyConvert(
-                $invoice->getBaseGrandTotal(),
-                $invoice->getBaseCurrencyCode(),
-                'RUB'
-            ), 2);
+                    $receipt->getBaseGrandTotal(), $receipt->getBaseCurrencyCode(), 'RUB'
+                ), 2);
         }
-        return round($invoice->getGrandTotal(), 2);
+        return round($receipt->getGrandTotal(), 2);
     }
+
 }

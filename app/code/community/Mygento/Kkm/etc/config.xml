@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Mygento_Kkm>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </Mygento_Kkm>
     </modules>
     <frontend>
@@ -39,26 +39,29 @@
                     <token>
                         <table>mygento_kkm_token</table>
                     </token>
+                    <status>
+                        <table>mygento_kkm_status</table>
+                    </status>
                 </entities>
             </kkm_resource>
         </models>
         <events>
-            <sales_order_invoice_register>
+            <sales_order_invoice_save_after>
                 <observers>
-                    <kkm_sales_order_invoice_register>
+                    <kkm_sales_order_invoice_save_after>
                         <class>kkm/observer</class>
                         <method>sendCheque</method>
-                    </kkm_sales_order_invoice_register>
+                    </kkm_sales_order_invoice_save_after>
                 </observers>
-            </sales_order_invoice_register>
-            <sales_order_creditmemo_refund>
+            </sales_order_invoice_save_after>
+            <sales_order_creditmemo_save_after>
                 <observers>
-                    <kkm_sales_order_invoice_cancel>
+                    <kkm_sales_order_creditmemo_save_after>
                         <class>kkm/observer</class>
                         <method>cancelCheque</method>
-                    </kkm_sales_order_invoice_cancel>
+                    </kkm_sales_order_creditmemo_save_after>
                 </observers>
-            </sales_order_creditmemo_refund>
+            </sales_order_creditmemo_save_after>
         </events> 
         <resources>
             <kkm_setup>

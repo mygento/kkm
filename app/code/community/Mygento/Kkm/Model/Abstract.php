@@ -9,13 +9,9 @@
  */
 abstract class Mygento_Kkm_Model_Abstract
 {
-
     abstract protected function sendCheque($invoice, $order);
-
-    abstract protected function cancelCheque($order);
-
+    abstract protected function cancelCheque($creditmemo, $order);
     abstract protected function updateCheque($invoice);
-
     /**
      *
      * @param type $param
@@ -34,4 +30,5 @@ abstract class Mygento_Kkm_Model_Abstract
     {
         return $this->getConfig('vendor');
     }
+
 }

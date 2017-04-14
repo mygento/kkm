@@ -9,7 +9,6 @@
  */
 class Mygento_Kkm_Model_Observer
 {
-
     /**
      *
      * @param type $observer
@@ -20,23 +19,24 @@ class Mygento_Kkm_Model_Observer
         if (!Mage::helper('kkm')->getConfig('general/enabled') && !Mage::helper('kkm')->getConfig('general/auto_send_after_invoice')) {
             return;
         }
+        $paymentMethods = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
 
-        $invoice = $observer->getEvent()->getInvoice();
-        $order = $observer->getEvent()->getOrder();
+        $invoice         = $observer->getEvent()->getInvoice();
+        $order           = $invoice->getOrder();
+        $paymentMethod   = $order->getPayment()->getMethod();
+        $invoiceOrigData = $invoice->getOrigData();
 
-//        Mage::log(print_r($invoice->getData(),1),null,'invoice_data.log');
-//        Mage::log(print_r($order->getData(),1),null,'order_data.log');
-        
-        $items = $invoice->getAllItems();
-        
-        foreach ($items as $item) {
-//            Mage::log(print_r($item->getData(),1),null,'items_data.log');
+        if (!in_array($paymentMethod, $paymentMethods)) {
+            Mage::helper('kkm')->addLog('paymentMethod: ' . $paymentMethod);
+            return;
         }
 
-//        $invoice->getAllItems();
-        $sendCheque = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')->getConfig('general/vendor'))->sendCheque($invoice, $order);
-        Mage::log(print_r($sendCheque,1),null,'data_to_send.log');
-        
+        if ($invoice->getOrigData() && isset($invoiceOrigData['increment_id'])) {
+            return;
+        }
+
+        $sendCheque = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')
+                    ->getConfig('general/vendor'))->sendCheque($invoice, $order);
     }
 
     /**
@@ -50,11 +50,22 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $creditmemo = $observer->getEvent()->getCreditmemo();
-        Mage::helper('kkm')->addLog($creditmemo->getData());
+        $creditmemo         = $observer->getEvent()->getCreditmemo();
+        $order              = $creditmemo->getOrder();
+        $paymentMethod      = $order->getPayment()->getMethod();
+        $creditmemoOrigData = $creditmemo->getOrigData();
+        $paymentMethods     = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
 
-//        if ($order->hasInvoices()) {
-//            Mage::getModel('kkm/vendor_' . Mage::helper('kkm')->getConfig('general/vendor'))->cancelCheque($order);
-//        }
+        if (!in_array($paymentMethod, $paymentMethods)) {
+            Mage::helper('kkm')->addLog('paymentMethod: ' . $paymentMethod);
+            return;
+        }
+        if ($creditmemo->getOrigData() && isset($creditmemoOrigData['increment_id'])) {
+            return;
+        }
+
+        $cancelCheque = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')
+                    ->getConfig('general/vendor'))->cancelCheque($creditmemo, $order);
     }
+
 }
