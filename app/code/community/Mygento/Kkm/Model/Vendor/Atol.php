@@ -37,12 +37,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
 
         if ($getRequest) {
+            Mage::helper('kkm')->addLog('sendCheque getRequest ' . $getRequest);
+            $request = json_decode($getRequest);
             $statusModel = Mage::getModel('kkm/status');
             $statusModel->setVendor(self::_code);
-            $statusModel->setUuid('invoice_' . $invoice->getIncrementId());
+            $statusModel->setUuid($request->uuid);
+            $statusModel->setExternalId('invoice_' . $invoice->getIncrementId());
             $statusModel->setOperation(self::_operationSell);
             $statusModel->setStatus($getRequest)->save();
-            Mage::helper('kkm')->addLog('sendCheque getRequest ' . $getRequest);
         }
     }
 
@@ -68,12 +70,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
 
         if ($getRequest) {
+            Mage::helper('kkm')->addLog('cancelCheque getRequest ' . $getRequest);
+            $request = json_decode($getRequest);
             $statusModel = Mage::getModel('kkm/status');
             $statusModel->setVendor(self::_code);
-            $statusModel->setUuid('creditmemo_' . $creditmemo->getIncrementId());
+            $statusModel->setUuid($request->uuid);
+            $statusModel->setExternalId('creditmemo_' . $creditmemo->getIncrementId());
             $statusModel->setOperation(self::_operationSellRefund);
             $statusModel->setStatus($getRequest)->save();
-            Mage::helper('kkm')->addLog('cancelCheque getRequest ' . $getRequest);
         }
     }
 
@@ -146,7 +150,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $post['service'] = [
             'payment_address' => $this->getConfig('general/payment_address'),
-            'callback_url'    => $this->getConfig('general/callback_url') . '?uuid=' . $receipt->getIncrementId(),
+            'callback_url'    => Mage::getUrl('kkm/index/callback'),
             'inn'             => $this->getConfig('general/inn')
         ];
 

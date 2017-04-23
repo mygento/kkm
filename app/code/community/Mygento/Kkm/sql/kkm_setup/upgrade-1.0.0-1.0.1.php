@@ -18,10 +18,14 @@ $kkm_status_table = $installer->getConnection()
         'primary'        => true,
         'auto_increment' => true
         ], 'ID')
-    ->addColumn('uuid', Varien_Db_Ddl_Table::TYPE_INTEGER, null,
+    ->addColumn('uuid', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255,
         [
         'nullable' => false
         ], 'Universally Unique Identifier')
+    ->addColumn('external_id', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255,
+        [
+        'nullable' => false
+        ], 'External Id')
     ->addColumn('operation', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255,
         [
         'nullable' => false
@@ -30,9 +34,11 @@ $kkm_status_table = $installer->getConnection()
         [
         'nullable' => false
         ], 'Vendor code')
-    ->addColumn('status', Varien_Db_Ddl_Table::TYPE_VARCHAR, 255, [
-    'nullable' => false
-    ], 'status');
+    ->addColumn('status', Varien_Db_Ddl_Table::TYPE_TEXT, null,
+        [ 
+        'nullable' => false,
+        'length' => 255 
+        ], 'status');
 
 $installer->getConnection()->createTable($kkm_status_table);
 
