@@ -2,18 +2,17 @@
     "name": "mygento/kkm",
     "type": "magento-module",
     "license": "proprietary",
-    "homepage": "https://bitbucket.org/mygento/kkm",
+    "homepage": "https://github.com/mygento/kkm",
     "description": "Module module",
     "keywords": [
         "magento",
-        "shipping",
         "payment"
     ],
     "authors": [
         {
             "name": "Mygento",
             "email": "connect@mygento.net",
-            "homepage": "http://www.mygento.net/"
+            "homepage": "https://www.mygento.ru/"
         }
     ],
     "require": {
@@ -30,12 +29,6 @@
         "jakub-onderka/php-console-highlighter": "0.*",
         "phpmd/phpmd": "@stable"
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://mygento.github.io/packages"
-        }
-    ],
     "extra": {
         "magento-root-dir": ".",
         "with-bootstrap-patch": false
