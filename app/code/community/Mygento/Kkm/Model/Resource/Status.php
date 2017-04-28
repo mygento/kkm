@@ -13,5 +13,4 @@ class Mygento_Kkm_Model_Resource_Status extends Mage_Core_Model_Resource_Db_Abst
     {
         $this->_init('kkm/status', 'id');
     }
-
 }

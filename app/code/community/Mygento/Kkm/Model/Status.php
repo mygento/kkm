@@ -14,5 +14,4 @@ class Mygento_Kkm_Model_Status extends Mage_Core_Model_Abstract
         parent::_construct();
         $this->_init('kkm/status');
     }
-
 }

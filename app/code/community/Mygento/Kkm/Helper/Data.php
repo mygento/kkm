@@ -55,10 +55,11 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     {
         if ($receipt->getOrderCurrencyCode() != 'RUB') {
             return round(Mage::helper('directory')->currencyConvert(
-                    $receipt->getBaseGrandTotal(), $receipt->getBaseCurrencyCode(), 'RUB'
-                ), 2);
+                $receipt->getBaseGrandTotal(),
+                $receipt->getBaseCurrencyCode(),
+                'RUB'
+            ), 2);
         }
         return round($receipt->getGrandTotal(), 2);
     }
-
 }

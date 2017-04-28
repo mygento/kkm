@@ -10,7 +10,7 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
             $jsonDecode = json_decode($json);
             Mage::helper('kkm')->addLog('callbackAction $json: ' . $json);
             $statusModel = Mage::getModel('kkm/status')->load($jsonDecode->uuid, 'uuid');
-        $statusModel->setStatus($json)->save();
+            $statusModel->setStatus($json)->save();
         }
     }
 }

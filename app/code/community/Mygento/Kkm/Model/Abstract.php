@@ -30,5 +30,4 @@ abstract class Mygento_Kkm_Model_Abstract
     {
         return $this->getConfig('vendor');
     }
-
 }

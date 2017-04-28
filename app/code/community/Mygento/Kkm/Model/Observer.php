@@ -67,5 +67,4 @@ class Mygento_Kkm_Model_Observer
         $cancelCheque = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')
                     ->getConfig('general/vendor'))->cancelCheque($creditmemo, $order);
     }
-
 }
