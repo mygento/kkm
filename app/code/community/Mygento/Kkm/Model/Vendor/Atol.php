@@ -23,6 +23,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     public function sendCheque($invoice, $order)
     {
         $token = $this->getToken();
+        $type  = 'invoice_';
 
         if (!$token) {
             return false;
@@ -31,7 +32,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSell . '?tokenid=' . $token;
         Mage::helper('kkm')->addLog('sendCheque url: ' . $url);
 
-        $jsonPost = $this->_generateJsonPost($invoice, $order);
+        $jsonPost = $this->_generateJsonPost($type, $invoice, $order);
         Mage::helper('kkm')->addLog('sendCheque jsonPost: ' . $jsonPost);
 
         $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
@@ -42,7 +43,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $statusModel = Mage::getModel('kkm/status');
             $statusModel->setVendor(self::_code);
             $statusModel->setUuid($request->uuid);
-            $statusModel->setExternalId('invoice_' . $invoice->getIncrementId());
+            $statusModel->setExternalId($type . $invoice->getIncrementId());
             $statusModel->setOperation(self::_operationSell);
             $statusModel->setStatus($getRequest)->save();
         }
@@ -56,6 +57,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     public function cancelCheque($creditmemo, $order)
     {
         $token = $this->getToken();
+        $type  = 'creditmemo_';
 
         if (!$token) {
             return false;
@@ -64,7 +66,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSellRefund . '?tokenid=' . $token;
         Mage::helper('kkm')->addLog('cancelCheque url: ' . $url);
 
-        $jsonPost = $this->_generateJsonPost($creditmemo, $order);
+        $jsonPost = $this->_generateJsonPost($type, $creditmemo, $order);
         Mage::helper('kkm')->addLog('cancelCheque jsonPost: ' . $jsonPost);
 
         $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
@@ -75,7 +77,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $statusModel = Mage::getModel('kkm/status');
             $statusModel->setVendor(self::_code);
             $statusModel->setUuid($request->uuid);
-            $statusModel->setExternalId('creditmemo_' . $creditmemo->getIncrementId());
+            $statusModel->setExternalId($type . $creditmemo->getIncrementId());
             $statusModel->setOperation(self::_operationSellRefund);
             $statusModel->setStatus($getRequest)->save();
         }
@@ -138,15 +140,16 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
     /**
      * 
+     * @param type $type || string
      * @param type $receipt
      * @param type $order
-     * @return json
+     * @return type json
      */
-    protected function _generateJsonPost($receipt, $order)
+    protected function _generateJsonPost($type, $receipt, $order)
     {
         $post = [];
 
-        $post['external_id'] = $receipt->getIncrementId();
+        $post['external_id'] = $type . $receipt->getIncrementId();
 
         $post['service'] = [
             'payment_address' => $this->getConfig('general/payment_address'),
@@ -173,24 +176,10 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'type' => 1
         ];
 
+        $sumWithCartRuleDiscount = $receipt->getSubtotal() + $receipt->getDiscountAmount();
+        $sumWithAllDiscount      = $receipt->getGrandTotal() - $receipt->getShippingAmount();
+
         $items = $receipt->getAllItems();
-
-        $otherDiscountSum = 0;
-
-        if ($receipt->getRewardPointsBalance()) {
-            $otherDiscountSum += $receipt->getRewardPointsBalance(); // reward_points
-        }
-
-        if ($receipt->getGiftCardsAmount()) {
-            $otherDiscountSum += $receipt->getGiftCardsAmount(); // gift_card
-        }
-
-        if ($receipt->getCustomerBalanceAmount()) {
-            $otherDiscountSum += $receipt->getCustomerBalanceAmount(); // store_credit
-        }
-
-        $sumBeforeOtherDiscount = $receipt->getSubtotal() + $receipt->getDiscountAmount();
-        $sumAfterAllDiscount    = $sumBeforeOtherDiscount - $otherDiscountSum;
 
         /**
          * получаем 
@@ -212,8 +201,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             $itemSum = $item->getRowTotal();
 
-            $procentDiscountValue = ($itemSum - $item->getDiscountAmount()) / $sumBeforeOtherDiscount;
-            $itemAfterDiscount    = $sumAfterAllDiscount * $procentDiscountValue;
+            $procentDiscountValue = ($itemSum - $item->getDiscountAmount()) / $sumWithCartRuleDiscount;
+            $itemAfterDiscount    = $sumWithAllDiscount * $procentDiscountValue;
 
             $orderItem['price']         = round($item->getPrice(), 2);
             $orderItem['name']          = $item->getName();
