@@ -213,7 +213,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $itemsSum                   += $orderItem['sum'];
         }
 
-        $itemsSumDiff = round(($receiptTotal - $receipt->getShippingAmount()) - $itemsSum, 2);
+        $itemsSumDiff = round($sumWithAllDiscount - $itemsSum, 2);
 
         /* change sum in first item */
         $firstItem                   = $post['receipt']['items'][0];
