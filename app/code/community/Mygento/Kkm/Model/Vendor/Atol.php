@@ -38,7 +38,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         if ($getRequest) {
             Mage::helper('kkm')->addLog('sendCheque getRequest ' . $getRequest);
-            $request = json_decode($getRequest);
+            $request     = json_decode($getRequest);
             $statusModel = Mage::getModel('kkm/status');
             $statusModel->setVendor(self::_code);
             $statusModel->setUuid($request->uuid);
@@ -71,7 +71,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         if ($getRequest) {
             Mage::helper('kkm')->addLog('cancelCheque getRequest ' . $getRequest);
-            $request = json_decode($getRequest);
+            $request     = json_decode($getRequest);
             $statusModel = Mage::getModel('kkm/status');
             $statusModel->setVendor(self::_code);
             $statusModel->setUuid($request->uuid);
@@ -157,22 +157,45 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $now_time          = Mage::getModel('core/date')->timestamp(time());
         $post['timestamp'] = date('d-m-Y H:i:s', $now_time);
 
+        $receiptTotal = Mage::helper('kkm')->calcSum($receipt);
+
         $post['receipt'] = [
             'attributes' => [
                 'sno'   => $this->getConfig('general/sno'),
                 'phone' => $order->getShippingAddress()->getTelephone(),
                 'email' => $order->getCustomerEmail(),
             ],
-            'total'      => Mage::helper('kkm')->calcSum($receipt)
+            'total'      => $receiptTotal
         ];
 
         $post['receipt']['payments'][] = [
-            'sum'  => Mage::helper('kkm')->calcSum($receipt),
+            'sum'  => $receiptTotal,
             'type' => 1
         ];
 
         $items = $receipt->getAllItems();
 
+        $otherDiscountSum = 0;
+
+        if ($receipt->getRewardPointsBalance()) {
+            $otherDiscountSum += $receipt->getRewardPointsBalance(); // reward_points
+        }
+
+        if ($receipt->getGiftCardsAmount()) {
+            $otherDiscountSum += $receipt->getGiftCardsAmount(); // gift_card
+        }
+
+        if ($receipt->getCustomerBalanceAmount()) {
+            $otherDiscountSum += $receipt->getCustomerBalanceAmount(); // store_credit
+        }
+
+        $sumBeforeOtherDiscount = $receipt->getSubtotal() + $receipt->getDiscountAmount();
+        $sumAfterAllDiscount    = $sumBeforeOtherDiscount - $otherDiscountSum;
+
+        /**
+         * получаем 
+         */
+        $itemsSum = 0;
         foreach ($items as $item) {
             if (!$item->getRowTotal()) {
                 continue;
@@ -189,17 +212,24 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             $itemSum = $item->getRowTotal();
 
-            if ($item->getDiscountAmount()) {
-                $itemSum = $itemSum - $item->getDiscountAmount();
-            }
+            $procentDiscountValue = ($itemSum - $item->getDiscountAmount()) / $sumBeforeOtherDiscount;
+            $itemAfterDiscount    = $sumAfterAllDiscount * $procentDiscountValue;
 
             $orderItem['price']         = round($item->getPrice(), 2);
             $orderItem['name']          = $item->getName();
             $orderItem['quantity']      = round($item->getQty(), 2);
-            $orderItem['sum']           = round($itemSum, 2);
+            $orderItem['sum']           = round($itemAfterDiscount, 2);
             $orderItem['tax']           = $tax_value;
             $post['receipt']['items'][] = $orderItem;
+            $itemsSum                   += $orderItem['sum'];
         }
+
+        $itemsSumDiff = round(($receiptTotal - $receipt->getShippingAmount()) - $itemsSum, 2);
+
+        /* change sum in first item */
+        $firstItem                   = $post['receipt']['items'][0];
+        $firstItem['sum']            = $firstItem['sum'] + $itemsSumDiff;
+        $post['receipt']['items'][0] = $firstItem;
 
         $shippingItem               = [];
         $shippingItem['name']       = $this->getConfig('general/default_shipping_name') ? $order->getShippingDescription() : $this->getConfig('general/custom_shipping_name');
