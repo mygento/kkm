@@ -5,7 +5,7 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (http://www.mygento.ru)
+ * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 {
@@ -128,12 +128,10 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         if (!$token->getId()) {
             $tokenModel->setVendor(self::_code);
-            $tokenModel->setToken($tokenValue);
-            $tokenModel->setExpireDate(time() + (24 * 60 * 60))->save();
-        } else {
-            $token->setToken($tokenValue);
-            $token->setExpireDate(time() + (24 * 60 * 60))->save();
         }
+        $token->setToken($tokenValue);
+        $token->setExpireDate(time() + (24 * 60 * 60));
+        $token->save();
 
         return $tokenValue;
     }
@@ -147,18 +145,17 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      */
     protected function _generateJsonPost($type, $receipt, $order)
     {
-        $post = [];
-
-        $post['external_id'] = $type . $receipt->getIncrementId();
-
-        $post['service'] = [
-            'payment_address' => $this->getConfig('general/payment_address'),
-            'callback_url'    => Mage::getUrl('kkm/index/callback'),
-            'inn'             => $this->getConfig('general/inn')
+        $now_time = Mage::getModel('core/date')->timestamp(time());
+        $post = [
+            'external_id' => $type . $receipt->getIncrementId(),
+            'service' => [
+                'payment_address' => $this->getConfig('general/payment_address'),
+                'callback_url'    => Mage::getUrl('kkm/index/callback'),
+                'inn'             => $this->getConfig('general/inn')
+            ],
+            'timestamp' => date('d-m-Y H:i:s', $now_time),
+            'receipt' => [],
         ];
-
-        $now_time          = Mage::getModel('core/date')->timestamp(time());
-        $post['timestamp'] = date('d-m-Y H:i:s', $now_time);
 
         $receiptTotal = Mage::helper('kkm')->calcSum($receipt);
 
@@ -168,7 +165,9 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
                 'phone' => $order->getShippingAddress()->getTelephone(),
                 'email' => $order->getCustomerEmail(),
             ],
-            'total'      => $receiptTotal
+            'total'    => $receiptTotal,
+            'payments' => [],
+            'items' => [],
         ];
 
         $post['receipt']['payments'][] = [
@@ -181,16 +180,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $items = $receipt->getAllItems();
 
-        /**
-         * получаем 
-         */
         $itemsSum = 0;
         foreach ($items as $item) {
             if (!$item->getRowTotal()) {
                 continue;
             }
-            $orderItem = [];
-
+            
             $tax_value = $this->getConfig('general/tax_options');
 
             if (!$this->getConfig('general/tax_all')) {
@@ -204,28 +199,34 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $procentDiscountValue = ($itemSum - $item->getDiscountAmount()) / $sumWithCartRuleDiscount;
             $itemAfterDiscount    = $sumWithAllDiscount * $procentDiscountValue;
 
-            $orderItem['price']         = round($item->getPrice(), 2);
-            $orderItem['name']          = $item->getName();
-            $orderItem['quantity']      = round($item->getQty(), 2);
-            $orderItem['sum']           = round($itemAfterDiscount, 2);
-            $orderItem['tax']           = $tax_value;
+            $orderItem = [
+                'price' => round($item->getPrice(), 2),
+                'name' => $item->getName(),
+                'quantity' => round($item->getQty(), 2),
+                'sum' => round($itemAfterDiscount, 2),
+                'tax' => $tax_value,
+            ];
+        
             $post['receipt']['items'][] = $orderItem;
-            $itemsSum                   += $orderItem['sum'];
+            $itemsSum += $orderItem['sum'];
         }
 
         $itemsSumDiff = round($sumWithAllDiscount - $itemsSum, 2);
+        if($itemsSumDiff !== 0) {
+            /* change sum in last item */
+            $lastItem                    = array_pop($post['receipt']['items']);
+            $lastItem['sum']             = $lastItem['sum'] + $itemsSumDiff;
+            $post['receipt']['items'][]  = $lastItem;
+        }
 
-        /* change sum in first item */
-        $firstItem                   = $post['receipt']['items'][0];
-        $firstItem['sum']            = $firstItem['sum'] + $itemsSumDiff;
-        $post['receipt']['items'][0] = $firstItem;
-
-        $shippingItem               = [];
-        $shippingItem['name']       = $this->getConfig('general/default_shipping_name') ? $order->getShippingDescription() : $this->getConfig('general/custom_shipping_name');
-        $shippingItem['price']      = round($receipt->getShippingAmount(), 2);
-        $shippingItem['quantity']   = 1.0;
-        $shippingItem['sum']        = round($receipt->getShippingAmount(), 2);
-        $shippingItem['tax']        = $this->getConfig('general/shipping_tax');
+        $shippingItem = [
+            'name' => $this->getConfig('general/default_shipping_name') ? $order->getShippingDescription() : $this->getConfig('general/custom_shipping_name'),
+            'price' => round($receipt->getShippingAmount(), 2),
+            'quantity' => 1.0,
+            'sum' => round($receipt->getShippingAmount(), 2),
+            'tax' =>  $this->getConfig('general/shipping_tax'),
+        ];
+       
         $post['receipt']['items'][] = $shippingItem;
 
         return json_encode($post);

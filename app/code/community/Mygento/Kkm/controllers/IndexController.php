@@ -1,10 +1,19 @@
 <?php
 
+/**
+ *
+ *
+ * @category Mygento
+ * @package Mygento_Kkm
+ * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
+ */
 class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
 {
     public function callbackAction()
     {
-        $json = file_get_contents("php://input");
+        // @codingStandardsIgnoreStart
+        $json = file_get_contents('php://input');
+        // @codingStandardsIgnoreEnd
 
         if ($json) {
             $jsonDecode = json_decode($json);
@@ -19,5 +28,4 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
             $statusModel->setStatus($json)->save();
         }
     }
-
 }

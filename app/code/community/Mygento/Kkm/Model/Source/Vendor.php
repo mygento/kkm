@@ -5,7 +5,7 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (http://www.mygento.ru)
+ * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Model_Source_Vendor
 {
@@ -19,12 +19,12 @@ class Mygento_Kkm_Model_Source_Vendor
     {
         return [
             [
-                'value' => "0",
+                'value' => '0',
                 'label' => Mage::helper('adminhtml')->__('-- Please select --')
             ],
             [
-                'value' => "atol",
-                'label' => Mage::helper('adminhtml')->__('Atol')
+                'value' => 'atol',
+                'label' => Mage::helper('kkm')->__('Atol')
             ]
         ];
     }

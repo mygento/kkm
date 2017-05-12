@@ -5,21 +5,27 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (http://www.mygento.ru)
+ * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Model_Observer
 {
+
+    protected function getVendorModel()
+    {
+        return Mage::getModel('kkm/vendor_' . Mage::helper('kkm')->getConfig('general/vendor'));
+    }
     /**
      *
      * @param type $observer
      */
     public function sendCheque($observer)
     {
-        Mage::helper('kkm')->addLog('sendCheque');
-        if (!Mage::helper('kkm')->getConfig('general/enabled') && !Mage::helper('kkm')->getConfig('general/auto_send_after_invoice')) {
+        $helper = Mage::helper('kkm');
+        $helper->addLog('sendCheque');
+        if (!$helper->getConfig('general/enabled') && !$helper->getConfig('general/auto_send_after_invoice')) {
             return;
         }
-        $paymentMethods = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
+        $paymentMethods = explode(',', $helper->getConfig('general/payment_methods'));
 
         $invoice         = $observer->getEvent()->getInvoice();
         $order           = $invoice->getOrder();
@@ -27,7 +33,7 @@ class Mygento_Kkm_Model_Observer
         $invoiceOrigData = $invoice->getOrigData();
 
         if (!in_array($paymentMethod, $paymentMethods)) {
-            Mage::helper('kkm')->addLog('paymentMethod: ' . $paymentMethod);
+            $helper->addLog('paymentMethod: ' . $paymentMethod);
             return;
         }
 
@@ -35,8 +41,7 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $sendCheque = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')
-                    ->getConfig('general/vendor'))->sendCheque($invoice, $order);
+        $this->getVendorModel()->sendCheque($invoice, $order);
     }
 
     /**
@@ -45,8 +50,9 @@ class Mygento_Kkm_Model_Observer
      */
     public function cancelCheque($observer)
     {
-        Mage::helper('kkm')->addLog('cancelCheque');
-        if (!Mage::helper('kkm')->getConfig('general/enabled') && !Mage::helper('kkm')->getConfig('general/auto_send_after_cancel')) {
+        $helper = Mage::helper('kkm');
+        $helper->addLog('cancelCheque');
+        if (!$helper->getConfig('general/enabled') && !$helper->getConfig('general/auto_send_after_cancel')) {
             return;
         }
 
@@ -54,18 +60,16 @@ class Mygento_Kkm_Model_Observer
         $order              = $creditmemo->getOrder();
         $paymentMethod      = $order->getPayment()->getMethod();
         $creditmemoOrigData = $creditmemo->getOrigData();
-        $paymentMethods     = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
+        $paymentMethods     = explode(',', $helper->getConfig('general/payment_methods'));
 
         if (!in_array($paymentMethod, $paymentMethods)) {
-            Mage::helper('kkm')->addLog('paymentMethod: ' . $paymentMethod);
+            $helper->addLog('paymentMethod: ' . $paymentMethod);
             return;
         }
         if ($creditmemo->getOrigData() && isset($creditmemoOrigData['increment_id'])) {
             return;
         }
 
-        $cancelCheque = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')
-                    ->getConfig('general/vendor'))->cancelCheque($creditmemo, $order);
+        $this->getVendorModel()->cancelCheque($creditmemo, $order);
     }
-
 }

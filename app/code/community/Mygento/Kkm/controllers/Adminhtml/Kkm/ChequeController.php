@@ -5,14 +5,14 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright © 2017 NKS LLC. (http://www.mygento.ru)
+ * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controller_Action
 {
 
     protected function _initAction()
     {
-        $this->loadLayout()->_setActiveMenu('kkm/cheque')->_addBreadcrumb(Mage::helper('adminhtml')->__('Cheque Manager'), Mage::helper('adminhtml')->__('Cheque Manager'));
+        $this->loadLayout()->_setActiveMenu('kkm/cheque')->_addBreadcrumb(Mage::helper('kkm')->__('Cheque Manager'), Mage::helper('kkm')->__('Cheque Manager'));
         return $this;
     }
 
@@ -38,7 +38,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             Mage::register('cheque_data', $model);
             $this->loadLayout();
             $this->_setActiveMenu('kkm/cheque');
-            $this->_addBreadcrumb(Mage::helper('adminhtml')->__('Cheque Manager'), Mage::helper('adminhtml')->__('Cheque Manager'));
+            $this->_addBreadcrumb(Mage::helper('kkm')->__('Cheque Manager'), Mage::helper('kkm')->__('Cheque Manager'));
             $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
             $this->_addContent($this->getLayout()->createBlock('kkm/adminhtml_cheque_edit'))->_addLeft($this->getLayout()->createBlock('kkm/adminhtml_cheque_edit_tabs'));
             $this->renderLayout();
@@ -77,5 +77,10 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         }
         Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Unable to find cheque  to save'));
         $this->_redirect('*/*/');
+    }
+
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('system/config/kkm');
     }
 }
