@@ -37,8 +37,12 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     {
         $generalHelper = Mage::helper($this->_code);
 
+        $generalHelper->addLog("== START == Recalculation of entity prices. Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
+
         $sumWithCartRuleDiscount = $entity->getSubtotal() + $entity->getDiscountAmount();
         $sumWithAllDiscount      = $entity->getGrandTotal() - $entity->getShippingAmount();
+
+        $generalHelper->addLog("subtotal + discountAmount = {$sumWithCartRuleDiscount}; grandTotal - shippingAmount = {$sumWithAllDiscount}");
 
         $items = $entity->getAllItems();
 
@@ -62,6 +66,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
             $entityItem = $this->_calculateItem($item, $itemAfterDiscount, $taxValue);
 
+            $generalHelper->addLog("Item calculation details:");
+            $generalHelper->addLog("Item id: {$item->getId()}. Percentage: $percentDiscountValue. Item after discount: {$itemAfterDiscount}. Result of calc:");
+            $generalHelper->addLog($entityItem);
+
             $itemsFinal[$item->getSku()] = $entityItem;
             $itemsSum += $entityItem['sum'];
         }
@@ -69,7 +77,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $itemsSumDiff = round($sumWithAllDiscount - $itemsSum, 2);
         //if $itemsSumDiff > 0
         if(bccomp($itemsSumDiff, 0.00, 2) > 0) {
-            $generalHelper->addLog("Sum of items do not equal to entity (order/invoice/creditmemo) Sum! Original sum of entity With All Discount: {$sumWithAllDiscount} Diff value: {$itemsSumDiff}. Items after calculations:");
+            $generalHelper->addLog("Sum of items do not equal to entity (order/invoice/creditmemo) um! Original sum of entity With All Discount: {$sumWithAllDiscount} Diff value: {$itemsSumDiff}. Items after calculations:");
             $generalHelper->addLog($itemsFinal);
         } elseif(bccomp($itemsSumDiff, 0.00, 2) < 0) {
             //else: $itemsSumDiff < 0
@@ -80,7 +88,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $receipt = [
             'sum'            => $itemsSum,
             'origSum'        => $sumWithAllDiscount,
-            'origGrandTotal' => $entity->getGrandTotal()
+            'origGrandTotal' => floatval($entity->getGrandTotal())
         ];
 
         if (!$entity->getShippingMethod()) {
@@ -97,6 +105,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $itemsFinal['shipping'] = $shippingItem;
         $receipt['items']       = $itemsFinal;
+
+        if (!$this->_checkReceipt($receipt)){
+            $generalHelper->addLog("WARNING: Calculation error! Sum of items is not equal to grandTotal!");
+        }
+        $generalHelper->addLog("Final result of recalculation:");
+        $generalHelper->addLog($receipt);
+        $generalHelper->addLog("== STOP == Recalculation of entity prices. ");
 
         return $receipt;
     }
@@ -121,6 +136,20 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $entityItem;
     }
 
+    /**Validation method. It sums up all items and compares it to grandTotal.
+     * @param array $receipt
+     * @return bool True if all items price equal to grandTotal. False - if not.
+     */
+    protected function _checkReceipt(array $receipt)
+    {
+        $sum = array_reduce($receipt['items'], function($carry, $item) {
+            $carry += $item['sum'];
+            return $carry;
+        });
+
+        return bcsub($sum, $receipt['origGrandTotal'], 2) === '0.00';
+    }
+
     public function slyFloor($val, $precision = 2)
     {
         $factor  = 1.00;
@@ -132,5 +161,4 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         return (floor(abs($val) * $divider) / $divider) * $factor;
     }
-
 }
