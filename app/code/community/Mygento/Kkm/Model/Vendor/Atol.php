@@ -145,6 +145,21 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      */
     protected function _generateJsonPost($type, $receipt, $order)
     {
+        $discountHelper = Mage::helper('kkm/discount');
+
+        $shipping_tax   = $this->getConfig('general/shipping_tax');
+        $tax_value      = $this->getConfig('general/tax_options');
+        $attribute_code = '';
+        if (!$this->getConfig('general/tax_all')) {
+            $attribute_code = $this->getConfig('general/product_tax_attr');
+        }
+
+        if (!$this->getConfig('general/default_shipping_name')) {
+            $receipt->getOrder()->setShippingDescription($this->getConfig('general/custom_shipping_name'));
+        }
+
+        $recalculatedReceiptData = $discountHelper->getRecalculated($receipt, $tax_value, $attribute_code, $shipping_tax);
+
         $now_time = Mage::getModel('core/date')->timestamp(time());
         $post = [
             'external_id' => $type . $receipt->getIncrementId(),
@@ -157,7 +172,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'receipt' => [],
         ];
 
-        $receiptTotal = Mage::helper('kkm')->calcSum($receipt);
+        $receiptTotal = round($receipt->getGrandTotal(), 2);
 
         $post['receipt'] = [
             'attributes' => [
@@ -175,59 +190,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'type' => 1
         ];
 
-        $sumWithCartRuleDiscount = $receipt->getSubtotal() + $receipt->getDiscountAmount();
-        $sumWithAllDiscount      = $receipt->getGrandTotal() - $receipt->getShippingAmount();
-
-        $items = $receipt->getAllItems();
-
-        $itemsSum = 0;
-        foreach ($items as $item) {
-            if (!$item->getRowTotal()) {
-                continue;
-            }
-            
-            $tax_value = $this->getConfig('general/tax_options');
-
-            if (!$this->getConfig('general/tax_all')) {
-                $attribute_code = $this->getConfig('general/product_tax_attr');
-                $tax_value      = Mage::getResourceModel('catalog/product')->getAttributeRawValue($item->getProductId(),
-                    $attribute_code, $order->getStore());
-            }
-
-            $itemSum = $item->getRowTotal();
-
-            $procentDiscountValue = ($itemSum - $item->getDiscountAmount()) / $sumWithCartRuleDiscount;
-            $itemAfterDiscount    = $sumWithAllDiscount * $procentDiscountValue;
-
-            $orderItem = [
-                'price' => round($item->getPrice(), 2),
-                'name' => $item->getName(),
-                'quantity' => round($item->getQty(), 2),
-                'sum' => round($itemAfterDiscount, 2),
-                'tax' => $tax_value,
-            ];
-        
-            $post['receipt']['items'][] = $orderItem;
-            $itemsSum += $orderItem['sum'];
-        }
-
-        $itemsSumDiff = round($sumWithAllDiscount - $itemsSum, 2);
-        if($itemsSumDiff !== 0) {
-            /* change sum in last item */
-            $lastItem                    = array_pop($post['receipt']['items']);
-            $lastItem['sum']             = $lastItem['sum'] + $itemsSumDiff;
-            $post['receipt']['items'][]  = $lastItem;
-        }
-
-        $shippingItem = [
-            'name' => $this->getConfig('general/default_shipping_name') ? $order->getShippingDescription() : $this->getConfig('general/custom_shipping_name'),
-            'price' => round($receipt->getShippingAmount(), 2),
-            'quantity' => 1.0,
-            'sum' => round($receipt->getShippingAmount(), 2),
-            'tax' =>  $this->getConfig('general/shipping_tax'),
-        ];
-       
-        $post['receipt']['items'][] = $shippingItem;
+        $post['receipt']['items'] = $recalculatedReceiptData['items'];
 
         return json_encode($post);
     }
