@@ -50,8 +50,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $items      = $entity->getAllVisibleItems() ? $entity->getAllVisibleItems() : $entity->getAllItems();
         $itemsFinal = [];
         $itemsSum   = 0.00;
-        foreach($items as $item) {
-            if (!$item->getRowTotal() || $item->getRowTotal() === '0.0000') {
+        foreach ($items as $item) {
+            if (!$this->isValidItem($item)) {
                 continue;
             }
 
@@ -59,33 +59,25 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                 $storeId  = $entity->getStoreId();
                 $store    = $storeId ? Mage::app()->getStore($storeId) : Mage::app()->getStore();
 
-                $taxValue = Mage::getResourceModel('catalog/product')->getAttributeRawValue($item->getProductId(),
-                    $taxAttributeCode, $store);
+                $taxValue = Mage::getResourceModel('catalog/product')->getAttributeRawValue(
+                    $item->getProductId(),
+                    $taxAttributeCode,
+                    $store
+                );
             }
 
             $price    = $item->getData('price');
-            $qty      = $item->getQty() ?: $item->getQtyOrdered();;
+            $qty      = $item->getQty() ?: $item->getQtyOrdered();
             $rowTotal = $item->getData('row_total');
 
             //Calculate Percentage. The heart of logic.
             $rowPercentage =  $rowTotal / $subTotal;
+            $percentageSum += $rowPercentage;
 
             $discountPerUnit = $rowPercentage * $grandDiscount / $qty;
             $priceWithDiscount = $this->slyFloor($price + $discountPerUnit);
 
-            $entityItem = [
-                'price' => round($priceWithDiscount, 2),
-                'name' => $item->getName(),
-                'quantity' => round($qty, 2),
-                'sum' => round($priceWithDiscount * $qty, 2),
-                'tax' => $taxValue,
-            ];
-
-            $percentageSum += $rowPercentage;
-
-            $generalHelper->addLog("Item calculation details:");
-            $generalHelper->addLog("Item id: {$item->getId()}. Orig price: {$price} Item rowTotal: {$item->getRowTotal()} Percentage: $rowPercentage. Price of 1 piece: {$priceWithDiscount}. Result of calc:");
-            $generalHelper->addLog($entityItem);
+            $entityItem = $this->_buildItem($item, $priceWithDiscount, $taxValue);
 
             $itemsFinal[$item->getSku()] = $entityItem;
             $itemsSum += $entityItem['sum'];
@@ -97,7 +89,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $itemsSumDiff = $grandTotal - $itemsSum - $shippingAmount;
 
         $generalHelper->addLog("Items sum: {$itemsSum}. Original sum of entity With All Discount: {$sumWithAllDiscount} Diff value: {$itemsSumDiff}");
-        if(bccomp($itemsSumDiff, 0.00, 2) < 0) {
+        if (bccomp($itemsSumDiff, 0.00, 2) < 0) {
             //if: $itemsSumDiff < 0
             $generalHelper->addLog("Notice: Sum of all items is greater than sumWithAllDiscount of entity. ItemsSumDiff: {$itemsSumDiff}");
             $itemsSumDiff = 0.0;
@@ -120,7 +112,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $itemsFinal['shipping'] = $shippingItem;
         $receipt['items']       = $itemsFinal;
 
-        if (!$this->_checkReceipt($receipt)){
+        if (!$this->_checkReceipt($receipt)) {
             $generalHelper->addLog("WARNING: Calculation error! Sum of items is not equal to grandTotal!");
         }
         $generalHelper->addLog("Final result of recalculation:");
@@ -130,18 +122,47 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $receipt;
     }
 
+    protected function _buildItem($item, $price, $taxValue = '')
+    {
+        $generalHelper = Mage::helper($this->_code);
+
+        $qty = $item->getQty() ?: $item->getQtyOrdered();
+        if (!$qty){
+            throw new Exception('Divide by zero. Qty of the item is equal to zero! Item: ' . $item->getId());
+        }
+
+        $entityItem = [
+            'price' => round($price, 2),
+            'name' => $item->getName(),
+            'quantity' => round($qty, 2),
+            'sum' => round($price * $qty, 2),
+            'tax' => $taxValue,
+        ];
+
+        $generalHelper->addLog("Item calculation details:");
+        $generalHelper->addLog("Item id: {$item->getId()}. Orig price: {$price} Item rowTotal: {$item->getRowTotal()} Price of 1 piece: {$price}. Result of calc:");
+        $generalHelper->addLog($entityItem);
+
+        return $entityItem;
+    }
+
     /**Validation method. It sums up all items and compares it to grandTotal.
      * @param array $receipt
      * @return bool True if all items price equal to grandTotal. False - if not.
      */
     protected function _checkReceipt(array $receipt)
     {
-        $sum = array_reduce($receipt['items'], function($carry, $item) {
+        $sum = array_reduce($receipt['items'], function ($carry, $item) {
             $carry += $item['sum'];
             return $carry;
         });
 
         return bcsub($sum, $receipt['origGrandTotal'], 2) === '0.00';
+    }
+
+    public function isValidItem($item)
+    {
+        return $item->getRowTotal() && $item->getRowTotal() !== '0.0000';
     }
 
     public function slyFloor($val, $precision = 2)
