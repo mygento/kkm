@@ -127,7 +127,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $generalHelper = Mage::helper($this->_code);
 
         $qty = $item->getQty() ?: $item->getQtyOrdered();
-        if (!$qty){
+        if (!$qty) {
             throw new Exception('Divide by zero. Qty of the item is equal to zero! Item: ' . $item->getId());
         }
 
