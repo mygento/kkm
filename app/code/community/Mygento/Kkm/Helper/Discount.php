@@ -36,20 +36,19 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function getRecalculated($entity, $taxValue = '', $taxAttributeCode = '', $shippingTaxValue = '')
     {
         $generalHelper = Mage::helper($this->_code);
-
         $generalHelper->addLog("== START == Recalculation of entity prices. Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
 
-        $sumWithCartRuleDiscount = $entity->getSubtotal() + $entity->getDiscountAmount();
-        $sumWithAllDiscount      = $entity->getGrandTotal() - $entity->getShippingAmount();
+        $subtotal           = $entity->getSubtotal();
+        $sumWithAllDiscount = $entity->getGrandTotal() - $entity->getShippingAmount();
 
-        $generalHelper->addLog("subtotal + discountAmount = {$sumWithCartRuleDiscount}; grandTotal - shippingAmount = {$sumWithAllDiscount}");
+        $generalHelper->addLog("subtotal = {$subtotal}; grandTotal - shippingAmount = {$sumWithAllDiscount}");
 
-        $items = $entity->getAllItems();
+        $items = $entity->getAllVisibleItems() ? $entity->getAllVisibleItems() : $entity->getAllItems();
 
         $itemsFinal = [];
-        $itemsSum = 0.00;
+        $itemsSum   = 0.00;
         foreach ($items as $item) {
-            if (!$item->getRowTotal()) {
+            if (!$item->getRowTotal() || $item->getRowTotal() === '0.0000') {
                 continue;
             }
 
@@ -61,13 +60,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                     $taxAttributeCode, $store);
             }
 
-            $percentDiscountValue = ($item->getRowTotal() - $item->getDiscountAmount()) / $sumWithCartRuleDiscount;
+            $percentDiscountValue = $item->getRowTotal() / $subtotal;
             $itemAfterDiscount    = $sumWithAllDiscount * $percentDiscountValue;
 
             $entityItem = $this->_calculateItem($item, $itemAfterDiscount, $taxValue);
 
             $generalHelper->addLog("Item calculation details:");
-            $generalHelper->addLog("Item id: {$item->getId()}. Percentage: $percentDiscountValue. Item after discount: {$itemAfterDiscount}. Result of calc:");
+            $generalHelper->addLog("Item id: {$item->getId()}. Item rowTotal: {$item->getRowTotal()} Percentage: $percentDiscountValue. Item after discount: {$itemAfterDiscount}. Result of calc:");
             $generalHelper->addLog($entityItem);
 
             $itemsFinal[$item->getSku()] = $entityItem;
@@ -77,7 +76,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $itemsSumDiff = round($sumWithAllDiscount - $itemsSum, 2);
         //if $itemsSumDiff > 0
         if(bccomp($itemsSumDiff, 0.00, 2) > 0) {
-            $generalHelper->addLog("Sum of items do not equal to entity (order/invoice/creditmemo) um! Original sum of entity With All Discount: {$sumWithAllDiscount} Diff value: {$itemsSumDiff}. Items after calculations:");
+            $generalHelper->addLog("Sum of items do not equal to entity (order/invoice/creditmemo) sum! Items sum: {$itemsSum}. Original sum of entity With All Discount: {$sumWithAllDiscount} Diff value: {$itemsSumDiff}. Items after calculations:");
             $generalHelper->addLog($itemsFinal);
         } elseif(bccomp($itemsSumDiff, 0.00, 2) < 0) {
             //else: $itemsSumDiff < 0

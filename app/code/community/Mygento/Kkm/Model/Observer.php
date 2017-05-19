@@ -22,15 +22,17 @@ class Mygento_Kkm_Model_Observer
     {
         $helper = Mage::helper('kkm');
         $helper->addLog('sendCheque');
-        if (!$helper->getConfig('general/enabled') && !$helper->getConfig('general/auto_send_after_invoice')) {
-            return;
-        }
-        $paymentMethods = explode(',', $helper->getConfig('general/payment_methods'));
 
         $invoice         = $observer->getEvent()->getInvoice();
+
+        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice') || $invoice->getOrderCurrencyCode() != 'RUB') {
+            return;
+        }
+
         $order           = $invoice->getOrder();
         $paymentMethod   = $order->getPayment()->getMethod();
         $invoiceOrigData = $invoice->getOrigData();
+        $paymentMethods  = explode(',', $helper->getConfig('general/payment_methods'));
 
         if (!in_array($paymentMethod, $paymentMethods)) {
             $helper->addLog('paymentMethod: ' . $paymentMethod);
