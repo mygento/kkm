@@ -159,6 +159,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         }
 
         $recalculatedReceiptData = $discountHelper->getRecalculated($receipt, $tax_value, $attribute_code, $shipping_tax);
+        $recalculatedReceiptData['items'] = array_values($recalculatedReceiptData['items']);
 
         $now_time = Mage::getModel('core/date')->timestamp(time());
         $post = [

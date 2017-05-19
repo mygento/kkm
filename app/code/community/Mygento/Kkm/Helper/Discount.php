@@ -74,10 +74,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $priceWithDiscount = $this->slyFloor($price + $discountPerUnit);
 
             $entityItem = [
-                'price' => $priceWithDiscount,
+                'price' => round($priceWithDiscount, 2),
                 'name' => $item->getName(),
-                'quantity' => $qty,
-                'sum' => $priceWithDiscount * $qty,
+                'quantity' => round($qty, 2),
+                'sum' => round($priceWithDiscount * $qty, 2),
                 'tax' => $taxValue,
             ];
 

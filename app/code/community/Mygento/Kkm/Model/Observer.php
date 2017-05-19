@@ -54,11 +54,12 @@ class Mygento_Kkm_Model_Observer
     {
         $helper = Mage::helper('kkm');
         $helper->addLog('cancelCheque');
-        if (!$helper->getConfig('general/enabled') && !$helper->getConfig('general/auto_send_after_cancel')) {
+
+        $creditmemo = $observer->getEvent()->getCreditmemo();
+        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_cancel') || $creditmemo->getOrderCurrencyCode()) {
             return;
         }
 
-        $creditmemo         = $observer->getEvent()->getCreditmemo();
         $order              = $creditmemo->getOrder();
         $paymentMethod      = $order->getPayment()->getMethod();
         $creditmemoOrigData = $creditmemo->getOrigData();
