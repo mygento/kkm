@@ -86,7 +86,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $generalHelper->addLog("Sum of all percentages: {$percentageSum}");
 
         //Calculate DIFF!
-        $itemsSumDiff = $grandTotal - $itemsSum - $shippingAmount;
+        $itemsSumDiff = $this->slyFloor($grandTotal - $itemsSum - $shippingAmount);
 
         $generalHelper->addLog("Items sum: {$itemsSum}. Original sum of entity With All Discount: {$sumWithAllDiscount} Diff value: {$itemsSumDiff}");
         if (bccomp($itemsSumDiff, 0.00, 2) < 0) {

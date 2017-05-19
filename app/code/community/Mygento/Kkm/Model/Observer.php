@@ -26,6 +26,7 @@ class Mygento_Kkm_Model_Observer
         $invoice         = $observer->getEvent()->getInvoice();
 
         if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice') || $invoice->getOrderCurrencyCode() != 'RUB') {
+            $helper->addLog('Skipped send cheque.');
             return;
         }
 
@@ -35,7 +36,7 @@ class Mygento_Kkm_Model_Observer
         $paymentMethods  = explode(',', $helper->getConfig('general/payment_methods'));
 
         if (!in_array($paymentMethod, $paymentMethods)) {
-            $helper->addLog('paymentMethod: ' . $paymentMethod);
+            $helper->addLog('paymentMethod: ' . $paymentMethod . ' is not allowed for sending cheque.');
             return;
         }
 
@@ -56,7 +57,8 @@ class Mygento_Kkm_Model_Observer
         $helper->addLog('cancelCheque');
 
         $creditmemo = $observer->getEvent()->getCreditmemo();
-        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_cancel') || $creditmemo->getOrderCurrencyCode()) {
+        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_cancel') || $creditmemo->getOrderCurrencyCode() !== 'RUB') {
+            $helper->addLog('Skipped cancel cheque.');
             return;
         }
 
@@ -66,7 +68,7 @@ class Mygento_Kkm_Model_Observer
         $paymentMethods     = explode(',', $helper->getConfig('general/payment_methods'));
 
         if (!in_array($paymentMethod, $paymentMethods)) {
-            $helper->addLog('paymentMethod: ' . $paymentMethod);
+            $helper->addLog('paymentMethod: ' . $paymentMethod . ' is not allowed for cancelling cheque.');
             return;
         }
         if ($creditmemo->getOrigData() && isset($creditmemoOrigData['increment_id'])) {
