@@ -43,8 +43,6 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $grandTotal     = $entity->getData('grand_total');
         $grandDiscount  = $grandTotal-$subTotal-$shippingAmount;
 
-        $sumWithAllDiscount = $grandTotal - $shippingAmount;
-
         $percentageSum = 0;
 
         $items      = $entity->getAllVisibleItems() ? $entity->getAllVisibleItems() : $entity->getAllItems();
@@ -88,7 +86,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         //Calculate DIFF!
         $itemsSumDiff = $this->slyFloor($grandTotal - $itemsSum - $shippingAmount);
 
-        $generalHelper->addLog("Items sum: {$itemsSum}. Original sum of entity With All Discount: {$sumWithAllDiscount} Diff value: {$itemsSumDiff}");
+        $generalHelper->addLog("Items sum: {$itemsSum}. All Discounts: {$grandDiscount} Diff value: {$itemsSumDiff}");
         if (bccomp($itemsSumDiff, 0.00, 2) < 0) {
             //if: $itemsSumDiff < 0
             $generalHelper->addLog("Notice: Sum of all items is greater than sumWithAllDiscount of entity. ItemsSumDiff: {$itemsSumDiff}");
@@ -97,7 +95,6 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $receipt = [
             'sum'            => $itemsSum,
-            'origSum'        => $sumWithAllDiscount,
             'origGrandTotal' => floatval($grandTotal)
         ];
 
