@@ -99,7 +99,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         ];
 
         $shippingItem = [
-            'name'      => $entity->getOrder()->getShippingDescription(),
+            'name'      => $entity->getOrder() ? $entity->getOrder()->getShippingDescription() : $entity->getShippingDescription(),
             'price'     => $entity->getShippingAmount() + $itemsSumDiff,
             'quantity'  => 1.0,
             'sum'       => $entity->getShippingAmount() + $itemsSumDiff,
