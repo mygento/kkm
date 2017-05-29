@@ -98,8 +98,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             'origGrandTotal' => floatval($grandTotal)
         ];
 
+        $shippingName = $entity->getShippingDescription()
+            ?: ($entity->getOrder() ? $entity->getOrder()->getShippingDescription() : '');
+
         $shippingItem = [
-            'name'      => $entity->getOrder() ? $entity->getOrder()->getShippingDescription() : $entity->getShippingDescription(),
+            'name'      => $shippingName,
             'price'     => $entity->getShippingAmount() + $itemsSumDiff,
             'quantity'  => 1.0,
             'sum'       => $entity->getShippingAmount() + $itemsSumDiff,
