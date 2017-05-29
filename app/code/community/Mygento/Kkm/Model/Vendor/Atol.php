@@ -46,6 +46,9 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $statusModel->setExternalId($type . $invoice->getIncrementId());
             $statusModel->setOperation(self::_operationSell);
             $statusModel->setStatus($getRequest)->save();
+
+            //Save info about transaction
+            Mage::helper('kkm')->saveTransactionInfoToOrder($getRequest, $invoice, $order);
         }
     }
 
@@ -80,6 +83,9 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $statusModel->setExternalId($type . $creditmemo->getIncrementId());
             $statusModel->setOperation(self::_operationSellRefund);
             $statusModel->setStatus($getRequest)->save();
+
+            //Save info about transaction
+            Mage::helper('kkm')->saveTransactionInfoToOrder($getRequest, $creditmemo, $order);
         }
     }
 
@@ -195,5 +201,4 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         return json_encode($post);
     }
-
 }

@@ -26,6 +26,9 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
 
             $statusModel = Mage::getModel('kkm/status')->load($jsonDecode->uuid, 'uuid');
             $statusModel->setStatus($json)->save();
+
+            //Add comment to order about callback data
+            Mage::helper('kkm')->updateKkmInfoInOrder($json, $statusModel->getExternalId());
         }
     }
 }

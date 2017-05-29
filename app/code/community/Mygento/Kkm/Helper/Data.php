@@ -62,4 +62,95 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         }
         return round($receipt->getGrandTotal(), 2);
     }
+
+    /**
+     * @param $json
+     * @param $entityId string external_id from kkm/status table. Ex: 'invoice_100000023', 'creditmemo_1000002'
+     */
+    public function updateKkmInfoInOrder($json, $externalId, $vendor = 'atol')
+    {
+        $incrementId   = substr($externalId, strpos($externalId, '_') + 1);
+        $entityType    = substr($externalId, 0, strpos($externalId, '_'));
+        $getRequestObj = json_decode($json);
+
+        $entity = null;
+        if (strpos($entityType, 'invoice') !== false) {
+            $entity = Mage::getModel('sales/order_invoice')->load($incrementId, 'increment_id');
+        } elseif (strpos($entityType, 'creditme') !== false) {
+            $entity = Mage::getModel('sales/order_creditmemo')->load($incrementId, 'increment_id');
+        }
+
+        if (!$entity || empty($incrementId) || !is_numeric($incrementId) || !$entity->getId()) {
+            $this->addLog("Error. Can not save callback info to order. Method params: Json = {$json} 
+        Extrnal_id = {$externalId}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}");
+
+            return false;
+        }
+
+        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), 'Received callback message from KKM vendor.', $vendor);
+    }
+
+    /**Save info about transaction to order
+     * @param $getRequest string with json from vendor
+     * @param $entity Invoice|Creditmemo
+     * @param $order Order
+     * @return bool
+     */
+    public function saveTransactionInfoToOrder($getRequest, $entity, $order, $orderComment = '',  $vendorName = 'atol')
+    {
+        $status = false;
+
+        try {
+            $getRequestObj = json_decode($getRequest);
+
+            if (!is_object($getRequestObj) || !property_exists($getRequestObj, 'error')) {
+                $comment = '[' . strtoupper($vendorName) . '] '
+                    . $this->__($orderComment) . ' '
+                    . $this->__('Response from KKM vendor is empty or does not contain "error" field.') . ' '
+                    . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                    . $entity->getIncrementId()
+                ;
+
+            } elseif ($getRequestObj->error == null) {
+
+                $orderComment = $orderComment ?: 'Cheque has been sent to KKM vendor.';
+                $comment = '[' . strtoupper($vendorName) . '] '
+                            . $this->__($orderComment) . ' '
+                            . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                            . $entity->getIncrementId()
+                            . '. Status: '
+                            . ucwords($getRequestObj->status)
+                ;
+
+            } else {
+                $orderComment = $orderComment ?: 'Cheque has been rejected by KKM vendor.';
+                $comment = '[' . strtoupper($vendorName) . '] '
+                            . $this->__($orderComment) . ' '
+                            . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                            . $entity->getIncrementId()
+                            . '. Status: '
+                            . ucwords($getRequestObj->status)
+                            . '. Error code: '
+                            . $getRequestObj->error->code
+                            . '. Error text: '
+                            . $getRequestObj->error->text
+                ;
+
+                if ($this->getConfig('general/fail_status')) {
+                    $status = $this->getConfig('general/fail_status');
+                }
+            }
+
+            if ($status) {
+                $order->setState('processing', $status, $comment);
+            } else {
+                $order->addStatusHistoryComment($comment);
+            }
+
+            $order->save();
+        } catch (Exception $e) {
+            $this->addLog('Can not save KKM transaction info to order. Reason: ' . $e->getMessage());
+            return false;
+        }
+    }
 }
