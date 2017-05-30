@@ -16,6 +16,38 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         return $this;
     }
 
+    public function resendAction()
+    {
+        $entityType = $this->getRequest()->getParam('entity');
+        $id         = $this->getRequest()->getParam('id');
+
+        if (!$entityType || !$id) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
+            Mage::helper('kkm')->addLog('Invalid url. No id or entity type.');
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        $entity = Mage::getModel('sales/order_' . $entityType)->load($id);
+
+        $vendor = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')->getConfig('general/vendor'));
+        $vendor->sendCheque($entity, $entity->getOrder());
+
+        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
+
+        $this->_redirectReferer();
+    }
+
+    public function getlogAction()
+    {
+        $logDir = Mage::getBaseDir('var') . DS . 'log';
+        $file   = $logDir . DS . Mage::helper('kkm')->getLogFilename();
+
+        $transfer = new Varien_File_Transfer_Adapter_Http();
+        $transfer->send($file);
+    }
+
     public function indexAction()
     {
         $this->_initAction()->renderLayout();

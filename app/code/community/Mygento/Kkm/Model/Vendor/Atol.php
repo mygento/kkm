@@ -37,18 +37,36 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
 
+        $this->saveTransaction($getRequest, $invoice, $order);
+    }
+
+    /**Method saves status entity and writes info to order
+     * @param $getRequest
+     * @param $entity
+     * @param $order
+     */
+    public function saveTransaction($getRequest, $entity, $order)
+    {
+        $type      = $entity::HISTORY_ENTITY_NAME . '_';
+        $operation = $entity::HISTORY_ENTITY_NAME == 'invoice' ? self::_operationSell : self::_operationSellRefund;
+
+        Mage::helper('kkm')->addLog(ucwords($entity::HISTORY_ENTITY_NAME) . 'Cheque getRequest ' . $getRequest);
+
         if ($getRequest) {
-            Mage::helper('kkm')->addLog('sendCheque getRequest ' . $getRequest);
             $request     = json_decode($getRequest);
-            $statusModel = Mage::getModel('kkm/status');
-            $statusModel->setVendor(self::_code);
+            $statusModel = Mage::getModel('kkm/status')->load($type . $entity->getIncrementId(), 'external_id');
+
+            if (!$statusModel->getId()) {
+                $statusModel->setVendor(self::_code);
+                $statusModel->setExternalId($type . $entity->getIncrementId());
+                $statusModel->setOperation($operation);
+            }
+
             $statusModel->setUuid($request->uuid);
-            $statusModel->setExternalId($type . $invoice->getIncrementId());
-            $statusModel->setOperation(self::_operationSell);
             $statusModel->setStatus($getRequest)->save();
 
             //Save info about transaction
-            Mage::helper('kkm')->saveTransactionInfoToOrder($getRequest, $invoice, $order);
+            Mage::helper('kkm')->saveTransactionInfoToOrder($getRequest, $entity, $order);
         }
     }
 
@@ -74,19 +92,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
 
-        if ($getRequest) {
-            Mage::helper('kkm')->addLog('cancelCheque getRequest ' . $getRequest);
-            $request     = json_decode($getRequest);
-            $statusModel = Mage::getModel('kkm/status');
-            $statusModel->setVendor(self::_code);
-            $statusModel->setUuid($request->uuid);
-            $statusModel->setExternalId($type . $creditmemo->getIncrementId());
-            $statusModel->setOperation(self::_operationSellRefund);
-            $statusModel->setStatus($getRequest)->save();
-
-            //Save info about transaction
-            Mage::helper('kkm')->saveTransactionInfoToOrder($getRequest, $creditmemo, $order);
-        }
+        $this->saveTransaction($getRequest, $creditmemo, $order);
     }
 
     /**
@@ -170,6 +176,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $now_time = Mage::getModel('core/date')->timestamp(time());
         $post = [
             'external_id' => $type . $receipt->getIncrementId(),
+//            'external_id' => 'invoice_100000026',
             'service' => [
                 'payment_address' => $this->getConfig('general/payment_address'),
                 'callback_url'    => Mage::getUrl('kkm/index/callback'),

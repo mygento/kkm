@@ -14,7 +14,7 @@ $installer->getConnection()->insertArray(
         'label'
     ],
     [
-        ['status' => 'kkm_failed', 'label' => 'KKM Failed'],
+        ['status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS, 'label' => 'KKM Failed'],
     ]
 );
 
@@ -27,8 +27,18 @@ $installer->getConnection()->insertArray(
     ],
     [
         [
-            'status' => 'kkm_failed',
+            'status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
             'state' => 'processing',
+            'is_default' => 0
+        ],
+        [
+            'status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
+            'state' => 'complete',
+            'is_default' => 0
+        ],
+        [
+            'status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
+            'state' => 'closed',
             'is_default' => 0
         ]
     ]

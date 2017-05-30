@@ -16,8 +16,13 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     public function addLog($text)
     {
         if (Mage::getStoreConfig('kkm/general/debug')) {
-            Mage::log($text, null, 'kkm.log', true);
+            Mage::log($text, null, $this->getLogFilename(), true);
         }
+    }
+
+    public function getLogFilename()
+    {
+        return 'kkm.log';
     }
 
     /**
@@ -28,6 +33,11 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     public function getConfig($param)
     {
         return Mage::getStoreConfig('kkm/' . $param);
+    }
+
+    public function getVendorModel()
+    {
+        return Mage::getModel('kkm/vendor_' . $this->getConfig('general/vendor'));
     }
 
     public function requestApiPost($url, $arpost)
@@ -71,7 +81,6 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $incrementId   = substr($externalId, strpos($externalId, '_') + 1);
         $entityType    = substr($externalId, 0, strpos($externalId, '_'));
-        $getRequestObj = json_decode($json);
 
         $entity = null;
         if (strpos($entityType, 'invoice') !== false) {
@@ -90,13 +99,56 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), 'Received callback message from KKM vendor.', $vendor);
     }
 
+    public function hasOrderFailedKkmTransactions($order)
+    {
+        $this->addLog("Check does order {$order->getId()} have failed kkm transactions.");
+        $invoices    = Mage::getModel('sales/order_invoice')->getCollection()
+            ->addAttributeToFilter('order_id', ['eq' => $order->getId()]);
+        $creditmemos = Mage::getModel('sales/order_creditmemo')->getCollection()
+            ->addAttributeToFilter('order_id', ['eq' => $order->getId()]);
+
+        $invoicesIncIds    = $invoices->getColumnValues('increment_id');
+        $creditmemosIncIds = $creditmemos->getColumnValues('increment_id');
+
+        $invoicesIncIds = array_map(
+            function ($v) {
+                return 'invoice_' . $v;
+            },
+            $invoicesIncIds
+        );
+
+        $creditmemosIncIds = array_map(
+            function ($v) {
+                return 'creditmemo_' . $v;
+            },
+            $creditmemosIncIds
+        );
+
+        $statuses = Mage::getModel('kkm/status')->getCollection()
+            ->addFieldToFilter('external_id', ['in' => [array_merge($invoicesIncIds, $creditmemosIncIds)]]);
+
+        foreach ($statuses as $status) {
+            $statusObj = json_decode($status->getStatus());
+
+            if ($statusObj->status == 'fail') {
+                $this->addLog("Order {$order->getId()} has failed kkm transaction. Id in table kkm/status: {$status->getId()}");
+
+                return $status->getId();
+            }
+        }
+
+        $this->addLog("Order {$order->getId()} has no failed kkm transaction.");
+
+        return false;
+    }
+
     /**Save info about transaction to order
      * @param $getRequest string with json from vendor
      * @param $entity Invoice|Creditmemo
      * @param $order Order
      * @return bool
      */
-    public function saveTransactionInfoToOrder($getRequest, $entity, $order, $orderComment = '',  $vendorName = 'atol')
+    public function saveTransactionInfoToOrder($getRequest, $entity, $order, $orderComment = '', $vendorName = 'atol')
     {
         $status = false;
 
@@ -108,20 +160,15 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
                     . $this->__($orderComment) . ' '
                     . $this->__('Response from KKM vendor is empty or does not contain "error" field.') . ' '
                     . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                    . $entity->getIncrementId()
-                ;
-
+                    . $entity->getIncrementId();
             } elseif ($getRequestObj->error == null) {
-
                 $orderComment = $orderComment ?: 'Cheque has been sent to KKM vendor.';
                 $comment = '[' . strtoupper($vendorName) . '] '
                             . $this->__($orderComment) . ' '
                             . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
                             . $entity->getIncrementId()
-                            . '. Status: '
-                            . ucwords($getRequestObj->status)
-                ;
-
+                    . '. Status: '
+                    . ucwords($getRequestObj->status);
             } else {
                 $orderComment = $orderComment ?: 'Cheque has been rejected by KKM vendor.';
                 $comment = '[' . strtoupper($vendorName) . '] '
@@ -133,8 +180,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
                             . '. Error code: '
                             . $getRequestObj->error->code
                             . '. Error text: '
-                            . $getRequestObj->error->text
-                ;
+                            . $getRequestObj->error->text;
 
                 if ($this->getConfig('general/fail_status')) {
                     $status = $this->getConfig('general/fail_status');
