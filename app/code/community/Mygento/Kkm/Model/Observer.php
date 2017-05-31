@@ -89,7 +89,6 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $vendor          = Mage::helper('kkm')->getVendorModel();
         $isKkmFail       = Mage::helper('kkm')->hasOrderFailedKkmTransactions($order);
         $kkmFailedStatus = Mage::helper('kkm')->getConfig('general/fail_status');
 
