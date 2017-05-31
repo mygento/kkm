@@ -5,7 +5,7 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Model_Observer
 {
@@ -89,19 +89,19 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $vendor    = Mage::helper('kkm')->getVendorModel();
-        $isKkmFail = Mage::helper('kkm')->hasOrderFailedKkmTransactions($order);
+        $vendor          = Mage::helper('kkm')->getVendorModel();
+        $isKkmFail       = Mage::helper('kkm')->hasOrderFailedKkmTransactions($order);
+        $kkmFailedStatus = Mage::helper('kkm')->getConfig('general/fail_status');
 
-        if ($isKkmFail && $order->getData('status') !== $vendor::ORDER_KKM_FAILED_STATUS) {
-            Mage::helper('kkm')->addLog("11");
-            Mage::helper('kkm')->addLog("Order {$order->getId()} needs to change its state to " . $vendor::ORDER_KKM_FAILED_STATUS);
+        if ($isKkmFail && $order->getData('status') !== $kkmFailedStatus) {
+            Mage::helper('kkm')->addLog("Order {$order->getId()} needs to change its state to {$kkmFailedStatus}");
             $order->setKkmChangeStatusFlag(true);
-            $order->setStatus($vendor::ORDER_KKM_FAILED_STATUS);
+            $order->setStatus($kkmFailedStatus);
             $order->save();
         }
 
         //Change order status if it no longer has failed invoices/creditmemos
-        if (!$isKkmFail && $order->getData('status') === $vendor::ORDER_KKM_FAILED_STATUS) {
+        if (!$isKkmFail && $order->getData('status') === $kkmFailedStatus) {
             Mage::helper('kkm')->addLog("Order {$order->getId()} needs to change its state to default status of state {$order->getState()}");
             $order->setKkmChangeStatusFlag(true);
             $defaultOrderStatusModel = Mage::getModel('sales/order_status')
@@ -134,7 +134,7 @@ class Mygento_Kkm_Model_Observer
                         ]
                     );
                 $data = [
-                    'label'   => 'Resend to KKM',
+                    'label'   => Mage::helper('kkm')->__('Resend to KKM'),
                     'class'   => '',
                     'onclick' => 'setLocation(\'' . $url . '\')',
                 ];

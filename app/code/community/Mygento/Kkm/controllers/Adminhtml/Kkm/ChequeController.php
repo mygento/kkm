@@ -5,7 +5,7 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controller_Action
 {
@@ -34,7 +34,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $vendor = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')->getConfig('general/vendor'));
         $vendor->sendCheque($entity, $entity->getOrder());
 
-        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
+        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Cheque was sent to KKM. Status of the transaction see in orders comment.'));
 
         $this->_redirectReferer();
     }

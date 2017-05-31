@@ -226,9 +226,7 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <comment>
-                                <![CDATA[Set this status to invoice or creditmemo if sending data to KKM vendor failed.]]>
-                            </comment>
+                            <comment>Set this status to order if sending data to KKM vendor failed.</comment>
                         </fail_status>
                         <debug translate="label">
                             <label>Debug</label>
