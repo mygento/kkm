@@ -52,22 +52,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             if (!$this->isValidItem($item)) {
                 continue;
             }
+            
+            $taxValue = $this->addTaxValue($taxAttributeCode, $entity, $item);
 
-            if ($taxAttributeCode) {
-                $storeId  = $entity->getStoreId();
-                $store    = $storeId ? Mage::app()->getStore($storeId) : Mage::app()->getStore();
-
-                $taxValue = Mage::getResourceModel('catalog/product')->getAttributeRawValue(
-                    $item->getProductId(),
-                    $taxAttributeCode,
-                    $store
-                );
-                
-                $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $taxAttributeCode);
-                if($attributeModel->getData('frontend_input') == 'select') {
-                    $taxValue = $attributeModel->getSource()->getOptionText($taxValue);
-                }
-            }
+            
 
             $price    = $item->getData('price');
             $qty      = $item->getQty() ?: $item->getQtyOrdered();
@@ -180,5 +168,26 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         }
 
         return (floor(abs($val) * $divider) / $divider) * $factor;
+    }
+    
+    protected function addTaxValue($taxAttributeCode, $entity, $item)
+    {
+        if (!$taxAttributeCode) {
+            return '';
+        }
+        $storeId  = $entity->getStoreId();
+        $store    = $storeId ? Mage::app()->getStore($storeId) : Mage::app()->getStore();
+
+        $taxValue = Mage::getResourceModel('catalog/product')->getAttributeRawValue(
+            $item->getProductId(),
+            $taxAttributeCode,
+            $store
+        );
+
+        $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $taxAttributeCode);
+        if($attributeModel->getData('frontend_input') == 'select') {
+            $taxValue = $attributeModel->getSource()->getOptionText($taxValue);
+        }
+        return $taxValue;
     }
 }
