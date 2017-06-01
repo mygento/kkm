@@ -62,6 +62,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                     $taxAttributeCode,
                     $store
                 );
+                
+                $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $taxAttributeCode);
+                if($attributeModel->getData('frontend_input') == 'select') {
+                    $taxValue = $attributeModel->getSource()->getOptionText($taxValue);
+                }
             }
 
             $price    = $item->getData('price');
