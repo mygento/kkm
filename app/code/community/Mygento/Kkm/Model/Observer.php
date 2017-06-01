@@ -19,7 +19,7 @@ class Mygento_Kkm_Model_Observer
         $helper = Mage::helper('kkm');
         $helper->addLog('sendCheque');
 
-        $invoice         = $observer->getEvent()->getInvoice();
+        $invoice = $observer->getEvent()->getInvoice();
 
         if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice') || $invoice->getOrderCurrencyCode() != 'RUB') {
             $helper->addLog('Skipped send cheque.');
@@ -80,7 +80,8 @@ class Mygento_Kkm_Model_Observer
      */
     public function checkStatus($observer)
     {
-        $order = $observer->getEvent()->getOrder();
+        $order      = $observer->getEvent()->getOrder();
+        $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
 
         if ($order->getKkmChangeStatusFlag()) {
             Mage::helper('kkm')->addLog("Attempt to change status of the order based on KKM transactions. Order: "
@@ -96,6 +97,9 @@ class Mygento_Kkm_Model_Observer
             Mage::helper('kkm')->addLog("Order {$order->getId()} needs to change its state to {$kkmFailedStatus}");
             $order->setKkmChangeStatusFlag(true);
             $order->setStatus($kkmFailedStatus);
+
+            $order->addStatusHistoryComment('[' . strtoupper($vendorName) . '] '
+                                            . Mage::helper('kkm')->__('Status of the order has been changed automatically because it has failed KKM transactions.'));
             $order->save();
         }
 
@@ -109,6 +113,9 @@ class Mygento_Kkm_Model_Observer
             $defaultOrderStatus = $defaultOrderStatusModel ? $defaultOrderStatusModel->getStatus() : '';
 
             $order->setStatus($defaultOrderStatus ?: $order->getStatus());
+
+            $order->addStatusHistoryComment('[' . strtoupper($vendorName) . '] '
+                                            . Mage::helper('kkm')->__('Status of the order has been changed automatically because it no longer has failed KKM transactions.'));
             $order->save();
         }
     }

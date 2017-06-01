@@ -18,12 +18,14 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
     public function resendAction()
     {
-        $entityType = $this->getRequest()->getParam('entity');
+        $entityType = strtolower($this->getRequest()->getParam('entity'));
         $id         = $this->getRequest()->getParam('id');
+        $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
 
-        if (!$entityType || !$id) {
+        if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
-            Mage::helper('kkm')->addLog('Invalid url. No id or entity type.');
+            Mage::helper('kkm')->addLog('Invalid url. No id or invalid entity type. Params: ');
+            Mage::helper('kkm')->addLog($this->getRequest()->getParams());
             $this->_redirectReferer();
 
             return;
@@ -31,7 +33,15 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
         $entity = Mage::getModel('sales/order_' . $entityType)->load($id);
 
-        $vendor = Mage::getModel('kkm/vendor_' . Mage::helper('kkm')->getConfig('general/vendor'));
+        if (!$entity->getId()) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
+            Mage::helper('kkm')->addLog('Entity with Id from request does not exist. Id: ' . $id);
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        $vendor = Mage::getModel('kkm/vendor_' . $vendorName);
         $vendor->sendCheque($entity, $entity->getOrder());
 
         Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Cheque was sent to KKM. Status of the transaction see in orders comment.'));
