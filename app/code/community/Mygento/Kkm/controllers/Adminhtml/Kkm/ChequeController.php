@@ -5,7 +5,7 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controller_Action
 {
@@ -14,6 +14,48 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
     {
         $this->loadLayout()->_setActiveMenu('kkm/cheque')->_addBreadcrumb(Mage::helper('kkm')->__('Cheque Manager'), Mage::helper('kkm')->__('Cheque Manager'));
         return $this;
+    }
+
+    public function resendAction()
+    {
+        $entityType = strtolower($this->getRequest()->getParam('entity'));
+        $id         = $this->getRequest()->getParam('id');
+        $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
+
+        if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
+            Mage::helper('kkm')->addLog('Invalid url. No id or invalid entity type. Params: ');
+            Mage::helper('kkm')->addLog($this->getRequest()->getParams());
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        $entity = Mage::getModel('sales/order_' . $entityType)->load($id);
+
+        if (!$entity->getId()) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
+            Mage::helper('kkm')->addLog('Entity with Id from request does not exist. Id: ' . $id);
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        $vendor = Mage::getModel('kkm/vendor_' . $vendorName);
+        $vendor->sendCheque($entity, $entity->getOrder());
+
+        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Cheque was sent to KKM. Status of the transaction see in orders comment.'));
+
+        $this->_redirectReferer();
+    }
+
+    public function getlogAction()
+    {
+        $logDir = Mage::getBaseDir('var') . DS . 'log';
+        $file   = $logDir . DS . Mage::helper('kkm')->getLogFilename();
+
+        $transfer = new Varien_File_Transfer_Adapter_Http();
+        $transfer->send($file);
     }
 
     public function indexAction()

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Mygento_Kkm>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </Mygento_Kkm>
     </modules>
     <frontend>
@@ -46,6 +46,14 @@
             </kkm_resource>
         </models>
         <events>
+            <sales_order_save_after>
+                <observers>
+                    <kkm_check_order_status>
+                        <class>kkm/observer</class>
+                        <method>checkStatus</method>
+                    </kkm_check_order_status>
+                </observers>
+            </sales_order_save_after>
             <sales_order_invoice_save_after>
                 <observers>
                     <kkm_sales_order_invoice_save_after>
@@ -62,7 +70,15 @@
                     </kkm_sales_order_creditmemo_save_after>
                 </observers>
             </sales_order_creditmemo_save_after>
-        </events> 
+            <adminhtml_widget_container_html_before>
+                <observers>
+                    <kkm_add_button_resend>
+                        <class>kkm/observer</class>
+                        <method>addButtonResend</method>
+                    </kkm_add_button_resend>
+                </observers>
+            </adminhtml_widget_container_html_before>
+        </events>
         <resources>
             <kkm_setup>
                 <setup>
@@ -74,6 +90,17 @@
             </kkm_setup>
         </resources> 
     </global>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <kkm after="Mage_Adminhtml">Mygento_Kkm_Adminhtml</kkm>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
     <adminhtml>
         <translate>
             <modules>
@@ -115,6 +142,7 @@
                 <default_shipping_name>1</default_shipping_name>
                 <auto_send_after_invoice>1</auto_send_after_invoice>
                 <auto_send_after_cancel>1</auto_send_after_cancel>
+                <fail_status>kkm_failed</fail_status>
             </general>
         </kkm>
     </default>

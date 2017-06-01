@@ -16,6 +16,8 @@
         }
     ],
     "require": {
+        "php": ">=5.4.0",
+        "ext-bcmath": "*",
         "magento-hackathon/magento-composer-installer": "3.*",
         "mygento/base": "1.*"
     },

@@ -5,10 +5,12 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 abstract class Mygento_Kkm_Model_Abstract
 {
+    const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
+
     abstract protected function sendCheque($invoice, $order);
     abstract protected function cancelCheque($creditmemo, $order);
     abstract protected function updateCheque($invoice);

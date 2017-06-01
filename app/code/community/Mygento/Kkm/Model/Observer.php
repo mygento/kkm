@@ -5,15 +5,11 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright 2017 NKS LLC. (https://www.mygento.ru)
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Model_Observer
 {
 
-    protected function getVendorModel()
-    {
-        return Mage::getModel('kkm/vendor_' . Mage::helper('kkm')->getConfig('general/vendor'));
-    }
     /**
      *
      * @param type $observer
@@ -23,7 +19,7 @@ class Mygento_Kkm_Model_Observer
         $helper = Mage::helper('kkm');
         $helper->addLog('sendCheque');
 
-        $invoice         = $observer->getEvent()->getInvoice();
+        $invoice = $observer->getEvent()->getInvoice();
 
         if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice') || $invoice->getOrderCurrencyCode() != 'RUB') {
             $helper->addLog('Skipped send cheque.');
@@ -44,7 +40,7 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $this->getVendorModel()->sendCheque($invoice, $order);
+        $helper->getVendorModel()->sendCheque($invoice, $order);
     }
 
     /**
@@ -75,6 +71,84 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $this->getVendorModel()->cancelCheque($creditmemo, $order);
+        $helper->getVendorModel()->cancelCheque($creditmemo, $order);
+    }
+
+    /**Check and change order's status. if it has failed kkm transactions status should be kkm_failed.
+     *If no - status should not be kkm_failed.
+     * @param $observer
+     */
+    public function checkStatus($observer)
+    {
+        $order      = $observer->getEvent()->getOrder();
+        $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
+
+        if ($order->getKkmChangeStatusFlag()) {
+            Mage::helper('kkm')->addLog("Attempt to change status of the order based on KKM transactions. Order: "
+                                        . $order->getIncrementId() . ". New status: {$order->getStatus()}");
+
+            return;
+        }
+
+        $isKkmFail       = Mage::helper('kkm')->hasOrderFailedKkmTransactions($order);
+        $kkmFailedStatus = Mage::helper('kkm')->getConfig('general/fail_status');
+
+        if ($isKkmFail && $order->getData('status') !== $kkmFailedStatus) {
+            Mage::helper('kkm')->addLog("Order {$order->getId()} needs to change its state to {$kkmFailedStatus}");
+            $order->setKkmChangeStatusFlag(true);
+            $order->setStatus($kkmFailedStatus);
+
+            $order->addStatusHistoryComment('[' . strtoupper($vendorName) . '] '
+                                            . Mage::helper('kkm')->__('Status of the order has been changed automatically because it has failed KKM transactions.'));
+            $order->save();
+        }
+
+        //Change order status if it no longer has failed invoices/creditmemos
+        if (!$isKkmFail && $order->getData('status') === $kkmFailedStatus) {
+            Mage::helper('kkm')->addLog("Order {$order->getId()} needs to change its state to default status of state {$order->getState()}");
+            $order->setKkmChangeStatusFlag(true);
+            $defaultOrderStatusModel = Mage::getModel('sales/order_status')
+                ->loadDefaultByState($order->getData('state'));
+
+            $defaultOrderStatus = $defaultOrderStatusModel ? $defaultOrderStatusModel->getStatus() : '';
+
+            $order->setStatus($defaultOrderStatus ?: $order->getStatus());
+
+            $order->addStatusHistoryComment('[' . strtoupper($vendorName) . '] '
+                                            . Mage::helper('kkm')->__('Status of the order has been changed automatically because it no longer has failed KKM transactions.'));
+            $order->save();
+        }
+    }
+
+    public function addButtonResend($observer)
+    {
+        $container = $observer->getBlock();
+        if (null !== $container && ($container->getType() == 'adminhtml/sales_order_creditmemo_view' || $container->getType() == 'adminhtml/sales_order_invoice_view')) {
+            $entity           = $container->getInvoice() ?: $container->getCreditmemo();
+            $type             = $entity::HISTORY_ENTITY_NAME;
+            $statusExternalId = "{$type}_" . $entity->getIncrementId();
+            $statusModel      = Mage::getModel('kkm/status')->load($statusExternalId, 'external_id');
+            $status           = json_decode($statusModel->getStatus());
+
+            if (isset($status->status) && $status->status == 'fail') {
+                $url = Mage::getModel('adminhtml/url')
+                    ->getUrl(
+                        'adminhtml/kkm_cheque/resend',
+                        [
+                            'entity' => $type,
+                            'id'     => $entity->getId()
+                        ]
+                    );
+                $data = [
+                    'label'   => Mage::helper('kkm')->__('Resend to KKM'),
+                    'class'   => '',
+                    'onclick' => 'setLocation(\'' . $url . '\')',
+                ];
+
+                $container->addButton('resend_to_kkm', $data);
+            }
+        }
+
+        return $this;
     }
 }
