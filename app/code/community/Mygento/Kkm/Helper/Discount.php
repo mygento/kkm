@@ -52,10 +52,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             if (!$this->isValidItem($item)) {
                 continue;
             }
-            
-            $taxValue = $this->addTaxValue($taxAttributeCode, $entity, $item);
 
-            
+            $taxValue = $taxAttributeCode ? $this->addTaxValue($taxAttributeCode, $entity, $item) : $taxValue;
 
             $price    = $item->getData('price');
             $qty      = $item->getQty() ?: $item->getQtyOrdered();
@@ -185,7 +183,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         );
 
         $attributeModel = Mage::getModel('eav/entity_attribute')->loadByCode('catalog_product', $taxAttributeCode);
-        if($attributeModel->getData('frontend_input') == 'select') {
+        if ($attributeModel->getData('frontend_input') == 'select') {
             $taxValue = $attributeModel->getSource()->getOptionText($taxValue);
         }
         return $taxValue;
