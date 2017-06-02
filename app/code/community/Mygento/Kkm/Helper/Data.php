@@ -125,7 +125,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         );
 
         $statuses = Mage::getModel('kkm/status')->getCollection()
-            ->addFieldToFilter('external_id', ['in' => [array_merge($invoicesIncIds, $creditmemosIncIds)]]);
+            ->addFieldToFilter('external_id', ['in' => array_merge($invoicesIncIds, $creditmemosIncIds)]);
 
         foreach ($statuses as $status) {
             $statusObj = json_decode($status->getStatus());
