@@ -19,6 +19,7 @@ class Mygento_Kkm_Block_Logs_Button extends Mage_Adminhtml_Block_System_Config_F
             ->setType('button')
             ->setClass('scalable')
             ->setLabel('Download')
+            ->setDisabled(!Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/getlog'))
             ->setOnClick("setLocation('$url')")
             ->toHtml();
 

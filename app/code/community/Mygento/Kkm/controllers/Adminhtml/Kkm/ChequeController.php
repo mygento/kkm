@@ -42,9 +42,18 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         }
 
         $vendor = Mage::getModel('kkm/vendor_' . $vendorName);
-        $vendor->sendCheque($entity, $entity->getOrder());
 
-        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Cheque was sent to KKM. Status of the transaction see in orders comment.'));
+        $method = 'sendCheque';
+        if  ($entityType == 'creditmemo') {
+            $method  = 'cancelCheque';
+            $comment = 'Refund was sent to KKM. Status of the transaction see in orders comment.';
+        } else {
+            $comment = 'Cheque was sent to KKM. Status of the transaction see in orders comment.';
+        }
+
+        $vendor->$method($entity, $entity->getOrder());
+
+        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__($comment));
 
         $this->_redirectReferer();
     }
@@ -123,6 +132,20 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
     protected function _isAllowed()
     {
-        return Mage::getSingleton('admin/session')->isAllowed('system/config/kkm');
+        $action = strtolower($this->getRequest()->getActionName());
+
+        switch ($action) {
+            case 'getlog':
+                $aclResource = 'kkm_cheque/getlog';
+                break;
+            case 'resend':
+                $aclResource = 'kkm_cheque/resend';
+                break;
+            default:
+                $aclResource = 'kkm_cheque';
+                break;
+        }
+
+        return Mage::getSingleton('admin/session')->isAllowed($aclResource);
     }
 }

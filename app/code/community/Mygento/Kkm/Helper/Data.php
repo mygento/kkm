@@ -96,12 +96,11 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             return false;
         }
 
-        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), 'Received callback message from KKM vendor.', $vendor);
+        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), $this->__('Received callback message from KKM vendor.'), $vendor);
     }
 
     public function hasOrderFailedKkmTransactions($order)
     {
-        $this->addLog("Check does order {$order->getId()} have failed kkm transactions.");
         $invoices    = Mage::getModel('sales/order_invoice')->getCollection()
             ->addAttributeToFilter('order_id', ['eq' => $order->getId()]);
         $creditmemos = Mage::getModel('sales/order_creditmemo')->getCollection()

@@ -81,14 +81,6 @@
                             <show_in_store>0</show_in_store>
                             <validate>validate-digits</validate>
                         </inn>
-                        <kkm_pul translate="label">
-                            <label>Kkm Pul</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>70</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </kkm_pul>
                         <payment_address translate="label comment">
                             <label>Payment Address</label>
                             <frontend_type>text</frontend_type>

@@ -126,6 +126,17 @@
                                 </config>
                             </children>
                         </system>
+                        <kkm_cheque translate="title" module="kkm">
+                            <title>KKM options</title>
+                            <children>
+                                <getlog translate="title">
+                                    <title>Download log file</title>
+                                </getlog>
+                                <resend translate="title">
+                                    <title>Manually send invoice/creditmemo</title>
+                                </resend>
+                            </children>
+                        </kkm_cheque>
                     </children>
                 </admin>
             </resources>
