@@ -9,6 +9,8 @@
  */
 class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
+    const VERSION = '1.0.0';
+
     protected $_code = 'kkm';
 
     /** Returns item's data as array with properly calculated discount
