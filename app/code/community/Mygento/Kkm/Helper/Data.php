@@ -96,7 +96,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             return false;
         }
 
-        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), $this->__('Received callback message from KKM vendor.'), $vendor);
+        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), 'Received callback message from KKM vendor.', $vendor);
     }
 
     public function hasOrderFailedKkmTransactions($order)

@@ -15,6 +15,15 @@
                 </args>
             </kkm>
         </routers>
+        <translate>
+            <modules>
+                <kkm>
+                    <files>
+                        <default>Mygento_Kkm.csv</default>
+                    </files>
+                </kkm>
+            </modules>
+        </translate>
     </frontend>
     <global>
         <blocks>

@@ -44,7 +44,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $vendor = Mage::getModel('kkm/vendor_' . $vendorName);
 
         $method = 'sendCheque';
-        if  ($entityType == 'creditmemo') {
+        if ($entityType == 'creditmemo') {
             $method  = 'cancelCheque';
             $comment = 'Refund was sent to KKM. Status of the transaction see in orders comment.';
         } else {
@@ -65,6 +65,10 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
         $transfer = new Varien_File_Transfer_Adapter_Http();
         $transfer->send($file);
+
+        // @codingStandardsIgnoreStart
+        return;
+        // @codingStandardsIgnoreEnd
     }
 
     public function indexAction()

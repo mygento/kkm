@@ -9,7 +9,7 @@
  */
 class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
-    const VERSION = '1.0.0';
+    const VERSION = '1.0.1';
 
     protected $_code = 'kkm';
 
@@ -91,11 +91,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             'origGrandTotal' => floatval($grandTotal)
         ];
 
-        $shippingName = $entity->getShippingDescription()
-            ?: ($entity->getOrder() ? $entity->getOrder()->getShippingDescription() : '');
-
         $shippingItem = [
-            'name'      => $shippingName,
+            'name'      => $this->getShippingName($entity),
             'price'     => $entity->getShippingAmount() + $itemsSumDiff,
             'quantity'  => 1.0,
             'sum'       => $entity->getShippingAmount() + $itemsSumDiff,
@@ -137,6 +134,12 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $generalHelper->addLog($entityItem);
 
         return $entityItem;
+    }
+
+    public function getShippingName($entity)
+    {
+        return $entity->getShippingDescription()
+            ?: ($entity->getOrder() ? $entity->getOrder()->getShippingDescription() : '');
     }
 
     /**Validation method. It sums up all items and compares it to grandTotal.
