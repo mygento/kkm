@@ -4,6 +4,7 @@
 "SNO","Система налогообложения"
 "Tax all", "Одинаковый налог для всех товаров"
 "Tax options", "Код налоговой ставки"
+"Without VAT", "Без НДС"
 "Attribute for product tax", "Аттрибут налога"
 "List of payment methods", "Выбор платежных методов"
 "Auto send after invoice", "Автоотправка при <b>оплате</b> заказа"
@@ -12,7 +13,7 @@
 "Custom shipping name", "Имя доставки для чека"
 "Shipping tax code", "Код налога для доставки"
 "Set this status to order if sending data to KKM vendor failed.", "Если одна из ККМ транзакций не удалась, то заказ будет переведен в этот статус"
-"Sending cheque fail status","Статус заказа при неудачной отправке чека/возврата
+"Sending cheque fail status","Статус заказа при неудачной отправке чека/возврата"
 "Get log file","Скачать лог"
 
 "Response from KKM vendor is empty or does not contain "error" field.","Ответ от ККМ вендора некорректен."

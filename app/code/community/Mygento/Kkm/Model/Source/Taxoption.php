@@ -19,6 +19,10 @@ class Mygento_Kkm_Model_Source_Taxoption
     {
         return [
             [
+                'value' => 'none',
+                'label' => Mage::helper('kkm')->__('Without VAT')
+            ],
+            [
                 'value' => 'vat0',
                 'label' => Mage::helper('kkm')->__('vat0')
             ],

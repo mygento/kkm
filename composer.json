@@ -3,7 +3,7 @@
     "type": "magento-module",
     "license": "proprietary",
     "homepage": "https://github.com/mygento/kkm",
-    "description": "Module module",
+    "description": "Модуль интеграции фискальных кассовых аппаратов для Magento в соответствии с 54-ФЗ",
     "keywords": [
         "magento",
         "payment"
