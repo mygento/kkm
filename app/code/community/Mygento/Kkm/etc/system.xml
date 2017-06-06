@@ -7,6 +7,12 @@
  */
 -->
 <config>
+    <tabs>
+        <allmygento>
+             <label>Mygento</label>
+             <sort_order>400</sort_order>
+        </allmygento>
+    </tabs>
     <sections>
         <kkm translate="label" module="kkm">
             <label>Kkm интеграция</label>
