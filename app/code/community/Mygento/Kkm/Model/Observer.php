@@ -122,13 +122,22 @@ class Mygento_Kkm_Model_Observer
 
     public function addButtonResend($observer)
     {
+        //Check ACL
         if (!Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/resend')) {
             return;
         }
 
         $container = $observer->getBlock();
-        if (null !== $container && ($container->getType() == 'adminhtml/sales_order_creditmemo_view' || $container->getType() == 'adminhtml/sales_order_invoice_view')) {
-            $entity           = $container->getInvoice() ?: $container->getCreditmemo();
+        if ($this->isProperPageForResendButton($container)) {
+            $entity         = $container->getInvoice() ?: $container->getCreditmemo();
+            $order          = $entity->getOrder();
+            $paymentMethod  = $order->getPayment()->getMethod();
+            $paymentMethods = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
+
+            if (!in_array($paymentMethod, $paymentMethods) || $entity->getOrderCurrencyCode() != 'RUB') {
+                return;
+            }
+
             $type             = $entity::HISTORY_ENTITY_NAME;
             $statusExternalId = "{$type}_" . $entity->getIncrementId();
             $statusModel      = Mage::getModel('kkm/status')->load($statusExternalId, 'external_id');
@@ -139,8 +148,8 @@ class Mygento_Kkm_Model_Observer
                     ->getUrl(
                         'adminhtml/kkm_cheque/resend',
                         [
-                            'entity' => $type,
-                            'id'     => $entity->getId()
+                        'entity' => $type,
+                        'id'     => $entity->getId()
                         ]
                     );
                 $data = [
@@ -154,5 +163,15 @@ class Mygento_Kkm_Model_Observer
         }
 
         return $this;
+    }
+
+    /**Check is current page appropriate for "resend to kkm" button
+     *
+     * @param type $block
+     * @return boolean
+     */
+    protected function isProperPageForResendButton($block)
+    {
+        return (null !== $block && ($block->getType() == 'adminhtml/sales_order_creditmemo_view' || $block->getType() == 'adminhtml/sales_order_invoice_view'));
     }
 }
