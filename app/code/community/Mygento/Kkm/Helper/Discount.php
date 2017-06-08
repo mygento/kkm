@@ -9,7 +9,7 @@
  */
 class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
-    const VERSION = '1.0.1';
+    const VERSION = '1.0.2';
 
     protected $_code = 'kkm';
 
@@ -70,7 +70,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
             $entityItem = $this->_buildItem($item, $priceWithDiscount, $taxValue);
 
-            $itemsFinal[$item->getSku()] = $entityItem;
+            $itemsFinal[$item->getId()] = $entityItem;
             $itemsSum += $entityItem['sum'];
         }
 
