@@ -9,7 +9,7 @@
  */
 class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
-    const VERSION = '1.0.2';
+    const VERSION = '1.0.3';
 
     protected $_code = 'kkm';
 
@@ -77,7 +77,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $generalHelper->addLog("Sum of all percentages: {$percentageSum}");
 
         //Calculate DIFF!
-        $itemsSumDiff = $this->slyFloor($grandTotal - $itemsSum - $shippingAmount);
+        $itemsSumDiff = round($this->slyFloor($grandTotal - $itemsSum - $shippingAmount, 3), 2);
 
         $generalHelper->addLog("Items sum: {$itemsSum}. All Discounts: {$grandDiscount} Diff value: {$itemsSumDiff}");
         if (bccomp($itemsSumDiff, 0.00, 2) < 0) {
