@@ -1,1 +1,0 @@
-Mygento Base module
