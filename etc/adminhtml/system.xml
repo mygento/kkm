@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * @author Mygento Team
+ * @copyright See COPYING.txt for license details.
+ * @package Mygento_Kkm
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="mygento" translate="label" sortOrder="10">
+            <label>Mygento Extensions</label>
+        </tab>
+        <section id="mygento_kkm" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+            <class>separator-top</class>
+            <label>Kkm Itegration</label>
+            <tab>mygento</tab>
+            <resource>Mygento_Base::config</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Kkm Settings</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="vendor" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Vendor</label>
+                    <source_model>Mygento\Kkm\Model\Source\Vendor</source_model>
+                </field>
+                <field id="login" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Kkm login</label>
+                </field>
+                <field id="password" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Kkm password</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                </field>
+                <field id="group_code" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Atol Group Code</label>
+                </field>
+                <field id="inn" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>INN</label>
+                </field>
+                <field id="payment_address" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>Payment Address</label>
+                    <comment>
+                                <![CDATA[Адрес расчётов]]>
+                    </comment> 
+                </field>
+                <field id="sno" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>SNO</label>
+                    <source_model>Mygento\Kkm\Model\Source\Sno</source_model>
+                </field>
+                <field id="tax_all" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Tax all</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                                <![CDATA[Единый всем]]>
+                    </comment>
+                </field>
+                <field id="tax_options" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Tax options</label>
+                    <source_model>Mygento\Kkm\Model\Source\Taxoption</source_model>
+                    <depends>
+                        <field id="*/*/tax_all">1</field>
+                    </depends>
+                </field>
+                <field id="product_tax_attr" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Attribute for product tax</label>
+                    <source_model>Mygento\Kkm\Model\Source\Attributes</source_model>
+                    <depends>
+                        <field id="*/*/tax_all">1</field>
+                    </depends>
+                </field>                
+                <field id="payment_methods" translate="label" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1"
+                       showInStore="0">
+                    <label>List of payment methods</label>
+                    <source_model>Mygento\Kkm\Model\Source\Payments</source_model>
+                    <frontend_class>validate-select</frontend_class>
+                    <comment>
+                                <![CDATA[Choose payment methods. Limit 1-10.]]>
+                    </comment>
+                </field>
+                <field id="auto_send_after_invoice" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Auto send after invoice</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="auto_send_after_cancel" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Auto send after cancel</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>           
+                <field id="shipping_tax" translate="label" type="select" sortOrder="150" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Shipping tax code</label>
+                    <source_model>Mygento\Kkm\Model\Source\Taxoption</source_model>
+                    <comment>
+                                <![CDATA[Shipping tax]]>
+                    </comment>
+                </field>                
+                <field id="default_shipping_name" translate="label" type="select" sortOrder="160" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Use default shipping name</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>
+                                <![CDATA[Shipping name]]>
+                    </comment>
+                </field>
+                <field id="custom_shipping_name" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Custom shipping name</label>
+                    <comment>
+                                <![CDATA[Custom shipping name]]>
+                    </comment> 
+                    <depends>
+                        <field id="*/*/default_shipping_name">0</field>
+                    </depends>
+                </field>                
+                <field id="fail_status" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Sending cheque fail status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                    <comment>
+                                <![CDATA[Set this status to order if sending data to KKM vendor failed.]]>
+                    </comment>
+                </field>                
+                <field id="debug" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Debug</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
