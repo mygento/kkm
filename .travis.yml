@@ -1,22 +1,22 @@
 language: php
-
 php:
-  - 5.4
-  - 5.5
-  - 5.6
-
+- 5.5
+- 5.6
+- 7.0
 matrix:
   allow_failures:
-    - php: hhvm
-
+  - php: hhvm
 before_script:
-  - composer self-update --no-interaction
-  - composer install --no-interaction
-  - php vendor/bin/phpcs --config-set ignore_warnings_on_exit 1
-
+- composer self-update
+- echo "{\"http-basic\":{\"repo.magento.com\":{\"username\":\"${MAGENTO_USERNAME}\",\"password\":\"${MAGENTO_PASSWORD}\"}}}" > auth.json
+- phpenv config-rm xdebug.ini
+- composer install --no-interaction --prefer-dist
+- php vendor/bin/phpcs --config-set ignore_warnings_on_exit 1
 script:
-  - php vendor/bin/parallel-lint --exclude vendor .
-  - php vendor/bin/phpcs --standard=vendor/magento-ecg/coding-standard/Ecg,vendor/mygento/coding-standard/Mygento-Mage1 --ignore=lib .
-  - php vendor/bin/phpcpd --exclude=vendor .
-  - php vendor/bin/phpdcd --exclude=vendor .
-  - php vendor/bin/phpmd . text vendor/mygento/coding-standard/Mygento-Mage1/phpmd.xml --exclude vendor,lib
+- php vendor/bin/parallel-lint --exclude vendor .
+- php vendor/bin/phpcs --standard=vendor/mygento/coding-standard/Mygento-Mage2 .
+- php vendor/bin/phpmd . text cleancode,codesize,design,naming,unusedcode vendor/mygento/coding-standard/Mygento-Mage2/phpmd.xml --exclude vendor
+env:
+  global:
+  - secure: aZScsjI1aA3iOEDUMGMgt2e3Jal/l4WolOWfNyf7Uh3pZJxJPkeZDEizZ5FWpztA9i4jmOzaU9XexKwBRCi/Ehrgo7mw6YDqzIDreRu/CsMRm3FKMdW8eHTnb3GEAhgsTJIFhqvZA0GLO9lUCgvAYW/vk3yTVnttbgcM6J/cR8Y=
+  - secure: Rov0H13u42jRA/wmWWghmGIwtcyv5YTHHd8Buvq3PvfxA7wvLqouN7QHYFK1lV/RvBXTLoBboszEZSwxvlrp6Od6RK7yxKcFzmKIJptg0AxmICAZNgdr5nXvbbWvwnIlR5fCsyd6DvGnwBJ2Gk8nx35hl90e5nAa0WlspE3/Wfo=

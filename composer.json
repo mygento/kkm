@@ -1,7 +1,8 @@
 {
     "name": "mygento/kkm",
-    "type": "magento-module",
-    "license": "proprietary",
+    "type": "magento2-module",
+    "version": "0.0.1",
+    "license": "OSL-3.0",
     "homepage": "https://github.com/mygento/kkm",
     "description": "Модуль интеграции фискальных кассовых аппаратов для Magento в соответствии с 54-ФЗ",
     "keywords": [
@@ -15,24 +16,33 @@
             "homepage": "https://www.mygento.ru/"
         }
     ],
+    "keywords": [
+        "magento",
+        "mygento"
+    ],
     "require": {
-        "php": ">=5.4.0",
-        "ext-bcmath": "*",
-        "magento-hackathon/magento-composer-installer": "3.*",
-        "mygento/base": "1.*"
+        "php": "~5.5.0|~5.6.0|~7.0.0",
+        "magento/framework": "100.*",
+        "magento/module-config": "100.*",
+        "magento/module-store": "100.*"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "2.*",
-        "magento-ecg/coding-standard": "dev-master",
-        "mygento/coding-standard": "1.*",
-        "sebastian/phpdcd": "*",
-        "sebastian/phpcpd": "*",
-        "jakub-onderka/php-parallel-lint": "0.*",
-        "jakub-onderka/php-console-highlighter": "0.*",
-        "phpmd/phpmd": "@stable"
+        "mygento/coding-standard": "2.*",
+        "jakub-onderka/php-parallel-lint": "^0.9.2",
+        "jakub-onderka/php-console-highlighter": "^0.3.2"
     },
-    "extra": {
-        "magento-root-dir": ".",
-        "with-bootstrap-patch": false
-    }
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Mygento\\Base\\": ""
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://repo.magento.com"
+        }
+    ]
 }
