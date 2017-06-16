@@ -3,4 +3,4 @@
 /vendor
 /composer.lock
 .DS_Store
-/nbproject/private/
+/nbproject/
