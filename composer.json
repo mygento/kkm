@@ -36,7 +36,7 @@
             "registration.php"
         ],
         "psr-4": {
-            "Mygento\\Base\\": ""
+            "Mygento\\Kkm\\": ""
         }
     },
     "repositories": [
