@@ -59,5 +59,4 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
     {
         return $this->getAllOptions();
     }
-
 }

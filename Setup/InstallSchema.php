@@ -31,43 +31,60 @@ class InstallSchema implements InstallSchemaInterface
         $table = $installer->getConnection()
             ->newTable($installer->getTable('mygento_kkm_status'))
             ->addColumn(
-                'id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, null,
-                ['identity' => true, 'auto_increment' => true, 'unsigned' => true, 'nullable' => false, 'primary' => true],
+                'id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
+                ['identity'       => true, 'auto_increment' => true, 'unsigned'       => true,
+                'nullable'       => false, 'primary'        => true],
                 'ID'
             )
             ->addColumn(
-                'uuid', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255,
+                'uuid',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
                 [
                 'nullable' => false
-                ], 'Universally Unique Identifier'
+                ],
+                'Universally Unique Identifier'
             )
             ->addColumn(
-                'external_id', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255,
+                'external_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
                 [
                 'nullable' => false
-                ], 'External Id'
+                ],
+                'External Id'
             )
             ->addColumn(
-                'operation', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255,
+                'operation',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
                 [
                 'nullable' => false
-                ], 'Operation'
+                ],
+                'Operation'
             )
             ->addColumn(
-                'vendor', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, ['unsigned' => true],
+                'vendor',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
+                ['unsigned' => true],
                 'Vendor code'
             )
             ->addColumn(
-                'status', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, null,
+                'status',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
                 [
                 'nullable' => false,
                 'length'   => 255
-                ], 'Status'
+                ],
+                'Status'
             )
             ->setComment('Mygento Kkm Status');
         $installer->getConnection()->createTable($table);
 
         $installer->endSetup();
     }
-
 }

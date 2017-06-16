@@ -5,10 +5,6 @@
     "license": "OSL-3.0",
     "homepage": "https://github.com/mygento/kkm",
     "description": "Модуль интеграции фискальных кассовых аппаратов для Magento в соответствии с 54-ФЗ",
-    "keywords": [
-        "magento",
-        "payment"
-    ],
     "authors": [
         {
             "name": "Mygento",

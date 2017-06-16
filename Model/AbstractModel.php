@@ -23,9 +23,9 @@ abstract class AbstractModel extends \Magento\Framework\Model\AbstractExtensible
     abstract protected function cancelCheque($creditmemo, $order);
     abstract protected function updateCheque($invoice);
     public function __construct(
-    \Mygento\Kkm\Helper $kkmHelper
-    )
-    {
+        \Mygento\Kkm\Helper $kkmHelper
+    ) {
+    
         $this->_kkmHelper = $kkmHelper;
         parent::__construct();
     }
@@ -48,5 +48,4 @@ abstract class AbstractModel extends \Magento\Framework\Model\AbstractExtensible
     {
         return $this->getConfig('vendor');
     }
-
 }

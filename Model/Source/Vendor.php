@@ -27,5 +27,4 @@ class Vendor implements \Magento\Framework\Option\ArrayInterface
             ]
         ];
     }
-
 }

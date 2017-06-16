@@ -44,5 +44,4 @@ class Payments implements \Magento\Framework\Data\OptionSourceInterface
         }
         return $this->options;
     }
-
 }

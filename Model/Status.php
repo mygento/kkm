@@ -12,5 +12,4 @@ class Status extends \Magento\Framework\Model\AbstractModel
     {
         $this->_init('Mygento\Kkm\Model\ResourceModel\Status');
     }
-
 }

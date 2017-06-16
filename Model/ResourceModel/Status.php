@@ -12,5 +12,4 @@ class Keys extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
     {
         $this->_init('mygento_kkm_status', 'id');
     }
-
 }

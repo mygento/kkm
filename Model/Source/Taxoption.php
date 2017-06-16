@@ -43,5 +43,4 @@ class Taxoption implements \Magento\Framework\Option\ArrayInterface
             ]
         ];
     }
-
 }

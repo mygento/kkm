@@ -43,5 +43,4 @@ class Sno implements \Magento\Framework\Option\ArrayInterface
             ]
         ];
     }
-
 }
