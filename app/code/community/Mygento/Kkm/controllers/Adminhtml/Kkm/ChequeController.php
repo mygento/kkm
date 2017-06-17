@@ -20,12 +20,22 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
     {
         $entityType = strtolower($this->getRequest()->getParam('entity'));
         $id         = $this->getRequest()->getParam('id');
-        $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
+        $helper     = Mage::helper('kkm');
+        $vendor     = $helper->getVendorModel();
+
+        if (!$vendor) {
+            Mage::getSingleton('adminhtml/session')
+                ->addError($helper->__('KKM Vendor not found.') . ' ' . $helper->__('Check KKM module settings.')
+            );
+            $this->_redirectReferer();
+
+            return;
+        }
 
         if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
-            Mage::helper('kkm')->addLog('Invalid url. No id or invalid entity type. Params: ');
-            Mage::helper('kkm')->addLog($this->getRequest()->getParams());
+            Mage::getSingleton('adminhtml/session')->addError($helper->__('Something goes wrong. Check logs.'));
+            $helper->addLog('Invalid url. No id or invalid entity type. Params: ', Zend_Log::ERR);
+            $helper->addLog($this->getRequest()->getParams(), Zend_Log::ERR);
             $this->_redirectReferer();
 
             return;
@@ -34,14 +44,12 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $entity = Mage::getModel('sales/order_' . $entityType)->load($id);
 
         if (!$entity->getId()) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Something goes wrong. Check log file.'));
-            Mage::helper('kkm')->addLog('Entity with Id from request does not exist. Id: ' . $id);
+            Mage::getSingleton('adminhtml/session')->addError($helper->__('Something goes wrong. Check log file.'));
+            $helper->addLog('Entity with Id from request does not exist. Id: ' . $id, Zend_Log::ERR);
             $this->_redirectReferer();
 
             return;
         }
-
-        $vendor = Mage::getModel('kkm/vendor_' . $vendorName);
 
         $method = 'sendCheque';
         if ($entityType == 'creditmemo') {
@@ -54,6 +62,38 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $vendor->$method($entity, $entity->getOrder());
 
         Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__($comment));
+
+        $this->_redirectReferer();
+    }
+
+    public function checkstatusAction()
+    {
+        $uuid       = strtolower($this->getRequest()->getParam('uuid'));
+        $helper     = Mage::helper('kkm');
+        $vendor     = $helper->getVendorModel();
+
+        if (!$uuid) {
+            Mage::getSingleton('adminhtml/session')->addError($helper->__('Uuid can not be empty.'));
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        if (!$vendor) {
+            Mage::getSingleton('adminhtml/session')
+                ->addError($helper->__('KKM Vendor not found.') . ' ' . $helper->__('Check KKM module settings.'));
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        $result = $vendor->checkStatus($uuid);
+
+        if (!$result) {
+            Mage::getSingleton('adminhtml/session')->addError($helper->__('Can not check status of the transaction.'));
+        } else {
+            Mage::getSingleton('adminhtml/session')->addSuccess($helper->__('Status was updated.'));
+        }
 
         $this->_redirectReferer();
     }
@@ -71,67 +111,36 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         // @codingStandardsIgnoreEnd
     }
 
+    public function viewlogsAction() {
+        $this->loadLayout();
+        $this->renderLayout();
+    }
+
+    public function clearlogsAction()
+    {
+        $model      = Mage::getModel('kkm/log_entry');
+        $resource   = $model->getResource();
+        $connection = $resource->getReadConnection();
+        if (!method_exists($connection, 'truncateTable')) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Your Magento is too old. Please clear logs manually.'));
+            $this->_redirectReferer();
+
+            return;
+        }
+        /* @see Varien_Db_Adapter_Pdo_Mysql - For Magento > 1.5 */
+        $connection->truncateTable($resource->getMainTable());
+
+        if (method_exists($connection, 'changeTableAutoIncrement')) {
+            /* @see Varien_Db_Adapter_Pdo_Mysql - For Magento > 1.7 */
+            $connection->changeTableAutoIncrement($resource->getMainTable(), 1);
+        }
+
+        $this->_redirectReferer();
+    }
+
     public function indexAction()
     {
         $this->_initAction()->renderLayout();
-    }
-
-    public function newAction()
-    {
-        $this->_forward('edit');
-    }
-
-    public function editAction()
-    {
-        $id = $this->getRequest()->getParam('id');
-        $model = Mage::getModel('kkm/cheque')->load($id);
-        if ($model->getId() || $id == 0) {
-            $data = Mage::getSingleton('adminhtml/session')->getFormData(true);
-            if (!empty($data)) {
-                $model->setData($data);
-            }
-            Mage::register('cheque_data', $model);
-            $this->loadLayout();
-            $this->_setActiveMenu('kkm/cheque');
-            $this->_addBreadcrumb(Mage::helper('kkm')->__('Cheque Manager'), Mage::helper('kkm')->__('Cheque Manager'));
-            $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
-            $this->_addContent($this->getLayout()->createBlock('kkm/adminhtml_cheque_edit'))->_addLeft($this->getLayout()->createBlock('kkm/adminhtml_cheque_edit_tabs'));
-            $this->renderLayout();
-        } else {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Cheque does not exist'));
-            $this->_redirect('*/*/');
-        }
-    }
-
-    public function saveAction()
-    {
-        if ($data = $this->getRequest()->getPost()) {
-            $model = Mage::getModel('kkm/cheque');
-            foreach ($data as $key => $value) {
-                if (is_array($value)) {
-                    $data[$key] = implode(',', $this->getRequest()->getParam($key));
-                }
-            }
-            $model->setData($data)->setId($this->getRequest()->getParam('id'));
-            try {
-                $model->save();
-                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Cheque was successfully saved'));
-                Mage::getSingleton('adminhtml/session')->setFormData(false);
-                if ($this->getRequest()->getParam('back')) {
-                    $this->_redirect('*/*/edit', array('id' => $model->getId()));
-                    return;
-                }
-                $this->_redirect('*/*/');
-                return;
-            } catch (Exception $e) {
-                Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
-                Mage::getSingleton('adminhtml/session')->setFormData($data);
-                $this->_redirect('*/*/edit', array('id' => $this->getRequest()->getParam('id')));
-                return;
-            }
-        }
-        Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Unable to find cheque  to save'));
-        $this->_redirect('*/*/');
     }
 
     protected function _isAllowed()
@@ -139,11 +148,17 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $action = strtolower($this->getRequest()->getActionName());
 
         switch ($action) {
-            case 'getlog':
-                $aclResource = 'kkm_cheque/getlog';
+            case 'viewlogs':
+                $aclResource = 'kkm_cheque/viewlogs';
                 break;
             case 'resend':
                 $aclResource = 'kkm_cheque/resend';
+                break;
+            case 'checkstatus':
+                $aclResource = 'kkm_cheque/checkstatus';
+                break;
+            case 'clearlogs':
+                $aclResource = 'kkm_cheque/clearlogs';
                 break;
             default:
                 $aclResource = 'kkm_cheque';

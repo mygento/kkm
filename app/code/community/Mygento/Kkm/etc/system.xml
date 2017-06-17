@@ -235,8 +235,17 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
                         </debug>
+                        <debug_level translate="label">
+                            <label>Debug level</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>kkm/source_severity</source_model>
+                            <sort_order>1005</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </debug_level>
                         <getlog translate="label">
-                            <label>Get log file</label>
+                            <label>See logs</label>
                             <frontend_type>button</frontend_type>
                             <frontend_model>kkm/logs_button</frontend_model>
                             <sort_order>1010</sort_order>

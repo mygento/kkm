@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Mygento_Kkm>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </Mygento_Kkm>
     </modules>
     <frontend>
@@ -51,6 +51,9 @@
                     <status>
                         <table>mygento_kkm_status</table>
                     </status>
+                    <log_entry>
+                        <table>mygento_logs</table>
+                    </log_entry>
                 </entities>
             </kkm_resource>
         </models>
@@ -83,7 +86,7 @@
                 <observers>
                     <kkm_add_button_resend>
                         <class>kkm/observer</class>
-                        <method>addButtonResend</method>
+                        <method>addExtraButtons</method>
                     </kkm_add_button_resend>
                 </observers>
             </adminhtml_widget_container_html_before>
@@ -111,6 +114,13 @@
         </routers>
     </admin>
     <adminhtml>
+        <layout>
+            <updates>
+                <kkm>
+                    <file>mygento/kkm.xml</file>
+                </kkm>
+            </updates>
+        </layout>
         <translate>
             <modules>
                 <kkm>
@@ -138,12 +148,18 @@
                         <kkm_cheque translate="title" module="kkm">
                             <title>KKM options</title>
                             <children>
-                                <getlog translate="title">
-                                    <title>Download log file</title>
-                                </getlog>
+                                <viewlogs translate="title">
+                                    <title>View logs</title>
+                                </viewlogs>
                                 <resend translate="title">
                                     <title>Manually send invoice/creditmemo</title>
                                 </resend>
+                                <checkstatus translate="title">
+                                    <title>Manually check status of invoice/creditmemo</title>
+                                </checkstatus>
+                                <clearlogs translate="title">
+                                    <title>Clear logs table</title>
+                                </clearlogs>
                             </children>
                         </kkm_cheque>
                     </children>
@@ -163,6 +179,7 @@
                 <auto_send_after_invoice>1</auto_send_after_invoice>
                 <auto_send_after_cancel>1</auto_send_after_cancel>
                 <fail_status>kkm_failed</fail_status>
+                <debug_level>3</debug_level>
             </general>
         </kkm>
     </default>
