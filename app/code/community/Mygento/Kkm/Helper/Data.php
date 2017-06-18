@@ -200,27 +200,27 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             if ($getRequestObj->error == null) {
                 $orderComment = $orderComment ?: 'Cheque has been sent to KKM vendor.';
                 $comment = '[' . strtoupper($vendorName) . '] '
-                            . $this->__($orderComment) . ' '
-                            . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                            . $entity->getIncrementId()
-                            . '. Status: '
-                            . ucwords($getRequestObj->status)
-                            . 'Uuid: '
-                            . $getRequestObj->uuid ?: 'no uuid';
+                        . $this->__($orderComment) . ' '
+                        . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                        . $entity->getIncrementId()
+                        . '. Status: '
+                        . ucwords($getRequestObj->status)
+                        . '. Uuid: '
+                        . $getRequestObj->uuid ?: 'no uuid';
             } else {
                 $orderComment = $orderComment ?: 'Cheque has been rejected by KKM vendor.';
                 $comment = '[' . strtoupper($vendorName) . '] '
-                            . $this->__($orderComment) . ' '
-                            . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                            . $entity->getIncrementId()
-                            . '. Status: '
-                            . ucwords($getRequestObj->status)
-                            . '. Error code: '
-                            . $getRequestObj->error->code
-                            . '. Error text: '
-                            . $getRequestObj->error->text
-                            . 'Uuid: '
-                            . $getRequestObj->uuid ?: 'no uuid';
+                        . $this->__($orderComment) . ' '
+                        . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                        . $entity->getIncrementId()
+                        . '. Status: '
+                        . ucwords($getRequestObj->status)
+                        . '. Error code: '
+                        . $getRequestObj->error->code
+                        . '. Error text: '
+                        . $getRequestObj->error->text
+                        . '. Uuid: '
+                        . $getRequestObj->uuid ?: 'no uuid';
 
                 if ($this->getConfig('general/fail_status')) {
                     $status = $this->getConfig('general/fail_status');

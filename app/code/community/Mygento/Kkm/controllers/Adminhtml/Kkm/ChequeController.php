@@ -25,8 +25,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
         if (!$vendor) {
             Mage::getSingleton('adminhtml/session')
-                ->addError($helper->__('KKM Vendor not found.') . ' ' . $helper->__('Check KKM module settings.')
-            );
+                ->addError($helper->__('KKM Vendor not found.') . ' ' . $helper->__('Check KKM module settings.'));
             $this->_redirectReferer();
 
             return;
@@ -98,20 +97,8 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $this->_redirectReferer();
     }
 
-    public function getlogAction()
+    public function viewlogsAction()
     {
-        $logDir = Mage::getBaseDir('var') . DS . 'log';
-        $file   = $logDir . DS . Mage::helper('kkm')->getLogFilename();
-
-        $transfer = new Varien_File_Transfer_Adapter_Http();
-        $transfer->send($file);
-
-        // @codingStandardsIgnoreStart
-        return;
-        // @codingStandardsIgnoreEnd
-    }
-
-    public function viewlogsAction() {
         $this->loadLayout();
         $this->renderLayout();
     }
@@ -121,13 +108,14 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $model      = Mage::getModel('kkm/log_entry');
         $resource   = $model->getResource();
         $connection = $resource->getReadConnection();
+
+        /* @see Varien_Db_Adapter_Pdo_Mysql - For Magento > 1.5 */
         if (!method_exists($connection, 'truncateTable')) {
             Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Your Magento is too old. Please clear logs manually.'));
             $this->_redirectReferer();
 
             return;
         }
-        /* @see Varien_Db_Adapter_Pdo_Mysql - For Magento > 1.5 */
         $connection->truncateTable($resource->getMainTable());
 
         if (method_exists($connection, 'changeTableAutoIncrement')) {

@@ -12,13 +12,16 @@ trait Mygento_Kkm_Helper_Logger_Db
 
     public function writeLog($message, $severity)
     {
+        //This code is from Magento core. See Mage::log() method.
         if (is_array($message) || is_object($message)) {
+            // @codingStandardsIgnoreStart
             $message = print_r($message, true);
+            // @codingStandardsIgnoreEnd
         }
 
         $hostname        = gethostname() !== false ? gethostname() : '';
         $message         = '[' . $hostname . '] ' . $message;
-        $advancedMessage = $severity <= Zend_Log::CRIT ? $this->get_callstack() : '';
+        $advancedMessage = $severity <= Zend_Log::CRIT ? $this->getCallstack() : '';
 
         $this->_getDbLogger()
             ->setModuleCode($this->_code)
@@ -34,7 +37,8 @@ trait Mygento_Kkm_Helper_Logger_Db
         return Mage::getModel($this->_code . '/log_entry');
     }
 
-    public function get_callstack($delim="\n") {
+    public function getCallstack($delim = "\n")
+    {
         $dt = debug_backtrace();
         $cs = '';
         foreach ($dt as $t) {

@@ -4,8 +4,8 @@
  *
  *
  * @category Mygento
- * @package Mygento_Logs
- * @copyright Copyright © 2017 NKS LLC. (http://www.mygento.ru)
+ * @package Mygento_Kkm
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Block_Adminhtml_Logs_Grid extends Mage_Adminhtml_Block_Widget_Grid
 {
@@ -13,9 +13,9 @@ class Mygento_Kkm_Block_Adminhtml_Logs_Grid extends Mage_Adminhtml_Block_Widget_
     public function _construct()
     {
         parent::_construct();
-        $this->setId('barcodeGrid');
-        $this->setDefaultSort('id');
-        $this->setDefaultDir('ASC');
+        $this->setId('kkmLogsGrid');
+        $this->setDefaultSort('entity_id');
+        $this->setDefaultDir('DESC');
         $this->setSaveParametersInSession(true);
     }
 
@@ -24,7 +24,6 @@ class Mygento_Kkm_Block_Adminhtml_Logs_Grid extends Mage_Adminhtml_Block_Widget_
         $collection = Mage::getModel('kkm/log_entry')
             ->getCollection()
             ->addFieldToFilter('module_code', ['eq' => 'kkm'])
-            ->setOrder('entity_id', 'DESC');
         ;
 
         $this->setCollection($collection);
@@ -59,7 +58,7 @@ class Mygento_Kkm_Block_Adminhtml_Logs_Grid extends Mage_Adminhtml_Block_Widget_
             'index'  => 'timestamp',
         ]);
         $this->addColumn('advanced_info', [
-            'header' => Mage::helper('kkm')->__('Info'),
+            'header' => Mage::helper('kkm')->__('Advanced Info'),
             'align'  => 'right',
             'width'  => '100px',
             'index'  => 'advanced_info',

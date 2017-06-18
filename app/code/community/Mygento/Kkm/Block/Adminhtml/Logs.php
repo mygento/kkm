@@ -5,7 +5,7 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright Copyright © 2017 NKS LLC. (http://www.mygento.ru)
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Block_Adminhtml_Logs extends Mage_Adminhtml_Block_Widget_Grid_Container
 {

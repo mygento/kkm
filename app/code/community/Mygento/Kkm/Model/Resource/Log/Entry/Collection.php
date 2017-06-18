@@ -15,5 +15,4 @@ class Mygento_Kkm_Model_Resource_Log_Entry_Collection extends Mage_Core_Model_Re
         parent::_construct();
         $this->_init('kkm/log_entry');
     }
-
 }

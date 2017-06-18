@@ -15,15 +15,6 @@
                 </args>
             </kkm>
         </routers>
-        <translate>
-            <modules>
-                <kkm>
-                    <files>
-                        <default>Mygento_Kkm.csv</default>
-                    </files>
-                </kkm>
-            </modules>
-        </translate>
     </frontend>
     <global>
         <blocks>
@@ -46,6 +37,7 @@
                 <deprecatedNode>kkm_mysql4</deprecatedNode>
                 <entities>
                     <token>
+                        <!--deprecated entity since 1.0.4-->
                         <table>mygento_kkm_token</table>
                     </token>
                     <status>
