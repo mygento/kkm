@@ -1,3 +1,4 @@
 app/code/community/Mygento/Kkm app/code/community/Mygento/Kkm
 app/etc/modules/Mygento_Kkm.xml app/etc/modules/Mygento_Kkm.xml
 app/locale/ru_RU/Mygento_Kkm.csv app/locale/ru_RU/Mygento_Kkm.csv
+app/design/adminhtml/default/default/layout/mygento/kkm.xml app/design/adminhtml/default/default/layout/mygento/kkm.xml
