@@ -147,7 +147,9 @@ If answer from KKM contains `"status": "fail"` order's status should be automati
 ### 9. Token renewal (only for Atol)
 **Description**
 There was an issue with token expiration time. To check this case we should have 2 different Magento stores with KKM module. Kkm Login/Password pairs should be equal on both stores.
+
 **Scenario:**
+
 |                               Action                              |                                                      Expected result                                                     |
 |:-----------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------:|
 |  Send transaction to Atol from store 1. (E.g. create new Invoice) | Info about transaction should appear in appropriate order's comment.                                                     |
@@ -166,6 +168,7 @@ Order's comment about the transaction should contain 'uuid'.
 
 ### 11. Button "Check status in KKM" 
 **Scenario:**
+
 | Action                                                                               | Expected result                                                                                          |
 |--------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
 | Create Basic Access Auth on the server (in order to avoid callback message from KKM) |                                                                                                          |
