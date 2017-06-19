@@ -14,7 +14,7 @@ class Mygento_Kkm_Block_Adminhtml_Logs extends Mage_Adminhtml_Block_Widget_Grid_
     {
         $this->_controller = 'adminhtml_logs';
         $this->_blockGroup = 'kkm';
-        $this->_headerText = Mage::helper('kkm')->__('Logs Viewer');
+        $this->_headerText = Mage::helper('kkm')->__('KKM Logs Viewer');
 
         $url = Mage::getModel('adminhtml/url')->getUrl('adminhtml/kkm_cheque/clearlogs');
         $this->addButton('clear', array(

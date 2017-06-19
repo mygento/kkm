@@ -243,6 +243,9 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <depends>
+                                <debug>1</debug>
+                            </depends>
                         </debug_level>
                         <getlog translate="label">
                             <label>See logs</label>
@@ -252,6 +255,9 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
+                            <depends>
+                                <debug>1</debug>
+                            </depends>
                         </getlog>
                     </fields>
                 </general>

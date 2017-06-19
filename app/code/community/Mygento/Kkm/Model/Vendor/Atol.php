@@ -233,8 +233,21 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'type' => 1
         ];
 
+        $recalculatedReceiptData['items'] = array_map([$this, 'sanitizeItem'], $recalculatedReceiptData['items']);
         $post['receipt']['items'] = $recalculatedReceiptData['items'];
 
         return json_encode($post);
+    }
+
+    public function sanitizeItem($item)
+    {
+        //isset() returns false if 'tax' exists but equal to NULL.
+        if (array_key_exists('tax', $item)) {
+            $item['tax'] = in_array($item['tax'], ["none", "vat0", "vat10", "vat18", "vat110", "vat118"], true)
+                ? $item['tax']
+                : "none";
+
+            return $item;
+        }
     }
 }
