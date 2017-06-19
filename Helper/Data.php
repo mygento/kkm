@@ -6,12 +6,10 @@
  */
 namespace Mygento\Kkm\Helper;
 
-use \Mygento\Kkm\Helper;
-
 /**
  * Class Data
  */
-class Data extends Mygento\Kkm\Helper
+class Data extends \Mygento\Base\Helper\Data
 {
-    
+    protected $_code = 'kkm';
 }

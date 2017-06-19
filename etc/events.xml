@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Mygento Team
+ * @copyright See COPYING.txt for license details.
+ * @package Mygento_Kkm
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="sales_order_invoice_save_after">
+        <observer name="Mygento_Kkm_SendCheque" instance="Mygento\Kkm\Observer\SendCheque" />
+    </event>    
+    <event name="sales_order_creditmemo_save_after">
+        <observer name="Mygento_Kkm_cancelCheque" instance="Mygento\Kkm\Observer\CancelCheque" />
+    </event>
+</config>

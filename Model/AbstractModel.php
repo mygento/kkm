@@ -6,12 +6,13 @@
  */
 namespace Mygento\Kkm\Model;
 
+use Magento\Framework\Model\AbstractExtensibleModel;
+
 /**
  * Abstract model for vendor
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @author      Magento Core Team <core@magentocommerce.com>
  */
-abstract class AbstractModel extends \Magento\Framework\Model\AbstractExtensibleModel
+abstract class AbstractModel
 {
 
     /**
@@ -23,11 +24,10 @@ abstract class AbstractModel extends \Magento\Framework\Model\AbstractExtensible
     abstract protected function cancelCheque($creditmemo, $order);
     abstract protected function updateCheque($invoice);
     public function __construct(
-        \Mygento\Kkm\Helper $kkmHelper
+        \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
     
         $this->_kkmHelper = $kkmHelper;
-        parent::__construct();
     }
 
     /**

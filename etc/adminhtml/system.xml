@@ -16,31 +16,36 @@
             <label>Kkm Itegration</label>
             <tab>mygento</tab>
             <resource>Mygento_Base::config</resource>
-            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Kkm Settings</label>
-                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="vendor" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="vendor" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Vendor</label>
                     <source_model>Mygento\Kkm\Model\Source\Vendor</source_model>
+                    <can_be_empty>0</can_be_empty>
                 </field>
                 <field id="login" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>Kkm login</label>
                 </field>
-                <field id="password" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="password" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Kkm password</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
                 <field id="group_code" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
+                       showInStore="1">
                     <label>Atol Group Code</label>
+                    <depends>
+                        <field id="*/*/vendor">atol</field>
+                    </depends>
                 </field>
                 <field id="inn" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1"
                        showInStore="0">
                     <label>INN</label>
+                    <validate>validate-digits</validate>
                 </field>
                 <field id="payment_address" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1"
                        showInStore="0">
@@ -50,33 +55,37 @@
                     </comment> 
                 </field>
                 <field id="sno" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
+                       showInStore="1">
                     <label>SNO</label>
                     <source_model>Mygento\Kkm\Model\Source\Sno</source_model>
+                    <comment>
+                                <![CDATA[Система налогообложения]]>
+                    </comment> 
                 </field>
-                <field id="tax_all" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="tax_all" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Tax all</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>
                                 <![CDATA[Единый всем]]>
                     </comment>
                 </field>
-                <field id="tax_options" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="tax_options" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Tax options</label>
                     <source_model>Mygento\Kkm\Model\Source\Taxoption</source_model>
                     <depends>
                         <field id="*/*/tax_all">1</field>
                     </depends>
                 </field>
-                <field id="product_tax_attr" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="product_tax_attr" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Attribute for product tax</label>
                     <source_model>Mygento\Kkm\Model\Source\Attributes</source_model>
+                    <can_be_empty>0</can_be_empty>
                     <depends>
-                        <field id="*/*/tax_all">1</field>
+                        <field id="*/*/tax_all">0</field>
                     </depends>
                 </field>                
                 <field id="payment_methods" translate="label" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1"
-                       showInStore="0">
+                       showInStore="1">
                     <label>List of payment methods</label>
                     <source_model>Mygento\Kkm\Model\Source\Payments</source_model>
                     <frontend_class>validate-select</frontend_class>
@@ -84,29 +93,29 @@
                                 <![CDATA[Choose payment methods. Limit 1-10.]]>
                     </comment>
                 </field>
-                <field id="auto_send_after_invoice" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="auto_send_after_invoice" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Auto send after invoice</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="auto_send_after_cancel" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="auto_send_after_cancel" translate="label" type="select" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Auto send after cancel</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>           
-                <field id="shipping_tax" translate="label" type="select" sortOrder="150" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="shipping_tax" translate="label" type="select" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Shipping tax code</label>
                     <source_model>Mygento\Kkm\Model\Source\Taxoption</source_model>
                     <comment>
                                 <![CDATA[Shipping tax]]>
                     </comment>
                 </field>                
-                <field id="default_shipping_name" translate="label" type="select" sortOrder="160" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="default_shipping_name" translate="label" type="select" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Use default shipping name</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>
                                 <![CDATA[Shipping name]]>
                     </comment>
                 </field>
-                <field id="custom_shipping_name" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="custom_shipping_name" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Custom shipping name</label>
                     <comment>
                                 <![CDATA[Custom shipping name]]>
@@ -115,16 +124,29 @@
                         <field id="*/*/default_shipping_name">0</field>
                     </depends>
                 </field>                
-                <field id="fail_status" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="fail_status" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Sending cheque fail status</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                     <comment>
                                 <![CDATA[Set this status to order if sending data to KKM vendor failed.]]>
                     </comment>
                 </field>                
-                <field id="debug" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="debug" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Debug</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>             
+                <field id="debug_level" translate="label" type="select" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Debug level</label>
+                    <source_model>Mygento\Kkm\Model\Source\Severity</source_model>
+                    <depends>
+                        <field id="*/*/debug">1</field>
+                    </depends>
+                </field>         
+                <field id="getlog" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>See logs</label>
+                    <depends>
+                        <field id="*/*/debug">1</field>
+                    </depends>
                 </field>
             </group>
         </section>

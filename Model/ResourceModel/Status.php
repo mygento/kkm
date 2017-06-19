@@ -6,7 +6,7 @@
  */
 namespace Mygento\Kkm\Model\ResourceModel;
 
-class Keys extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
+class Status extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     protected function _construct()
     {

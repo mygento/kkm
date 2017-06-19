@@ -19,6 +19,10 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
     const _code                = 'atol';
     const _operationSell       = 'sell';
     const _operationSellRefund = 'sell_refund';
+    const _operationGetToken   = 'getToken';
+    const _operationGetReport  = 'report';
+
+    protected $token;
 
     /**
      * 
@@ -27,7 +31,15 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
      */
     public function sendCheque($invoice, $order)
     {
-        
+        $type   = 'invoice_';
+        $helper = $this->_kkmHelper;
+        try {
+            $token = $this->getToken();
+        } catch (\Exception $e) {
+            $helper->addLog($e->getMessage(), \Zend\Log\Logger::ERR);
+
+            return false;
+        }
     }
 
     /**
@@ -52,10 +64,13 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
     /**
      * 
      * @return boolean || string
+     * @throws Exception
      */
-    public function getToken()
+    public function getToken($renew = false)
     {
-        
+        if (!$renew && $this->token) {
+            return $this->token;
+        }
     }
 
     /**
