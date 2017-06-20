@@ -28,6 +28,8 @@ class SendCheque implements ObserverInterface
     protected $_messageManager;
 
     /**
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Mygento\Kkm\Helper\Data $helper
      */
     public function __construct(
@@ -35,10 +37,9 @@ class SendCheque implements ObserverInterface
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
-    
         $this->_objectManager  = $objectManager;
-        $this->kkmHelper       = $kkmHelper;
         $this->_messageManager = $messageManager;
+        $this->_kkmHelper      = $kkmHelper;
     }
 
     /**
@@ -49,7 +50,7 @@ class SendCheque implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        $helper = $this->kkmHelper;
+        $helper = $this->_kkmHelper;
         $helper->addLog('sendCheque');
 
         $invoice = $observer->getEvent()->getInvoice();
@@ -58,8 +59,6 @@ class SendCheque implements ObserverInterface
             $helper->addLog('Skipped send cheque.');
             return;
         }
-
-
 
         $order           = $invoice->getOrder();
         $paymentMethod   = $order->getPayment()->getMethod();
@@ -70,8 +69,6 @@ class SendCheque implements ObserverInterface
             $helper->addLog('paymentMethod: ' . $paymentMethod . ' is not allowed for sending cheque.');
             return;
         }
-
-
 
         if ($invoice->getOrigData() && isset($invoiceOrigData['increment_id'])) {
             $helper->addLog('invoice already created');
@@ -86,8 +83,5 @@ class SendCheque implements ObserverInterface
         if ($sendResult === false) {
             $this->_messageManager->addError(__('Cheque has been rejected by KKM vendor.'));
         }
-
-        //Do your stuff here!
-        die('Observer Is called!');
     }
 }

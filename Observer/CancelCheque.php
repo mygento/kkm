@@ -22,15 +22,24 @@ class CancelCheque implements ObserverInterface
     protected $_kkmHelper;
 
     /**
+     *
+     * @var ManagerInterface
+     */
+    protected $_messageManager;
+
+    /**
+     * @param \Magento\Framework\ObjectManagerInterface $objectManager
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Mygento\Kkm\Helper\Data $helper
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Mygento\Kkm\Helper\Data $kkmHelper
+        \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
-    
-        $this->_objectManager = $objectManager;
-        $this->kkmHelper      = $kkmHelper;
+        $this->_objectManager  = $objectManager;
+        $this->_messageManager = $messageManager;
+        $this->_kkmHelper      = $kkmHelper;
     }
 
     /**
@@ -41,11 +50,37 @@ class CancelCheque implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-
-        $helper     = $this->kkmHelper;
+        $helper     = $this->_kkmHelper;
         $helper->addLog('cancelCheque');
         $creditmemo = $observer->getEvent()->getCreditmemo();
-        //Do your stuff here!
-        die('Observer Is called!');
+
+        if (!$helper->getConfig('mygento_kkm/general/enabled') || !$helper->getConfig('mygento_kkm/general/auto_send_after_cancel') || $creditmemo->getOrderCurrencyCode() !== 'RUB') {
+            $helper->addLog('Skipped cancel cheque.');
+            return;
+        }
+
+        $order              = $creditmemo->getOrder();
+        $paymentMethod      = $order->getPayment()->getMethod();
+        $creditmemoOrigData = $creditmemo->getOrigData();
+        $paymentMethods     = explode(',', $helper->getConfig('mygento_kkm/general/payment_methods'));
+
+        if (!in_array($paymentMethod, $paymentMethods)) {
+            $helper->addLog('paymentMethod: ' . $paymentMethod . ' is not allowed for cancelling cheque.');
+            return;
+        }
+
+        if ($creditmemo->getOrigData() && isset($creditmemoOrigData['increment_id'])) {
+            return;
+        }
+
+        $vendorName = ucfirst($helper->getConfig('mygento_kkm/general/vendor'));
+
+        $sendResult = $this->_objectManager
+            ->create('\Mygento\Kkm\Model\Vendor\\' . $vendorName)
+            ->cancelCheque($creditmemo, $order);
+
+        if ($sendResult === false) {
+            $this->_messageManager->addError(__('Cheque has been rejected by KKM vendor.'));
+        }
     }
 }
