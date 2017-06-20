@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright (c) Mygento.ru
+ * Public license URL: https://www.mygento.ru/oferta
+ * Support EMAIL support@mygento.ru
+ */
+-->
+<layout>
+    <adminhtml_kkm_cheque_viewlogs>
+        <reference name="content">
+            <block type="kkm/adminhtml_logs" name="kkm_logs_grid"/>
+        </reference>
+    </adminhtml_kkm_cheque_viewlogs>
+</layout>

@@ -13,7 +13,8 @@ abstract class Mygento_Kkm_Model_Abstract
 
     abstract protected function sendCheque($invoice, $order);
     abstract protected function cancelCheque($creditmemo, $order);
-    abstract protected function updateCheque($invoice);
+    abstract protected function checkStatus($uuid);
+
     /**
      *
      * @param type $param

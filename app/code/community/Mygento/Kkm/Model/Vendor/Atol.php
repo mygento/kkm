@@ -14,6 +14,10 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     const _code                = 'atol';
     const _operationSell       = 'sell';
     const _operationSellRefund = 'sell_refund';
+    const _operationGetToken   = 'getToken';
+    const _operationGetReport  = 'report';
+
+    protected $token;
 
     /**
      * 
@@ -22,10 +26,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      */
     public function sendCheque($invoice, $order)
     {
-        $token = $this->getToken();
-        $type  = 'invoice_';
+        $type   = 'invoice_';
+        $helper = Mage::helper('kkm');
 
-        if (!$token) {
+        try {
+            $token = $this->getToken();
+        } catch (Exception $e) {
+            $helper->addLog($e->getMessage(), Zend_Log::ERR);
+
             return false;
         }
 
@@ -63,7 +71,9 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             }
 
             $statusModel->setUuid($request->uuid);
-            $statusModel->setStatus($getRequest)->save();
+            $statusModel
+                ->setStatus($getRequest)
+                ->save();
 
             //Save info about transaction
             Mage::helper('kkm')->saveTransactionInfoToOrder($getRequest, $entity, $order);
@@ -77,10 +87,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      */
     public function cancelCheque($creditmemo, $order)
     {
-        $token = $this->getToken();
         $type  = 'creditmemo_';
+        $helper = Mage::helper('kkm');
 
-        if (!$token) {
+        try {
+            $token = $this->getToken();
+        } catch (Exception $e) {
+            $helper->addLog($e->getMessage(), Zend_Log::ERR);
+
             return false;
         }
 
@@ -95,27 +109,51 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $this->saveTransaction($getRequest, $creditmemo, $order);
     }
 
-    /**
-     * 
-     * @param type $invoice
-     */
-    public function updateCheque($invoice)
+    public function checkStatus($uuid)
     {
-        
+        $helper      = Mage::helper('kkm');
+        $statusModel = Mage::getModel('kkm/status')->load($uuid, 'uuid');
+
+        if (!$statusModel->getId()) {
+            $helper->addLog('Uuid not found in store DB. Uuid: ', Zend_Log::ERR);
+
+            return false;
+        }
+
+        try {
+            $token = $this->getToken();
+        } catch (Exception $e) {
+            $helper->addLog($e->getMessage(), Zend_Log::ERR);
+
+            return false;
+        }
+
+        $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationGetReport . '/' . $uuid . '?tokenid=' . $token;
+        $helper->addLog('checkStatus url: ' . $url);
+
+        $getRequest = $helper->requestApiGet($url);
+
+        if ($statusModel->getStatus() !== $getRequest) {
+            $statusModel
+                ->setStatus($getRequest)
+                ->save();
+
+            //Add comment to order about callback data
+            $helper->updateKkmInfoInOrder($getRequest, $statusModel->getExternalId());
+        }
+
+        return true;
     }
 
     /**
      * 
      * @return boolean || string
+     * @throws Exception
      */
-    public function getToken()
+    public function getToken($renew = false)
     {
-        $tokenModel = Mage::getModel('kkm/token');
-
-        $token = $tokenModel->load(self::_code, 'vendor');
-
-        if ($token->getId() && strtotime($token->getExpireDate()) > time()) {
-            return $token->getToken();
+        if (!$renew && $this->token) {
+            return $this->token;
         }
 
         $data = [
@@ -123,29 +161,21 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'pass'  => Mage::helper('core')->decrypt($this->getConfig('general/password'))
         ];
 
-        $getRequest = Mage::helper('kkm')->requestApiPost(self::_URL . 'getToken',
-            json_encode($data));
+        $getRequest = Mage::helper('kkm')->requestApiPost(self::_URL . self::_operationGetToken, json_encode($data));
 
         if (!$getRequest) {
-            return false;
+            throw new Exception(Mage::helper('kkm')->__('There is no response from Atol.'));
         }
 
         $decodedResult = json_decode($getRequest);
 
         if (!$decodedResult->token || $decodedResult->token == '') {
-            return false;
+            throw new Exception(Mage::helper('kkm')->__('Response from Atol does not contain valid token value. Response: ') . strval($getRequest));
         }
 
-        $tokenValue = $decodedResult->token;
+        $this->token = $decodedResult->token;
 
-        if (!$token->getId()) {
-            $tokenModel->setVendor(self::_code);
-        }
-        $token->setToken($tokenValue);
-        $token->setExpireDate(time() + (24 * 60 * 60));
-        $token->save();
-
-        return $tokenValue;
+        return $this->token;
     }
 
     /**
@@ -176,10 +206,9 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $now_time = Mage::getModel('core/date')->timestamp(time());
         $post = [
             'external_id' => $type . $receipt->getIncrementId(),
-//            'external_id' => 'invoice_100000026',
             'service' => [
                 'payment_address' => $this->getConfig('general/payment_address'),
-                'callback_url'    => Mage::getUrl('kkm/index/callback'),
+                'callback_url'    => Mage::getUrl('kkm/index/callback', ['_secure' => true]),
                 'inn'             => $this->getConfig('general/inn')
             ],
             'timestamp' => date('d-m-Y H:i:s', $now_time),
@@ -204,8 +233,21 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'type' => 1
         ];
 
+        $recalculatedReceiptData['items'] = array_map([$this, 'sanitizeItem'], $recalculatedReceiptData['items']);
         $post['receipt']['items'] = $recalculatedReceiptData['items'];
 
         return json_encode($post);
+    }
+
+    public function sanitizeItem($item)
+    {
+        //isset() returns false if 'tax' exists but equal to NULL.
+        if (array_key_exists('tax', $item)) {
+            $item['tax'] = in_array($item['tax'], ["none", "vat0", "vat10", "vat18", "vat110", "vat118"], true)
+                ? $item['tax']
+                : "none";
+
+            return $item;
+        }
     }
 }

@@ -9,15 +9,37 @@
  */
 class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 {
+    use Mygento_Kkm_Helper_Logger_Db;
+
+    protected $_code = 'kkm';
+
     /**
      *
      * @param type $text
      */
-    public function addLog($text)
+    public function addLog($text, $severity = Zend_Log::DEBUG)
     {
-        if (Mage::getStoreConfig('kkm/general/debug')) {
-            Mage::log($text, null, $this->getLogFilename(), true);
+        $logsToDb = method_exists($this, 'writeLog');
+
+        if (!Mage::getStoreConfig('kkm/general/debug')) {
+            return false;
         }
+
+        if ($severity > Mage::getStoreConfig('kkm/general/debug_level')) {
+            return false;
+        }
+
+        try {
+            if ($logsToDb) {
+                $this->writeLog($text, $severity);
+
+                return true;
+            }
+        } catch (Exception $e) {
+            Mage::log('Attempt to write log to DB failed. Reason: ' . $e->getMessage(), null, '', true);
+        }
+
+        Mage::log($text, null, $this->getLogFilename(), true);
     }
 
     public function getLogFilename()
@@ -51,7 +73,25 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
         if ($result === false) {
-            $this->addLog('Curl error: ' . curl_error($ch));
+            $this->addLog('Curl error: ' . curl_error($ch), Zend_Log::CRIT);
+            return false;
+        }
+        curl_close($ch);
+        // @codingStandardsIgnoreEnd
+        $this->addLog($result);
+        return $result;
+    }
+
+    public function requestApiGet($url)
+    {
+        // @codingStandardsIgnoreStart
+        $ch     = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($ch);
+        if ($result === false) {
+            $this->addLog('Curl error: ' . curl_error($ch), Zend_Log::CRIT);
             return false;
         }
         curl_close($ch);
@@ -91,12 +131,12 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 
         if (!$entity || empty($incrementId) || !is_numeric($incrementId) || !$entity->getId()) {
             $this->addLog("Error. Can not save callback info to order. Method params: Json = {$json} 
-        Extrnal_id = {$externalId}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}");
+        Extrnal_id = {$externalId}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}", Zend_Log::ERR);
 
             return false;
         }
 
-        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), 'Received callback message from KKM vendor.', $vendor);
+        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), 'Received message from KKM vendor.', $vendor);
     }
 
     public function hasOrderFailedKkmTransactions($order)
@@ -157,32 +197,30 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         try {
             $getRequestObj = json_decode($getRequest);
 
-            if (!is_object($getRequestObj) || !property_exists($getRequestObj, 'error')) {
-                $comment = '[' . strtoupper($vendorName) . '] '
-                    . $this->__($orderComment) . ' '
-                    . $this->__('Response from KKM vendor is empty or does not contain "error" field.') . ' '
-                    . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                    . $entity->getIncrementId();
-            } elseif ($getRequestObj->error == null) {
+            if ($getRequestObj->error == null) {
                 $orderComment = $orderComment ?: 'Cheque has been sent to KKM vendor.';
                 $comment = '[' . strtoupper($vendorName) . '] '
-                            . $this->__($orderComment) . ' '
-                            . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                            . $entity->getIncrementId()
-                    . '. Status: '
-                    . ucwords($getRequestObj->status);
+                        . $this->__($orderComment) . ' '
+                        . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                        . $entity->getIncrementId()
+                        . '. Status: '
+                        . ucwords($getRequestObj->status)
+                        . '. Uuid: '
+                        . $getRequestObj->uuid ?: 'no uuid';
             } else {
                 $orderComment = $orderComment ?: 'Cheque has been rejected by KKM vendor.';
                 $comment = '[' . strtoupper($vendorName) . '] '
-                            . $this->__($orderComment) . ' '
-                            . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                            . $entity->getIncrementId()
-                            . '. Status: '
-                            . ucwords($getRequestObj->status)
-                            . '. Error code: '
-                            . $getRequestObj->error->code
-                            . '. Error text: '
-                            . $getRequestObj->error->text;
+                        . $this->__($orderComment) . ' '
+                        . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                        . $entity->getIncrementId()
+                        . '. Status: '
+                        . ucwords($getRequestObj->status)
+                        . '. Error code: '
+                        . $getRequestObj->error->code
+                        . '. Error text: '
+                        . $getRequestObj->error->text
+                        . '. Uuid: '
+                        . $getRequestObj->uuid ?: 'no uuid';
 
                 if ($this->getConfig('general/fail_status')) {
                     $status = $this->getConfig('general/fail_status');
@@ -197,7 +235,8 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 
             $order->save();
         } catch (Exception $e) {
-            $this->addLog('Can not save KKM transaction info to order. Reason: ' . $e->getMessage());
+            $this->addLog('Can not save KKM transaction info to order. Reason: ' . $e->getMessage(), Zend_Log::CRIT);
+
             return false;
         }
     }

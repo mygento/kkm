@@ -40,7 +40,11 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $helper->getVendorModel()->sendCheque($invoice, $order);
+        $sendResult = $helper->getVendorModel()->sendCheque($invoice, $order);
+
+        if ($sendResult === false) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Cheque has been rejected by KKM vendor.'));
+        }
     }
 
     /**
@@ -71,7 +75,11 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $helper->getVendorModel()->cancelCheque($creditmemo, $order);
+        $sendResult = $helper->getVendorModel()->cancelCheque($creditmemo, $order);
+
+        if ($sendResult === false) {
+            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Cheque has been rejected by KKM vendor.'));
+        }
     }
 
     /**Check and change order's status. if it has failed kkm transactions status should be kkm_failed.
@@ -120,46 +128,58 @@ class Mygento_Kkm_Model_Observer
         }
     }
 
-    public function addButtonResend($observer)
+    public function addExtraButtons($observer)
     {
-        //Check ACL
-        if (!Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/resend')) {
+        $container = $observer->getBlock();
+        if (!$this->isProperPageForResendButton($container)) {
             return;
         }
 
-        $container = $observer->getBlock();
-        if ($this->isProperPageForResendButton($container)) {
-            $entity         = $container->getInvoice() ?: $container->getCreditmemo();
-            $order          = $entity->getOrder();
-            $paymentMethod  = $order->getPayment()->getMethod();
-            $paymentMethods = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
+        $entity         = $container->getInvoice() ?: $container->getCreditmemo();
+        $order          = $entity->getOrder();
+        $paymentMethod  = $order->getPayment()->getMethod();
+        $paymentMethods = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
 
-            if (!in_array($paymentMethod, $paymentMethods) || $entity->getOrderCurrencyCode() != 'RUB') {
-                return;
-            }
+        if (!in_array($paymentMethod, $paymentMethods) || $entity->getOrderCurrencyCode() != 'RUB') {
+            return;
+        }
 
-            $type             = $entity::HISTORY_ENTITY_NAME;
-            $statusExternalId = "{$type}_" . $entity->getIncrementId();
-            $statusModel      = Mage::getModel('kkm/status')->load($statusExternalId, 'external_id');
-            $status           = json_decode($statusModel->getStatus());
+        $type             = $entity::HISTORY_ENTITY_NAME;
+        $statusExternalId = "{$type}_" . $entity->getIncrementId();
+        $statusModel      = Mage::getModel('kkm/status')->load($statusExternalId, 'external_id');
+        $status           = json_decode($statusModel->getStatus());
 
-            if (!$statusModel->getId() || (isset($status->status) && $status->status == 'fail')) {
-                $url = Mage::getModel('adminhtml/url')
-                    ->getUrl(
-                        'adminhtml/kkm_cheque/resend',
-                        [
+        if ($this->canBeShownResendButton($statusModel)) {
+            $url  = Mage::getModel('adminhtml/url')
+                ->getUrl(
+                    'adminhtml/kkm_cheque/resend',
+                    [
                         'entity' => $type,
                         'id'     => $entity->getId()
-                        ]
-                    );
-                $data = [
-                    'label'   => Mage::helper('kkm')->__('Resend to KKM'),
-                    'class'   => '',
-                    'onclick' => 'setLocation(\'' . $url . '\')',
-                ];
+                    ]
+                );
+            $data = [
+                'label'   => Mage::helper('kkm')->__('Resend to KKM'),
+                'class'   => '',
+                'onclick' => 'setLocation(\'' . $url . '\')',
+            ];
 
-                $container->addButton('resend_to_kkm', $data);
-            }
+            $container->addButton('resend_to_kkm', $data);
+        } elseif ($this->canBeShownCheckStatusButton($statusModel)) {
+            $url  = Mage::getModel('adminhtml/url')
+                ->getUrl(
+                    'adminhtml/kkm_cheque/checkstatus',
+                    [
+                        'uuid' => $status->uuid
+                    ]
+                );
+            $data = [
+                'label'   => Mage::helper('kkm')->__('Check status in KKM'),
+                'class'   => '',
+                'onclick' => 'setLocation(\'' . $url . '\')',
+            ];
+
+            $container->addButton('check_status_in_kkm', $data);
         }
 
         return $this;
@@ -173,5 +193,23 @@ class Mygento_Kkm_Model_Observer
     protected function isProperPageForResendButton($block)
     {
         return (null !== $block && ($block->getType() == 'adminhtml/sales_order_creditmemo_view' || $block->getType() == 'adminhtml/sales_order_invoice_view'));
+    }
+
+    protected function canBeShownResendButton($statusModel)
+    {
+        //Check ACL
+        $resendAllowed = Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/resend');
+        $status        = json_decode($statusModel->getStatus());
+
+        return ($resendAllowed && (!$statusModel->getId() || (isset($status->status) && $status->status == 'fail')));
+    }
+
+    protected function canBeShownCheckStatusButton($statusModel)
+    {
+        //Check ACL
+        $checkStatusAllowed = Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/checkstatus');
+        $status             = json_decode($statusModel->getStatus());
+
+        return ($checkStatusAllowed && $status && $status->status == 'wait' && $status->uuid);
     }
 }
