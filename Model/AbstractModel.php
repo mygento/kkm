@@ -22,7 +22,6 @@ abstract class AbstractModel
     const CONFIG_CODE             = 'mygento_kkm';
 
     /* @var \Mygento\Kkm\Helper\Data */
-
     protected $_kkmHelper;
 
     /* @var \Mygento\Kkm\Helper\Discount */

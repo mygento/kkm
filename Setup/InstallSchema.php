@@ -48,13 +48,22 @@ class InstallSchema implements InstallSchemaInterface
                 'Universally Unique Identifier'
             )
             ->addColumn(
-                'external_id',
+                'type',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 255,
                 [
                 'nullable' => false
                 ],
-                'External Id'
+                'Type Of Operation'
+            )
+            ->addColumn(
+                'increment_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
+                [
+                'nullable' => false
+                ],
+                'Increment Id'
             )
             ->addColumn(
                 'operation',
@@ -71,6 +80,16 @@ class InstallSchema implements InstallSchemaInterface
                 255,
                 ['unsigned' => true],
                 'Vendor code'
+            )
+            ->addColumn(
+                'response',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [
+                'nullable' => false,
+                'length'   => 255
+                ],
+                'Response'
             )
             ->addColumn(
                 'status',

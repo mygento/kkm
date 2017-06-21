@@ -67,18 +67,24 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
 
         if ($getRequest) {
             $request     = json_decode($getRequest);
-            $statusModel = $this->_statusFactory->create()->load($type . $entity->getIncrementId(),
-                'external_id');
+            $statusModel = $this->_statusFactory->create()->loadTransaction(
+                [
+                    'type'         => $type,
+                    'increment_id' => $entity->getIncrementId()
+                ]
+            );
 
             if (!$statusModel->getId()) {
                 $statusModel->setVendor(self::_code);
-                $statusModel->setExternalId($type . $entity->getIncrementId());
+                $statusModel->setType($type);
+                $statusModel->setIncrementId($entity->getIncrementId());
                 $statusModel->setOperation($operation);
+                $statusModel->setStatus($request->status);
             }
 
             $statusModel->setUuid($request->uuid);
             $statusModel
-                ->setStatus($getRequest)
+                ->setResponse($getRequest)
                 ->save();
 
             //Save info about transaction
