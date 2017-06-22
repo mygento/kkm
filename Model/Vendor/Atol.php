@@ -31,7 +31,7 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
      */
     public function sendCheque($invoice, $order)
     {
-        $type   = 'invoice_';
+        $type   = 'invoice';
         $helper = $this->_kkmHelper;
         try {
             $token = $this->getToken();
@@ -59,7 +59,7 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
      */
     public function saveTransaction($getRequest, $entity, $order)
     {
-        $type      = $entity->getEntityType() . '_';
+        $type      = $entity->getEntityType();
         $operation = $entity->getEntityType() == 'invoice' ? self::_operationSell : self::_operationSellRefund;
         $helper    = $this->_kkmHelper;
 
@@ -67,12 +67,10 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
 
         if ($getRequest) {
             $request     = json_decode($getRequest);
-            $statusModel = $this->_statusFactory->create()->loadTransaction(
-                [
-                    'type'         => $type,
-                    'increment_id' => $entity->getIncrementId()
-                ]
-            );
+            $statusModel = $this->_statusFactory->create()->getCollection()
+                ->addFieldToFilter('type', $type)
+                ->addFieldToFilter('increment_id', $entity->getIncrementId())
+                ->getFirstItem();
 
             if (!$statusModel->getId()) {
                 $statusModel->setVendor(self::_code);
@@ -99,7 +97,7 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
      */
     public function cancelCheque($creditmemo, $order)
     {
-        $type   = 'creditmemo_';
+        $type   = 'creditmemo';
         $helper = $this->_kkmHelper;
 
         try {
@@ -194,7 +192,7 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
 
         $now_time = $this->_date->timestamp(time());
         $post     = [
-            'external_id' => $type . $receipt->getIncrementId(),
+            'external_id' => $type . '_' . $receipt->getIncrementId(),
             'service'     => [
                 'payment_address' => $this->getConfig('general/payment_address'),
                 'callback_url'    => $this->_storeManager->getStore()->getUrl('kkm/index/callback',

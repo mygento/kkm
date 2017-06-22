@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Mygento Team
+ * @copyright Copyright 2017 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Magento_Backend::stores">
+                    <resource id="Magento_Backend::stores_settings">
+                        <resource id="Magento_Config::config">
+                            <resource id="Mygento_Kkm::cheque_resend" title="Mygento Kkm - Cheque Resend" sortOrder="100"/>
+                            <resource id="Mygento_Kkm::cheque_checkstatus" title="Mygento Kkm - Cheque Check Status" sortOrder="110"/>
+                        </resource>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

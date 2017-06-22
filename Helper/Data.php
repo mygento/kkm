@@ -17,7 +17,8 @@ class Data extends \Mygento\Base\Helper\Data
      */
     protected $_code = 'kkm';
 
-    /*     * Save info about transaction to order
+    /**
+     * Save info about transaction to order
      * @param $getRequest string with json from vendor
      * @param $entity Invoice|Creditmemo
      * @param $order Order

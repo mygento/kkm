@@ -41,28 +41,49 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $table = $installer->getConnection()
             ->newTable($installer->getTable('mygento_kkm_log'))
             ->addColumn(
-                'entity_id', \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER, null,
+                'entity_id',
+                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
+                null,
                 ['identity'       => true, 'auto_increment' => true, 'unsigned'       => true,
-                'nullable'       => false, 'primary'        => true], 'ID'
+                'nullable'       => false, 'primary'        => true],
+                'ID'
             )
             ->addColumn(
-                'message', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, null, [], 'Message'
+                'message',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [],
+                'Message'
             )
             ->addColumn(
-                'severity', \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT, null, [], 'Severity'
+                'severity',
+                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                null,
+                [],
+                'Severity'
             )
             ->addColumn(
-                'timestamp', \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP, null,
+                'timestamp',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
+                null,
                 [
                 'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT,
-                ], 'Time'
+                ],
+                'Time'
             )
             ->addColumn(
-                'advanced_info', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, null, [],
+                'advanced_info',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [],
                 'Advanced Info'
             )
             ->addColumn(
-            'module_code', \Magento\Framework\DB\Ddl\Table::TYPE_TEXT, 255, [], 'Module Code'
+                'module_code',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
+                [],
+                'Module Code'
             )
         ;
         $installer->getConnection()->createTable($table);
@@ -76,7 +97,8 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         // Insert statuses
         $installer->getConnection()->insertArray(
-            $statusTable, [
+            $statusTable,
+            [
             'status',
             'label'
             ],
@@ -111,5 +133,4 @@ class UpgradeSchema implements UpgradeSchemaInterface
             ]
         );
     }
-
 }
