@@ -3,45 +3,33 @@ $installer = $this;
 $installer->startSetup();
 
 // Required tables
-$statusTable = $installer->getTable('sales/order_status');
+$statusTable      = $installer->getTable('sales/order_status');
 $statusStateTable = $installer->getTable('sales/order_status_state');
 
-// Insert statuses
-$installer->getConnection()->insertArray(
-    $statusTable,
+$dataStatus[] = [
+    'status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
+    'label'  => 'KKM Failed'
+];
+$dataStatusState = [
     [
-        'status',
-        'label'
+        'status'     => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
+        'state'      => 'processing',
+        'is_default' => 0
     ],
     [
-        ['status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS, 'label' => 'KKM Failed'],
+        'status'     => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
+        'state'      => 'complete',
+        'is_default' => 0
+    ],
+    [
+        'status'     => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
+        'state'      => 'closed',
+        'is_default' => 0
     ]
-);
+];
 
-$installer->getConnection()->insertArray(
-    $statusStateTable,
-    [
-        'status',
-        'state',
-        'is_default'
-    ],
-    [
-        [
-            'status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
-            'state' => 'processing',
-            'is_default' => 0
-        ],
-        [
-            'status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
-            'state' => 'complete',
-            'is_default' => 0
-        ],
-        [
-            'status' => Mygento_Kkm_Model_Abstract::ORDER_KKM_FAILED_STATUS,
-            'state' => 'closed',
-            'is_default' => 0
-        ]
-    ]
-);
+$installer->getConnection()->insertOnDuplicate($statusTable, $dataStatus, ['status', 'label']);
+$installer->getConnection()->insertOnDuplicate($statusStateTable, $dataStatusState, ['status', 'state', 'is_default']);
+
 
 $installer->endSetup();
