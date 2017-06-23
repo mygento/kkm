@@ -22,12 +22,13 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
     const _operationGetToken   = 'getToken';
     const _operationGetReport  = 'report';
 
+    /** @var string */
     protected $token;
 
     /**
-     * 
-     * @param type $invoice
-     * @param type $order
+     * Send cheque to Vendor
+     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     * @param \Magento\Sales\Model\Order $order
      */
     public function sendCheque($invoice, $order)
     {
@@ -36,9 +37,9 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
         try {
             $token = $this->getToken();
         } catch (\Exception $e) {
-            $helper->addLog($e->getMessage(), \Zend\Log\Logger::ERR);
-
-            return false;
+            $helper->addLog($e->getMessage(), \Zend\Log\Logger::CRIT);
+            $helper->getMessageManager()->addError(__('Response from Atol does not contain valid token value. Response: %1',
+                    $e->getMessage()));
         }
 
         $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSell . '?tokenid=' . $token;
@@ -52,13 +53,15 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
         $this->saveTransaction($getRequest, $invoice, $order);
     }
 
-    /*     * Method saves status entity and writes info to order
+    /**
+     * Method saves status entity and writes info to order
      * @param $getRequest
-     * @param $entity
-     * @param $order
+     * @param \Magento\Sales\Model\Order\Invoice | \Magento\Sales\Model\Order\Creditmemo $entity
+     * @param \Magento\Sales\Model\Order $order
      */
     public function saveTransaction($getRequest, $entity, $order)
     {
+        
         $type      = $entity->getEntityType();
         $operation = $entity->getEntityType() == 'invoice' ? self::_operationSell : self::_operationSellRefund;
         $helper    = $this->_kkmHelper;
@@ -91,9 +94,8 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
     }
 
     /**
-     * 
-     * @param type $creditmemo
-     * @param type $order
+     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     * @param \Magento\Sales\Model\Order $order
      */
     public function cancelCheque($creditmemo, $order)
     {
@@ -103,8 +105,9 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
         try {
             $token = $this->getToken();
         } catch (\Exception $e) {
-            $helper->addLog($e->getMessage(), \Zend\Log\Logger::ERR);
-            return false;
+            $helper->addLog($e->getMessage(), \Zend\Log\Logger::CRIT);
+            $helper->getMessageManager()->addError(__('Response from Atol does not contain valid token value. Response: %1',
+                    $e->getMessage()));
         }
 
         $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSellRefund . '?tokenid=' . $token;
@@ -119,7 +122,6 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
     }
 
     /**
-     * 
      * @param type $invoice
      */
     public function updateCheque($invoice)
@@ -128,10 +130,11 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
     }
 
     /**
-     * 
+     * @param boolean $renew
      * @return boolean || string
      * @throws Exception
      */
+    
     public function getToken($renew = false)
     {
         if (!$renew && $this->token) {
@@ -143,8 +146,6 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
             'login' => $this->getConfig('general/login'),
             'pass'  => $helper->decrypt($this->getConfig('general/password'))
         ];
-
-//        $helper->addLog('sendCheque getToken $data: ' . print_r($data));
 
         $getRequest = $this->_kkmHelper->requestApiPost(self::_URL . self::_operationGetToken,
             json_encode($data));
@@ -165,11 +166,12 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
     }
 
     /**
+     * Main method of data generation for Atol
      * 
-     * @param type $type || string
-     * @param type $receipt
-     * @param type $order
-     * @return type json
+     * @param string $type
+     * @param \Magento\Sales\Model\Order\Invoice | \Magento\Sales\Model\Order\Creditmemo $receipt
+     * @param \Magento\Sales\Model\Order $order
+     * @return json
      */
     protected function _generateJsonPost($type, $receipt, $order)
     {
@@ -228,6 +230,10 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
         return json_encode($post);
     }
 
+    /**
+     * @param array $item
+     * @return array
+     */
     public function sanitizeItem($item)
     {
         //isset() returns false if 'tax' exists but equal to NULL.
@@ -238,9 +244,49 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
             return $item;
         }
     }
+
+    /**
+     * Check status manually if you did not receive our callback
+     * 
+     * @param text $uuid
+     * @return boolean
+     */
     public function checkStatus($uuid)
     {
-        die('work');
+        $helper      = $this->_kkmHelper;
+        $statusModel = $this->_statusFactory->create()->load($uuid, 'uuid');
+
+        if (!$statusModel->getId()) {
+            $helper->addLog('Uuid not found in store DB. Uuid: ', \Zend\Log\Logger::ERR);
+
+            return false;
+        }
+
+        try {
+            $token = $this->getToken();
+        } catch (\Exception $e) {
+            $helper->addLog($e->getMessage(), \Zend\Log\Logger::CRIT);
+            $helper->getMessageManager()->addError(__('Response from Atol does not contain valid token value. Response: %1',
+                    $e->getMessage()));
+        }
+
+        $url  = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationGetReport . '/' . $uuid;
+        $data = ['tokenid' => $token];
+        $helper->addLog('checkStatus url: ' . $url);
+
+        $getRequest = $helper->requestApiGet($url, $data);
+
+        if ($statusModel->getResponse() !== $getRequest) {
+            $request = json_decode($getRequest);
+            $statusModel
+                ->setResponse($getRequest)
+                ->setStatus($request->status)
+                ->save();
+
+            //Add comment to order about callback data
+            $helper->updateKkmInfoInOrder($getRequest, $statusModel, self::_code);
+        }
+        return true;
     }
 
 }

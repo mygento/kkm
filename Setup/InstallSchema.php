@@ -16,7 +16,8 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 class InstallSchema implements InstallSchemaInterface
 {
     /**
-     * {@inheritdoc}
+     * @param SchemaSetupInterface $setup
+     * @param ModuleContextInterface $context
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)

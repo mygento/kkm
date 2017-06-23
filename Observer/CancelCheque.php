@@ -8,36 +8,29 @@ namespace Mygento\Kkm\Observer;
 
 use \Magento\Framework\Event\ObserverInterface;
 
+/**
+ * Class CancelCheque
+ */
 class CancelCheque implements ObserverInterface
 {
 
-    /**
-     * @var ObjectManagerInterface
-     */
+    /** @var ObjectManagerInterface */
     protected $_objectManager;
 
-    /**
-     * @var Kkm helper
-     */
+    /** @var Kkm helper */
     protected $_kkmHelper;
 
     /**
-     * @var ManagerInterface
-     */
-    protected $_messageManager;
-
-    /**
+     * Constructor
+     *
      * @param \Magento\Framework\ObjectManagerInterface $objectManager
-     * @param \Magento\Framework\Message\ManagerInterface $messageManager
      * @param \Mygento\Kkm\Helper\Data $helper
      */
     public function __construct(
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
         $this->_objectManager  = $objectManager;
-        $this->_messageManager = $messageManager;
         $this->_kkmHelper      = $kkmHelper;
     }
 
@@ -79,7 +72,7 @@ class CancelCheque implements ObserverInterface
             ->cancelCheque($creditmemo, $order);
 
         if ($sendResult === false) {
-            $this->_messageManager->addError(__('Cheque has been rejected by KKM vendor.'));
+            $helper->getMessageManager()->addError(__('Cheque has been rejected by KKM vendor.'));
         }
     }
 }

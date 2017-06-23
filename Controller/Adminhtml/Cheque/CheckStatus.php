@@ -6,28 +6,32 @@
  */
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
+/**
+ * Class CheckStatus
+ */
 class CheckStatus extends \Magento\Backend\App\Action
 {
 
-    /**
-     * @var ObjectManagerInterface
-     */
-    protected $_objectManager;
-
-    /**
-     * @var \Mygento\Kkm\Helper\Data
-     */
+    /** @var \Mygento\Kkm\Helper\Data */
     protected $_helper;
 
+    /** @var \Magento\Backend\App\Action\Context */
+    protected $_context;
+
+    /**
+     * Constructor
+     *
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param \Mygento\Kkm\Helper\Data $helper
+     */
     public function __construct(
-    \Magento\Backend\App\Action\Context $context,
-        \Mygento\Kkm\Helper\Data $helper,
-        \Magento\Framework\ObjectManagerInterface $objectManager
-    )
-    {
+        \Magento\Backend\App\Action\Context $context,
+        \Mygento\Kkm\Helper\Data $helper
+    ) {
+    
         parent::__construct($context);
-        $this->_objectManager = $objectManager;
-        $this->_helper        = $helper;
+        $this->_helper  = $helper;
+        $this->_context = $context;
     }
 
     /**
@@ -35,10 +39,7 @@ class CheckStatus extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-        $uuid       = strtolower($this->_request->getParam('uuid'));
-        $helper     = $this->_helper;
-        $vendorName = ucfirst($this->_helper->getConfig('mygento_kkm/general/vendor'));
-
+        $uuid           = strtolower($this->_request->getParam('uuid'));
         $resultRedirect = $this->resultRedirectFactory->create();
 
         if (!$uuid) {
@@ -46,14 +47,11 @@ class CheckStatus extends \Magento\Backend\App\Action
             return $resultRedirect->setUrl($this->_redirect->getRefererUrl());
         }
 
-//        if (!$vendor) {
-//            $this->getMessageManager()->addError(__('KKM Vendor not found.') . ' ' . __('Check KKM module settings.'));
-//            return $resultRedirect->setUrl($this->_redirect->getRefererUrl());
-//        }
+        $helper     = $this->_helper;
+        $vendorName = ucfirst($this->_helper->getConfig('mygento_kkm/general/vendor'));
+        $vendor     = $this->_context->getObjectManager()->create('\Mygento\Kkm\Model\Vendor\\' . $vendorName);
 
-        $sendResult = $this->_objectManager
-            ->create('\Mygento\Kkm\Model\Vendor\\' . $vendorName)
-            ->checkStatus($uuid);
+        $result = $vendor->checkStatus($uuid);
 
         if (!$result) {
             $this->getMessageManager()->addError(__('Can not check status of the transaction.'));
@@ -63,5 +61,4 @@ class CheckStatus extends \Magento\Backend\App\Action
 
         return $resultRedirect->setUrl($this->_redirect->getRefererUrl());
     }
-
 }

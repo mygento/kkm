@@ -55,6 +55,11 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
         return $_options;
     }
 
+    /**
+     * Get options
+     *
+     * @return array
+     */
     public function toOptionArray()
     {
         return $this->getAllOptions();

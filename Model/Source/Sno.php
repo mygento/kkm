@@ -12,7 +12,9 @@ namespace Mygento\Kkm\Model\Source;
 class Sno implements \Magento\Framework\Option\ArrayInterface
 {
     /**
-     * {@inheritdoc}
+     * Get options
+     *
+     * @return array
      */
     public function toOptionArray()
     {

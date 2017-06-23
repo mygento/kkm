@@ -12,14 +12,10 @@ namespace Mygento\Kkm\Model\Source;
 class Payments implements \Magento\Framework\Data\OptionSourceInterface
 {
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $options;
 
-    /**
-     * @var \Magento\Payment\Helper\Data
-     */
+    /** @var \Magento\Payment\Helper\Data */
     protected $paymentHelper;
 
     /**
@@ -27,8 +23,10 @@ class Payments implements \Magento\Framework\Data\OptionSourceInterface
      *
      * @param \Magento\Payment\Helper\Data $paymentHelper
      */
-    public function __construct(\Magento\Payment\Helper\Data $paymentHelper)
-    {
+    public function __construct(
+        \Magento\Payment\Helper\Data $paymentHelper
+    ) {
+    
         $this->paymentHelper = $paymentHelper;
     }
 

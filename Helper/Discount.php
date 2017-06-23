@@ -12,9 +12,6 @@ namespace Mygento\Kkm\Helper;
 class Discount extends \Mygento\Base\Helper\Discount
 {
 
-    /**
-     *
-     * @var string
-     */
+    /** @var string */
     protected $_code = 'kkm';
 }

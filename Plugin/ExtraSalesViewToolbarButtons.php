@@ -6,7 +6,10 @@
  */
 namespace Mygento\Kkm\Plugin;
 
-class addExtraButtons
+/**
+ * Class ExtraSalesViewToolbarButtons
+ */
+class ExtraSalesViewToolbarButtons
 {
 
     /** @var \Mygento\Kkm\Helper\Data */
@@ -21,11 +24,17 @@ class addExtraButtons
      */
     protected $_authorization;
 
-    /**
-     * @var \Magento\Backend\Model\UrlInterface
-     */
+    /** @var \Magento\Backend\Model\UrlInterface */
     protected $backendUrl;
 
+    /**
+     * Constructor
+     *
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Model\StatusFactory $statusFactory
+     * @param \Magento\Framework\AuthorizationInterface $authorization
+     * @param \Magento\Backend\Model\UrlInterface $backendUrl
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\StatusFactory $statusFactory,
@@ -39,6 +48,12 @@ class addExtraButtons
         $this->_backendUrl    = $backendUrl;
     }
 
+    /**
+     * @param \Magento\Backend\Block\Widget\Button\Toolbar\Interceptor $subject
+     * @param \Magento\Framework\View\Element\AbstractBlock $context
+     * @param \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+     * @return mixed
+     */
     public function beforePushButtons(
         \Magento\Backend\Block\Widget\Button\Toolbar\Interceptor $subject,
         \Magento\Framework\View\Element\AbstractBlock $context,
@@ -100,7 +115,7 @@ class addExtraButtons
     /**
      * Check is current page appropriate for "resend to kkm" button
      *
-     * @param type $block
+     * @param \Magento\Sales\Block\Adminhtml\Order\Invoice\View | \Magento\Sales\Block\Adminhtml\Order\Creditmemo\View $block
      * @return boolean
      */
     protected function isProperPageForResendButton($block)
@@ -109,7 +124,7 @@ class addExtraButtons
     }
 
     /**
-     * @param \Mygento\Kkm\Model\StatusFactory $statusModel
+     * @param \Mygento\Kkm\Model\Status $statusModel
      * @return boolean
      */
     protected function canBeShownResendButton($statusModel)
@@ -122,7 +137,7 @@ class addExtraButtons
     }
 
     /**
-     * @param \Mygento\Kkm\Model\StatusFactory $statusModel
+     * @param \Mygento\Kkm\Model\Status $statusModel
      * @return boolean
      */
     protected function canBeShownCheckStatusButton($statusModel)

@@ -6,8 +6,16 @@
  */
 namespace Mygento\Kkm\Model;
 
+/**
+ * Class Status
+ */
 class Status extends \Magento\Framework\Model\AbstractModel
 {
+    /**
+     * Class constructor
+     *
+     * @return void
+     */
     protected function _construct()
     {
         $this->_init('Mygento\Kkm\Model\ResourceModel\Status');

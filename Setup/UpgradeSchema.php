@@ -10,8 +10,15 @@ use Magento\Framework\Setup\UpgradeSchemaInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 
+/**
+ * Class UpgradeSchema
+ */
 class UpgradeSchema implements UpgradeSchemaInterface
 {
+    /**
+     * @param SchemaSetupInterface $setup
+     * @param ModuleContextInterface $context
+     */
     public function upgrade(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
         $installer = $setup;
@@ -33,6 +40,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $setup->endSetup();
     }
 
+    /**
+     * Upgrade to version 2.0.2
+     * @param \Magento\Framework\Setup\SchemaSetupInterface $installer
+     */
     public function upgradeToVer202($installer)
     {
         /**
@@ -89,6 +100,10 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $installer->getConnection()->createTable($table);
     }
 
+    /**
+     * Upgrade to version 2.0.1
+     * @param \Magento\Framework\Setup\SchemaSetupInterface $installer
+     */
     public function upgradeToVer201($installer)
     {
         // Required tables
