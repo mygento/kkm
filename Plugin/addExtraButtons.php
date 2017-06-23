@@ -83,7 +83,7 @@ class addExtraButtons
             $buttonList->add('resend_to_kkm', $data);
         } elseif ($this->canBeShownCheckStatusButton($statusModel)) {
             $url  = $this->_backendUrl->getUrl(
-                'kkm/cheque/checkstatus',
+                'kkm/cheque/checkStatus',
                 [
                 'uuid' => $statusModel->getUuid()
                 ]

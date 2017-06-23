@@ -22,7 +22,6 @@ class CancelCheque implements ObserverInterface
     protected $_kkmHelper;
 
     /**
-     *
      * @var ManagerInterface
      */
     protected $_messageManager;

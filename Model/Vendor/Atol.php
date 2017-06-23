@@ -238,5 +238,9 @@ class Atol extends \Mygento\Kkm\Model\AbstractModel
             return $item;
         }
     }
+    public function checkStatus($uuid)
+    {
+        die('work');
+    }
 
 }
