@@ -203,12 +203,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $recalculatedReceiptData = $discountHelper->getRecalculated($receipt, $tax_value, $attribute_code, $shipping_tax);
         $recalculatedReceiptData['items'] = array_values($recalculatedReceiptData['items']);
 
+        $callbackUrl = $this->getConfig('general/callback_url') ?: Mage::getUrl('kkm/index/callback', ['_secure' => true]);
+
         $now_time = Mage::getModel('core/date')->timestamp(time());
         $post = [
             'external_id' => $type . $receipt->getIncrementId(),
             'service' => [
                 'payment_address' => $this->getConfig('general/payment_address'),
-                'callback_url'    => Mage::getUrl('kkm/index/callback', ['_secure' => true]),
+                'callback_url'    => $callbackUrl,
                 'inn'             => $this->getConfig('general/inn')
             ],
             'timestamp' => date('d-m-Y H:i:s', $now_time),

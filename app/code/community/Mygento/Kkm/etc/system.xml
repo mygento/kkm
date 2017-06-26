@@ -226,6 +226,27 @@
                             <show_in_store>1</show_in_store>
                             <comment>Set this status to order if sending data to KKM vendor failed.</comment>
                         </fail_status>
+
+                        <heading_2 translate="label">
+                            <label>Advanced settings</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>200</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </heading_2>
+                        <callback_url translate="label comment">
+                            <label>Callback url</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>900</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>Format: http://www.domain.com/. Leave it empty for default value.</comment>
+                            <depends>
+                                <vendor>atol</vendor>
+                            </depends>
+                        </callback_url>
                         <debug translate="label">
                             <label>Debug</label>
                             <frontend_type>select</frontend_type>
