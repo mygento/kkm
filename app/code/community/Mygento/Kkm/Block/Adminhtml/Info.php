@@ -19,11 +19,11 @@ class Mygento_Kkm_Block_Adminhtml_Info extends Mage_Adminhtml_Block_Abstract imp
     public function render(Varien_Data_Form_Element_Abstract $element)
     {
         $helper = Mage::helper('kkm');
-        $html   = '<tr><td class="label">' . $helper->__('Discount Helper Version:') . '</td><td class="value" style="font-weight: bold;">' .
+        $html   = '<tr><td class="label">' . $helper->__('Discount Helper Version:') . '</td>'
+            . '<td class="value" style="font-weight: bold;">' .
             Mygento_Kkm_Helper_Discount::VERSION . '</td></tr>';
 
 
         return $html;
     }
-
 }
