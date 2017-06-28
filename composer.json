@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "squizlabs/php_codesniffer": "2.*",
-        "magento-ecg/coding-standard": "dev-master",
+        "magento-ecg/coding-standard": "2.*",
         "mygento/coding-standard": "1.*",
         "sebastian/phpdcd": "*",
         "sebastian/phpcpd": "*",
