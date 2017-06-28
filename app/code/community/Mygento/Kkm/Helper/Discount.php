@@ -288,7 +288,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         //ок, нет скидки на заказ
         // Есть товар без скидок
-        if ($discountless) {
+        if ($discountless && $sumDiscountAmount !== 0.00) {
             return true;
         }
 
