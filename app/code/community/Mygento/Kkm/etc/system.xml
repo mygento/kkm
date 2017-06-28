@@ -235,6 +235,13 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                         </heading_2>
+                        <discount_helper_version>
+                            <frontend_model>kkm/adminhtml_info</frontend_model>
+                            <sort_order>800</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </discount_helper_version>
                         <callback_url translate="label comment">
                             <label>Callback url</label>
                             <frontend_type>text</frontend_type>
