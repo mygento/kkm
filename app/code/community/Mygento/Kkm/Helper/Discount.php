@@ -50,8 +50,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $generalHelper = $this->generalHelper;
         $generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
 
-        $this->checkSpread();
-        $this->applyDiscount();
+        //If there is no discounts - DO NOTHING
+        if ($this->checkSpread()) {
+            $this->applyDiscount();
+        }
 
         return $this->buildFinalArray();
     }
@@ -281,21 +283,23 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         if (($grandTotal - $shippingAmount - $sum) !== 0.00) {
             $this->spreadDiscOnAllUnits = true;
 
-            return;
+            return true;
         }
 
         //ок, нет скидки на заказ
         // Есть товар без скидок
         if ($discountless) {
-            return;
+            return true;
         }
 
         // Все товары со скидками
         if ($sumDiscountAmount != 0.00) {
             $this->spreadDiscOnAllUnits = true;
 
-            return;
+            return true;
         }
+
+        return false;
     }
 
     public function getDecimalsCountAfterDiv($x, $y)
