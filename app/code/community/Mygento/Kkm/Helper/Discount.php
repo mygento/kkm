@@ -114,13 +114,9 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function buildFinalArray()
     {
-        if (!$this->_entity) {
-            return false;
-        }
-
         $grandTotal = $this->_entity->getData('grand_total');
 
-        $items      = $this->_entity->getAllVisibleItems() ? $this->_entity->getAllVisibleItems() : $this->_entity->getAllItems();
+        $items      = $this->getAllItems();
         $itemsFinal = [];
         $itemsSum   = 0.00;
         foreach ($items as $item) {
@@ -254,11 +250,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      */
     public function checkSpread()
     {
-        if (!$this->_entity) {
-            return false;
-        }
-
-        $items = $this->_entity->getAllVisibleItems() ? $this->_entity->getAllVisibleItems() : $this->_entity->getAllItems();
+        $items = $this->getAllItems();
 
         $sum                    = 0.00;
         $sumDiscountAmount      = 0.00;
