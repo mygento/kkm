@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.7';
+    const VERSION = '1.0.8';
 
     protected $generalHelper = null;
 
@@ -209,7 +209,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function isValidItem($item)
     {
-        return $item->getData('row_total_incl_tax') && floatval($item->getData('row_total_incl_tax')) !== 0.00;
+        return $item->getData('row_total_incl_tax') !== null;
     }
 
     public function slyFloor($val, $precision = 2)
