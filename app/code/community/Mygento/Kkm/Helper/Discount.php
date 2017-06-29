@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.6';
+    const VERSION = '1.0.7';
 
     protected $generalHelper = null;
 
@@ -81,16 +81,16 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $rowTotal = $item->getData('row_total_incl_tax');
 
             //Calculate Percentage. The heart of logic.
-            $denominator   = ($this->spreadDiscOnAllUnits || $subTotal == $this->_discountlessSum) ? $subTotal : ($subTotal - $this->_discountlessSum);
+            $denominator   = ($this->spreadDiscOnAllUnits || ($subTotal == $this->_discountlessSum)) ? $subTotal : ($subTotal - $this->_discountlessSum);
             $rowPercentage = $rowTotal / $denominator;
 
-            if (!$this->spreadDiscOnAllUnits && $item->getDiscountAmount() === "0.0000") {
+            if (!$this->spreadDiscOnAllUnits && (floatval($item->getDiscountAmount()) === 0.00)) {
                 $rowPercentage = 0;
             }
             $percentageSum += $rowPercentage;
 
             $discountPerUnit   = $rowPercentage * $grandDiscount / $qty;
-            $priceWithDiscount = $this->slyFloor($price + $discountPerUnit);
+            $priceWithDiscount = bcadd($price, $discountPerUnit, 2);
 
             //Set Recalculated unit price for the item
             $item->setData(self::NAME_UNIT_PRICE, $priceWithDiscount);
@@ -209,7 +209,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function isValidItem($item)
     {
-        return $item->getData('row_total_incl_tax') && $item->getData('row_total_incl_tax') !== '0.0000';
+        return $item->getData('row_total_incl_tax') && floatval($item->getData('row_total_incl_tax')) !== 0.00;
     }
 
     public function slyFloor($val, $precision = 2)
@@ -260,7 +260,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         foreach ($items as $item) {
             $rowPrice = $item->getData('row_total_incl_tax') - $item->getData('discount_amount');
 
-            if ($item->getData('discount_amount') === "0.0000") {
+            if (floatval($item->getData('discount_amount')) === 0.00) {
                 $discountless           = true;
                 $this->_discountlessSum += $item->getData('row_total_incl_tax');
             }
@@ -272,23 +272,27 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $grandTotal     = $this->_entity->getData('grand_total');
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
 
-        //Есть ли общая скидка на Чек
-        if (($grandTotal - $shippingAmount - $sum) !== 0.00) {
-            $this->spreadDiscOnAllUnits = true;
+        //Есть ли общая скидка на Чек. bccomp returns 0 if operands are equal
+        if (bccomp($grandTotal - $shippingAmount - $sum, 0.00, 2) !== 0) {
+            $this->generalHelper->addLog("1. Global discount on whole cheque.");
 
+            $this->spreadDiscOnAllUnits = true;
             return true;
         }
 
         //ок, нет скидки на заказ
         // Есть товар без скидок
-        if ($discountless && $sumDiscountAmount !== 0.00) {
+        if ($discountless && ($sumDiscountAmount !== 0.00)) {
+            $this->generalHelper->addLog("2. Item without discount.");
+
             return true;
         }
 
         // Все товары со скидками
         if ($sumDiscountAmount != 0.00) {
-            $this->spreadDiscOnAllUnits = true;
+            $this->generalHelper->addLog("3. All items with discounts.");
 
+            $this->spreadDiscOnAllUnits = true;
             return true;
         }
 
