@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.5';
+    const VERSION = '1.0.6';
 
     protected $generalHelper = null;
 
@@ -55,13 +55,15 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $this->applyDiscount();
         }
 
+        $this->generalHelper->addLog("== STOP == Recalculation. Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
+
         return $this->buildFinalArray();
     }
 
     public function applyDiscount()
     {
-        $subTotal       = $this->_entity->getData('subtotal');
-        $shippingAmount = $this->_entity->getData('shipping_amount');
+        $subTotal       = $this->_entity->getData('subtotal_incl_tax');
+        $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = $this->_entity->getData('grand_total');
         $grandDiscount  = $grandTotal - $subTotal - $shippingAmount;
 
@@ -74,9 +76,9 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                 continue;
             }
 
-            $price    = $item->getData('price');
+            $price    = $item->getData('price_incl_tax');
             $qty      = $item->getQty() ?: $item->getQtyOrdered();
-            $rowTotal = $item->getData('row_total');
+            $rowTotal = $item->getData('row_total_incl_tax');
 
             //Calculate Percentage. The heart of logic.
             $denominator   = ($this->spreadDiscOnAllUnits || $subTotal == $this->_discountlessSum) ? $subTotal : ($subTotal - $this->_discountlessSum);
@@ -109,7 +111,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         }
 
         //Set Recalculated Shipping Amount
-        $this->_entity->setData(self::NAME_SHIPPING_AMOUNT, $this->_entity->getShippingAmount() + $itemsSumDiff);
+        $this->_entity->setData(self::NAME_SHIPPING_AMOUNT, $this->_entity->getData('shipping_incl_tax') + $itemsSumDiff);
     }
 
     public function buildFinalArray()
@@ -125,7 +127,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             }
 
             $taxValue   = $this->_taxAttributeCode ? $this->addTaxValue($this->_taxAttributeCode, $this->_entity, $item) : $this->_taxValue;
-            $price      = $item->getData(self::NAME_UNIT_PRICE) ?: $item->getData('price');
+            $price      = $item->getData(self::NAME_UNIT_PRICE) ?: $item->getData('price_incl_tax');
             $entityItem = $this->_buildItem($item, $price, $taxValue);
 
             $itemsFinal[$item->getId()] = $entityItem;
@@ -138,7 +140,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             'origGrandTotal' => floatval($grandTotal)
         ];
 
-        $shippingAmount = $this->_entity->getData(self::NAME_SHIPPING_AMOUNT) ?: $this->_entity->getShippingAmount() + 0.00;
+        $shippingAmount = $this->_entity->getData(self::NAME_SHIPPING_AMOUNT) ?: $this->_entity->getData('shipping_incl_tax') + 0.00;
 
         $shippingItem = [
             'name'     => $this->getShippingName($this->_entity),
@@ -155,9 +157,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $this->generalHelper->addLog("WARNING: Calculation error! Sum of items is not equal to grandTotal!");
         }
 
-        $this->generalHelper->addLog("Final result of recalculation:");
+        $this->generalHelper->addLog("Final array:");
         $this->generalHelper->addLog($receipt);
-        $this->generalHelper->addLog("== STOP == Recalculation of entity prices. ");
 
         return $receipt;
     }
@@ -180,7 +181,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         ];
 
         $generalHelper->addLog("Item calculation details:");
-        $generalHelper->addLog("Item id: {$item->getId()}. Orig price: {$price} Item rowTotal: {$item->getRowTotal()} Price of 1 piece: {$price}. Result of calc:");
+        $generalHelper->addLog("Item id: {$item->getId()}. Orig price: {$price} Item rowTotalInclTax: {$item->getData('row_total_incl_tax')} PriceInclTax of 1 piece: {$price}. Result of calc:");
         $generalHelper->addLog($entityItem);
 
         return $entityItem;
@@ -208,7 +209,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function isValidItem($item)
     {
-        return $item->getRowTotal() && $item->getRowTotal() !== '0.0000';
+        return $item->getData('row_total_incl_tax') && $item->getData('row_total_incl_tax') !== '0.0000';
     }
 
     public function slyFloor($val, $precision = 2)
@@ -257,19 +258,19 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $discountless           = false;
         $this->_discountlessSum = 0.00;
         foreach ($items as $item) {
-            $rowPrice = $item->getRowTotal() - $item->getDiscountAmount();
+            $rowPrice = $item->getData('row_total_incl_tax') - $item->getData('discount_amount');
 
-            if ($item->getDiscountAmount() === "0.0000") {
+            if ($item->getData('discount_amount') === "0.0000") {
                 $discountless           = true;
-                $this->_discountlessSum += $item->getRowTotal();
+                $this->_discountlessSum += $item->getData('row_total_incl_tax');
             }
 
             $sum               += $rowPrice;
-            $sumDiscountAmount += $item->getDiscountAmount();
+            $sumDiscountAmount += $item->getData('discount_amount');
         }
 
         $grandTotal     = $this->_entity->getData('grand_total');
-        $shippingAmount = $this->_entity->getData('shipping_amount');
+        $shippingAmount = $this->_entity->getData('shipping_incl_tax');
 
         //Есть ли общая скидка на Чек
         if (($grandTotal - $shippingAmount - $sum) !== 0.00) {
