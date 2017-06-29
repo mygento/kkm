@@ -189,3 +189,19 @@ Order's comment about the transaction should contain 'uuid'.
 | Set logging level "Error" on KKM config page   |                                                                        |
 | Create invoice for order. Submit it.           |                                                                        |
 | Open KKM config page. Press 'View logs' button | There should NOT be records with severity 7 on the 'Logs Viewer' page  |
+
+
+
+## Test cases for CALCULATION
+KKM wants to get correct prices for each unit. But Magento does not provide it. E.g. We have an order with 2 identical products.Price with discount = 99.99. Calculation helper (Discount.php) should calculate this and all possible cases correctly: price of 1 unit should be 49.99 (sum = 99.98) and 1 cent should be added to shipping price.
+
+### Important calculation cases
+1. 2 items: 1 with discount, 1 without it. (based on the issue: discount was spreading on all items)
+
+2. 2-3 items. 1 with 0 price.  (based on the issue: zero-priced item disappeared)
+
+3.	Add taxes to items (different variations) (based on the issue: prices without tax were in cheque)
+
+4. 2 items: 1 with price 5054.40 qty = 1, 2 with price 22.00 qty = 1. (based on the issue. Wrong price was in cheque 5054.39)
+
+
