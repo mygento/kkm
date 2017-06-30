@@ -12,6 +12,8 @@
 "Use default shipping name", "Использовать стандартное имя доставки"
 "Custom shipping name", "Имя доставки для чека"
 "Shipping tax code", "Код налога для доставки"
+"Send phone to vendor", "Отправлять телефон пользователя"
+"Advanced settings", "Расширенные настройки"
 "Set this status to order if sending data to KKM vendor failed.", "Если одна из ККМ транзакций не удалась, то заказ будет переведен в этот статус"
 "Sending cheque fail status","Статус заказа при неудачной отправке чека/возврата"
 "Format: http://www.domain.com/. Leave it empty for default value.","Формат: http://www.domain.com/. Оставьте пустым, если хотите использовать значение по умолчанию."

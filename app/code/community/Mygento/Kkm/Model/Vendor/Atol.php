@@ -222,7 +222,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $post['receipt'] = [
             'attributes' => [
                 'sno'   => $this->getConfig('general/sno'),
-                'phone' => $order->getShippingAddress()->getTelephone(),
+                'phone' => $this->getConfig('general/send_phone') ? $order->getShippingAddress()->getTelephone() : '',
                 'email' => $order->getCustomerEmail(),
             ],
             'total'    => $receiptTotal,
