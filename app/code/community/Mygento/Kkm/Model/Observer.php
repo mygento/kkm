@@ -88,6 +88,10 @@ class Mygento_Kkm_Model_Observer
      */
     public function checkStatus($observer)
     {
+        if (!Mage::helper('kkm')->getConfig('general/enabled')) {
+            return;
+        }
+
         $order      = $observer->getEvent()->getOrder();
         $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
 
@@ -130,6 +134,10 @@ class Mygento_Kkm_Model_Observer
 
     public function addExtraButtons($observer)
     {
+        if (!Mage::helper('kkm')->getConfig('general/enabled')) {
+            return;
+        }
+
         $container = $observer->getBlock();
         if (!$this->isProperPageForResendButton($container)) {
             return;

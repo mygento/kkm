@@ -179,8 +179,6 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             }
         }
 
-        $this->addLog("Order {$order->getId()} has no failed kkm transaction.");
-
         return false;
     }
 
