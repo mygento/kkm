@@ -129,7 +129,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             $entity = Mage::getModel('sales/order_creditmemo')->load($incrementId, 'increment_id');
         }
 
-        if (!$entity || empty($incrementId) || !is_numeric($incrementId) || !$entity->getId()) {
+        if (!$entity || empty($incrementId) || !$entity->getId()) {
             $this->addLog("Error. Can not save callback info to order. Method params: Json = {$json} 
         Extrnal_id = {$externalId}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}", Zend_Log::ERR);
 
