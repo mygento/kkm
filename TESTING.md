@@ -190,7 +190,9 @@ Order's comment about the transaction should contain 'uuid'.
 | Create invoice for order. Submit it.           |                                                                        |
 | Open KKM config page. Press 'View logs' button | There should NOT be records with severity 7 on the 'Logs Viewer' page  |
 
-
+### 13. Virtual product
+**Description**
+Check if there is no shipping. In final cheque shipping should be absent.
 
 ## Test cases for CALCULATION
 KKM wants to get correct prices for each unit. But Magento does not provide it. E.g. We have an order with 2 identical products.Price with discount = 99.99. Calculation helper (Discount.php) should calculate this and all possible cases correctly: price of 1 unit should be 49.99 (sum = 99.98) and 1 cent should be added to shipping price.
