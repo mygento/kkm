@@ -92,7 +92,16 @@
                     <use>core_setup</use>
                 </connection>
             </kkm_setup>
-        </resources> 
+        </resources>
+        <template>
+            <email>
+                <kkm_error_notification>
+                    <label>KKM Error Notification</label>
+                    <file>kkm_error_notification.html</file>
+                    <type>html</type>
+                </kkm_error_notification>
+            </email>
+        </template>
     </global>
     <admin>
         <routers>

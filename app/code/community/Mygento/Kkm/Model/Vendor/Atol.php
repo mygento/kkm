@@ -28,24 +28,27 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     {
         $type   = 'invoice_';
         $helper = Mage::helper('kkm');
+        $helper->addLog('Start invoice ' . $invoice->getIncrementId() . ' processing');
 
         try {
             $token = $this->getToken();
+
+            $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSell . '?tokenid=' . $token;
+            Mage::helper('kkm')->addLog('sendCheque url: ' . $url);
+
+            $jsonPost = $this->_generateJsonPost($type, $invoice, $order);
+            Mage::helper('kkm')->addLog('sendCheque jsonPost: ' . $jsonPost);
+
+            $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
+
+            $this->saveTransaction($getRequest, $invoice, $order);
         } catch (Exception $e) {
-            $helper->addLog($e->getMessage(), Zend_Log::ERR);
+            $message = $helper->__('Can not send cheque to KKM. Order %s. Reason: %s', $invoice->getOrder()->getIncrementId(), $e->getMessage());
+//            $helper->addLog($invoice->getOrder()->getIncrementId() . ': ' . $e->getMessage(), Zend_Log::ERR);
+            $helper->addLog($message, Zend_Log::ERR);
 
             return false;
         }
-
-        $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSell . '?tokenid=' . $token;
-        Mage::helper('kkm')->addLog('sendCheque url: ' . $url);
-
-        $jsonPost = $this->_generateJsonPost($type, $invoice, $order);
-        Mage::helper('kkm')->addLog('sendCheque jsonPost: ' . $jsonPost);
-
-        $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
-
-        $this->saveTransaction($getRequest, $invoice, $order);
     }
 
     /**Method saves status entity and writes info to order
@@ -89,24 +92,27 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     {
         $type  = 'creditmemo_';
         $helper = Mage::helper('kkm');
+        $helper->addLog('Start creditmemo ' . $creditmemo->getIncrementId() . ' processing');
 
         try {
             $token = $this->getToken();
+
+            $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSellRefund . '?tokenid=' . $token;
+            Mage::helper('kkm')->addLog('cancelCheque url: ' . $url);
+
+            $jsonPost = $this->_generateJsonPost($type, $creditmemo, $order);
+            Mage::helper('kkm')->addLog('cancelCheque jsonPost: ' . $jsonPost);
+
+            $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
+
+            $this->saveTransaction($getRequest, $creditmemo, $order);
         } catch (Exception $e) {
-            $helper->addLog($e->getMessage(), Zend_Log::ERR);
+            $message = $helper->__('Can not send cheque to KKM. Order %s. Reason: %s', $creditmemo->getOrder()->getIncrementId(), $e->getMessage());
+//            $helper->addLog($invoice->getOrder()->getIncrementId() . ': ' . $e->getMessage(), Zend_Log::ERR);
+            $helper->addLog($message, Zend_Log::ERR);
 
             return false;
         }
-
-        $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSellRefund . '?tokenid=' . $token;
-        Mage::helper('kkm')->addLog('cancelCheque url: ' . $url);
-
-        $jsonPost = $this->_generateJsonPost($type, $creditmemo, $order);
-        Mage::helper('kkm')->addLog('cancelCheque jsonPost: ' . $jsonPost);
-
-        $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
-
-        $this->saveTransaction($getRequest, $creditmemo, $order);
     }
 
     public function checkStatus($uuid)
@@ -244,14 +250,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     public function sanitizeItem($item)
     {
         $item['name'] = $item['name'] && mb_strlen($item['name']) > 64 ? mb_strimwidth($item['name'], 0, 64) : $item['name'];
+        $taxes        = array_column(Mage::getModel('kkm/source_taxoption')->toOptionArray(), 'value');
 
         //isset() returns false if 'tax' exists but equal to NULL.
-        if (array_key_exists('tax', $item)) {
-            $item['tax'] = in_array($item['tax'], ["none", "vat0", "vat10", "vat18", "vat110", "vat118"], true)
-                ? $item['tax']
-                : "none";
-
-            return $item;
+        if (array_key_exists('tax', $item) && !in_array($item['tax'], $taxes)) {
+            $message = Mage::helper('kkm')->__("Product %s has invalid tax", $item['name']);
+            throw new Exception($message);
         }
+
+        return $item;
     }
 }

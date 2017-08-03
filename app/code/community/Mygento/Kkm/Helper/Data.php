@@ -21,6 +21,14 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $logsToDb = method_exists($this, 'writeLog');
 
+        if ($this->getConfig('email_notif_enabled') && $severity <= $this->getConfig('send_notif_severity')) {
+            $this->sendNotificationEmail();
+        }
+
+        if ($this->getConfig('show_notif_in_admin') && $severity <= $this->getConfig('send_notif_severity')) {
+            $this->showNotification('KKM Error', $text);
+        }
+
         if (!Mage::getStoreConfig('kkm/general/debug')) {
             return false;
         }
@@ -54,6 +62,8 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getConfig($param)
     {
+        $param = strpos($param, '/') !== false ? $param : 'general/' . $param;
+
         return Mage::getStoreConfig('kkm/' . $param);
     }
 
@@ -236,6 +246,40 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             $this->addLog('Can not save KKM transaction info to order. Reason: ' . $e->getMessage(), Zend_Log::CRIT);
 
             return false;
+        }
+    }
+
+    /** Show Warning Notification in Dashboard
+     *
+     */
+    public function showNotification($title, $description = '')
+    {
+        $notification = Mage::getModel('adminnotification/inbox');
+        $notification->setDateAdded(date('Y-m-d H:i:s', Mage::getModel('core/date')->timestamp(time())));
+        $notification->setSeverity(Mage_AdminNotification_Model_Inbox::SEVERITY_MAJOR);
+        $notification->setTitle($title);
+        $notification->setDescription($description);
+        $notification->save();
+    }
+
+    /**
+     * Send email KKM notification
+     */
+    public function sendNotificationEmail()
+    {
+//        $this->addLog('Sending  email to customers ' . (!is_null($customer) ?  $customer->getId() : 'no ID' ));
+
+        $emails = explode(',', $this->getConfig('err_notif_emails'));
+        $params = [];
+        foreach ($emails as $email) {
+            Mage::getModel('core/email_template')
+                ->sendTransactional(
+                    $this->getConfig('err_notif_template'),
+                    $this->getConfig('err_notif_sender'), //It's sender
+                    $email,
+                    null,
+                    $params
+                );
         }
     }
 }
