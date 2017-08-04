@@ -29,9 +29,10 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $type   = 'invoice_';
         $helper = Mage::helper('kkm');
         $helper->addLog('Start invoice ' . $invoice->getIncrementId() . ' processing');
+        $debugData = [];
 
         try {
-            $token = $this->getToken();
+            $token = $debugData['token'] = $this->getToken();
 
             $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSell . '?tokenid=' . $token;
             Mage::helper('kkm')->addLog('sendCheque url: ' . $url);
@@ -39,15 +40,11 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $jsonPost = $this->_generateJsonPost($type, $invoice, $order);
             Mage::helper('kkm')->addLog('sendCheque jsonPost: ' . $jsonPost);
 
-            $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
+            $getRequest = $debugData['atol_response'] = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
 
             $this->saveTransaction($getRequest, $invoice, $order);
         } catch (Exception $e) {
-            $message = $helper->__('Can not send cheque to KKM. Order %s. Reason: %s', $invoice->getOrder()->getIncrementId(), $e->getMessage());
-//            $helper->addLog($invoice->getOrder()->getIncrementId() . ': ' . $e->getMessage(), Zend_Log::ERR);
-            $helper->addLog($message, Zend_Log::ERR);
-
-            return false;
+            throw new Mygento_Kkm_SendingException($invoice, $e->getMessage(), $debugData);
         }
     }
 
@@ -93,9 +90,10 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $type  = 'creditmemo_';
         $helper = Mage::helper('kkm');
         $helper->addLog('Start creditmemo ' . $creditmemo->getIncrementId() . ' processing');
+        $debugData = [];
 
         try {
-            $token = $this->getToken();
+            $token = $debugData['token'] = $this->getToken();
 
             $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSellRefund . '?tokenid=' . $token;
             Mage::helper('kkm')->addLog('cancelCheque url: ' . $url);
@@ -103,15 +101,11 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $jsonPost = $this->_generateJsonPost($type, $creditmemo, $order);
             Mage::helper('kkm')->addLog('cancelCheque jsonPost: ' . $jsonPost);
 
-            $getRequest = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
+            $getRequest = $debugData['atol_response'] = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
 
             $this->saveTransaction($getRequest, $creditmemo, $order);
         } catch (Exception $e) {
-            $message = $helper->__('Can not send cheque to KKM. Order %s. Reason: %s', $creditmemo->getOrder()->getIncrementId(), $e->getMessage());
-//            $helper->addLog($invoice->getOrder()->getIncrementId() . ': ' . $e->getMessage(), Zend_Log::ERR);
-            $helper->addLog($message, Zend_Log::ERR);
-
-            return false;
+            throw new Mygento_Kkm_SendingException($creditmemo, $e->getMessage(), $debugData);
         }
     }
 
@@ -129,7 +123,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         try {
             $token = $this->getToken();
         } catch (Exception $e) {
-            $helper->addLog($e->getMessage(), Zend_Log::ERR);
+            $helper->addLog($e->getMessage(), Zend_Log::WARN);
 
             return false;
         }

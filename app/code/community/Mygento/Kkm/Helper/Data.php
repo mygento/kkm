@@ -21,14 +21,6 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $logsToDb = method_exists($this, 'writeLog');
 
-        if ($this->getConfig('email_notif_enabled') && $severity <= $this->getConfig('send_notif_severity')) {
-            $this->sendNotificationEmail();
-        }
-
-        if ($this->getConfig('show_notif_in_admin') && $severity <= $this->getConfig('send_notif_severity')) {
-            $this->showNotification('KKM Error', $text);
-        }
-
         if (!Mage::getStoreConfig('kkm/general/debug')) {
             return false;
         }
@@ -48,6 +40,20 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         }
 
         Mage::log($text, null, $this->getLogFilename(), true);
+    }
+
+    public function processError(Mygento_Kkm_SendingException $e)
+    {
+        $this->addLog($e->getMessage(), $e->getSeverity());
+
+        if ($this->getConfig('email_notif_enabled') && $e->getSeverity() <= $this->getConfig('send_notif_severity')) {
+            $this->sendNotificationEmail();
+        }
+
+        if ($this->getConfig('show_notif_in_admin') && $e->getSeverity() <= $this->getConfig('send_notif_severity')) {
+            $this->showNotification('KKM Error', $e->getMessage());
+        }
+
     }
 
     public function getLogFilename()
@@ -255,7 +261,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     public function showNotification($title, $description = '')
     {
         $notification = Mage::getModel('adminnotification/inbox');
-        $notification->setDateAdded(date('Y-m-d H:i:s', Mage::getModel('core/date')->timestamp(time())));
+        $notification->setDateAdded(date('Y-m-d H:i:s', time()));
         $notification->setSeverity(Mage_AdminNotification_Model_Inbox::SEVERITY_MAJOR);
         $notification->setTitle($title);
         $notification->setDescription($description);

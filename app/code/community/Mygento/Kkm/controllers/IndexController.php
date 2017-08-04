@@ -20,7 +20,7 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
             Mage::helper('kkm')->addLog('callbackAction $json: ' . $json);
 
             if (!$jsonDecode->uuid) {
-                Mage::helper('kkm')->addLog('callbackAction $json failed. $json: ' . $json, Zend_Log::ERR);
+                Mage::helper('kkm')->addLog('callbackAction $json failed. $json: ' . $json, Zend_Log::WARN);
                 return;
             }
 

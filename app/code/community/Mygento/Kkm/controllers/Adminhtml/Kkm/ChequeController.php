@@ -58,7 +58,14 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             $comment = 'Cheque was sent to KKM. Status of the transaction see in orders comment.';
         }
 
-        $vendor->$method($entity, $entity->getOrder());
+        try {
+            $vendor->$method($entity, $entity->getOrder());
+        } catch (Mygento_Kkm_SendingException $e) {
+            $helper->processError($e);
+            Mage::getSingleton('adminhtml/session')->addError($e->getFullTitle());
+            $this->_redirectReferer();
+            return;
+        }
 
         Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__($comment));
 

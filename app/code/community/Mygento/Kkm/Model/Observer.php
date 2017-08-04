@@ -40,10 +40,11 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $sendResult = $helper->getVendorModel()->sendCheque($invoice, $order);
-
-        if ($sendResult === false) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Cheque has been rejected by KKM vendor.'));
+        try {
+            $helper->getVendorModel()->sendCheque($invoice, $order);
+        } catch (Mygento_Kkm_SendingException $e) {
+            $helper->processError($e);
+            Mage::getSingleton('adminhtml/session')->addError($e->getFullTitle());
         }
     }
 
@@ -75,10 +76,11 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $sendResult = $helper->getVendorModel()->cancelCheque($creditmemo, $order);
-
-        if ($sendResult === false) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Cheque has been rejected by KKM vendor.'));
+        try {
+            $helper->getVendorModel()->cancelCheque($creditmemo, $order);
+        } catch (Mygento_Kkm_SendingException $e) {
+            $helper->processError($e);
+            Mage::getSingleton('adminhtml/session')->addError($e->getFullTitle());
         }
     }
 

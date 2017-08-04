@@ -33,8 +33,13 @@
 "Status of the order has been changed automatically because it has failed KKM transactions.","Статус заказа был изменен автоматически, т.к. некоторые ККМ транзакции завершились неудачей."
 "Cheque has been sent to KKM vendor.","Чек был успешно отправлен в ККМ."
 "Cheque has been rejected by KKM vendor.","Чек был отвергнут ККМ."
+"There is no response from Atol.","Нет ответа от Атол."
+"Response from Atol does not contain valid token value. Response: ","Ответ от Атол не найден корректный токен сессии. Ответ: "
 "Product %s has invalid tax","Товар %s содержит некорректное значение налога"
 "Can not send cheque to KKM. Order %s. Reason: %s","Чек не был отправлен в ККМ. Заказ № %s. Причина: %s"
+"The cheque has not been sent to KKM.","Чек не был отправлен в ККМ."
+"Order id: ","Номер заказа: "
+
 "Received message from KKM vendor.","Получено сообщение от ККМ."
 "Resend to KKM","Отправить в ККМ"
 "Check status in KKM","Проверить статус в ККМ"
