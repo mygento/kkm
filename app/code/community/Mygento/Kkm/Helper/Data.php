@@ -44,16 +44,16 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function processError(Mygento_Kkm_SendingException $e)
     {
-        $this->addLog($e->getMessage(), $e->getSeverity());
+        $log = $e->getMessage() . ' ' . $e->getExtraMessage();
+        $this->addLog($log, $e->getSeverity());
 
-        if ($this->getConfig('email_notif_enabled') && $e->getSeverity() <= $this->getConfig('send_notif_severity')) {
-            $this->sendNotificationEmail();
-        }
-
-        if ($this->getConfig('show_notif_in_admin') && $e->getSeverity() <= $this->getConfig('send_notif_severity')) {
+        if ($this->getConfig('show_notif_in_admin')) {
             $this->showNotification('KKM Error', $e->getMessage());
         }
 
+        if ($this->getConfig('email_notif_enabled')) {
+            $this->sendNotificationEmail($e->getFailTitle(), $e->getOrderId(), $e->getReason(), $e->getExtraData());
+        }
     }
 
     public function getLogFilename()
@@ -271,12 +271,20 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * Send email KKM notification
      */
-    public function sendNotificationEmail()
+    public function sendNotificationEmail($title, $orderId = '', $reason = '', $extra = [])
     {
-//        $this->addLog('Sending  email to customers ' . (!is_null($customer) ?  $customer->getId() : 'no ID' ));
-
         $emails = explode(',', $this->getConfig('err_notif_emails'));
-        $params = [];
+
+        $params = [
+            'title'   => $title,
+            'orderId' => $orderId,
+            'reason'  => $reason,
+            'extra'   => json_encode($extra)
+        ];
+
+        $this->addLog('Sending  email to users: ' . $this->getConfig('err_notif_emails'));
+        $this->addLog('Params for letter: ' . json_encode($params));
+
         foreach ($emails as $email) {
             Mage::getModel('core/email_template')
                 ->sendTransactional(

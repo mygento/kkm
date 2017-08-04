@@ -12,18 +12,22 @@ class Mygento_Kkm_SendingException extends Exception
 {
     const CHEQUE_FAIL = 'The cheque has not been sent to KKM.';
     const ORDER_ID    = 'Order id: ';
+    const EXTRA_INFO  = 'Extra Info: ';
 
     protected $severity;
-    protected $extraInfo;
+    protected $name      = 'kkm';
+    protected $extraInfo = [];
+    protected $orderId;
     protected $reason;
-    protected $name = 'kkm';
 
-    public function __construct($entity = null, $message = "", $debugData = [], $severity = Zend_Log::ERR) {
-        $this->severity = $severity;
-        $this->reason = $message;
+    public function __construct($entity = null, $message = "", $debugData = [], $severity = Zend_Log::ERR)
+    {
+        $this->severity  = $severity;
+        $this->reason    = $message;
+        $this->extraInfo = $debugData;
 
         //build message here
-        $this->buildMessage($entity, $debugData);
+        $this->buildMessage($entity);
 
         parent::__construct($this->message, 0, null);
     }
@@ -36,6 +40,11 @@ class Mygento_Kkm_SendingException extends Exception
     public function getSeverity()
     {
         return $this->severity;
+    }
+
+    public function getOrderId()
+    {
+        return $this->orderId;
     }
 
     public function getReason()
@@ -57,10 +66,10 @@ class Mygento_Kkm_SendingException extends Exception
 
     public function getExtraMessage()
     {
-        return json_encode($this->extraInfo);
+        return $this->extraInfo ? Mage::helper($this->name)->__(self::EXTRA_INFO) . json_encode($this->extraInfo) : '';
     }
 
-    protected function buildMessage($entity, $debugData, $message = "")
+    protected function buildMessage($entity, $message = "")
     {
         $this->message = $this->getFullTitle();
 
@@ -69,6 +78,8 @@ class Mygento_Kkm_SendingException extends Exception
         }
 
         $incrementId   = $entity::HISTORY_ENTITY_NAME == 'order' ? $entity->getIncrementId() : $entity->getOrder()->getIncrementId();
+        $this->orderId = $incrementId;
+
         $this->message .= ' ' . Mage::helper($this->name)->__(self::ORDER_ID) . $incrementId;
     }
 }

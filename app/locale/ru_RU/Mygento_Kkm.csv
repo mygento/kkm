@@ -39,6 +39,7 @@
 "Can not send cheque to KKM. Order %s. Reason: %s","Чек не был отправлен в ККМ. Заказ № %s. Причина: %s"
 "The cheque has not been sent to KKM.","Чек не был отправлен в ККМ."
 "Order id: ","Номер заказа: "
+"Extra Info: ","Дополнительная информация: "
 
 "Received message from KKM vendor.","Получено сообщение от ККМ."
 "Resend to KKM","Отправить в ККМ"

@@ -35,12 +35,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $token = $debugData['token'] = $this->getToken();
 
             $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSell . '?tokenid=' . $token;
-            Mage::helper('kkm')->addLog('sendCheque url: ' . $url);
+            $helper->addLog('sendCheque url: ' . $url);
 
             $jsonPost = $this->_generateJsonPost($type, $invoice, $order);
-            Mage::helper('kkm')->addLog('sendCheque jsonPost: ' . $jsonPost);
+            $helper->addLog('sendCheque jsonPost: ' . $jsonPost);
 
-            $getRequest = $debugData['atol_response'] = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
+            $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost);
 
             $this->saveTransaction($getRequest, $invoice, $order);
         } catch (Exception $e) {
@@ -96,12 +96,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $token = $debugData['token'] = $this->getToken();
 
             $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationSellRefund . '?tokenid=' . $token;
-            Mage::helper('kkm')->addLog('cancelCheque url: ' . $url);
+            $helper->addLog('cancelCheque url: ' . $url);
 
             $jsonPost = $this->_generateJsonPost($type, $creditmemo, $order);
-            Mage::helper('kkm')->addLog('cancelCheque jsonPost: ' . $jsonPost);
+            $helper->addLog('cancelCheque jsonPost: ' . $jsonPost);
 
-            $getRequest = $debugData['atol_response'] = Mage::helper('kkm')->requestApiPost($url, $jsonPost);
+            $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost);
 
             $this->saveTransaction($getRequest, $creditmemo, $order);
         } catch (Exception $e) {
