@@ -246,7 +246,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $taxValue;
     }
 
-    /** It checks do we need to spread dicount on all units and sets flag $this->spreadDiscOnAllUnits
+    /** It checks do we need to spread discount on all units and sets flag $this->spreadDiscOnAllUnits
      * @return nothing
      */
     public function checkSpread()

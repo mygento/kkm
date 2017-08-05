@@ -48,17 +48,28 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         $this->addLog($log, $e->getSeverity());
 
         if ($this->getConfig('show_notif_in_admin')) {
-            $this->showNotification('KKM Error', $e->getMessage());
+            $this->showNotification($this->__('The cheque has not been sent to KKM.'), $e->getMessage());
         }
 
         if ($this->getConfig('email_notif_enabled')) {
             $this->sendNotificationEmail($e->getFailTitle(), $e->getOrderId(), $e->getReason(), $e->getExtraData());
         }
+
+        $this->setOrderFailStatus(Mage::getModel('sales/order')->load($e->getOrderId(), 'increment_id'), $e->getFullTitle());
     }
 
     public function getLogFilename()
     {
         return 'kkm.log';
+    }
+
+    public function setOrderFailStatus($order, $comment)
+    {
+        $status = $this->getConfig('fail_status');
+        $order->setKkmChangeStatusFlag(true);
+        $order->setStatus($status);
+        $order->addStatusHistoryComment('[' . strtoupper($this->getConfig('vendor')) . '] ' . $comment);
+        $order->save();
     }
 
     /**

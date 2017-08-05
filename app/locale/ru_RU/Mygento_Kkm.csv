@@ -24,11 +24,11 @@
 "Emails","Email адреса"
 "Email Template","Шаблон письма"
 "Show notifications in Dashboard","Показывать сообщения об ошибках в панели администратора"
-"Send logs to emails","Отправлять логи на email"
+"Send logs to emails","Отправлять ошибки на email"
 "See logs","Смотреть логи"
 "Debug level","Уровень логирования"
 
-"Response from KKM vendor is empty or does not contain "error" field.","Ответ от ККМ вендора некорректен."
+"Response from KKM vendor is empty or incorrect.","Ответ от ККМ вендора некорректен."
 "Status of the order has been changed automatically because it no longer has failed KKM transactions.","Статус заказа был изменен автоматически, т.к. все ККМ транзакции были успешно отправлены."
 "Status of the order has been changed automatically because it has failed KKM transactions.","Статус заказа был изменен автоматически, т.к. некоторые ККМ транзакции завершились неудачей."
 "Cheque has been sent to KKM vendor.","Чек был успешно отправлен в ККМ."

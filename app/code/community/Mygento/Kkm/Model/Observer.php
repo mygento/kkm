@@ -154,9 +154,7 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $type             = $entity::HISTORY_ENTITY_NAME;
-        $statusExternalId = "{$type}_" . $entity->getIncrementId();
-        $statusModel      = Mage::getModel('kkm/status')->load($statusExternalId, 'external_id');
+        $statusModel      = Mage::getModel('kkm/status')->loadByEntity($entity);
         $status           = json_decode($statusModel->getStatus());
 
         if ($this->canBeShownResendButton($statusModel)) {
@@ -164,7 +162,7 @@ class Mygento_Kkm_Model_Observer
                 ->getUrl(
                     'adminhtml/kkm_cheque/resend',
                     [
-                        'entity' => $type,
+                        'entity' => $entity::HISTORY_ENTITY_NAME,
                         'id'     => $entity->getId()
                     ]
                 );
@@ -211,7 +209,7 @@ class Mygento_Kkm_Model_Observer
         $resendAllowed = Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/resend');
         $status        = json_decode($statusModel->getStatus());
 
-        return ($resendAllowed && (!$statusModel->getId() || (isset($status->status) && $status->status == 'fail')));
+        return ($resendAllowed && (!$statusModel->getId() || !$status || !property_exists($status, 'uuid') || (isset($status->status) && $status->status == 'fail')));
     }
 
     protected function canBeShownCheckStatusButton($statusModel)
