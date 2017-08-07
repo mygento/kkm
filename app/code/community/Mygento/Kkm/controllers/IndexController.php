@@ -28,7 +28,7 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
             $statusModel->setStatus($json)->save();
 
             //Add comment to order about callback data
-            Mage::helper('kkm')->updateKkmInfoInOrder($json, $statusModel->getExternalId());
+            Mage::helper('kkm')->updateKkmInfoInOrder($json, $statusModel);
         }
     }
 }

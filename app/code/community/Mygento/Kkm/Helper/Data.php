@@ -144,10 +144,16 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
      * @param $json
      * @param $entityId string external_id from kkm/status table. Ex: 'invoice_100000023', 'creditmemo_1000002'
      */
-    public function updateKkmInfoInOrder($json, $externalId, $vendor = 'atol')
+    public function updateKkmInfoInOrder($json, $statusModel, $vendor = 'atol')
     {
-        $incrementId   = substr($externalId, strpos($externalId, '_') + 1);
-        $entityType    = substr($externalId, 0, strpos($externalId, '_'));
+        if (!$statusModel->getId()) {
+            $this->addLog("Error. Can not save callback info to order. StatusModel not found. Message from KKM = {$json}", Zend_Log::WARN);
+
+            return false;
+        }
+
+        $incrementId = $statusModel->getIncrementId();
+        $entityType  = $statusModel->getEntityType();
 
         $entity = null;
         if (strpos($entityType, 'invoice') !== false) {
@@ -158,7 +164,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 
         if (!$entity || empty($incrementId) || !$entity->getId()) {
             $this->addLog("Error. Can not save callback info to order. Method params: Json = {$json} 
-        Extrnal_id = {$externalId}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}", Zend_Log::ERR);
+        Extrnal_id = {$statusModel->getExternalId()}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}", Zend_Log::WARN);
 
             return false;
         }

@@ -15,32 +15,6 @@ class Mygento_Kkm_Model_Status extends Mage_Core_Model_Abstract
         $this->_init('kkm/status');
     }
 
-//    public function loadByInvoice($incrementId)
-//    {
-//        return $this->loadEntity($incrementId, 'invoice');
-//    }
-//
-//    public function loadByCreditmemo($incrementId)
-//    {
-//        return $this->loadEntity($incrementId, 'creditmemo');
-//    }
-//
-//    public function loadEntity($incrementId, $type)
-//    {
-//        $collection = $this->getCollection()
-//            ->addFieldToFilter('entity_type', $type)
-//            ->addFieldToFilter('increment_id', $incrementId);
-//
-//        if ($collection->getSize() > 0) {
-//            return $collection->getFirstItem();
-//        }
-//
-//        $collection = $this->getCollection()
-//            ->addFieldToFilter('external_id', ['like' => "{$type}_{$incrementId}%"]);
-//
-//        return $collection->getFirstItem();
-//    }
-
     /**Loads object by Invoice or Creditmemo
      * @param $entity
      * @return mixed
@@ -62,5 +36,41 @@ class Mygento_Kkm_Model_Status extends Mage_Core_Model_Abstract
             ->addFieldToFilter('external_id', ['like' => "{$type}_{$incrementId}%"]);
 
         return $collection->getFirstItem();
+    }
+
+    public function getShortStatus()
+    {
+        if ($this->getData('short_status')) {
+            return $this->getData('short_status');
+        }
+
+        $response = json_decode($this->getStatus(), true);
+
+        return isset($response['status']) ? $response['status'] : null;
+    }
+
+    public function getIncrementId()
+    {
+        if ($this->getData('increment_id')) {
+            return $this->getData('increment_id');
+        }
+
+        $eid         = $this->getExternalId();
+        $tmp         = substr($eid, strpos($eid, '_') + 1);
+        $incrementId = strpos($tmp, '_') !== false ? substr($tmp, 0, strpos($tmp, '_')) : $tmp;
+
+        return $incrementId ?: null;
+    }
+
+    public function getEntityType()
+    {
+        if ($this->getData('entity_type')) {
+            return $this->getData('entity_type');
+        }
+
+        $eid  = $this->getExternalId();
+        $type = substr($eid, 0, strpos($eid, '_'));
+
+        return $type ?: null;
     }
 }

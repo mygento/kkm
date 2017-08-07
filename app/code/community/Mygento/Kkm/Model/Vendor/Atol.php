@@ -57,7 +57,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
                 $this->saveTransaction('{"initial":1}', $entity);
             }
 
-            $jsonPost = $this->_generateJsonPost($entity, $entity->getOrder());
+            $jsonPost = $this->_generateJsonPost($entity, $entity->getOrder(), $statusModel->getResendCount());
             $helper->addLog('Request to ATOL json: ' . $jsonPost);
 
             $token = $debugData['token'] = $this->getToken();
@@ -65,22 +65,13 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $url = self::_URL . $this->getConfig('general/group_code') . '/' . $operation . '?tokenid=' . $token;
             $helper->addLog('cancelCheque url: ' . $url);
 
-            //Cheque has been sent. Perhaps we have to increase external_id
-            if ($statusModel->getId()) {
-                $statusModel->setResendCount($statusModel->getResendCount() + 1);
-                $jsonPost = json_decode($jsonPost, true);
-                $jsonPost['external_id'] = $this->processExternalId($statusModel, $entity);
-                $jsonPost = json_encode($jsonPost);
-            }
-
             $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost);
 
             $this->saveTransaction($getRequest, $entity);
 
             $this->validateResponse($getRequest);
 
-            //Save info about transaction
-            Mage::helper('kkm')->saveTransactionInfoToOrder($getRequest, $entity, $entity->getOrder());
+            $helper->saveTransactionInfoToOrder($getRequest, $entity, $entity->getOrder());
         } catch (Exception $e) {
             throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), $debugData);
         }
@@ -108,54 +99,112 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $statusModel->setUuid(isset($request->uuid) ? $request->uuid : null)
             ->setShortStatus(isset($request->status) ? $request->status : null)
+            ->setExternalId($this->generateExternalId($entity, $statusModel->getResendCount()))
             ->setEntityType($entity::HISTORY_ENTITY_NAME)
             ->setIncrementId($entity->getIncrementId())
             ->setStatus($getRequest)
             ->save();
     }
 
-    public function processExternalId($statusModel, $entity)
+    /**TODO: Вызывать метод при нажатии на кнопку или при запуске кроном. Но не при запуске обсервером.
+     * @param $statusModel
+     */
+    public function processExistingTransactionBeforeSending($statusModel)
     {
-        $atolResponse = json_decode($statusModel->getStatus(), true);
-        $errorCode    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['code'] : null;
-        $postfix      = '';
+        /**
+         * Если WAIT - запросить состояние. Результат сохранить, проанализировать как FAIL
+         * Если FAIL - проанализировать код. Вдруг надо заинкрементить EID - или
+         * оставить как есть - в зависимости от кода ошибки
+         */
 
-        //TODO: ЗДЕСЬ НАДО ПОЧИНИТЬ
-        $eid          = $statusModel->getExternalId();
-
-        switch ($errorCode) {
-            case '10':
-                $postfix = '_' . $statusModel->getResendCount();
-                break;
-
-            default:
+        static $analyzeCount = 0;
+        $analyzeCount++;
+        if ($analyzeCount > 2) {
+            throw new Exception(Mage::helper('kkm')->__('Too many attempts to update status of the transaction.')
+                                . ' ' . ucfirst($statusModel->getEntityType())
+                                . ' ' . $statusModel->getIncrementId()
+            );
         }
 
-        $eid .= $postfix;
-        $statusModel->setExternalId($eid);
-        $statusModel->save();
+        $shortStatus = $statusModel->getShortStatus();
 
-        return $eid;
+        //return true - if we need to send cheque to atol
+        switch ($shortStatus) {
+            case null:
+                return true;
+
+            case 'done':
+                throw new Exception('Transaction is already done.');
+
+            case 'wait':
+                //check status. if changed - run analyze...() again!
+                $this->updateStatus($statusModel->getUuid());
+                $statusModel = $statusModel->load($statusModel->getId());
+
+                if ($statusModel->getShortStatus() == $shortStatus) {
+                    throw new Exception('Transaction is still processing');
+                }
+
+                return $this->processExistingTransactionBeforeSending($statusModel);
+
+            case 'fail':
+                break;
+        }
+
+        $atolResponse = json_decode($statusModel->getStatus(), true);
+        $errorCode    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['code'] : null;
+
+        //Ошибки при работе с ККТ
+        if ((int)$errorCode < 0) {
+            $this->increaseExternalId($statusModel);
+
+            //increment EID and send it
+            return true;
+        }
+
+        switch ($errorCode) {
+            case '1': //Timeout
+                $this->increaseExternalId($statusModel);
+
+                return true;
+            case '10': //Документ с <external_id> и <group_code> уже существует в базе
+                $this->updateStatus($statusModel->getUuid());
+                $statusModel     = $statusModel->load($statusModel->getId());
+                $atolResponseNew = json_decode($statusModel->getStatus(), true);
+                $errorCodeNew    = isset($atolResponseNew['error']) && is_array($atolResponseNew['error']) ? $atolResponseNew['error']['code'] : null;
+                if ($errorCodeNew == $errorCode) {
+                    $this->increaseExternalId($statusModel);
+
+                    return true;
+                }
+
+                return $this->processExistingTransactionBeforeSending($statusModel);
+            case '11': //Incorrect request for checking status. Do not send it again. Just to fix request and check status
+                $this->updateStatus($statusModel->getUuid());
+                $statusModel     = $statusModel->load($statusModel->getId());
+                $atolResponseNew = json_decode($statusModel->getStatus(), true);
+                $errorCodeNew    = isset($atolResponseNew['error']) && is_array($atolResponseNew['error']) ? $atolResponseNew['error']['code'] : null;
+                if ($errorCodeNew == $errorCode) {
+                    throw new Exception('There are errors in checkStatus request.');
+                }
+
+                return $this->processExistingTransactionBeforeSending($statusModel);
+            default:
+                return false;
+        }
     }
 
-    public function checkStatus($uuid)
+    protected function updateStatus($uuid)
     {
         $helper      = Mage::helper('kkm');
         $statusModel = Mage::getModel('kkm/status')->load($uuid, 'uuid');
-
         if (!$statusModel->getId()) {
-            $helper->addLog('Uuid not found in store DB. Uuid: ', Zend_Log::ERR);
+            $helper->addLog('Uuid not found in store DB. Uuid: ' . $uuid, Zend_Log::ERR);
 
             return false;
         }
 
-        try {
-            $token = $this->getToken();
-        } catch (Exception $e) {
-            $helper->addLog($e->getMessage(), Zend_Log::WARN);
-
-            return false;
-        }
+        $token = $this->getToken();
 
         $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationGetReport . '/' . $uuid . '?tokenid=' . $token;
         $helper->addLog('checkStatus url: ' . $url);
@@ -163,14 +212,45 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $getRequest = $helper->requestApiGet($url);
         $request    = json_decode($getRequest);
 
-        if ($statusModel->getStatus() !== $getRequest) {
-            $statusModel
-                ->setShortStatus(isset($request->status) ? $request->status : null)
-                ->setStatus($getRequest)
-                ->save();
+        if ($statusModel->getStatus() == $getRequest) {
+            return $getRequest;
+        }
+        $statusModel
+            ->setShortStatus(isset($request->status) ? $request->status : null)
+            ->setStatus($getRequest)
+            ->save();
+
+        return $getRequest;
+    }
+
+    /**
+     * @param $uuid
+     * @return bool
+     * @throws Mygento_Kkm_SendingException
+     */
+    public function checkStatus($uuid)
+    {
+        $helper      = Mage::helper('kkm');
+        $statusModel = Mage::getModel('kkm/status')->load($uuid, 'uuid');
+
+        $getRequest = $this->updateStatus($uuid);
+
+        try {
+            $this->validateResponse($getRequest);
 
             //Add comment to order about callback data
-            $helper->updateKkmInfoInOrder($getRequest, $statusModel->getExternalId());
+            $helper->updateKkmInfoInOrder($getRequest, $statusModel);
+        } catch (Exception $e) {
+            $incrementId = $statusModel->getIncrementId();
+            $entityType  = $statusModel->getEntityType();
+
+            if (strpos($entityType, 'invoice') !== false) {
+                $entity = Mage::getModel('sales/order_invoice')->load($incrementId, 'increment_id');
+            } elseif (strpos($entityType, 'creditme') !== false) {
+                $entity = Mage::getModel('sales/order_creditmemo')->load($incrementId, 'increment_id');
+            }
+
+            throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), ['uuid' => $uuid]);
         }
 
         return true;
@@ -179,9 +259,9 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     /**Returns External_Id for Atol
      *
      */
-    public function generateExternalId($entity)
+    public function generateExternalId($entity, $postfix = '')
     {
-        return $entity::HISTORY_ENTITY_NAME . '_' . $entity->getIncrementId();
+        return $entity::HISTORY_ENTITY_NAME . '_' . $entity->getIncrementId() . ($postfix ? "_{$postfix}" : '');
     }
 
     /**
@@ -229,7 +309,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         //TODO: Заменить на isResponseFailed?
         //и использоовать в обсервере
 
-        if ($response->error !== null) {
+        if ($response->error !== null && $response->status != 'wait') {
             throw new Exception($response->error->text
                                 . '. Error code: ' . $response->error->code
                                 . '. Type: ' . $response->error->type
@@ -238,13 +318,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     }
 
     /**
-     * 
-     * @param type $type || string
-     * @param type $receipt
-     * @param type $order
-     * @return type json
+     * @param $receipt entity (Invoice or Creditmemo)
+     * @param $order
+     * @param $externalIdPostfix
+     * @return string
      */
-    protected function _generateJsonPost($receipt, $order)
+    protected function _generateJsonPost($receipt, $order, $externalIdPostfix)
     {
         $discountHelper = Mage::helper('kkm/discount');
 
@@ -259,14 +338,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $receipt->getOrder()->setShippingDescription($this->getConfig('general/custom_shipping_name'));
         }
 
-        $recalculatedReceiptData = $discountHelper->getRecalculated($receipt, $tax_value, $attribute_code, $shipping_tax);
+        $recalculatedReceiptData          = $discountHelper->getRecalculated($receipt, $tax_value, $attribute_code, $shipping_tax);
         $recalculatedReceiptData['items'] = array_values($recalculatedReceiptData['items']);
 
         $callbackUrl = $this->getConfig('general/callback_url') ?: Mage::getUrl('kkm/index/callback', ['_secure' => true]);
 
         $now_time = Mage::getModel('core/date')->timestamp(time());
         $post = [
-            'external_id' => $this->generateExternalId($receipt),
+            'external_id' => $this->generateExternalId($receipt, $externalIdPostfix),
             'service' => [
                 'payment_address' => $this->getConfig('general/payment_address'),
                 'callback_url'    => $callbackUrl,
@@ -313,4 +392,43 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         return $item;
     }
+
+    protected function increaseExternalId($statusModel)
+    {
+        $statusModel->setResendCount($statusModel->getResendCount() + 1);
+        $statusModel->save();
+    }
+
+//    /**
+//     * @param $json
+//     * @param $entityId string external_id from kkm/status table. Ex: 'invoice_100000023', 'creditmemo_1000002'
+//     */
+//    public function updateKkmInfoInOrder($json, $statusModel)
+//    {
+//        if (!$statusModel->getId()) {
+//            $this->addLog("Error. Can not save callback info to order. StatusModel not found. Message from KKM = {$json}", Zend_Log::WARN);
+//
+//            return false;
+//        }
+//
+//        $incrementId = $statusModel->getIncrementId();
+//        $entityType  = $statusModel->getEntityType();
+//
+//        $entity = null;
+//        if (strpos($entityType, 'invoice') !== false) {
+//            $entity = Mage::getModel('sales/order_invoice')->load($incrementId, 'increment_id');
+//        } elseif (strpos($entityType, 'creditme') !== false) {
+//            $entity = Mage::getModel('sales/order_creditmemo')->load($incrementId, 'increment_id');
+//        }
+//
+//        if (!$entity || empty($incrementId) || !$entity->getId()) {
+//            $this->addLog("Error. Can not save callback info to order. Method params: Json = {$json}
+//        Extrnal_id = {$statusModel->getExternalId()}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}", Zend_Log::WARN);
+//
+//            return false;
+//        }
+//
+//        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), '', self::_code);
+//    }
+
 }

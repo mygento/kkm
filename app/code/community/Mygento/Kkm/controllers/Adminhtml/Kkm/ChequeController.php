@@ -12,7 +12,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
     protected function _initAction()
     {
-        $this->loadLayout()->_setActiveMenu('kkm/cheque')->_addBreadcrumb(Mage::helper('kkm')->__('Cheque Manager'), Mage::helper('kkm')->__('Cheque Manager'));
+//        $this->loadLayout()->_setActiveMenu('kkm/cheque')->_addBreadcrumb(Mage::helper('kkm')->__('Cheque Manager'), Mage::helper('kkm')->__('Cheque Manager'));
         return $this;
     }
 
@@ -59,11 +59,21 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         }
 
         try {
+            $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
+            if ($statusModel->getId()) {
+                $vendor->processExistingTransactionBeforeSending($statusModel);
+            }
             $vendor->$method($entity, $entity->getOrder());
         } catch (Mygento_Kkm_SendingException $e) {
             $helper->processError($e);
             Mage::getSingleton('adminhtml/session')->addError($e->getFullTitle());
             $this->_redirectReferer();
+
+            return;
+        } catch (Exception $e) {
+            Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
+            $this->_redirectReferer();
+
             return;
         }
 
@@ -93,7 +103,19 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             return;
         }
 
-        $result = $vendor->checkStatus($uuid);
+        try {
+            $result = $vendor->checkStatus($uuid);
+        } catch (Mygento_Kkm_SendingException $e) {
+            $helper->processError($e);
+            Mage::getSingleton('adminhtml/session')->addError($e->getFullTitle());
+            $this->_redirectReferer();
+
+            return;
+        } catch (Exception $e) {
+            $helper->addLog($e->getMessage(), Zend_Log::WARN);
+            Mage::getSingleton('adminhtml/session')->addError($e->getMessage());
+            $result = false;
+        }
 
         if (!$result) {
             Mage::getSingleton('adminhtml/session')->addError($helper->__('Can not check status of the transaction.'));
