@@ -71,7 +71,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             $this->validateResponse($getRequest);
 
-            $helper->saveTransactionInfoToOrder($getRequest, $entity, $entity->getOrder());
+            $helper->saveTransactionInfoToOrder($entity, $this->getCommentForOrder($getRequest), self::_code);
         } catch (Exception $e) {
             throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), $debugData);
         }
@@ -113,8 +113,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     {
         /**
          * Если WAIT - запросить состояние. Результат сохранить, проанализировать как FAIL
-         * Если FAIL - проанализировать код. Вдруг надо заинкрементить EID - или
-         * оставить как есть - в зависимости от кода ошибки
+         * Если FAIL - проанализировать код. В зависимости от кода ошибки - инкрементим EID - или
+         * оставить как есть
          */
 
         static $analyzeCount = 0;
@@ -149,12 +149,15 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             case 'fail':
                 break;
+
+            default:
+                throw new Exception('Unknown status');
         }
 
         $atolResponse = json_decode($statusModel->getStatus(), true);
         $errorCode    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['code'] : null;
 
-        //Ошибки при работе с ККТ
+        //Ошибки при работе с ККТ (cash machine errors)
         if ((int)$errorCode < 0) {
             $this->increaseExternalId($statusModel);
 
@@ -167,7 +170,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
                 $this->increaseExternalId($statusModel);
 
                 return true;
-            case '10': //Документ с <external_id> и <group_code> уже существует в базе
+            case '10': //Документ с <external_id> и <group_code> уже существует в базе. Document exists in atol
                 $this->updateStatus($statusModel->getUuid());
                 $statusModel     = $statusModel->load($statusModel->getId());
                 $atolResponseNew = json_decode($statusModel->getStatus(), true);
@@ -213,14 +216,17 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $request    = json_decode($getRequest);
 
         if ($statusModel->getStatus() == $getRequest) {
-            return $getRequest;
+            return $statusModel;
         }
         $statusModel
             ->setShortStatus(isset($request->status) ? $request->status : null)
             ->setStatus($getRequest)
             ->save();
 
-        return $getRequest;
+        //Add comment to order about callback data
+        $helper->saveCallback($statusModel);
+
+        return $statusModel;
     }
 
     /**
@@ -231,15 +237,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     public function checkStatus($uuid)
     {
         $helper      = Mage::helper('kkm');
-        $statusModel = Mage::getModel('kkm/status')->load($uuid, 'uuid');
+        $statusModel = $this->updateStatus($uuid);
 
-        $getRequest = $this->updateStatus($uuid);
+        if (!$statusModel) {
+            throw new Exception('Can not update transaction');
+        }
 
         try {
-            $this->validateResponse($getRequest);
-
-            //Add comment to order about callback data
-            $helper->updateKkmInfoInOrder($getRequest, $statusModel);
+            $this->validateResponse($statusModel->getStatus());
         } catch (Exception $e) {
             $incrementId = $statusModel->getIncrementId();
             $entityType  = $statusModel->getEntityType();
@@ -250,7 +255,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
                 $entity = Mage::getModel('sales/order_creditmemo')->load($incrementId, 'increment_id');
             }
 
-            throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), ['uuid' => $uuid]);
+            throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), ['uuid' => $statusModel->getUuid()]);
         }
 
         return true;
@@ -301,19 +306,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     {
         $response = json_decode($atolResponse);
 
-        //TODO: Заменить на isResponseInvalid
-        if (!$atolResponse || !$response || !property_exists($response, 'error')) {
+        if ($this->isResponseInvalid($response)) {
             throw new Exception(Mage::helper('kkm')->__('Response from KKM vendor is empty or incorrect.'));
         }
 
-        //TODO: Заменить на isResponseFailed?
-        //и использоовать в обсервере
-
-        if ($response->error !== null && $response->status != 'wait') {
-            throw new Exception($response->error->text
-                                . '. Error code: ' . $response->error->code
-                                . '. Type: ' . $response->error->type
-            );
+        if ($this->isResponseFailed($response)) {
+            throw new Exception($this->getCommentForOrder($atolResponse));
         }
     }
 
@@ -381,7 +379,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
     public function sanitizeItem($item)
     {
-        $item['name'] = $item['name'] && mb_strlen($item['name']) > 64 ? mb_strimwidth($item['name'], 0, 64) : $item['name'];
+        $strHelper    = Mage::helper('core/string');
+        $item['name'] = $item['name'] && $strHelper->strlen($item['name']) > 64 ? $strHelper->truncate($item['name'], 64) : $item['name'];
         $taxes        = array_column(Mage::getModel('kkm/source_taxoption')->toOptionArray(), 'value');
 
         //isset() returns false if 'tax' exists but equal to NULL.
@@ -393,42 +392,46 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         return $item;
     }
 
+    public function isResponseInvalid(stdClass $response)
+    {
+        return (!$response || !property_exists($response, 'error'));
+    }
+
+    public function isResponseFailed(stdClass $response)
+    {
+        return ($response->error !== null && $response->status == 'fail');
+    }
+
     protected function increaseExternalId($statusModel)
     {
         $statusModel->setResendCount($statusModel->getResendCount() + 1);
         $statusModel->save();
     }
 
-//    /**
-//     * @param $json
-//     * @param $entityId string external_id from kkm/status table. Ex: 'invoice_100000023', 'creditmemo_1000002'
-//     */
-//    public function updateKkmInfoInOrder($json, $statusModel)
-//    {
-//        if (!$statusModel->getId()) {
-//            $this->addLog("Error. Can not save callback info to order. StatusModel not found. Message from KKM = {$json}", Zend_Log::WARN);
-//
-//            return false;
-//        }
-//
-//        $incrementId = $statusModel->getIncrementId();
-//        $entityType  = $statusModel->getEntityType();
-//
-//        $entity = null;
-//        if (strpos($entityType, 'invoice') !== false) {
-//            $entity = Mage::getModel('sales/order_invoice')->load($incrementId, 'increment_id');
-//        } elseif (strpos($entityType, 'creditme') !== false) {
-//            $entity = Mage::getModel('sales/order_creditmemo')->load($incrementId, 'increment_id');
-//        }
-//
-//        if (!$entity || empty($incrementId) || !$entity->getId()) {
-//            $this->addLog("Error. Can not save callback info to order. Method params: Json = {$json}
-//        Extrnal_id = {$statusModel->getExternalId()}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}", Zend_Log::WARN);
-//
-//            return false;
-//        }
-//
-//        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), '', self::_code);
-//    }
+    /**
+     * @param $atolResponse string json
+     */
+    public function getCommentForOrder($atolResponse, $message = '')
+    {
+        $responseObj  = json_decode($atolResponse);
+        $orderComment = $this->isResponseFailed($responseObj) ? '' /* 'Cheque has been rejected by KKM vendor.'*/ : 'Cheque has been sent to KKM vendor.';
+        $orderComment = $message ?: $orderComment;
 
+        $com = Mage::helper('kkm')->__($orderComment) .
+        ' Status: '
+        . ucwords($responseObj->status)
+        . '. Uuid: '
+        . $responseObj->uuid ?: 'no uuid';
+
+        $com .= $this->isResponseFailed($responseObj)
+            ? '. Error code: '
+            . $responseObj->error->code
+            . '. Error text: '
+            . $responseObj->error->text
+            . '. Type: '
+            . $responseObj->error->type
+            : '';
+
+        return $com;
+    }
 }

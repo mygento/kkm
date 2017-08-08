@@ -55,11 +55,9 @@ class Mygento_Kkm_Model_Status extends Mage_Core_Model_Abstract
             return $this->getData('increment_id');
         }
 
-        $eid         = $this->getExternalId();
-        $tmp         = substr($eid, strpos($eid, '_') + 1);
-        $incrementId = strpos($tmp, '_') !== false ? substr($tmp, 0, strpos($tmp, '_')) : $tmp;
+        $parts = explode('_', $this->getExternalId());
 
-        return $incrementId ?: null;
+        return isset($parts[1]) ? $parts[1] : null;
     }
 
     public function getEntityType()

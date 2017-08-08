@@ -55,21 +55,13 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             $this->sendNotificationEmail($e->getFailTitle(), $e->getOrderId(), $e->getReason(), $e->getExtraData());
         }
 
-        $this->setOrderFailStatus(Mage::getModel('sales/order')->load($e->getOrderId(), 'increment_id'), $e->getFullTitle());
+        $this->saveTransactionInfoToOrder($e->getEntity(), $e->getFullTitle(), $this->getConfig('vendor'), true);
+//        $this->setOrderFailStatus(Mage::getModel('sales/order')->load($e->getOrderId(), 'increment_id'), $e->getFullTitle());
     }
 
     public function getLogFilename()
     {
         return 'kkm.log';
-    }
-
-    public function setOrderFailStatus($order, $comment)
-    {
-        $status = $this->getConfig('fail_status');
-        $order->setKkmChangeStatusFlag(true);
-        $order->setStatus($status);
-        $order->addStatusHistoryComment('[' . strtoupper($this->getConfig('vendor')) . '] ' . $comment);
-        $order->save();
     }
 
     /**
@@ -140,36 +132,47 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         return round($receipt->getGrandTotal(), 2);
     }
 
-    /**
-     * @param $json
-     * @param $entityId string external_id from kkm/status table. Ex: 'invoice_100000023', 'creditmemo_1000002'
-     */
-    public function updateKkmInfoInOrder($json, $statusModel, $vendor = 'atol')
+    public function saveCallback($statusModel)
     {
         if (!$statusModel->getId()) {
-            $this->addLog("Error. Can not save callback info to order. StatusModel not found. Message from KKM = {$json}", Zend_Log::WARN);
+            $this->addLog("Error. Can not save callback info to order. StatusModel not found.", Zend_Log::WARN);
 
             return false;
         }
 
+        $entity = $this->getEntityModelByStatusModel($statusModel);
+
+        if (!$entity->getId()) {
+            $this->addLog("Error. Can not save callback info to order. "
+                          . "Method params: Json = {$statusModel->getStatus()}. "
+                          . "Extrnal_id = {$statusModel->getExternalId()}. Incrememnt_id = {$statusModel->getIncrementId()}. "
+                          . "Entity_type = {$statusModel->getEntityType()}", Zend_Log::WARN);
+
+            return false;
+        }
+
+        $comment = $this->__('Received message from KKM vendor.') .
+        ' Status: '
+        . ucwords($statusModel->getShortStatus())
+        . '. Uuid: '
+        . $statusModel->getUuid() ?: 'no uuid';
+
+        $this->saveTransactionInfoToOrder($entity, $comment, $statusModel->getVendor());
+    }
+
+    public function getEntityModelByStatusModel($statusModel)
+    {
         $incrementId = $statusModel->getIncrementId();
         $entityType  = $statusModel->getEntityType();
+        $entity      = new Varien_Object();
 
-        $entity = null;
         if (strpos($entityType, 'invoice') !== false) {
             $entity = Mage::getModel('sales/order_invoice')->load($incrementId, 'increment_id');
         } elseif (strpos($entityType, 'creditme') !== false) {
             $entity = Mage::getModel('sales/order_creditmemo')->load($incrementId, 'increment_id');
         }
 
-        if (!$entity || empty($incrementId) || !$entity->getId()) {
-            $this->addLog("Error. Can not save callback info to order. Method params: Json = {$json} 
-        Extrnal_id = {$statusModel->getExternalId()}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}", Zend_Log::WARN);
-
-            return false;
-        }
-
-        $this->saveTransactionInfoToOrder($json, $entity, $entity->getOrder(), 'Received message from KKM vendor.', $vendor);
+        return $entity;
     }
 
     public function hasOrderFailedKkmTransactions($order)
@@ -184,31 +187,27 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
 
         $invoicesIncIds = array_map(
             function ($v) {
-                return 'invoice_' . $v;
+                return ['type' => 'invoice', 'incrementId' => $v];
             },
             $invoicesIncIds
         );
 
         $creditmemosIncIds = array_map(
             function ($v) {
-                return 'creditmemo_' . $v;
+                return ['type' => 'creditmemo', 'incrementId' => $v];
             },
             $creditmemosIncIds
         );
 
-        $statuses = Mage::getModel('kkm/status')->getCollection()
-            ->addFieldToFilter(
-                'external_id',
-                ['in' => array_merge($invoicesIncIds, $creditmemosIncIds)]
-            );
+        foreach (array_merge($invoicesIncIds, $creditmemosIncIds) as $index => $incId) {
+            $entity      = Mage::getModel('sales/order_' . $incId['type'])->load($incId['incrementId'], 'increment_id');
+            $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
 
-        foreach ($statuses as $status) {
-            $statusObj = json_decode($status->getStatus());
+            if ($this->getVendorModel()->isResponseFailed(json_decode($statusModel->getStatus()))) {
+                $this->addLog("Order {$order->getId()} has failed kkm transaction. Id in table kkm/status: {$statusModel->getId()}. 
+                {$statusModel->getEntityType()} {$statusModel->getIncrementId()}");
 
-            if ($statusObj->status == 'fail') {
-                $this->addLog("Order {$order->getId()} has failed kkm transaction. Id in table kkm/status: {$status->getId()}");
-
-                return $status->getId();
+                return $statusModel->getId();
             }
         }
 
@@ -216,54 +215,30 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**Save info about transaction to order
-     * @param $getRequest string with json from vendor
      * @param $entity Invoice|Creditmemo
-     * @param $order Order
+     * @param $comment string comment with necessary info (Status, Uuid, )
+     * @param $vendorName string
+     * @param $isError bool
      * @return bool
      */
-    public function saveTransactionInfoToOrder($getRequest, $entity, $order, $orderComment = '', $vendorName = 'atol')
+    public function saveTransactionInfoToOrder(Varien_Object $entity, $comment, $vendorName, $isError = false)
     {
-        $status = false;
+        $order = $entity->getOrder();
 
         try {
-            $getRequestObj = json_decode($getRequest);
-
-            if ($getRequestObj->error == null) {
-                $orderComment = $orderComment ?: 'Cheque has been sent to KKM vendor.';
-                $comment = '[' . strtoupper($vendorName) . '] '
-                        . $this->__($orderComment) . ' '
-                        . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                        . $entity->getIncrementId()
-                        . '. Status: '
-                        . ucwords($getRequestObj->status)
-                        . '. Uuid: '
-                        . $getRequestObj->uuid ?: 'no uuid';
-            } else {
-                $orderComment = $orderComment ?: 'Cheque has been rejected by KKM vendor.';
-                $comment = '[' . strtoupper($vendorName) . '] '
-                        . $this->__($orderComment) . ' '
-                        . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
-                        . $entity->getIncrementId()
-                        . '. Status: '
-                        . ucwords($getRequestObj->status)
-                        . '. Error code: '
-                        . $getRequestObj->error->code
-                        . '. Error text: '
-                        . $getRequestObj->error->text
-                        . '. Uuid: '
-                        . $getRequestObj->uuid ?: 'no uuid';
-
-                if ($this->getConfig('general/fail_status')) {
-                    $status = $this->getConfig('general/fail_status');
-                }
-            }
+            $status          = $isError && $this->getConfig('fail_status') ? $this->getConfig('fail_status') : null;
+            $preparedComment = '[' . strtoupper($vendorName) . '] '
+                . $this->__($comment) . ' '
+                . ucwords($entity::HISTORY_ENTITY_NAME) . ': '
+                . $entity->getIncrementId();
 
             if ($status) {
-                $order->setState('processing', $status, $comment);
-            } else {
-                $order->addStatusHistoryComment($comment);
+                $order->setStatus($status);
+//                $order->setState('processing', $status, $comment);
             }
 
+//            $order->setKkmChangeStatusFlag(true);
+            $order->addStatusHistoryComment($preparedComment);
             $order->save();
         } catch (Exception $e) {
             $this->addLog('Can not save KKM transaction info to order. Reason: ' . $e->getMessage(), Zend_Log::CRIT);

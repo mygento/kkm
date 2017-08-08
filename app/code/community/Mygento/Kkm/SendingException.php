@@ -18,6 +18,7 @@ class Mygento_Kkm_SendingException extends Exception
     protected $name      = 'kkm';
     protected $extraInfo = [];
     protected $orderId;
+    protected $entity;
     protected $reason;
 
     public function __construct($entity = null, $message = "", $debugData = [], $severity = Zend_Log::ERR)
@@ -25,6 +26,7 @@ class Mygento_Kkm_SendingException extends Exception
         $this->severity  = $severity;
         $this->reason    = $message;
         $this->extraInfo = $debugData;
+        $this->entity   = $entity;
 
         //build message here
         $this->buildMessage($entity);
@@ -45,6 +47,11 @@ class Mygento_Kkm_SendingException extends Exception
     public function getOrderId()
     {
         return $this->orderId;
+    }
+
+    public function getEntity()
+    {
+        return $this->entity;
     }
 
     public function getReason()
@@ -69,7 +76,7 @@ class Mygento_Kkm_SendingException extends Exception
         return $this->extraInfo ? Mage::helper($this->name)->__(self::EXTRA_INFO) . json_encode($this->extraInfo) : '';
     }
 
-    protected function buildMessage($entity, $message = "")
+    protected function buildMessage($entity)
     {
         $this->message = $this->getFullTitle();
 
