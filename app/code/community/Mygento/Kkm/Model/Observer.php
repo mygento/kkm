@@ -134,6 +134,55 @@ class Mygento_Kkm_Model_Observer
         }
     }
 
+    public function updateTransactions()
+    {        $helper = Mage::helper('kkm');
+        $waitStatuses = Mage::getModel('kkm/status')->getCollection()
+            ->addFieldToFilter('short_status', 'wait');
+        $failStatuses = Mage::getModel('kkm/status')->getCollection()
+            ->addFieldToFilter('short_status', ['in' => ['fail', null, '']]);
+        $vendor = $helper->getVendorModel();
+
+        $waitUpdated = 0;
+        foreach ($waitStatuses as $waitStatus) {
+            try {
+                $result = $vendor->checkStatus($waitStatus->getUuid());
+
+                $waitUpdated = $result ? $waitUpdated + 1 : $waitUpdated;
+            } catch (Mygento_Kkm_SendingException $e) {
+                $helper->processError($e);
+                $waitUpdated++;
+            } catch (Exception $e) {
+                $helper->addLog($e->getMessage(), Zend_Log::WARN);
+            }
+        }
+
+        $failUpdated = 0;
+        foreach ($failStatuses as $failStatus) {
+
+            $method = $failStatus->getEntityType() == 'creditmemo' ? 'cancelCheque' : 'sendCheque';
+            $entity = $helper->getEntityModelByStatusModel($failStatus);
+
+            try {
+                $vendor->processExistingTransactionBeforeSending($failStatus);
+                $vendor->$method($entity, $entity->getOrder());
+
+                $failUpdated++;
+            } catch (Mygento_Kkm_SendingException $e) {
+                $helper->processError($e);
+
+                $failUpdated++;
+            } catch (Exception $e) {
+                $helper->addLog($e->getMessage(), Zend_Log::WARN);
+            }
+        }
+
+        Zend_Debug::dump($waitUpdated);
+        Zend_Debug::dump($failUpdated);
+//        die();
+
+
+    }
+
     public function addExtraButtons($observer)
     {
         if (!Mage::helper('kkm')->getConfig('general/enabled')) {

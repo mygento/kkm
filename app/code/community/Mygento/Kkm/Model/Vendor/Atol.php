@@ -117,14 +117,15 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
          * оставить как есть
          */
 
-        static $analyzeCount = 0;
-        $analyzeCount++;
-        if ($analyzeCount > 2) {
-            throw new Exception(Mage::helper('kkm')->__('Too many attempts to update status of the transaction.')
-                                . ' ' . ucfirst($statusModel->getEntityType())
-                                . ' ' . $statusModel->getIncrementId()
-            );
-        }
+// It does not work if method is invoked in loop
+//        static $analyzeCount = 0;
+//        $analyzeCount++;
+//        if ($analyzeCount > 2) {
+//            throw new Exception(Mage::helper('kkm')->__('Too many attempts to update status of the transaction.')
+//                                . ' ' . ucfirst($statusModel->getEntityType())
+//                                . ' ' . $statusModel->getIncrementId()
+//            );
+//        }
 
         $shortStatus = $statusModel->getShortStatus();
 
@@ -156,6 +157,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $atolResponse = json_decode($statusModel->getStatus(), true);
         $errorCode    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['code'] : null;
+        $errorType    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['type'] : null;
 
         //Ошибки при работе с ККТ (cash machine errors)
         if ((int)$errorCode < 0) {
@@ -170,6 +172,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
                 $this->increaseExternalId($statusModel);
 
                 return true;
+            case '2': //Incorrect INN
+                if ($errorType == 'agent') {
+                    $this->increaseExternalId($statusModel);
+
+                    return true;
+                }
+
+                return false;
             case '10': //Документ с <external_id> и <group_code> уже существует в базе. Document exists in atol
                 $this->updateStatus($statusModel->getUuid());
                 $statusModel     = $statusModel->load($statusModel->getId());
@@ -210,6 +220,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $token = $this->getToken();
 
         $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationGetReport . '/' . $uuid . '?tokenid=' . $token;
+        $helper->addLog('updateStatus of cheque: ' . $statusModel->getEntityType() . ' ' . $statusModel->getIncrementId());
         $helper->addLog('checkStatus url: ' . $url);
 
         $getRequest = $helper->requestApiGet($url);

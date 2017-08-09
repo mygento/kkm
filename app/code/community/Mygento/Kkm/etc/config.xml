@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Mygento_Kkm>
-            <version>1.0.5</version>
+            <version>1.1.0</version>
         </Mygento_Kkm>
     </modules>
     <frontend>
@@ -180,8 +180,22 @@
                 <auto_send_after_invoice>1</auto_send_after_invoice>
                 <auto_send_after_cancel>1</auto_send_after_cancel>
                 <fail_status>kkm_failed</fail_status>
+                <cron_update_expr>10 * * * *</cron_update_expr>
+                <show_notif_in_admin>1</show_notif_in_admin>
                 <debug_level>3</debug_level>
             </general>
         </kkm>
     </default>
+    <crontab>
+        <jobs>
+            <elccustomer_offline_orders>
+                <schedule>
+                    <config_path>kkm/general/cron_update_expr</config_path>
+                </schedule>
+                <run>
+                    <model>kkm/observer::updateTransactions</model>
+                </run>
+            </elccustomer_offline_orders>
+        </jobs>
+    </crontab>
 </config>

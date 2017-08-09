@@ -55,7 +55,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             $this->sendNotificationEmail($e->getFailTitle(), $e->getOrderId(), $e->getReason(), $e->getExtraData());
         }
 
-        $this->saveTransactionInfoToOrder($e->getEntity(), $e->getFullTitle(), $this->getConfig('vendor'), true);
+        $this->saveTransactionInfoToOrder($e->getEntity(), $e->getMessage(), $this->getConfig('vendor'), true);
 //        $this->setOrderFailStatus(Mage::getModel('sales/order')->load($e->getOrderId(), 'increment_id'), $e->getFullTitle());
     }
 
@@ -151,11 +151,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             return false;
         }
 
-        $comment = $this->__('Received message from KKM vendor.') .
-        ' Status: '
-        . ucwords($statusModel->getShortStatus())
-        . '. Uuid: '
-        . $statusModel->getUuid() ?: 'no uuid';
+        $comment = $this->getVendorModel()->getCommentForOrder($statusModel->getStatus(), $this->__('Received message from KKM vendor.'));
 
         $this->saveTransactionInfoToOrder($entity, $comment, $statusModel->getVendor());
     }
@@ -202,6 +198,12 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         foreach (array_merge($invoicesIncIds, $creditmemosIncIds) as $index => $incId) {
             $entity      = Mage::getModel('sales/order_' . $incId['type'])->load($incId['incrementId'], 'increment_id');
             $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
+
+            if (!$statusModel->getId()) {
+                $this->addLog("Order {$order->getId()}: cheque {$incId['type']} {$incId['incrementId']} was not sent to KKM.", Zend_Log::WARN);
+
+                return true;
+            }
 
             if ($this->getVendorModel()->isResponseFailed(json_decode($statusModel->getStatus()))) {
                 $this->addLog("Order {$order->getId()} has failed kkm transaction. Id in table kkm/status: {$statusModel->getId()}. 

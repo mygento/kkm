@@ -17,6 +17,9 @@
 "Set this status to order if sending data to KKM vendor failed.", "Если одна из ККМ транзакций не удалась, то заказ будет переведен в этот статус"
 "Sending cheque fail status","Статус заказа при неудачной отправке чека/возврата"
 "Format: http://www.domain.com/. Leave it empty for default value.","Формат: http://www.domain.com/. Оставьте пустым, если хотите использовать значение по умолчанию."
+"Frequency of updating","Частота обновления"
+"Use Crontab Format (Eg. ""*/5 * * * *"" for every 5 minutes)<br/>If status of cheque is <br/><strong>wait</strong> - The status will be updated.<br/><strong>fail</strong> - The cheque will be sent again to KKM.<br/>","Используйте Cron формат (н-р ""*/5 * * * *"" для каждых 5 мин)<br/>Если статус чека <br/><strong>wait</strong> - Статус будет автоматически обновлен.<br/><strong>fail</strong> - Чек будет отправлен снова.<br/>"
+
 "Error handling","Обработка ошибок"
 "Level of logs to send","Уровень логов, которые будут отправлены"
 "All log records with this severity will be sent to email","Все записи с этим уровнем логирования будут отправляться"

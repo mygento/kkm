@@ -13,7 +13,6 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
     {
         // @codingStandardsIgnoreStart
         $json = file_get_contents('php://input');
-        // @codingStandardsIgnoreEnd
 
         if ($json) {
             $jsonDecode = json_decode($json);
@@ -27,6 +26,7 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
 
             //Sometimes callback is received when transaction is not saved yet. In order to avoid this
             sleep(3);
+            // @codingStandardsIgnoreEnd
 
             $statusModel = Mage::getModel('kkm/status')->load($jsonDecode->uuid, 'uuid');
             $statusModel->setStatus($json)->save();
@@ -43,7 +43,6 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
                 }
 
                 $vendor->validateResponse($json);
-
             } catch (Exception $e) {
                 $entity = Mage::helper('kkm')->getEntityModelByStatusModel($statusModel);
                 Mage::helper('kkm')->processError(new Mygento_Kkm_SendingException($entity, $e->getMessage(), []));
