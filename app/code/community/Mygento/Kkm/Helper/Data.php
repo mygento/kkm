@@ -195,7 +195,7 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
             $creditmemosIncIds
         );
 
-        foreach (array_merge($invoicesIncIds, $creditmemosIncIds) as $index => $incId) {
+        foreach (array_merge($invoicesIncIds, $creditmemosIncIds) as $incId) {
             $entity      = Mage::getModel('sales/order_' . $incId['type'])->load($incId['incrementId'], 'increment_id');
             $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
 

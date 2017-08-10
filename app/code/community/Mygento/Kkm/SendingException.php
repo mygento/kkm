@@ -7,7 +7,6 @@
  * @package Mygento_projects
  * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
-
 class Mygento_Kkm_SendingException extends Exception
 {
     const CHEQUE_FAIL = 'The cheque has not been sent to KKM.';

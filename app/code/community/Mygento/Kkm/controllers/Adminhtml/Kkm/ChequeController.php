@@ -9,10 +9,10 @@
  */
 class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controller_Action
 {
+    protected $forceFlag = false;
 
     protected function _initAction()
     {
-//        $this->loadLayout()->_setActiveMenu('kkm/cheque')->_addBreadcrumb(Mage::helper('kkm')->__('Cheque Manager'), Mage::helper('kkm')->__('Cheque Manager'));
         return $this;
     }
 
@@ -23,46 +23,19 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $helper     = Mage::helper('kkm');
         $vendor     = $helper->getVendorModel();
 
-        if (!$vendor) {
-            Mage::getSingleton('adminhtml/session')
-                ->addError($helper->__('KKM Vendor not found.') . ' ' . $helper->__('Check KKM module settings.'));
-            $this->_redirectReferer();
-
-            return;
-        }
-
-        if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
-            Mage::getSingleton('adminhtml/session')->addError($helper->__('Something goes wrong. Check logs.'));
-            $helper->addLog('Invalid url. No id or invalid entity type. Params: ', Zend_Log::ERR);
-            $helper->addLog($this->getRequest()->getParams(), Zend_Log::ERR);
-            $this->_redirectReferer();
-
-            return;
-        }
-
-        $entity = Mage::getModel('sales/order_' . $entityType)->load($id);
-
-        if (!$entity->getId()) {
-            Mage::getSingleton('adminhtml/session')->addError($helper->__('Something goes wrong. Check log file.'));
-            $helper->addLog('Entity with Id from request does not exist. Id: ' . $id, Zend_Log::ERR);
-            $this->_redirectReferer();
-
-            return;
-        }
-
-        $method = 'sendCheque';
-        if ($entityType == 'creditmemo') {
-            $method  = 'cancelCheque';
-            $comment = 'Refund was sent to KKM. Status of the transaction see in orders comment.';
-        } else {
-            $comment = 'Cheque was sent to KKM. Status of the transaction see in orders comment.';
-        }
-
         try {
+            $this->checkResendRequest();
+
+            $entity      = Mage::getModel('sales/order_' . $entityType)->load($id);
+            $method      = $this->getMethodForResend($entityType);
             $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
-            if ($statusModel->getId()) {
+
+            if (!$this->forceFlag) {
+                //Process existing transaction. It depends on error code, status and some other conditions
                 $vendor->processExistingTransactionBeforeSending($statusModel);
             }
+
+            //Send to KKM invoice or refund
             $vendor->$method($entity, $entity->getOrder());
         } catch (Mygento_Kkm_SendingException $e) {
             $helper->processError($e);
@@ -77,16 +50,23 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             return;
         }
 
-        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__($comment));
+        Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Data was sent to KKM. Status of the transaction see in orders comment.'));
 
         $this->_redirectReferer();
     }
 
+    public function forceresendAction()
+    {
+        $this->forceFlag = true;
+
+        return $this->resendAction();
+    }
+
     public function checkstatusAction()
     {
-        $uuid       = strtolower($this->getRequest()->getParam('uuid'));
-        $helper     = Mage::helper('kkm');
-        $vendor     = $helper->getVendorModel();
+        $uuid   = strtolower($this->getRequest()->getParam('uuid'));
+        $helper = Mage::helper('kkm');
+        $vendor = $helper->getVendorModel();
 
         if (!$uuid) {
             Mage::getSingleton('adminhtml/session')->addError($helper->__('Uuid can not be empty.'));
@@ -129,6 +109,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
     public function viewlogsAction()
     {
         $this->loadLayout();
+        $this->getLayout()->getBlock('head')->setTitle(Mage::helper('kkm')->__('KKM Logs Viewer'));
         $this->renderLayout();
     }
 
@@ -160,6 +141,42 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $this->_initAction()->renderLayout();
     }
 
+    protected function checkResendRequest()
+    {
+        $entityType = strtolower($this->getRequest()->getParam('entity'));
+        $id         = $this->getRequest()->getParam('id');
+        $helper     = Mage::helper('kkm');
+        $vendor     = $helper->getVendorModel();
+
+        if (!$vendor) {
+            throw new Exception($helper->__('KKM Vendor not found.') . ' ' . $helper->__('Check KKM module settings.'));
+        }
+
+        if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
+            $helper->addLog('Invalid url for resend action. No id or invalid entity type. Params: ', Zend_Log::ERR);
+            $helper->addLog($this->getRequest()->getParams(), Zend_Log::ERR);
+
+            throw new Exception($helper->__('Something goes wrong. Invalid URL for resend. Check logs.'));
+        }
+
+        $entity = Mage::getModel('sales/order_' . $entityType)->load($id);
+
+        if (!$entity->getId()) {
+            $helper->addLog('Entity with Id from request does not exist. Id: ' . $id, Zend_Log::ERR);
+            throw new Exception($helper->__('Something goes wrong. Invalid URL for resend. Check logs.'));
+        }
+    }
+
+    protected function getMethodForResend($entityType)
+    {
+        $method = !$this->forceFlag ? 'sendCheque' : 'forceSendCheque';
+        if ($entityType == 'creditmemo') {
+            $method = !$this->forceFlag ? 'cancelCheque' : 'forceCancelCheque';
+        }
+
+        return $method;
+    }
+
     protected function _isAllowed()
     {
         $action = strtolower($this->getRequest()->getActionName());
@@ -170,6 +187,9 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
                 break;
             case 'resend':
                 $aclResource = 'kkm_cheque/resend';
+                break;
+            case 'forceresend':
+                $aclResource = 'kkm_cheque/forceresend';
                 break;
             case 'checkstatus':
                 $aclResource = 'kkm_cheque/checkstatus';

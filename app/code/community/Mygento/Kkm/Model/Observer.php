@@ -135,7 +135,8 @@ class Mygento_Kkm_Model_Observer
     }
 
     public function updateTransactions()
-    {        $helper = Mage::helper('kkm');
+    {
+        $helper = Mage::helper('kkm');
         $waitStatuses = Mage::getModel('kkm/status')->getCollection()
             ->addFieldToFilter('short_status', 'wait');
         $failStatuses = Mage::getModel('kkm/status')->getCollection()
@@ -158,7 +159,6 @@ class Mygento_Kkm_Model_Observer
 
         $failUpdated = 0;
         foreach ($failStatuses as $failStatus) {
-
             $method = $failStatus->getEntityType() == 'creditmemo' ? 'cancelCheque' : 'sendCheque';
             $entity = $helper->getEntityModelByStatusModel($failStatus);
 
@@ -212,13 +212,29 @@ class Mygento_Kkm_Model_Observer
                         'id'     => $entity->getId()
                     ]
                 );
+            $urlEnforce  = Mage::getModel('adminhtml/url')
+                ->getUrl(
+                    'adminhtml/kkm_cheque/forceresend',
+                    [
+                        'entity' => $entity::HISTORY_ENTITY_NAME,
+                        'id'     => $entity->getId(),
+                    ]
+                );
             $data = [
                 'label'   => Mage::helper('kkm')->__('Resend to KKM'),
                 'class'   => '',
                 'onclick' => 'setLocation(\'' . $url . '\')',
             ];
+            $dataEnforce = [
+                'label'   => Mage::helper('kkm')->__('Force resend to KKM'),
+                'class'   => '',
+                'onclick' => 'setLocation(\'' . $urlEnforce . '\')',
+            ];
 
             $container->addButton('resend_to_kkm', $data);
+            if (Mage::helper('kkm')->getConfig('force_resend')) {
+                $container->addButton('force_resend_to_kkm', $dataEnforce);
+            }
         } elseif ($this->canBeShownCheckStatusButton($statusModel)) {
             $url  = Mage::getModel('adminhtml/url')
                 ->getUrl(

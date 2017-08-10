@@ -22,9 +22,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     /**
      *
      * @param type $invoice
-     * @param type $order
      */
-    public function sendCheque($invoice, $order)
+    public function sendCheque($invoice)
     {
         Mage::helper('kkm')->addLog('Start invoice ' . $invoice->getIncrementId() . ' processing');
 
@@ -33,16 +32,53 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
     /**
      *
-     * @param type $creditmemo
-     * @param type $order
+     * @param type $invoice
+     * @throws Exception
      */
-    public function cancelCheque($creditmemo, $order)
+    public function forceSendCheque($invoice)
+    {
+        Mage::helper('kkm')->addLog('Start FORCE invoice ' . $invoice->getIncrementId() . ' processing');
+        $statusModel = Mage::getModel('kkm/status')->loadByEntity($invoice);
+        if (!$statusModel->getId()) {
+            throw new Exception(Mage::helper('kkm')->__("There is no transactions for %s. Force send works for existing transactions only.", 'invoice ' . $invoice->getIncrementId()));
+        }
+
+        $this->increaseExternalId($statusModel);
+        $this->sendToAtol($invoice);
+    }
+
+    /**
+     *
+     * @param type $creditmemo
+     */
+    public function cancelCheque($creditmemo)
     {
         Mage::helper('kkm')->addLog('Start creditmemo ' . $creditmemo->getIncrementId() . ' processing');
 
         $this->sendToAtol($creditmemo);
     }
 
+    /**
+     *
+     * @param type $creditmemo
+     * @throws Exception
+     */
+    public function forceCancelCheque($creditmemo)
+    {
+        Mage::helper('kkm')->addLog('Start FORCE creditmemo ' . $creditmemo->getIncrementId() . ' processing');
+        $statusModel = Mage::getModel('kkm/status')->loadByEntity($creditmemo);
+        if (!$statusModel->getId()) {
+            throw new Exception(Mage::helper('kkm')->__("There is no transactions for creditmemo %s. Force cancel works for existing transactions only.", $creditmemo->getIncrementId()));
+        }
+
+        $this->increaseExternalId($statusModel);
+        $this->sendToAtol($creditmemo);
+    }
+
+    /**
+     * @param $entity Invoice|Creditmemo
+     * @throws Mygento_Kkm_SendingException
+     */
     protected function sendToAtol($entity)
     {
         $helper      = Mage::helper('kkm');
@@ -80,7 +116,6 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     /**Method saves status entity and writes info to order
      * @param $getRequest
      * @param $entity
-     * @param $order
      */
     public function saveTransaction($getRequest, $entity)
     {
@@ -106,14 +141,14 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             ->save();
     }
 
-    /**TODO: Вызывать метод при нажатии на кнопку или при запуске кроном. Но не при запуске обсервером.
+    /**Check and process existing transaction. Do not run it from observer.
      * @param $statusModel
      */
     public function processExistingTransactionBeforeSending($statusModel)
     {
         /**
-         * Если WAIT - запросить состояние. Результат сохранить, проанализировать как FAIL
-         * Если FAIL - проанализировать код. В зависимости от кода ошибки - инкрементим EID - или
+         * Если WAIT - запросить состояние. Результат сохранить, проанализировать как FAIL (запустить этот метод заново)
+         * Если FAIL - проанализировать код. В зависимости от кода ошибки - инкрементим ExternalID - или
          * оставить как есть
          */
 
@@ -161,9 +196,10 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         //Ошибки при работе с ККТ (cash machine errors)
         if ((int)$errorCode < 0) {
-            $this->increaseExternalId($statusModel);
 
             //increment EID and send it
+            $this->increaseExternalId($statusModel);
+
             return true;
         }
 
@@ -247,7 +283,6 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      */
     public function checkStatus($uuid)
     {
-        $helper      = Mage::helper('kkm');
         $statusModel = $this->updateStatus($uuid);
 
         if (!$statusModel) {

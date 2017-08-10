@@ -155,6 +155,9 @@
                                 <resend translate="title">
                                     <title>Manually send invoice/creditmemo</title>
                                 </resend>
+                                <forceresendAction translate="title">
+                                    <title>Manually force send invoice/creditmemo</title>
+                                </forceresendAction>
                                 <checkstatus translate="title">
                                     <title>Manually check status of invoice/creditmemo</title>
                                 </checkstatus>
@@ -181,6 +184,7 @@
                 <auto_send_after_cancel>1</auto_send_after_cancel>
                 <fail_status>kkm_failed</fail_status>
                 <cron_update_expr>10 * * * *</cron_update_expr>
+                <force_resend>0</force_resend>
                 <show_notif_in_admin>1</show_notif_in_admin>
                 <debug_level>3</debug_level>
             </general>
