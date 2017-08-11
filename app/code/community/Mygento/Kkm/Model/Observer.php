@@ -139,8 +139,13 @@ class Mygento_Kkm_Model_Observer
         $helper = Mage::helper('kkm');
         $waitStatuses = Mage::getModel('kkm/status')->getCollection()
             ->addFieldToFilter('short_status', 'wait');
+
+        $filter_short_status_1 = ['null'=>true];
+        $filter_short_status_2 = ['in' => ['fail', null, '']];
+
+        //Set 'OR' in SQL statement
         $failStatuses = Mage::getModel('kkm/status')->getCollection()
-            ->addFieldToFilter('short_status', ['in' => ['fail', null, '']]);
+            ->addFieldToFilter('short_status', [$filter_short_status_1, $filter_short_status_2]);
         $vendor = $helper->getVendorModel();
 
         $waitUpdated = 0;

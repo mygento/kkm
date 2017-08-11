@@ -14,8 +14,18 @@ abstract class Mygento_Kkm_Model_Abstract
     abstract public function sendCheque($invoice);
     abstract public function cancelCheque($creditmemo);
     abstract public function checkStatus($uuid);
-    abstract public function isResponseInvalid(stdClass $response);
-    abstract public function isResponseFailed(stdClass $response);
+
+    /**
+     * @param $response stdClass after json_decode()
+     * @return bool
+     */
+    abstract public function isResponseInvalid($response);
+
+    /**
+     * @param $response stdClass after json_decode()
+     * @return bool
+     */
+    abstract public function isResponseFailed($response);
 
     public function forceSendCheque($invoice)
     {

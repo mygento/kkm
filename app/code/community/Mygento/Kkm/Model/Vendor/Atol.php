@@ -438,12 +438,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         return $item;
     }
 
-    public function isResponseInvalid(stdClass $response)
+    public function isResponseInvalid($response)
     {
         return (!$response || !property_exists($response, 'error'));
     }
 
-    public function isResponseFailed(stdClass $response)
+    public function isResponseFailed($response)
     {
         return ($response->error !== null && $response->status == 'fail');
     }
@@ -469,7 +469,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         . '. Uuid: '
         . $responseObj->uuid ?: 'no uuid';
 
-        $com .= $this->isResponseFailed($responseObj)
+        $com .= !$this->isResponseInvalid($responseObj) && $this->isResponseFailed($responseObj)
             ? '. Error code: '
             . $responseObj->error->code
             . '. Error text: '
