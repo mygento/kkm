@@ -99,7 +99,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $token = $debugData['token'] = $this->getToken();
 
             $url = self::_URL . $this->getConfig('general/group_code') . '/' . $operation . '?tokenid=' . $token;
-            $helper->addLog('cancelCheque url: ' . $url);
+            $helper->addLog('url: ' . $url);
 
             $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost);
 
@@ -192,30 +192,25 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $atolResponse = json_decode($statusModel->getStatus(), true);
         $errorCode    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['code'] : null;
-        $errorType    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['type'] : null;
 
         //Ошибки при работе с ККТ (cash machine errors)
         if ((int)$errorCode < 0) {
-
             //increment EID and send it
             $this->increaseExternalId($statusModel);
 
             return true;
         }
 
+        //Warning: Official documentation says we should not increase e_id in some cases. But Atol's engineers refute it:
         switch ($errorCode) {
             case '1': //Timeout
+            case '2': //Incorrect INN (if type = agent) or incorrect Group_Code or Operation
+            case '3': //Incorrect Operation
+            case '8': //Validation error.
+            case '22': //Incorrect group_code
                 $this->increaseExternalId($statusModel);
 
                 return true;
-            case '2': //Incorrect INN
-                if ($errorType == 'agent') {
-                    $this->increaseExternalId($statusModel);
-
-                    return true;
-                }
-
-                return false;
             case '10': //Документ с <external_id> и <group_code> уже существует в базе. Document exists in atol
                 $this->updateStatus($statusModel->getUuid());
                 $statusModel     = $statusModel->load($statusModel->getId());
