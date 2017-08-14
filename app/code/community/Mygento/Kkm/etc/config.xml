@@ -192,14 +192,14 @@
     </default>
     <crontab>
         <jobs>
-            <elccustomer_offline_orders>
+            <kkm_update_transactions>
                 <schedule>
                     <config_path>kkm/general/cron_update_expr</config_path>
                 </schedule>
                 <run>
                     <model>kkm/observer::updateTransactions</model>
                 </run>
-            </elccustomer_offline_orders>
+            </kkm_update_transactions>
         </jobs>
     </crontab>
 </config>
