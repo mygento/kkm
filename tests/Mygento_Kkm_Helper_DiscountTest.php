@@ -30,7 +30,7 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
 
         $recalculatedData = $discountHelp->getRecalculated($order, 'vat18');
 
-        $this->assertEquals($recalculatedData['sum'], $expectedArray['sum']);
+        $this->assertEquals($recalculatedData['sum'], $expectedArray['sum'], 'Total sum failed');
         $this->assertEquals($recalculatedData['origGrandTotal'], $expectedArray['origGrandTotal']);
 
         $this->assertArrayHasKey('items', $recalculatedData);
@@ -39,12 +39,16 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
         $recalcExpectedItems = array_values($expectedArray['items']);
 
         foreach ($recalcItems as $index => $recalcItem) {
-            $this->assertEquals($recalcExpectedItems[$index]['price'], $recalcItem['price']);
+            $this->assertEquals($recalcExpectedItems[$index]['price'], $recalcItem['price'], 'Price of item failed');
             $this->assertEquals($recalcExpectedItems[$index]['quantity'], $recalcItem['quantity']);
-            $this->assertEquals($recalcExpectedItems[$index]['sum'], $recalcItem['sum']);
+            $this->assertEquals($recalcExpectedItems[$index]['sum'], $recalcItem['sum'], 'Sum of item failed');
         }
     }
 
+    /**
+     * @return array
+     * @SuppressWarnings(PHPMD)
+     */
     public function dataProviderOrdersForCheckCalculation()
     {
         $final = [];
@@ -65,21 +69,21 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 1,
                             'sum'      => 11691,
                         ],
-                    153        => [
+                        153        => [
                         'price'    => 378.30,
                         'quantity' => 1,
                         'sum'      => 378.30,
-                    ],
-                    154        => [
+                        ],
+                        154        => [
                         'price'    => 0,
                         'quantity' => 1,
                         'sum'      => 0,
-                    ],
-                    'shipping' => [
+                        ],
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0,
-                    ],
+                        ],
                 ],
         ];
 
@@ -99,16 +103,16 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 1,
                             'sum'      => 5054.4,
                         ],
-                    153        => [
+                        153        => [
                         'price'    => 10.59,
                         'quantity' => 3,
                         'sum'      => 31.77,
-                    ],
-                    'shipping' => [
+                        ],
+                        'shipping' => [
                         'price'    => 4287.02,
                         'quantity' => 1,
                         'sum'      => 4287.02,
-                    ],
+                        ],
                 ],
         ];
 
@@ -128,16 +132,16 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 1,
                             'sum'      => 5015.28,
                         ],
-                    153        => [
+                        153        => [
                         'price'    => 23.63,
                         'quantity' => 3,
                         'sum'      => 70.89,
-                    ],
-                    'shipping' => [
+                        ],
+                        'shipping' => [
                         'price'    => 4287.02,
                         'quantity' => 1,
                         'sum'      => 4287.02,
-                    ],
+                        ],
                 ],
         ];
 
@@ -157,16 +161,16 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 2,
                             'sum'      => 1000.82,
                         ],
-                    153        => [
+                        153        => [
                         'price'    => 1000.01,
                         'quantity' => 4,
                         'sum'      => 4000.04,
-                    ],
-                    'shipping' => [
+                        ],
+                        'shipping' => [
                         'price'    => 200,
                         'quantity' => 1,
                         'sum'      => 200,
-                    ],
+                        ],
                 ],
         ];
 
@@ -186,17 +190,17 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 3,
                             'sum'      => 109.23,
                         ],
-                    153        =>
+                        153        =>
                         [
                             'price'    => 23.21,
                             'quantity' => 4,
                             'sum'      => 92.84,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.03,
                         'quantity' => 1,
                         'sum'      => 0.03,
-                    ],
+                        ],
                 ],
         ];
 
@@ -217,23 +221,23 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 3,
                             'sum'      => 109.23,
                         ],
-                    153        =>
+                        153        =>
                         [
                             'price'    => 23.21,
                             'quantity' => 4,
                             'sum'      => 92.84,
                         ],
-                    154        =>
+                        154        =>
                         [
                             'price'    => 100,
                             'quantity' => 5,
                             'sum'      => 500,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.03,
                         'quantity' => 1,
                         'sum'      => 0.03,
-                    ],
+                        ],
                 ],
         ];
 
