@@ -11,5 +11,6 @@
 chdir(dirname(__FILE__));
 require_once './../app/bootstrap.php';
 require_once './../app/Mage.php';
+require_once './../vendor/autoload.php';
 
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
