@@ -136,17 +136,27 @@ class Mygento_Kkm_Model_Observer
 
     public function updateTransactions()
     {
-        $helper = Mage::helper('kkm');
-        $waitStatuses = Mage::getModel('kkm/status')->getCollection()
-            ->addFieldToFilter('short_status', 'wait');
+        $helper        = Mage::helper('kkm');
+        $vendor        = $helper->getVendorModel();
+        $autoSendLimit = $helper->getConfig('autosend_limit');
 
-        $filter_short_status_1 = ['null'=>true];
-        $filter_short_status_2 = ['in' => ['fail', null, '']];
+        if (!$helper->getConfig('enabled')) {
+            return;
+        }
+
+        $waitStatuses        = Mage::getModel('kkm/status')->getCollection()
+            ->addFieldToFilter('short_status', 'wait')
+            //->addFieldToFilter('resend_count', [["null" => true], ['lt' => $autoSendLimit]])
+        ;
+
+        $filterNullTrue      = ['null' => true];
+        $filterFailStatus    = ['in' => ['fail', null, '']];
+        $filterLimitAutosend = ['lt' => $autoSendLimit];
 
         //Set 'OR' in SQL statement
         $failStatuses = Mage::getModel('kkm/status')->getCollection()
-            ->addFieldToFilter('short_status', [$filter_short_status_1, $filter_short_status_2]);
-        $vendor = $helper->getVendorModel();
+            ->addFieldToFilter('short_status', [$filterNullTrue, $filterFailStatus])
+            ->addFieldToFilter('resend_count', [$filterNullTrue, $filterLimitAutosend]);
 
         $waitUpdated = 0;
         foreach ($waitStatuses as $waitStatus) {

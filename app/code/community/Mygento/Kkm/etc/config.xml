@@ -184,6 +184,7 @@
                 <auto_send_after_cancel>1</auto_send_after_cancel>
                 <fail_status>kkm_failed</fail_status>
                 <cron_update_expr>10 * * * *</cron_update_expr>
+                <autosend_limit>5</autosend_limit>
                 <force_resend>0</force_resend>
                 <show_notif_in_admin>1</show_notif_in_admin>
                 <debug_level>3</debug_level>

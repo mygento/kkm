@@ -273,6 +273,13 @@
                             <comment><![CDATA[Use Crontab Format (Eg. "*/5 * * * *" for every 5 minutes)<br/>If status of cheque is <br/><strong>wait</strong> - The status will be updated.<br/><strong>fail</strong> - The cheque will be sent again to KKM.<br/>]]></comment>
                             <show_in_default>1</show_in_default>
                         </cron_update_expr>
+                        <autosend_limit translate="label comment">
+                            <label>Autosending limit</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>940</sort_order>
+                            <comment>Limit of attempts to send</comment>
+                            <show_in_default>1</show_in_default>
+                        </autosend_limit>
                         <force_resend translate="label comment">
                             <label>Show button of force resend</label>
                             <frontend_type>select</frontend_type>

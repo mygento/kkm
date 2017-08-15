@@ -50,8 +50,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->generalHelper        = Mage::helper($this->_code);
         $this->spreadDiscOnAllUnits = $spreadDiscOnAllUnits;
 
-        $generalHelper = $this->generalHelper;
-        $generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
+        $this->generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
 
         //If there is no discounts - DO NOTHING
         if ($this->checkSpread()) {
@@ -287,14 +286,12 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $sum                    = 0.00;
         $sumDiscountAmount      = 0.00;
-        $discountless           = false;
         $this->_discountlessSum = 0.00;
         foreach ($items as $item) {
             $qty      = $item->getQty() ?: $item->getQtyOrdered();
             $rowPrice = $item->getData('row_total_incl_tax') - $item->getData('discount_amount');
 
             if (floatval($item->getData('discount_amount')) === 0.00) {
-                $discountless           = true;
                 $this->_discountlessSum += $item->getData('row_total_incl_tax');
             }
 

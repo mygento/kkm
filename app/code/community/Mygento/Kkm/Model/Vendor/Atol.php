@@ -464,7 +464,11 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         . '. Uuid: '
         . $responseObj->uuid ?: 'no uuid';
 
+<<<<<<< HEAD
         $com .= !$this->isResponseInvalid($responseObj) && $this->isResponseFailed($responseObj)
+=======
+        $com .= $responseObj && $this->isResponseFailed($responseObj)
+>>>>>>> [NN-139] Added limit for autosending by cron
             ? '. Error code: '
             . $responseObj->error->code
             . '. Error text: '
