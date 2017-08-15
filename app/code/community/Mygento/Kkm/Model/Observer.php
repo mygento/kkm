@@ -134,6 +134,9 @@ class Mygento_Kkm_Model_Observer
         }
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
     public function updateTransactions()
     {
         $helper        = Mage::helper('kkm');
