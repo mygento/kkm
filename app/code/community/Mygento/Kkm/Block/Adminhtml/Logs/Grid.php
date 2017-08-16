@@ -50,12 +50,15 @@ class Mygento_Kkm_Block_Adminhtml_Logs_Grid extends Mage_Adminhtml_Block_Widget_
             'align'  => 'right',
             'width'  => '20px',
             'index'  => 'severity',
+            'type'   => 'options',
+            'options' => Mage::getSingleton('kkm/source_severity')->getOptions(),
         ]);
         $this->addColumn('timestamp', [
             'header' => Mage::helper('kkm')->__('Time'),
             'align'  => 'right',
-            'width'  => '50px',
             'index'  => 'timestamp',
+            'type'   => 'datetime',
+            'width'  => '100px',
         ]);
         $this->addColumn('advanced_info', [
             'header' => Mage::helper('kkm')->__('Advanced Info'),

@@ -11,9 +11,39 @@ abstract class Mygento_Kkm_Model_Abstract
 {
     const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
 
-    abstract protected function sendCheque($invoice, $order);
-    abstract protected function cancelCheque($creditmemo, $order);
-    abstract protected function checkStatus($uuid);
+    abstract public function sendCheque($invoice);
+    abstract public function cancelCheque($creditmemo);
+    abstract public function checkStatus($uuid);
+
+    /**
+     * @param $response stdClass after json_decode()
+     * @return bool
+     */
+    abstract public function isResponseInvalid($response);
+
+    /**
+     * @param $response stdClass after json_decode()
+     * @return bool
+     */
+    abstract public function isResponseFailed($response);
+
+    public function forceSendCheque($invoice)
+    {
+        $this->sendCheque($invoice);
+    }
+
+    public function forceCancelCheque($creditmemo)
+    {
+        $this->cancelCheque($creditmemo);
+    }
+
+    /**
+     *
+     * @SuppressWarnings("unused")
+     */
+    public function processExistingTransactionBeforeSending($uuid)
+    {
+    }
 
     /**
      *

@@ -20,7 +20,7 @@ class Mygento_Kkm_Block_Logs_Button extends Mage_Adminhtml_Block_System_Config_F
             ->setClass('scalable')
             ->setLabel('View logs')
             ->setDisabled(!Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/viewlogs'))
-            ->setOnClick("setLocation('$url')")
+            ->setOnClick("window.open('$url','_blank')")
             ->toHtml();
 
         return $html;

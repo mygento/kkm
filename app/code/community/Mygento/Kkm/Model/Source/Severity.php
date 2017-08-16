@@ -36,4 +36,11 @@ class Mygento_Kkm_Model_Source_Severity
             ],
         ];
     }
+
+    public function getOptions()
+    {
+        $options = $this->toOptionArray();
+
+        return array_combine(array_column($options, 'value'), array_column($options, 'label'));
+    }
 }

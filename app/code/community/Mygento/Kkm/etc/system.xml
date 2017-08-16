@@ -266,11 +266,112 @@
                                 <vendor>atol</vendor>
                             </depends>
                         </callback_url>
+                        <cron_update_expr translate="label comment">
+                            <label>Frequency of updating</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>930</sort_order>
+                            <comment><![CDATA[Use Crontab Format (Eg. "*/5 * * * *" for every 5 minutes)<br/>If status of cheque is <br/><strong>wait</strong> - The status will be updated.<br/><strong>fail</strong> - The cheque will be sent again to KKM.<br/>]]></comment>
+                            <show_in_default>1</show_in_default>
+                        </cron_update_expr>
+                        <autosend_limit translate="label comment">
+                            <label>Autosending limit</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>940</sort_order>
+                            <comment>Limit of attempts to send</comment>
+                            <show_in_default>1</show_in_default>
+                        </autosend_limit>
+                        <force_resend translate="label comment">
+                            <label>Show button of force resend</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>950</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <comment>It changes external_id before sending to KKM. For advanced users</comment>
+                        </force_resend>
+
+
+                        <!--ERROR HANDLING-->
+                        <heading_error translate="label">
+                            <label>Error handling</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>1000</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </heading_error>
+                        <show_notif_in_admin translate="label comment">
+                            <label>Show notifications in Dashboard</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1003</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </show_notif_in_admin>
+                        <email_notif_enabled translate="label comment">
+                            <label>Send logs to emails</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1005</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </email_notif_enabled>
+                        <!--<send_notif_severity translate="label">-->
+                            <!--<label>Level of logs to send</label>-->
+                            <!--<frontend_type>select</frontend_type>-->
+                            <!--<source_model>kkm/source_severity</source_model>-->
+                            <!--<sort_order>1020</sort_order>-->
+                            <!--<show_in_default>1</show_in_default>-->
+                            <!--<show_in_website>1</show_in_website>-->
+                            <!--<show_in_store>1</show_in_store>-->
+                            <!--<comment>All log records with this severity will be sent to email</comment>-->
+                            <!--<depends>-->
+                                <!--<email_notif_enabled>1</email_notif_enabled>-->
+                            <!--</depends>-->
+                        <!--</send_notif_severity>-->
+                        <err_notif_emails translate="label comment">
+                            <label>Emails</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1010</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>Separated by comma</comment>
+                            <depends>
+                                <email_notif_enabled>1</email_notif_enabled>
+                            </depends>
+                        </err_notif_emails>
+                        <err_notif_template translate="label">
+                            <label>Email Template</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_email_template</source_model>
+                            <sort_order>1030</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <email_notif_enabled>1</email_notif_enabled>
+                            </depends>
+                        </err_notif_template>
+                        <err_notif_sender translate="label">
+                            <label>Sender</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_email_identity</source_model>
+                            <sort_order>1040</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <email_notif_enabled>1</email_notif_enabled>
+                            </depends>
+                        </err_notif_sender>
+
                         <debug translate="label">
                             <label>Debug</label>
                             <frontend_type>select</frontend_type>
                             <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>1000</sort_order>
+                            <sort_order>1100</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -279,7 +380,7 @@
                             <label>Debug level</label>
                             <frontend_type>select</frontend_type>
                             <source_model>kkm/source_severity</source_model>
-                            <sort_order>1005</sort_order>
+                            <sort_order>1110</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
@@ -291,7 +392,7 @@
                             <label>See logs</label>
                             <frontend_type>button</frontend_type>
                             <frontend_model>kkm/logs_button</frontend_model>
-                            <sort_order>1010</sort_order>
+                            <sort_order>1200</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>

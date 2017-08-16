@@ -1,4 +1,11 @@
 <?php
+
+/**
+ *
+ * @category Mygento
+ * @package Mygento_Kkm
+ * @copyright 2017 NKS LLC. (https://www.mygento.ru)
+ */
 $installer = $this;
 $installer->startSetup();
 

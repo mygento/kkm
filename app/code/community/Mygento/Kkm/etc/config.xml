@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Mygento_Kkm>
-            <version>1.0.4</version>
+            <version>1.1.0</version>
         </Mygento_Kkm>
     </modules>
     <frontend>
@@ -92,7 +92,16 @@
                     <use>core_setup</use>
                 </connection>
             </kkm_setup>
-        </resources> 
+        </resources>
+        <template>
+            <email>
+                <kkm_error_notification>
+                    <label>KKM Error Notification</label>
+                    <file>kkm_error_notification.html</file>
+                    <type>html</type>
+                </kkm_error_notification>
+            </email>
+        </template>
     </global>
     <admin>
         <routers>
@@ -146,6 +155,9 @@
                                 <resend translate="title">
                                     <title>Manually send invoice/creditmemo</title>
                                 </resend>
+                                <forceresendAction translate="title">
+                                    <title>Manually force send invoice/creditmemo</title>
+                                </forceresendAction>
                                 <checkstatus translate="title">
                                     <title>Manually check status of invoice/creditmemo</title>
                                 </checkstatus>
@@ -171,8 +183,24 @@
                 <auto_send_after_invoice>1</auto_send_after_invoice>
                 <auto_send_after_cancel>1</auto_send_after_cancel>
                 <fail_status>kkm_failed</fail_status>
+                <cron_update_expr>10 * * * *</cron_update_expr>
+                <autosend_limit>5</autosend_limit>
+                <force_resend>0</force_resend>
+                <show_notif_in_admin>1</show_notif_in_admin>
                 <debug_level>3</debug_level>
             </general>
         </kkm>
     </default>
+    <crontab>
+        <jobs>
+            <kkm_update_transactions>
+                <schedule>
+                    <config_path>kkm/general/cron_update_expr</config_path>
+                </schedule>
+                <run>
+                    <model>kkm/observer::updateTransactions</model>
+                </run>
+            </kkm_update_transactions>
+        </jobs>
+    </crontab>
 </config>

@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.8';
+    const VERSION = '1.0.10';
 
     protected $generalHelper = null;
 
@@ -21,6 +21,9 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     protected $_shippingTaxValue = null;
 
     protected $_discountlessSum = 0.00;
+
+    /** @var bool Does item exist with price not divisible evenly? Есть ли item, цена которого не делится нацело */
+    protected $_wryItemUnitPriceExists = false;
 
     protected $spreadDiscOnAllUnits = null;
 
@@ -47,12 +50,16 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->generalHelper        = Mage::helper($this->_code);
         $this->spreadDiscOnAllUnits = $spreadDiscOnAllUnits;
 
-        $generalHelper = $this->generalHelper;
-        $generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
+        $this->generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
 
         //If there is no discounts - DO NOTHING
         if ($this->checkSpread()) {
             $this->applyDiscount();
+        } else {
+            //Это случай, когда не нужно размазывать копейки по позициям
+            //и при этом, позиции могут иметь скидки, равномерно делимые.
+
+            $this->setSimplePrices();
         }
 
         $this->generalHelper->addLog("== STOP == Recalculation. Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
@@ -114,6 +121,26 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->_entity->setData(self::NAME_SHIPPING_AMOUNT, $this->_entity->getData('shipping_incl_tax') + $itemsSumDiff);
     }
 
+    /**If everything is evenly divisible - set up prices without extra recalculations
+     * like applyDiscount() method does.
+     *
+     */
+    public function setSimplePrices()
+    {
+        $items    = $this->getAllItems();
+        foreach ($items as $item) {
+            if (!$this->isValidItem($item)) {
+                continue;
+            }
+
+            $qty               = $item->getQty() ?: $item->getQtyOrdered();
+            $rowTotal          = $item->getData('row_total_incl_tax');
+
+            $priceWithDiscount = ($rowTotal - $item->getData('discount_amount')) / $qty;
+            $item->setData(self::NAME_UNIT_PRICE, $priceWithDiscount);
+        }
+    }
+
     public function buildFinalArray()
     {
         $grandTotal = $this->_entity->getData('grand_total');
@@ -160,7 +187,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->generalHelper->addLog("Final array:");
         $this->generalHelper->addLog($receipt);
 
-        return $receipt;
+        $receiptObj = (object) $receipt;
+
+        Mage::dispatchEvent('mygento_discount_recalculation_after', array('modulecode' => $this->_code, 'receipt' => $receiptObj));
+
+        return (array)$receiptObj;
     }
 
     protected function _buildItem($item, $price, $taxValue = '')
@@ -246,7 +277,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $taxValue;
     }
 
-    /** It checks do we need to spread dicount on all units and sets flag $this->spreadDiscOnAllUnits
+    /** It checks do we need to spread discount on all units and sets flag $this->spreadDiscOnAllUnits
      * @return nothing
      */
     public function checkSpread()
@@ -255,14 +286,20 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $sum                    = 0.00;
         $sumDiscountAmount      = 0.00;
-        $discountless           = false;
         $this->_discountlessSum = 0.00;
         foreach ($items as $item) {
+            $qty      = $item->getQty() ?: $item->getQtyOrdered();
             $rowPrice = $item->getData('row_total_incl_tax') - $item->getData('discount_amount');
 
             if (floatval($item->getData('discount_amount')) === 0.00) {
-                $discountless           = true;
                 $this->_discountlessSum += $item->getData('row_total_incl_tax');
+            }
+
+            /* Означает, что есть item, цена которого не делится нацело*/
+            if (!$this->_wryItemUnitPriceExists) {
+                $decimals = $this->getDecimalsCountAfterDiv($rowPrice, $qty);
+
+                $this->_wryItemUnitPriceExists = $decimals > 2 ? true : false;
             }
 
             $sum               += $rowPrice;
@@ -280,19 +317,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             return true;
         }
 
-        //ок, нет скидки на заказ
-        // Есть товар без скидок
-        if ($discountless && ($sumDiscountAmount !== 0.00)) {
-            $this->generalHelper->addLog("2. Item without discount.");
+        //ok, есть товар, который не делится нацело
+        if ($this->_wryItemUnitPriceExists) {
+            $this->generalHelper->addLog("2. Item with price which is not divisible evenly.");
 
-            return true;
-        }
-
-        // Все товары со скидками
-        if ($sumDiscountAmount != 0.00) {
-            $this->generalHelper->addLog("3. All items with discounts.");
-
-            $this->spreadDiscOnAllUnits = true;
             return true;
         }
 
@@ -301,7 +329,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function getDecimalsCountAfterDiv($x, $y)
     {
-        $divRes   = strval(round($x / $y, 3));
+        $divRes   = strval(round($x / $y, 20));
         $decimals = strrchr($divRes, ".") ? strlen(strrchr($divRes, ".")) - 1 : 0;
 
         return $decimals;

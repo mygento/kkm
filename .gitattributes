@@ -5,3 +5,4 @@ phpunit.xml.dist export-ignore
 .scrutinizer.yml  export-ignore
 README.md export-ignore
 version.xml export-ignore
+/tests export-ignore

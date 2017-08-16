@@ -40,10 +40,11 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $sendResult = $helper->getVendorModel()->sendCheque($invoice, $order);
-
-        if ($sendResult === false) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Cheque has been rejected by KKM vendor.'));
+        try {
+            $helper->getVendorModel()->sendCheque($invoice, $order);
+        } catch (Mygento_Kkm_SendingException $e) {
+            $helper->processError($e);
+            Mage::getSingleton('adminhtml/session')->addError($e->getFullTitle());
         }
     }
 
@@ -75,10 +76,11 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $sendResult = $helper->getVendorModel()->cancelCheque($creditmemo, $order);
-
-        if ($sendResult === false) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Cheque has been rejected by KKM vendor.'));
+        try {
+            $helper->getVendorModel()->cancelCheque($creditmemo, $order);
+        } catch (Mygento_Kkm_SendingException $e) {
+            $helper->processError($e);
+            Mage::getSingleton('adminhtml/session')->addError($e->getFullTitle());
         }
     }
 
@@ -132,6 +134,70 @@ class Mygento_Kkm_Model_Observer
         }
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     */
+    public function updateTransactions()
+    {
+        $helper        = Mage::helper('kkm');
+        $vendor        = $helper->getVendorModel();
+        $autoSendLimit = $helper->getConfig('autosend_limit');
+
+        if (!$helper->getConfig('enabled')) {
+            return;
+        }
+
+        $waitStatuses        = Mage::getModel('kkm/status')->getCollection()
+            ->addFieldToFilter('short_status', 'wait')
+            //->addFieldToFilter('resend_count', [["null" => true], ['lt' => $autoSendLimit]])
+        ;
+
+        $filterNullTrue      = ['null' => true];
+        $filterFailStatus    = ['in' => ['fail', null, '']];
+        $filterLimitAutosend = ['lt' => $autoSendLimit];
+
+        //Set 'OR' in SQL statement
+        $failStatuses = Mage::getModel('kkm/status')->getCollection()
+            ->addFieldToFilter('short_status', [$filterNullTrue, $filterFailStatus])
+            ->addFieldToFilter('resend_count', [$filterNullTrue, $filterLimitAutosend]);
+
+        $waitUpdated = 0;
+        foreach ($waitStatuses as $waitStatus) {
+            try {
+                $result = $vendor->checkStatus($waitStatus->getUuid());
+
+                $waitUpdated = $result ? $waitUpdated + 1 : $waitUpdated;
+            } catch (Mygento_Kkm_SendingException $e) {
+                $helper->processError($e);
+                $waitUpdated++;
+            } catch (Exception $e) {
+                $helper->addLog($e->getMessage(), Zend_Log::WARN);
+            }
+        }
+
+        $failUpdated = 0;
+        foreach ($failStatuses as $failStatus) {
+            $method = $failStatus->getEntityType() == 'creditmemo' ? 'cancelCheque' : 'sendCheque';
+            $entity = $helper->getEntityModelByStatusModel($failStatus);
+
+            try {
+                $vendor->processExistingTransactionBeforeSending($failStatus);
+                $vendor->$method($entity, $entity->getOrder());
+
+                $failUpdated++;
+            } catch (Mygento_Kkm_SendingException $e) {
+                $helper->processError($e);
+
+                $failUpdated++;
+            } catch (Exception $e) {
+                $helper->addLog($e->getMessage(), Zend_Log::WARN);
+            }
+        }
+
+        $helper->addLog("{$waitUpdated} records with status 'wait' were successfully updated by CRON.", Zend_Log::WARN);
+        $helper->addLog("{$failUpdated} records with status 'fail' were successfully resent or updated by CRON.", Zend_Log::WARN);
+    }
+
     public function addExtraButtons($observer)
     {
         if (!Mage::helper('kkm')->getConfig('general/enabled')) {
@@ -152,9 +218,7 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $type             = $entity::HISTORY_ENTITY_NAME;
-        $statusExternalId = "{$type}_" . $entity->getIncrementId();
-        $statusModel      = Mage::getModel('kkm/status')->load($statusExternalId, 'external_id');
+        $statusModel      = Mage::getModel('kkm/status')->loadByEntity($entity);
         $status           = json_decode($statusModel->getStatus());
 
         if ($this->canBeShownResendButton($statusModel)) {
@@ -162,8 +226,16 @@ class Mygento_Kkm_Model_Observer
                 ->getUrl(
                     'adminhtml/kkm_cheque/resend',
                     [
-                        'entity' => $type,
+                        'entity' => $entity::HISTORY_ENTITY_NAME,
                         'id'     => $entity->getId()
+                    ]
+                );
+            $urlEnforce  = Mage::getModel('adminhtml/url')
+                ->getUrl(
+                    'adminhtml/kkm_cheque/forceresend',
+                    [
+                        'entity' => $entity::HISTORY_ENTITY_NAME,
+                        'id'     => $entity->getId(),
                     ]
                 );
             $data = [
@@ -171,8 +243,16 @@ class Mygento_Kkm_Model_Observer
                 'class'   => '',
                 'onclick' => 'setLocation(\'' . $url . '\')',
             ];
+            $dataEnforce = [
+                'label'   => Mage::helper('kkm')->__('Force resend to KKM'),
+                'class'   => '',
+                'onclick' => 'setLocation(\'' . $urlEnforce . '\')',
+            ];
 
             $container->addButton('resend_to_kkm', $data);
+            if (Mage::helper('kkm')->getConfig('force_resend')) {
+                $container->addButton('force_resend_to_kkm', $dataEnforce);
+            }
         } elseif ($this->canBeShownCheckStatusButton($statusModel)) {
             $url  = Mage::getModel('adminhtml/url')
                 ->getUrl(
@@ -209,7 +289,7 @@ class Mygento_Kkm_Model_Observer
         $resendAllowed = Mage::getSingleton('admin/session')->isAllowed('kkm_cheque/resend');
         $status        = json_decode($statusModel->getStatus());
 
-        return ($resendAllowed && (!$statusModel->getId() || (isset($status->status) && $status->status == 'fail')));
+        return ($resendAllowed && (!$statusModel->getId() || !$status || !property_exists($status, 'uuid') || (isset($status->status) && $status->status == 'fail')));
     }
 
     protected function canBeShownCheckStatusButton($statusModel)
