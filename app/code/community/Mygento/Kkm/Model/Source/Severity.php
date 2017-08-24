@@ -40,7 +40,9 @@ class Mygento_Kkm_Model_Source_Severity
     public function getOptions()
     {
         $options = $this->toOptionArray();
+        $values  = Mage::helper('kkm')->array_column($options, 'value');
+        $labels  = Mage::helper('kkm')->array_column($options, 'label');
 
-        return array_combine(array_column($options, 'value'), array_column($options, 'label'));
+        return array_combine($values, $labels);
     }
 }

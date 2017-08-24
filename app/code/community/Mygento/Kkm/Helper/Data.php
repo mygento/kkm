@@ -262,6 +262,18 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         $notification->save();
     }
 
+    /**Workaround for php 5.3 and 5.4
+     * @param $array
+     * @param $columnName
+     * @return array
+     */
+    public function array_column($array, $columnName) // @codingStandardsIgnoreLine
+    {
+        return array_map(function ($element) use ($columnName) {
+            return $element[$columnName];
+        }, $array);
+    }
+
     /**
      * Send email KKM notification
      */

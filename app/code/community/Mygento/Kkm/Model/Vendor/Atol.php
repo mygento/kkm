@@ -422,7 +422,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     {
         $strHelper    = Mage::helper('core/string');
         $item['name'] = $item['name'] && $strHelper->strlen($item['name']) > 64 ? $strHelper->truncate($item['name'], 64) : $item['name'];
-        $taxes        = array_column(Mage::getModel('kkm/source_taxoption')->toOptionArray(), 'value');
+        $taxes        = Mage::helper('kkm')->array_column(Mage::getModel('kkm/source_taxoption')->toOptionArray(), 'value');
 
         //isset() returns false if 'tax' exists but equal to NULL.
         if (array_key_exists('tax', $item) && !in_array($item['tax'], $taxes)) {
