@@ -29,7 +29,18 @@ class Mygento_Kkm_IndexController extends Mage_Core_Controller_Front_Action
             // @codingStandardsIgnoreEnd
 
             $statusModel = Mage::getModel('kkm/status')->load($jsonDecode->uuid, 'uuid');
-            $statusModel->setStatus($json)->save();
+
+            if (!$statusModel->getId()) {
+                Mage::helper('kkm')->addLog('UUID not found. Uuid: ' . $jsonDecode->uuid . ' Full callback: ' . $json, Zend_Log::WARN);
+
+                return;
+            }
+
+            $statusModel
+                ->setShortStatus(isset($jsonDecode->status) ? $jsonDecode->status : null)
+                ->setStatus($json)
+                ->save();
+
             //Add comment to order about callback data
             Mage::helper('kkm')->saveCallback($statusModel);
 
