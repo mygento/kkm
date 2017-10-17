@@ -82,25 +82,25 @@ if json (from 3.2) contains:
 **Scenario:**
 * Create full invoice for order.
 * Submit it.
-* Check it (see [III. COnditions](#III_Conditions_19)
+* Check it (see [III. Conditions](#iii-conditions)
 
 ### 2.Partial invoice.
 **Scenario:**
 * Create partial invoice for order (not all products should be invoiced).
 * Submit it.
-* Check it (see [III. COnditions](#III_Conditions_19)
+* Check it (see [III. Conditions](#iii-conditions)
 
 ### 3.Full creditmemo
 **Scenario:**
 * Create full creditmemo for order, which was previously invoiced.
 * Submit it.
-* Check it (see [III. COnditions](#III_Conditions_19)
+* Check it (see [III. Conditions](#iii-conditions)
 
 ### 4.Partial creditmemo
 **Scenario:**
 * Create partial creditmemo for order, which was previously invoiced (not all products should be refunded).
 * Submit it.
-* Check it (see [III. Conditions](#III_Conditions_19)
+* Check it (see [III. Conditions](#iii-conditions)
 
 ### 5.Another payment method
 **Scenario:**
@@ -117,8 +117,7 @@ New row in DB `mygento_kkm_status` should not be added.
 * Do steps from test case 3.
 
 **Expected result:**
-Open log file of the module:
-Path: `root-of-the-shop/var/log/kkm.log`
+Open logs of the module. Logs are located in file or DB table - it depends on module's. 
 
 There are a lot of logged KKM requests. Find one of them by string `jsonPost`.
 This logged jsonPost should contain your custom shipping name (from I. Prepare config).
