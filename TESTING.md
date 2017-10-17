@@ -98,9 +98,9 @@ if json (from 3.2) contains:
 
 ### 4.Partial creditmemo
 **Scenario:**
-* Create full creditmemo for order, which was previously invoiced.
+* Create partial creditmemo for order, which was previously invoiced (not all products should be refunded).
 * Submit it.
-* Check it (see [III. COnditions](#III_Conditions_19)
+* Check it (see [III. Conditions](#III_Conditions_19)
 
 ### 5.Another payment method
 **Scenario:**
