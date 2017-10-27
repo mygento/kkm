@@ -73,7 +73,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     {
         $subTotal       = $this->_entity->getData('subtotal_incl_tax');
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
-        $grandTotal     = $this->_entity->getData('grand_total');
+        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
         $grandDiscount  = $grandTotal - $subTotal - $shippingAmount;
 
         $percentageSum = 0;
@@ -145,7 +145,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function buildFinalArray()
     {
-        $grandTotal = $this->_entity->getData('grand_total');
+        $grandTotal = round($this->_entity->getData('grand_total'), 2);
 
         $items      = $this->getAllItems();
         $itemsFinal = [];
@@ -308,7 +308,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $sumDiscountAmount += $item->getData('discount_amount');
         }
 
-        $grandTotal     = $this->_entity->getData('grand_total');
+        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
 
         //Есть ли общая скидка на Чек. bccomp returns 0 if operands are equal
