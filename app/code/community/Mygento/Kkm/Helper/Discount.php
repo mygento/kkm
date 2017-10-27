@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.10';
+    const VERSION = '1.0.11';
 
     protected $generalHelper = null;
 
@@ -55,11 +55,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         //If there is no discounts - DO NOTHING
         if ($this->checkSpread()) {
             $this->applyDiscount();
+            $this->generalHelper->addLog("'Apply Discount' logic was applied");
         } else {
             //Это случай, когда не нужно размазывать копейки по позициям
             //и при этом, позиции могут иметь скидки, равномерно делимые.
 
             $this->setSimplePrices();
+            $this->generalHelper->addLog("'Simple prices' logic was applied");
         }
 
         $this->generalHelper->addLog("== STOP == Recalculation. Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
@@ -154,7 +156,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             }
 
             $taxValue   = $this->_taxAttributeCode ? $this->addTaxValue($this->_taxAttributeCode, $this->_entity, $item) : $this->_taxValue;
-            $price      = $item->getData(self::NAME_UNIT_PRICE) ?: $item->getData('price_incl_tax');
+            $price      = !is_null($item->getData(self::NAME_UNIT_PRICE)) ? $item->getData(self::NAME_UNIT_PRICE) : $item->getData('price_incl_tax');
             $entityItem = $this->_buildItem($item, $price, $taxValue);
 
             $itemsFinal[$item->getId()] = $entityItem;

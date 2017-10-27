@@ -69,21 +69,21 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 1,
                             'sum'      => 11691,
                         ],
-                        153        => [
+                    153        => [
                         'price'    => 378.30,
                         'quantity' => 1,
                         'sum'      => 378.30,
-                        ],
-                        154        => [
+                    ],
+                    154        => [
                         'price'    => 0,
                         'quantity' => 1,
                         'sum'      => 0,
-                        ],
-                        'shipping' => [
+                    ],
+                    'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0,
-                        ],
+                    ],
                 ],
         ];
 
@@ -103,16 +103,16 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 1,
                             'sum'      => 5054.4,
                         ],
-                        153        => [
+                    153        => [
                         'price'    => 10.59,
                         'quantity' => 3,
                         'sum'      => 31.77,
-                        ],
-                        'shipping' => [
+                    ],
+                    'shipping' => [
                         'price'    => 4287.02,
                         'quantity' => 1,
                         'sum'      => 4287.02,
-                        ],
+                    ],
                 ],
         ];
 
@@ -132,16 +132,16 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 1,
                             'sum'      => 5015.28,
                         ],
-                        153        => [
+                    153        => [
                         'price'    => 23.63,
                         'quantity' => 3,
                         'sum'      => 70.89,
-                        ],
-                        'shipping' => [
+                    ],
+                    'shipping' => [
                         'price'    => 4287.02,
                         'quantity' => 1,
                         'sum'      => 4287.02,
-                        ],
+                    ],
                 ],
         ];
 
@@ -161,16 +161,16 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 2,
                             'sum'      => 1000.82,
                         ],
-                        153        => [
+                    153        => [
                         'price'    => 1000.01,
                         'quantity' => 4,
                         'sum'      => 4000.04,
-                        ],
-                        'shipping' => [
+                    ],
+                    'shipping' => [
                         'price'    => 200,
                         'quantity' => 1,
                         'sum'      => 200,
-                        ],
+                    ],
                 ],
         ];
 
@@ -190,17 +190,17 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 3,
                             'sum'      => 109.23,
                         ],
-                        153        =>
+                    153        =>
                         [
                             'price'    => 23.21,
                             'quantity' => 4,
                             'sum'      => 92.84,
                         ],
-                        'shipping' => [
+                    'shipping' => [
                         'price'    => 0.03,
                         'quantity' => 1,
                         'sum'      => 0.03,
-                        ],
+                    ],
                 ],
         ];
 
@@ -221,27 +221,58 @@ class Mygento_Kkm_Helper_DiscountTest extends PHPUnit_Framework_TestCase
                             'quantity' => 3,
                             'sum'      => 109.23,
                         ],
-                        153        =>
+                    153        =>
                         [
                             'price'    => 23.21,
                             'quantity' => 4,
                             'sum'      => 92.84,
                         ],
-                        154        =>
+                    154        =>
                         [
                             'price'    => 100,
                             'quantity' => 5,
                             'sum'      => 500,
                         ],
-                        'shipping' => [
+                    'shipping' => [
                         'price'    => 0.03,
                         'quantity' => 1,
                         'sum'      => 0.03,
-                        ],
+                    ],
                 ],
         ];
 
         $final['#case 6. Есть позиция, на которую НЕ ДОЛЖНА распространиться скидка.'] = [$order, $finalArray];
+
+        //Bug GrandTotal заказа меньше, чем сумма всех позиций. На 1 товар скидка 100%
+        $order = $this->getNewOrderInstance(13010.0000, 11691.0000, 0);
+        $this->addItem($order, $this->getItem(12990.0000, 12990.0000, 1299.0000, 1));
+        $this->addItem($order, $this->getItem(20.0000, 20.0000, 20.0000, 1));
+        $finalArray = [
+            'sum'            => 11691.0,
+            'origGrandTotal' => 11691.0,
+            'items'          =>
+                [
+                    152        =>
+                        [
+                            'price'    => 11691.0,
+                            'quantity' => 1,
+                            'sum'      => 11691.0,
+                        ],
+                    153        =>
+                        [
+                            'price'    => 0.0,
+                            'quantity' => 1,
+                            'sum'      => 0.0,
+                        ],
+                    'shipping' => [
+                        'price'    => 0.00,
+                        'quantity' => 1,
+                        'sum'      => 0.00,
+                    ],
+                ],
+        ];
+
+        $final['#case 7. Bug grandTotal < чем сумма всех позиций. Есть позиция со 100% скидкой.'] = [$order, $finalArray];
 
         return $final;
     }

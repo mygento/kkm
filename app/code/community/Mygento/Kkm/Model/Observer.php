@@ -16,10 +16,10 @@ class Mygento_Kkm_Model_Observer
      */
     public function sendCheque($observer)
     {
-        $helper = Mage::helper('kkm');
-        $helper->addLog('sendCheque');
-
+        $helper  = Mage::helper('kkm');
         $invoice = $observer->getEvent()->getInvoice();
+
+        $helper->addLog('sendCheque ' . $invoice->getOrigData('increment_id'));
 
         if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice') || $invoice->getOrderCurrencyCode() != 'RUB') {
             $helper->addLog('Skipped send cheque.');
