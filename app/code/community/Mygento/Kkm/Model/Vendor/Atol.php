@@ -377,6 +377,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $receipt->getOrder()->setShippingDescription($this->getConfig('general/custom_shipping_name'));
         }
 
+
+        $algorithm = $this->getConfig('general/algorithm');
+        if ($algorithm === Mygento_Kkm_Model_Source_Algorithm::NO_ALGORITHM_VALUE) {
+            $discountHelper->setDoCalculation(false);
+        }
+
         $recalculatedReceiptData          = $discountHelper->getRecalculated($receipt, $tax_value, $attribute_code, $shipping_tax);
         $recalculatedReceiptData['items'] = array_values($recalculatedReceiptData['items']);
 

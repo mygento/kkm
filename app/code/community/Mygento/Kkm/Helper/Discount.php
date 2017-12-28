@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.12';
+    const VERSION = '1.0.12.1';
 
     protected $generalHelper = null;
 
@@ -24,6 +24,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     /** @var bool Does item exist with price not divisible evenly? Есть ли item, цена которого не делится нацело */
     protected $_wryItemUnitPriceExists = false;
+
+    protected $_doCalculation          = true;
 
     protected $spreadDiscOnAllUnits = null;
 
@@ -51,18 +53,37 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->spreadDiscOnAllUnits = $spreadDiscOnAllUnits;
 
         $this->generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
+        $this->generalHelper->addLog("Do calculation: " . ($this->_doCalculation ? 'Yes' : 'No'));
 
-        //If there is no discounts - DO NOTHING
-        if ($this->checkSpread()) {
-            $this->applyDiscount();
-            $this->generalHelper->addLog("'Apply Discount' logic was applied");
-        } else {
-            //Это случай, когда не нужно размазывать копейки по позициям
-            //и при этом, позиции могут иметь скидки, равномерно делимые.
 
-            $this->setSimplePrices();
-            $this->generalHelper->addLog("'Simple prices' logic was applied");
+        switch (true) {
+            case(!$this->_doCalculation):
+                $this->generalHelper->addLog("No calculation at all.");
+                break;
+            case($this->checkSpread()):
+                $this->applyDiscount();
+                $this->generalHelper->addLog("'Apply Discount' logic was applied");
+                break;
+            default:
+                //Это случай, когда не нужно размазывать копейки по позициям
+                //и при этом, позиции могут иметь скидки, равномерно делимые.
+
+                $this->setSimplePrices();
+                $this->generalHelper->addLog("'Simple prices' logic was applied");
+                break;
         }
+
+//        //If there is no discounts - DO NOTHING
+//        if ($this->checkSpread()) {
+//            $this->applyDiscount();
+//            $this->generalHelper->addLog("'Apply Discount' logic was applied");
+//        } else {
+//            //Это случай, когда не нужно размазывать копейки по позициям
+//            //и при этом, позиции могут иметь скидки, равномерно делимые.
+//
+//            $this->setSimplePrices();
+//            $this->generalHelper->addLog("'Simple prices' logic was applied");
+//        }
 
         $this->generalHelper->addLog("== STOP == Recalculation. Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
 
@@ -157,6 +178,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
             $taxValue   = $this->_taxAttributeCode ? $this->addTaxValue($this->_taxAttributeCode, $this->_entity, $item) : $this->_taxValue;
             $price      = !is_null($item->getData(self::NAME_UNIT_PRICE)) ? $item->getData(self::NAME_UNIT_PRICE) : $item->getData('price_incl_tax');
+            $price      = $this->_doCalculation ? $price : 1;
             $entityItem = $this->_buildItem($item, $price, $taxValue);
 
             $itemsFinal[$item->getId()] = $entityItem;
@@ -212,6 +234,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             'sum' => round($price * $qty, 2),
             'tax' => $taxValue,
         ];
+
+        if (!$this->_doCalculation) {
+            $entityItem['sum'] = $item->getData('row_total_incl_tax') - $item->getData('discount_amount');
+        }
 
         $generalHelper->addLog("Item calculation details:");
         $generalHelper->addLog("Item id: {$item->getId()}. Orig price: {$price} Item rowTotalInclTax: {$item->getData('row_total_incl_tax')} PriceInclTax of 1 piece: {$price}. Result of calc:");
@@ -341,4 +367,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     {
         return $this->_entity->getAllVisibleItems() ? $this->_entity->getAllVisibleItems() : $this->_entity->getAllItems();
     }
+
+    /**
+     * @param bool $doCalculation
+     */
+    public function setDoCalculation($doCalculation)
+    {
+        $this->_doCalculation = $doCalculation;
+    }
+
 }

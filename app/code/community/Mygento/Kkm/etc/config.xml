@@ -186,6 +186,7 @@
                 <cron_update_expr>10 * * * *</cron_update_expr>
                 <autosend_limit>5</autosend_limit>
                 <force_resend>0</force_resend>
+                <algorithm>1</algorithm>
                 <show_notif_in_admin>1</show_notif_in_admin>
                 <debug_level>3</debug_level>
             </general>
