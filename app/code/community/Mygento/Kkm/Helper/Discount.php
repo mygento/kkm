@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.12';
+    const VERSION = '1.0.13';
 
     protected $generalHelper = null;
 
@@ -72,9 +72,15 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function applyDiscount()
     {
         $subTotal       = $this->_entity->getData('subtotal_incl_tax');
+        echo 'ST'.PHP_EOL;
+        var_dump($subTotal);
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
+        echo 'GT'.PHP_EOL;
+        var_dump($grandTotal);
         $grandDiscount  = $grandTotal - $subTotal - $shippingAmount;
+        echo 'GD'.PHP_EOL;
+        var_dump($grandDiscount);
 
         $percentageSum = 0;
 
@@ -91,11 +97,17 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
             //Calculate Percentage. The heart of logic.
             $denominator   = ($this->spreadDiscOnAllUnits || ($subTotal == $this->_discountlessSum)) ? $subTotal : ($subTotal - $this->_discountlessSum);
+            echo 'DEN'.PHP_EOL;
+            var_dump($denominator);
+            echo 'RT'.PHP_EOL;
+            var_dump($rowTotal);
             $rowPercentage = $rowTotal / $denominator;
 
             if (!$this->spreadDiscOnAllUnits && (floatval($item->getDiscountAmount()) === 0.00)) {
                 $rowPercentage = 0;
             }
+            echo 'PERC'.PHP_EOL;
+            var_dump($rowPercentage);
             $percentageSum += $rowPercentage;
 
             $discountPerUnit   = $rowPercentage * $grandDiscount / $qty;
@@ -104,13 +116,24 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             //Set Recalculated unit price for the item
             $item->setData(self::NAME_UNIT_PRICE, $priceWithDiscount);
 
-            $itemsSum += round($priceWithDiscount * $qty, 2);
+            $rowTotalNew = round($priceWithDiscount * $qty, 2);
+            $itemsSum += $rowTotalNew;
+
+
+            $rowDiscountNew = round($rowPercentage * $grandDiscount, 2);
+
+            $item->setData('recalc_row_discount', $rowDiscountNew);
+            $item->setData('recalc_row_diff', $rowDiscountNew);
+
+            $rowDiff = round($rowTotal + $rowDiscountNew - $rowTotalNew, 2) * 100;
+            $item->setData('recalc_row_diff', $rowDiff);
         }
 
         $this->generalHelper->addLog("Sum of all percentages: {$percentageSum}");
 
         //Calculate DIFF!
         $itemsSumDiff = round($this->slyFloor($grandTotal - $itemsSum - $shippingAmount, 3), 2);
+        $itemsSumDiff = 0.0;
 
         $this->generalHelper->addLog("Items sum: {$itemsSum}. All Discounts: {$grandDiscount} Diff value: {$itemsSumDiff}");
         if (bccomp($itemsSumDiff, 0.00, 2) < 0) {
@@ -159,9 +182,37 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $price      = !is_null($item->getData(self::NAME_UNIT_PRICE)) ? $item->getData(self::NAME_UNIT_PRICE) : $item->getData('price_incl_tax');
             $entityItem = $this->_buildItem($item, $price, $taxValue);
 
-            $itemsFinal[$item->getId()] = $entityItem;
+            if($item->getData('recalc_row_diff')) {
+                $rowDiff = $item->getData('recalc_row_diff');
+                $qty = $item->getQty() ?: $item->getQtyOrdered();
+                $qtyKeep = $qty % $rowDiff;
+                $inc = intval($qty / $rowDiff );
+//                var_dump($inc);
+//                var_dump($qtyKeep);
+//                var_dump($entityItem);
+                $item1 = $entityItem;
+                $item2 = $entityItem;
+                $item1['quantity'] = $qty - $qtyKeep;
+                $item1['price'] = $item1['price'] + $inc/100;
+                $item2['quantity'] = $qtyKeep;
+                $item1['sum'] = round($item1['quantity'] * $item1['price'], 2);
+                $item2['sum'] = round($item2['quantity'] * $item2['price'], 2);
+                $itemsFinal[$item->getId().'_1'] = $item1;
+                $itemsFinal[$item->getId().'_2'] = $item2;
+                $itemsSum += $item1['sum'];
+                $itemsSum += $item2['sum'];
+            } else {
+                $itemsFinal[$item->getId()] = $entityItem;
+                $itemsSum += $entityItem['sum'];
+            }
 
-            $itemsSum += $entityItem['sum'];
+
+
+            /*
+            $qtyKeep = $qty % $rowDiff;
+            var_dump($rowDiff);
+            var_dump($qtyKeep);
+            */
         }
 
         $receipt = [
