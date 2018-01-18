@@ -121,9 +121,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
 
             $rowDiscountNew = round($rowPercentage * $grandDiscount, 2);
-
             $item->setData('recalc_row_discount', $rowDiscountNew);
-            $item->setData('recalc_row_diff', $rowDiscountNew);
 
             $rowDiff = round($rowTotal + $rowDiscountNew - $rowTotalNew, 2) * 100;
             $item->setData('recalc_row_diff', $rowDiff);
@@ -185,16 +183,22 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             if($item->getData('recalc_row_diff')) {
                 $rowDiff = $item->getData('recalc_row_diff');
                 $qty = $item->getQty() ?: $item->getQtyOrdered();
-                $qtyKeep = $qty % $rowDiff;
-                $inc = intval($qty / $rowDiff );
+                // WHen rowDiff =1 and qty = 3
+                // incorrect
+                // $qtyKeep = $qty % $rowDiff;
+                //correct
+                $qtyKeep = $rowDiff % $qty;
+//                $inc = intval($qty / $rowDiff );
+                $inc = 1; //1 kop
 //                var_dump($inc);
+//                var_dump($rowDiff);
 //                var_dump($qtyKeep);
 //                var_dump($entityItem);
                 $item1 = $entityItem;
                 $item2 = $entityItem;
-                $item1['quantity'] = $qty - $qtyKeep;
+                $item1['quantity'] = $qtyKeep;
                 $item1['price'] = $item1['price'] + $inc/100;
-                $item2['quantity'] = $qtyKeep;
+                $item2['quantity'] = $qty - $qtyKeep;
                 $item1['sum'] = round($item1['quantity'] * $item1['price'], 2);
                 $item2['sum'] = round($item2['quantity'] * $item2['price'], 2);
                 $itemsFinal[$item->getId().'_1'] = $item1;
@@ -205,8 +209,6 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                 $itemsFinal[$item->getId()] = $entityItem;
                 $itemsSum += $entityItem['sum'];
             }
-
-
 
             /*
             $qtyKeep = $qty % $rowDiff;
