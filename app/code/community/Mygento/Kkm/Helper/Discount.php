@@ -25,10 +25,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     /** @var bool Does item exist with price not divisible evenly? Есть ли item, цена которого не делится нацело */
     protected $_wryItemUnitPriceExists = false;
 
+    /** @var bool Возможность разделять одну товарную позицию на 2, если цена не делится нацело */
+    protected $isSplitItemsAllowed = false;
+
     protected $spreadDiscOnAllUnits = null;
 
-    const NAME_UNIT_PRICE      = 'disc_hlpr_price';
-    const NAME_SHIPPING_AMOUNT = 'disc_hlpr_shipping_amount';
+    const NAME_UNIT_PRICE = 'disc_hlpr_price';
+    const NAME_ROW_DIFF   = 'recalc_row_diff';
 
     /** Returns all items of the entity (order|invoice|creditmemo) with properly calculated discount and properly calculated Sum
      * @param $entity Mage_Sales_Model_Order | Mage_Sales_Model_Order_Invoice | Mage_Sales_Model_Order_Creditmemo
@@ -72,15 +75,9 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function applyDiscount()
     {
         $subTotal       = $this->_entity->getData('subtotal_incl_tax');
-        echo 'ST'.PHP_EOL;
-        var_dump($subTotal);
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
-        echo 'GT'.PHP_EOL;
-        var_dump($grandTotal);
         $grandDiscount  = $grandTotal - $subTotal - $shippingAmount;
-        echo 'GD'.PHP_EOL;
-        var_dump($grandDiscount);
 
         $percentageSum = 0;
 
@@ -97,17 +94,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
             //Calculate Percentage. The heart of logic.
             $denominator   = ($this->spreadDiscOnAllUnits || ($subTotal == $this->_discountlessSum)) ? $subTotal : ($subTotal - $this->_discountlessSum);
-            echo 'DEN'.PHP_EOL;
-            var_dump($denominator);
-            echo 'RT'.PHP_EOL;
-            var_dump($rowTotal);
             $rowPercentage = $rowTotal / $denominator;
 
             if (!$this->spreadDiscOnAllUnits && (floatval($item->getDiscountAmount()) === 0.00)) {
                 $rowPercentage = 0;
             }
-            echo 'PERC'.PHP_EOL;
-            var_dump($rowPercentage);
             $percentageSum += $rowPercentage;
 
             $discountPerUnit   = $rowPercentage * $grandDiscount / $qty;
@@ -119,29 +110,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $rowTotalNew = round($priceWithDiscount * $qty, 2);
             $itemsSum += $rowTotalNew;
 
-
             $rowDiscountNew = round($rowPercentage * $grandDiscount, 2);
-            $item->setData('recalc_row_discount', $rowDiscountNew);
-
             $rowDiff = round($rowTotal + $rowDiscountNew - $rowTotalNew, 2) * 100;
-            $item->setData('recalc_row_diff', $rowDiff);
+
+            $item->setData(self::NAME_ROW_DIFF, $rowDiff);
         }
 
         $this->generalHelper->addLog("Sum of all percentages: {$percentageSum}");
-
-        //Calculate DIFF!
-        $itemsSumDiff = round($this->slyFloor($grandTotal - $itemsSum - $shippingAmount, 3), 2);
-        $itemsSumDiff = 0.0;
-
-        $this->generalHelper->addLog("Items sum: {$itemsSum}. All Discounts: {$grandDiscount} Diff value: {$itemsSumDiff}");
-        if (bccomp($itemsSumDiff, 0.00, 2) < 0) {
-            //if: $itemsSumDiff < 0
-            $this->generalHelper->addLog("Notice: Sum of all items is greater than sumWithAllDiscount of entity. ItemsSumDiff: {$itemsSumDiff}");
-            $itemsSumDiff = 0.0;
-        }
-
-        //Set Recalculated Shipping Amount
-        $this->_entity->setData(self::NAME_SHIPPING_AMOUNT, $this->_entity->getData('shipping_incl_tax') + $itemsSumDiff);
     }
 
     /**If everything is evenly divisible - set up prices without extra recalculations
@@ -176,45 +151,14 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                 continue;
             }
 
-            $taxValue   = $this->_taxAttributeCode ? $this->addTaxValue($this->_taxAttributeCode, $this->_entity, $item) : $this->_taxValue;
-            $price      = !is_null($item->getData(self::NAME_UNIT_PRICE)) ? $item->getData(self::NAME_UNIT_PRICE) : $item->getData('price_incl_tax');
-            $entityItem = $this->_buildItem($item, $price, $taxValue);
+            $splitedItems = $this->getProcessedItem($item);
 
-            if($item->getData('recalc_row_diff')) {
-                $rowDiff = $item->getData('recalc_row_diff');
-                $qty = $item->getQty() ?: $item->getQtyOrdered();
-                // WHen rowDiff =1 and qty = 3
-                // incorrect
-                // $qtyKeep = $qty % $rowDiff;
-                //correct
-                $qtyKeep = $rowDiff % $qty;
-//                $inc = intval($qty / $rowDiff );
-                $inc = 1; //1 kop
-//                var_dump($inc);
-//                var_dump($rowDiff);
-//                var_dump($qtyKeep);
-//                var_dump($entityItem);
-                $item1 = $entityItem;
-                $item2 = $entityItem;
-                $item1['quantity'] = $qtyKeep;
-                $item1['price'] = $item1['price'] + $inc/100;
-                $item2['quantity'] = $qty - $qtyKeep;
-                $item1['sum'] = round($item1['quantity'] * $item1['price'], 2);
-                $item2['sum'] = round($item2['quantity'] * $item2['price'], 2);
-                $itemsFinal[$item->getId().'_1'] = $item1;
-                $itemsFinal[$item->getId().'_2'] = $item2;
-                $itemsSum += $item1['sum'];
-                $itemsSum += $item2['sum'];
-            } else {
-                $itemsFinal[$item->getId()] = $entityItem;
-                $itemsSum += $entityItem['sum'];
-            }
+            $itemsFinal = array_merge($itemsFinal, $splitedItems);
+        }
 
-            /*
-            $qtyKeep = $qty % $rowDiff;
-            var_dump($rowDiff);
-            var_dump($qtyKeep);
-            */
+        //Calculate sum
+        foreach ($itemsFinal as $item) {
+            $itemsSum += $item['sum'];
         }
 
         $receipt = [
@@ -222,13 +166,16 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             'origGrandTotal' => floatval($grandTotal)
         ];
 
-        $shippingAmount = $this->_entity->getData(self::NAME_SHIPPING_AMOUNT) ?: $this->_entity->getData('shipping_incl_tax') + 0.00;
+        $shippingAmount = $this->_entity->getData('shipping_incl_tax') + 0.00;
+        $itemsSumDiff   = round($this->slyFloor($grandTotal - $itemsSum - $shippingAmount, 3), 2);
+
+        $this->generalHelper->addLog("Items sum: {$itemsSum}. Shipping increase: {$itemsSumDiff}");
 
         $shippingItem = [
             'name'     => $this->getShippingName($this->_entity),
-            'price'    => $shippingAmount,
+            'price'    => $shippingAmount + $itemsSumDiff,
             'quantity' => 1.0,
-            'sum'      => $shippingAmount,
+            'sum'      => $shippingAmount + $itemsSumDiff,
             'tax'      => $this->_shippingTaxValue,
         ];
 
@@ -271,6 +218,71 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $generalHelper->addLog($entityItem);
 
         return $entityItem;
+    }
+
+    /** Make item array and split (if needed) it into 2 items with different prices
+     *
+     * @param type $item
+     * @return array
+     */
+    public function getProcessedItem($item)
+    {
+        $generalHelper = Mage::helper($this->_code);
+
+        $final = [];
+
+        $taxValue = $this->_taxAttributeCode ? $this->addTaxValue($this->_taxAttributeCode, $this->_entity, $item) : $this->_taxValue;
+        $price    = !is_null($item->getData(self::NAME_UNIT_PRICE)) ? $item->getData(self::NAME_UNIT_PRICE) : $item->getData('price_incl_tax');
+
+        $entityItem = $this->_buildItem($item, $price, $taxValue);
+
+        //TODO: Проверить разрешена ли фича "разделять товарные позиции"
+
+        $rowDiff = $item->getData(self::NAME_ROW_DIFF);
+
+        if (!$rowDiff || !$this->isSplitItemsAllowed) {
+            $final[$item->getId()] = $entityItem;
+            return $final;
+        }
+
+        $qty = $item->getQty() ?: $item->getQtyOrdered();
+
+        /** @var int $qtyUpdate Сколько товаров из ряда нуждаются в увеличении цены
+         *  Если $qtyUpdate =0 - то цена всех товаров должна быть увеличина
+         */
+        $qtyUpdate = $rowDiff % $qty;
+
+        //2 кейса:
+        //$qtyUpdate == 0 - то всем товарам увеличить цену, не разделяя.
+        //$qtyUpdate > 0  - считаем сколько товаров будут увеличены
+
+        /** @var int "$inc + 1 коп" На столько должны быть увеленичены цены */
+        $inc = intval($rowDiff / $qty);
+
+        $generalHelper->addLog("Item {$item->getId()} has rowDiff={$rowDiff}.");
+        $generalHelper->addLog("qtyUpdate={$qtyUpdate}. inc={$inc} kop.");
+
+        $item1 = $entityItem;
+        $item2 = $entityItem;
+
+        $item1['price'] = $item1['price'] + $inc / 100;
+        $item1['quantity'] = $qty - $qtyUpdate;
+        $item1['sum'] = round($item1['quantity'] * $item1['price'], 2);
+
+        if ($qtyUpdate == 0) {
+            $final[$item->getId()] = $item1;
+
+            return $final;
+        }
+
+        $item2['price'] = $item2['price'] + 0.01 + $inc / 100;
+        $item2['quantity'] = $qtyUpdate;
+        $item2['sum'] = round($item2['quantity'] * $item2['price'], 2);
+
+        $final[$item->getId() . '_1'] = $item2;
+        $final[$item->getId() . '_2'] = $item1;
+
+        return $final;
     }
 
     public function getShippingName($entity)
@@ -393,5 +405,9 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function getAllItems()
     {
         return $this->_entity->getAllVisibleItems() ? $this->_entity->getAllVisibleItems() : $this->_entity->getAllItems();
+    }
+
+    public function setIsSplitItemsAllowed($isSplitItemsAllowed) {
+        $this->isSplitItemsAllowed = boolval($isSplitItemsAllowed);
     }
 }

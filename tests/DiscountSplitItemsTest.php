@@ -26,14 +26,12 @@ class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
     public function testCalculation($order, $expectedArray)
     {
         $discountHelp = new Mygento_Kkm_Helper_Discount();
+        $discountHelp->setIsSplitItemsAllowed(true);
+
         $this->assertTrue(method_exists($discountHelp, 'getRecalculated'));
 
         $recalculatedData = $discountHelp->getRecalculated($order, 'vat18');
 
-//        var_dump($recalculatedData);
-//        var_dump($expectedArray);
-//        die(); 
-        
         $this->assertEquals($recalculatedData['sum'], $expectedArray['sum'], 'Total sum failed');
         $this->assertEquals($recalculatedData['origGrandTotal'], $expectedArray['origGrandTotal']);
 
@@ -46,6 +44,32 @@ class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
             $this->assertEquals($recalcExpectedItems[$index]['price'], $recalcItem['price'], 'Price of item failed');
             $this->assertEquals($recalcExpectedItems[$index]['quantity'], $recalcItem['quantity']);
             $this->assertEquals($recalcExpectedItems[$index]['sum'], $recalcItem['sum'], 'Sum of item failed');
+        }
+    }
+
+    /** Test splitting item mechanism
+     *
+     * @dataProvider dataProviderItemsForSplitting
+     */
+    public function testProcessedItem($item, $expectedArray)
+    {
+        $discountHelp = new Mygento_Kkm_Helper_Discount();
+        $discountHelp->setIsSplitItemsAllowed(true);
+
+        $split = $discountHelp->getProcessedItem($item);
+
+//        var_export($split);
+//        die();
+
+        $this->assertEquals(count($split), count($expectedArray), 'Item was not splitted correctly!');
+
+        $i = 0;
+        foreach ($split as $item) {
+            $this->assertEquals($expectedArray[$i]['price'], $item['price'], 'Price of item failed');
+            $this->assertEquals($expectedArray[$i]['quantity'], $item['quantity']);
+            $this->assertEquals($expectedArray[$i]['sum'], $item['sum'], 'Sum of item failed');
+
+            $i++;
         }
     }
 
@@ -107,12 +131,12 @@ class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
                             'quantity' => 1,
                             'sum'      => 5054.4,
                         ],
-                    153        => [
+                    '153_1'        => [
                         'price'    => 10.6,
                         'quantity' => 2,
                         'sum'      => 21.2,
                         ],
-                    154        => [
+                    '154_2'        => [
                         'price'    => 10.59,
                         'quantity' => 1,
                         'sum'      => 10.59,
@@ -309,6 +333,70 @@ class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
         ];
 
         $final['#case 7. Bug grandTotal < чем сумма всех позиций. Есть позиция со 100% скидкой.'] = [$order, $finalArray];
+
+        return $final;
+    }
+
+        /**
+     * @return array
+     * @SuppressWarnings(PHPMD)
+     */
+    public function dataProviderItemsForSplitting() {
+        $final = [];
+
+        // #1 rowDiff = 2 kop. qty = 3. qtyUpdate = 3
+        $item = $this->getItem(0, 0, 0, 3);
+        $item->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 2);
+        $item->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10.59);
+
+        $expected = [
+            [
+                'price' => 10.6,
+                'quantity' => 2,
+                'sum' => 21.2,
+                'tax' => NULL,
+            ],
+            [
+                'price' => 10.59,
+                'quantity' => 1,
+                'sum' => 10.59,
+                'tax' => NULL,
+            ]
+        ];
+        $final['#case 1. 2 копейки распределить по 3м товарам.'] = [$item, $expected];
+
+        // #2 rowDiff = 150 kop. qty = 30. qtyUpdate = 0
+        $item2 = $this->getItem(0, 0, 0, 30);
+        $item2->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 150);
+        $item2->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10);
+
+        $expected2 = [
+            [
+                'price' => 10.05,
+                'quantity' => 30,
+                'sum' => 301.5,
+            ]
+        ];
+        $final['#case 2. 150 копеек распределить по 30 товарам.'] = [$item2, $expected2];
+
+        // #3 rowDiff = 5 kop. qty = 3. qtyUpdate = 2
+        $item3 = $this->getItem(0, 0, 0, 3);
+        $item3->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 5);
+        $item3->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10);
+
+        $expected3 = [
+            [
+                'price' => 10.02,
+                'quantity' => 2,
+                'sum' => 20.04,
+            ],
+            [
+                'price' => 10.01,
+                'quantity' => 1,
+                'sum' => 10.01,
+            ],
+        ];
+        $final['#case 3. 5 копеек распределить по 3 товарам.'] = [$item3, $expected3];
 
         return $final;
     }
