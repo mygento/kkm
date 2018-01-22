@@ -236,8 +236,6 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $entityItem = $this->_buildItem($item, $price, $taxValue);
 
-        //TODO: Проверить разрешена ли фича "разделять товарные позиции"
-
         $rowDiff = $item->getData(self::NAME_ROW_DIFF);
 
         if (!$rowDiff || !$this->isSplitItemsAllowed) {
@@ -407,7 +405,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $this->_entity->getAllVisibleItems() ? $this->_entity->getAllVisibleItems() : $this->_entity->getAllItems();
     }
 
-    public function setIsSplitItemsAllowed($isSplitItemsAllowed) {
+    public function setIsSplitItemsAllowed($isSplitItemsAllowed)
+    {
         $this->isSplitItemsAllowed = boolval($isSplitItemsAllowed);
     }
 }

@@ -124,17 +124,17 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 5054.4,
                         ],
-                    '153_1'        => [
+                        '153_1'        => [
                         'price'    => 10.6,
                         'quantity' => 2,
                         'sum'      => 21.2,
                         ],
-                    '154_2'        => [
+                        '154_2'        => [
                         'price'    => 10.59,
                         'quantity' => 1,
                         'sum'      => 10.59,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 4287.00,
                         'quantity' => 1,
                         'sum'      => 4287.00,
@@ -223,25 +223,25 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 36.42,
                         ],
-                    '152_2'        =>
+                        '152_2'        =>
                         [
                             'price'    => 36.41,
                             'quantity' => 2,
                             'sum'      => 72.82,
                         ],
-                    '153_1'        =>
+                        '153_1'        =>
                         [
                             'price'    => 23.22,
                             'quantity' => 2,
                             'sum'      => 46.44,
                         ],
-                    '153_2'        =>
+                        '153_2'        =>
                         [
                             'price'    => 23.21,
                             'quantity' => 2,
                             'sum'      => 46.42,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.0,
                         'quantity' => 1,
                         'sum'      => 0.00,
@@ -267,31 +267,31 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 36.42,
                         ],
-                    '152_2'        =>
+                        '152_2'        =>
                         [
                             'price'    => 36.41,
                             'quantity' => 2,
                             'sum'      => 72.82,
                         ],
-                    '153_1'        =>
+                        '153_1'        =>
                         [
                             'price'    => 23.22,
                             'quantity' => 2,
                             'sum'      => 46.44,
                         ],
-                    '153_2'        =>
+                        '153_2'        =>
                         [
                             'price'    => 23.21,
                             'quantity' => 2,
                             'sum'      => 46.42,
                         ],
-                    154        =>
+                        154        =>
                         [
                             'price'    => 100,
                             'quantity' => 5,
                             'sum'      => 500,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0.00,
@@ -316,13 +316,13 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 11691.0,
                         ],
-                    153        =>
+                        153        =>
                         [
                             'price'    => 0.0,
                             'quantity' => 1,
                             'sum'      => 0.0,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0.00,
@@ -339,7 +339,8 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
      * @return array
      * @SuppressWarnings(PHPMD)
      */
-    public function dataProviderItemsForSplitting() {
+    public function dataProviderItemsForSplitting()
+    {
         $final = [];
 
         // #1 rowDiff = 2 kop. qty = 3. qtyUpdate = 3
@@ -352,13 +353,13 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 'price' => 10.6,
                 'quantity' => 2,
                 'sum' => 21.2,
-                'tax' => NULL,
+                'tax' => null,
             ],
             [
                 'price' => 10.59,
                 'quantity' => 1,
                 'sum' => 10.59,
-                'tax' => NULL,
+                'tax' => null,
             ]
         ];
         $final['#case 1. 2 копейки распределить по 3м товарам.'] = [$item, $expected];
