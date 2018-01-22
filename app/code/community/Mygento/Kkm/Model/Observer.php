@@ -260,18 +260,20 @@ class Mygento_Kkm_Model_Observer
 
         $url = Mage::getModel('adminhtml/url')
                 ->getUrl(
-                'adminhtml/kkm_cheque/resend', [
-            'entity' => $entity::HISTORY_ENTITY_NAME,
-            'id'     => $entity->getId()
-                ]
-        );
+                    'adminhtml/kkm_cheque/resend',
+                    [
+                    'entity' => $entity::HISTORY_ENTITY_NAME,
+                    'id'     => $entity->getId()
+                    ]
+                );
         $urlEnforce = Mage::getModel('adminhtml/url')
                 ->getUrl(
-                'adminhtml/kkm_cheque/forceresend', [
-            'entity' => $entity::HISTORY_ENTITY_NAME,
-            'id'     => $entity->getId(),
-                ]
-        );
+                    'adminhtml/kkm_cheque/forceresend',
+                    [
+                    'entity' => $entity::HISTORY_ENTITY_NAME,
+                    'id'     => $entity->getId(),
+                    ]
+                );
         $data = [
             'label'   => Mage::helper('kkm')->__('Resend to KKM'),
             'class'   => '',

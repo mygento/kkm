@@ -135,17 +135,10 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $filename   = "json_{$incId}.json";
 
         if ($jsonToSend) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/json');
-            header('Content-Disposition: attachment; filename=' . $filename);
-            header('Content-Transfer-Encoding: binary');
-            header('Expires: 0');
-            header('Cache-Control: no-store');
-            header('Cache-Control: no-cache, no-store, must-revalidate');
-            header('Pragma: public');
-
-            echo $jsonToSend;
-            return;
+            $response = $this->getResponse();
+            $response->setHeader('Content-type', 'application/json', true);
+            $response->setHeader('Content-Disposition', 'attachment; filename=' . $filename);
+            return $this->getResponse()->setBody($jsonToSend);
         }
 
         Mage::getSingleton('adminhtml/session')
