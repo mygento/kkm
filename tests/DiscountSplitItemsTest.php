@@ -9,15 +9,8 @@ require 'bootstrap.php';
  * @package Mygento_KKM
  * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
-class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
+class DiscountSplitItemsTest extends DiscountGeneralTestCase
 {
-
-    public static function setUpBeforeClass()
-    {
-        if (!class_exists('Varien_Object')) {
-            throw new Exception('Varien_Object class not found.');
-        }
-    }
 
     /**
      * Attention! Order of items in array is important!
@@ -151,36 +144,41 @@ class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
 
         $final['#case 2. Скидка на весь чек и на отдельный товар. Order 145000128 DemoEE'] = [$order, $finalArray];
 
-        //39.67 Discount на весь заказ
-        $order = $this->getNewOrderInstance(5125.8600, 9373.1900, 4287.00);
-        $this->addItem($order, $this->getItem(5054.4000, 5054.4000, 0.0000));
-        $this->addItem($order, $this->getItem(71.4600, 23.8200, 0.0000, 3));
+        //39.67 Discount на весь заказ. Magento размазывает по товарам скидку в заказе.
+        $order = $this->getNewOrderInstance(5125.8600, 5106.1900, 20.00);
+        $this->addItem($order, $this->getItem(5054.4000, 5054.4000, 39.1200));
+        $this->addItem($order, $this->getItem(71.4600, 23.8200, 0.5500, 3));
         $finalArray = [
-            'sum'            => 5086.17,
-            'origGrandTotal' => 9373.19,
+            'sum'            => 5086.19,
+            'origGrandTotal' => 5106.19,
             'items'          =>
+            [
+                152        =>
                 [
-                    152        =>
-                        [
-                            'price'    => 5015.28,
-                            'quantity' => 1,
-                            'sum'      => 5015.28,
-                        ],
-                    153        => [
-                        'price'    => 23.63,
-                        'quantity' => 3,
-                        'sum'      => 70.89,
-                        ],
-                    'shipping' => [
-                        'price'    => 4287.02,
-                        'quantity' => 1,
-                        'sum'      => 4287.02,
-                        ],
+                    'price'    => 5015.28,
+                    'quantity' => 1,
+                    'sum'      => 5015.28,
                 ],
+                '153_1'    =>
+                [
+                    'price'    => 23.64,
+                    'quantity' => 2,
+                    'sum'      => 47.28,
+                ],
+                '153_2'    => [
+                    'price'    => 23.63,
+                    'quantity' => 1,
+                    'sum'      => 23.63,
+                ],
+                'shipping' => [
+                    'price'    => 20.00,
+                    'quantity' => 1,
+                    'sum'      => 20.00,
+                ],
+            ],
         ];
 
-//TODO: Здесь вопрос - 153 позиция разделяется на 2. Норм это или не норм ?
-        $final['#case 3. Скидка только на весь чек'] = [$order, $finalArray];
+        $final['#case 3. Скидка на каждый товар.'] = [$order, $finalArray];
 
         $order = $this->getNewOrderInstance(5000.8600, 5200.8600, 200.00);
         $this->addItem($order, $this->getItem(1000.8200, 500.4100, 0.0000, 2));
@@ -189,24 +187,24 @@ class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
             'sum'            => 5000.86,
             'origGrandTotal' => 5200.86,
             'items'          =>
+            [
+                152        =>
                 [
-                    152        =>
-                        [
-                            'price'    => 500.41,
-                            'quantity' => 2,
-                            'sum'      => 1000.82,
-                        ],
-                    153        => [
-                        'price'    => 1000.01,
-                        'quantity' => 4,
-                        'sum'      => 4000.04,
-                        ],
-                    'shipping' => [
-                        'price'    => 200,
-                        'quantity' => 1,
-                        'sum'      => 200,
-                        ],
+                    'price'    => 500.41,
+                    'quantity' => 2,
+                    'sum'      => 1000.82,
                 ],
+                153        => [
+                    'price'    => 1000.01,
+                    'quantity' => 4,
+                    'sum'      => 4000.04,
+                ],
+                'shipping' => [
+                    'price'    => 200,
+                    'quantity' => 1,
+                    'sum'      => 200,
+                ],
+            ],
         ];
 
         $final['#case 4. Нет скидок никаких'] = [$order, $finalArray];
@@ -399,63 +397,5 @@ class DiscountSplitItemsTest extends PHPUnit_Framework_TestCase
         $final['#case 3. 5 копеек распределить по 3 товарам.'] = [$item3, $expected3];
 
         return $final;
-    }
-
-    //TODO: Move common methods to abstract test class and extend it
-    
-    /**
-     *
-     * @staticvar int $id
-     * @param type $rowTotalInclTax
-     * @param type $priceInclTax
-     * @param type $discountAmount
-     * @param type $qty optional 1 by default
-     * @param type $name optional
-     * @return \Varien_Object
-     */
-    public function getItem($rowTotalInclTax, $priceInclTax, $discountAmount, $qty = 1, $name = null)
-    {
-        static $id = 100500;
-        $id++;
-
-        $coreHelper = Mage::helper('core');
-
-        $name = $name ?: $coreHelper->getRandomString(8);
-
-        $item = new Varien_Object();
-        $item->setData('id', $id);
-        $item->setData('row_total_incl_tax', $rowTotalInclTax);
-        $item->setData('price_incl_tax', $priceInclTax);
-        $item->setData('discount_amount', $discountAmount);
-        $item->setData('qty', $qty);
-        $item->setData('name', $name);
-
-        return $item;
-    }
-
-    /**
-     *
-     * @param type $subTotalInclTax
-     * @param type $grandTotal
-     * @param type $shippingInclTax
-     * @return \Varien_Object
-     */
-    protected function getNewOrderInstance($subTotalInclTax, $grandTotal, $shippingInclTax)
-    {
-        $order = new Varien_Object();
-
-        $order->setData('subtotal_incl_tax', $subTotalInclTax);
-        $order->setData('grand_total', $grandTotal);
-        $order->setData('shipping_incl_tax', $shippingInclTax);
-
-        return $order;
-    }
-
-    public function addItem($order, $item)
-    {
-        $items   = (array)$order->getData('all_items');
-        $items[] = $item;
-
-        $order->setData('all_items', $items);
     }
 }
