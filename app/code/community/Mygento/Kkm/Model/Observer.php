@@ -205,6 +205,10 @@ class Mygento_Kkm_Model_Observer
         }
 
         $container = $observer->getBlock();
+
+        //Add Download KKM json button
+        $this->addJsonButton($observer);
+
         if (!$this->isProperPageForResendButton($container)) {
             return;
         }
@@ -221,39 +225,15 @@ class Mygento_Kkm_Model_Observer
         $statusModel      = Mage::getModel('kkm/status')->loadByEntity($entity);
         $status           = json_decode($statusModel->getStatus());
 
+        //Add ReSend to KKM button
         if ($this->canBeShownResendButton($statusModel)) {
-            $url  = Mage::getModel('adminhtml/url')
-                ->getUrl(
-                    'adminhtml/kkm_cheque/resend',
-                    [
-                        'entity' => $entity::HISTORY_ENTITY_NAME,
-                        'id'     => $entity->getId()
-                    ]
-                );
-            $urlEnforce  = Mage::getModel('adminhtml/url')
-                ->getUrl(
-                    'adminhtml/kkm_cheque/forceresend',
-                    [
-                        'entity' => $entity::HISTORY_ENTITY_NAME,
-                        'id'     => $entity->getId(),
-                    ]
-                );
-            $data = [
-                'label'   => Mage::helper('kkm')->__('Resend to KKM'),
-                'class'   => '',
-                'onclick' => 'setLocation(\'' . $url . '\')',
-            ];
-            $dataEnforce = [
-                'label'   => Mage::helper('kkm')->__('Force resend to KKM'),
-                'class'   => '',
-                'onclick' => 'setLocation(\'' . $urlEnforce . '\')',
-            ];
+            $this->addResendButton($observer);
 
-            $container->addButton('resend_to_kkm', $data);
-            if (Mage::helper('kkm')->getConfig('force_resend')) {
-                $container->addButton('force_resend_to_kkm', $dataEnforce);
-            }
-        } elseif ($this->canBeShownCheckStatusButton($statusModel)) {
+            return $this;
+        }
+
+        //Add Check Status button
+        if ($this->canBeShownCheckStatusButton($statusModel)) {
             $url  = Mage::getModel('adminhtml/url')
                 ->getUrl(
                     'adminhtml/kkm_cheque/checkstatus',
@@ -271,6 +251,64 @@ class Mygento_Kkm_Model_Observer
         }
 
         return $this;
+    }
+
+    public function addResendButton($observer)
+    {
+        $container = $observer->getBlock();
+        $entity    = $container->getInvoice() ?: $container->getCreditmemo();
+
+        $url = Mage::getModel('adminhtml/url')
+                ->getUrl(
+                'adminhtml/kkm_cheque/resend', [
+            'entity' => $entity::HISTORY_ENTITY_NAME,
+            'id'     => $entity->getId()
+                ]
+        );
+        $urlEnforce = Mage::getModel('adminhtml/url')
+                ->getUrl(
+                'adminhtml/kkm_cheque/forceresend', [
+            'entity' => $entity::HISTORY_ENTITY_NAME,
+            'id'     => $entity->getId(),
+                ]
+        );
+        $data = [
+            'label'   => Mage::helper('kkm')->__('Resend to KKM'),
+            'class'   => '',
+            'onclick' => 'setLocation(\'' . $url . '\')',
+        ];
+        $dataEnforce = [
+            'label'   => Mage::helper('kkm')->__('Force resend to KKM'),
+            'class'   => '',
+            'onclick' => 'setLocation(\'' . $urlEnforce . '\')',
+        ];
+
+        $container->addButton('resend_to_kkm', $data);
+        if (Mage::helper('kkm')->getConfig('force_resend')) {
+            $container->addButton('force_resend_to_kkm', $dataEnforce);
+        }
+    }
+
+    public function addJsonButton($observer)
+    {
+        $block = $observer->getBlock();
+        $order = $block->getOrder();
+
+        $jsonButtonEnabled = Mage::helper('kkm')->getConfig('json_button');
+
+        if (!$order || !$jsonButtonEnabled || $block->getType() != 'adminhtml/sales_order_view') {
+            return;
+        }
+
+        $url  = Mage::getModel('adminhtml/url')
+                ->getUrl('adminhtml/kkm_cheque/showjson', ['id' => $order->getIncrementId()]);
+        $data = [
+            'label'   => Mage::helper('kkm')->__('Download KKM json'),
+            'class'   => '',
+            'onclick' => 'setLocation(\'' . $url . '\')',
+        ];
+
+        $block->addButton('json_to_kkm', $data);
     }
 
     /**Check is current page appropriate for "resend to kkm" button
