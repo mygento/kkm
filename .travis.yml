@@ -17,6 +17,6 @@ before_script:
 script:
   - php vendor/bin/parallel-lint --exclude vendor .
   - php vendor/bin/phpcs --standard=vendor/magento-ecg/coding-standard/Ecg,vendor/mygento/coding-standard/Mygento-Mage1 --ignore=lib .
-  - php vendor/bin/phpcpd --exclude=vendor .
+  - php vendor/bin/phpcpd --exclude=vendor --exclude tests/ .
   - php vendor/bin/phpdcd --exclude=vendor .
   - php vendor/bin/phpmd . text vendor/mygento/coding-standard/Mygento-Mage1/phpmd.xml --exclude vendor,lib
