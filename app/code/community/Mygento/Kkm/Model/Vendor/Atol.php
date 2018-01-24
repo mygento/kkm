@@ -378,8 +378,8 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         }
 
 
-        $algorithm = $this->getConfig('general/algorithm');
-        if ($algorithm === Mygento_Kkm_Model_Source_Algorithm::NO_ALGORITHM_VALUE) {
+        $algorithm = $this->getConfig('general/apply_algorithm');
+        if (!$algorithm) {
             $discountHelper->setDoCalculation(false);
         }
 
