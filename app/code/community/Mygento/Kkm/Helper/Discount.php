@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.13';
+    const VERSION = '1.0.14';
 
     protected $generalHelper = null;
 
@@ -27,6 +27,9 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     /** @var bool Возможность разделять одну товарную позицию на 2, если цена не делится нацело */
     protected $isSplitItemsAllowed = false;
+
+    /** @var bool Включить перерасчет? */
+    protected $doCalculation = true;
 
     protected $spreadDiscOnAllUnits = null;
 
@@ -54,17 +57,23 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->spreadDiscOnAllUnits = $spreadDiscOnAllUnits;
 
         $this->generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
+        $this->generalHelper->addLog("Do calculation: " . ($this->doCalculation ? 'Yes' : 'No'));
 
-        //If there is no discounts - DO NOTHING
-        if ($this->checkSpread()) {
-            $this->applyDiscount();
-            $this->generalHelper->addLog("'Apply Discount' logic was applied");
-        } else {
-            //Это случай, когда не нужно размазывать копейки по позициям
-            //и при этом, позиции могут иметь скидки, равномерно делимые.
+        switch (true) {
+            case(!$this->doCalculation):
+                $this->generalHelper->addLog("No calculation at all.");
+                break;
+            case($this->checkSpread()):
+                $this->applyDiscount();
+                $this->generalHelper->addLog("'Apply Discount' logic was applied");
+                break;
+            default:
+                //Это случай, когда не нужно размазывать копейки по позициям
+                //и при этом, позиции могут иметь скидки, равномерно делимые.
 
-            $this->setSimplePrices();
-            $this->generalHelper->addLog("'Simple prices' logic was applied");
+                $this->setSimplePrices();
+                $this->generalHelper->addLog("'Simple prices' logic was applied");
+                break;
         }
 
         $this->generalHelper->addLog("== STOP == Recalculation. Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
@@ -213,6 +222,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             'tax' => $taxValue,
         ];
 
+        if (!$this->doCalculation) {
+            $entityItem['sum']   = round($item->getData('row_total_incl_tax') - $item->getData('discount_amount'), 2);
+            $entityItem['price'] = 1;
+        }
+
         $generalHelper->addLog("Item calculation details:");
         $generalHelper->addLog("Item id: {$item->getId()}. Orig price: {$price} Item rowTotalInclTax: {$item->getData('row_total_incl_tax')} PriceInclTax of 1 piece: {$price}. Result of calc:");
         $generalHelper->addLog($entityItem);
@@ -238,7 +252,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $rowDiff = $item->getData(self::NAME_ROW_DIFF);
 
-        if (!$rowDiff || !$this->isSplitItemsAllowed) {
+        if (!$rowDiff || !$this->isSplitItemsAllowed || !$this->doCalculation) {
             $final[$item->getId()] = $entityItem;
             return $final;
         }
@@ -405,8 +419,19 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $this->_entity->getAllVisibleItems() ? $this->_entity->getAllVisibleItems() : $this->_entity->getAllItems();
     }
 
+    /**
+     * @param bool $isSplitItemsAllowed
+     */
     public function setIsSplitItemsAllowed($isSplitItemsAllowed)
     {
         $this->isSplitItemsAllowed = boolval($isSplitItemsAllowed);
+    }
+
+    /**
+     * @param bool $doCalculation
+     */
+    public function setDoCalculation($doCalculation)
+    {
+        $this->doCalculation = boolval($doCalculation);
     }
 }
