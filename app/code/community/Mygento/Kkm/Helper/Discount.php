@@ -60,10 +60,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->generalHelper->addLog("Do calculation: " . ($this->doCalculation ? 'Yes' : 'No'));
 
         switch (true) {
-            case(!$this->doCalculation):
+            case (!$this->doCalculation):
                 $this->generalHelper->addLog("No calculation at all.");
                 break;
-            case($this->checkSpread()):
+            case ($this->checkSpread()):
                 $this->applyDiscount();
                 $this->generalHelper->addLog("'Apply Discount' logic was applied");
                 break;
