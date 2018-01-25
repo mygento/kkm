@@ -12,6 +12,8 @@ require 'bootstrap.php';
 class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
 {
 
+    protected $discountHelp = null;
+
     public static function setUpBeforeClass()
     {
         if (!class_exists('Varien_Object')) {
@@ -19,14 +21,19 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         }
     }
 
+    protected function setUp()
+    {
+        $this->discountHelp = new Mygento_Kkm_Helper_Discount();
+    }
 
-    protected function getNewOrderInstance($subTotalInclTax, $grandTotal, $shippingInclTax)
+    protected function getNewOrderInstance($subTotalInclTax, $grandTotal, $shippingInclTax, $rewardPoints = 0.00)
     {
         $order = new Varien_Object();
 
         $order->setData('subtotal_incl_tax', $subTotalInclTax);
         $order->setData('grand_total', $grandTotal);
         $order->setData('shipping_incl_tax', $shippingInclTax);
+        $order->setData('discount_amount', $grandTotal + $rewardPoints - $subTotalInclTax - $shippingInclTax);
 
         return $order;
     }

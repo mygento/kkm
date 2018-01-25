@@ -9,8 +9,14 @@ require 'bootstrap.php';
  * @package Mygento_KKM
  * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
-class DiscountAffectsShippingTest extends DiscountGeneralTestCase
+class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
 {
+
+    protected function setUp()
+    {
+        $this->discountHelp = new Mygento_Kkm_Helper_Discount();
+        $this->discountHelp->setSpreadDiscOnAllUnits(true);
+    }
 
     /**
      * Attention! Order of items in array is important!
@@ -56,20 +62,20 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
         $this->addItem($order, $this->getItem(0.0000, 0.0000, 0.0000));
         //Bug 1 kop. Товары по 1 шт. Два со скидками, а один бесплатный. Цены делятся нацело - пересчет не должен применяться.
         $finalArray = [
-            'sum'            => 12069.30,
+            'sum'            => 12069.29,
             'origGrandTotal' => 12069.30,
             'items'          =>
                 [
                     152        =>
                         [
-                            'price'    => 11691,
+                            'price'    => 11717.5,
                             'quantity' => 1,
-                            'sum'      => 11691,
+                            'sum'      => 11717.5,
                         ],
                         153        => [
-                        'price'    => 378.30,
+                        'price'    => 351.79,
                         'quantity' => 1,
-                        'sum'      => 378.30,
+                        'sum'      => 351.79,
                         ],
                         154        => [
                         'price'    => 0,
@@ -77,14 +83,14 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
                         'sum'      => 0,
                         ],
                         'shipping' => [
-                        'price'    => 0.00,
+                        'price'    => 0.01,
                         'quantity' => 1,
-                        'sum'      => 0,
+                        'sum'      => 0.01,
                         ],
                 ],
         ];
 
-        $final['#case 1. Скидки только на товары. Все делится нацело. Bug 1 kop. Товары по 1 шт. Два со скидками, а один бесплатный.'] = [$order, $finalArray];
+        $final['#case 1. Скидки только на товары. Все делится нацело. Товары по 1 шт. Два со скидками, а один бесплатный.'] = [$order, $finalArray];
 
         $order = $this->getNewOrderInstance(5125.8600, 9373.1900, 4287.00);
         $this->addItem($order, $this->getItem(5054.4000, 5054.4000, 0.0000));
@@ -96,40 +102,11 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 5054.4,
-                            'quantity' => 1,
-                            'sum'      => 5054.4,
-                        ],
-                        153        => [
-                        'price'    => 10.59,
-                        'quantity' => 3,
-                        'sum'      => 31.77,
-                        ],
-                        'shipping' => [
-                        'price'    => 4287.02,
-                        'quantity' => 1,
-                        'sum'      => 4287.02,
-                        ],
-                ],
-        ];
-
-        $final['#case 2. Скидка на весь чек и на отдельный товар. Order 145000128 DemoEE'] = [$order, $finalArray];
-
-        $order = $this->getNewOrderInstance(5125.8600, 9373.1900, 4287.00, 39.67);
-        $this->addItem($order, $this->getItem(5054.4000, 5054.4000, 0.0000));
-        $this->addItem($order, $this->getItem(71.4600, 23.8200, 0.0000, 3));
-        $finalArray = [
-            'sum'            => 5086.17,
-            'origGrandTotal' => 9373.19,
-            'items'          =>
-                [
-                    152        =>
-                        [
                             'price'    => 5015.28,
                             'quantity' => 1,
                             'sum'      => 5015.28,
                         ],
-                        153        => [
+                        '153_1'    => [
                         'price'    => 23.63,
                         'quantity' => 3,
                         'sum'      => 70.89,
@@ -142,7 +119,7 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
                 ],
         ];
 
-        $final['#case 3. Скидка только на весь чек'] = [$order, $finalArray];
+        $final['#case 2. Скидка на отдельный товар. Order 145000128 DemoEE'] = [$order, $finalArray];
 
         $order = $this->getNewOrderInstance(5000.8600, 5200.8600, 200.00);
         $this->addItem($order, $this->getItem(1000.8200, 500.4100, 0.0000, 2));
@@ -151,24 +128,24 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
             'sum'            => 5000.86,
             'origGrandTotal' => 5200.86,
             'items'          =>
+            [
+                152        =>
                 [
-                    152        =>
-                        [
-                            'price'    => 500.41,
-                            'quantity' => 2,
-                            'sum'      => 1000.82,
-                        ],
-                        153        => [
-                        'price'    => 1000.01,
-                        'quantity' => 4,
-                        'sum'      => 4000.04,
-                        ],
-                        'shipping' => [
-                        'price'    => 200,
-                        'quantity' => 1,
-                        'sum'      => 200,
-                        ],
+                    'price'    => 500.41,
+                    'quantity' => 2,
+                    'sum'      => 1000.82,
                 ],
+                153        => [
+                    'price'    => 1000.01,
+                    'quantity' => 4,
+                    'sum'      => 4000.04,
+                ],
+                'shipping' => [
+                    'price'    => 200,
+                    'quantity' => 1,
+                    'sum'      => 200,
+                ],
+            ],
         ];
 
         $final['#case 4. Нет скидок никаких'] = [$order, $finalArray];
@@ -177,26 +154,26 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
         $this->addItem($order, $this->getItem(120, 40, 19, 3));
         $this->addItem($order, $this->getItem(102, 25.5, 0.9, 4));
         $finalArray = [
-            'sum'            => 202.06,
+            'sum'            => 202.07,
             'origGrandTotal' => 202.1,
             'items'          =>
                 [
                     152        =>
                         [
-                            'price'    => 33.66,
+                            'price'    => 36.41,
                             'quantity' => 3,
-                            'sum'      => 100.98,
+                            'sum'      => 109.23
                         ],
                         153        =>
                         [
-                            'price'    => 25.27,
+                            'price'    => 23.21,
                             'quantity' => 4,
-                            'sum'      => 101.08,
+                            'sum'      => 92.84
                         ],
                         'shipping' => [
-                        'price'    => 0.04,
+                        'price'    => 0.03,
                         'quantity' => 1,
-                        'sum'      => 0.04,
+                        'sum'      => 0.03,
                         ],
                 ],
         ];
@@ -207,64 +184,65 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
         $this->addItem($order, $this->getItem(120, 40, 19, 3));
         $this->addItem($order, $this->getItem(102, 25.5, 0.9, 4));
         $this->addItem($order, $this->getItem(500, 100, 0, 5));
+
         $finalArray = [
-            'sum'            => 702.06,
+            'sum'            => 702.03,
             'origGrandTotal' => 702.1,
             'items'          =>
                 [
-                    152        =>
+                    '152'        =>
                         [
-                            'price'    => 33.66,
+                            'price'    => 38.89,
                             'quantity' => 3,
-                            'sum'      => 100.98,
+                            'sum'      => 116.67,
                         ],
-                        153        =>
+                        '153'        =>
                         [
-                            'price'    => 25.27,
+                            'price'    => 24.79,
                             'quantity' => 4,
-                            'sum'      => 101.08,
+                            'sum'      => 99.16,
                         ],
                         154        =>
                         [
-                            'price'    => 100,
+                            'price'    => 97.24,
                             'quantity' => 5,
-                            'sum'      => 500,
+                            'sum'      => 486.2,
                         ],
                         'shipping' => [
-                        'price'    => 0.04,
+                        'price'    => 0.07,
                         'quantity' => 1,
-                        'sum'      => 0.04,
+                        'sum'      => 0.07,
                         ],
                 ],
         ];
 
-        $final['#case 6. Есть позиция, на которую НЕ ДОЛЖНА распространиться скидка.'] = [$order, $finalArray];
+        $final['#case 6. Есть позиция без скидок, но на нее размажется скидка с других продуктов.'] = [$order, $finalArray];
 
         //Bug GrandTotal заказа меньше, чем сумма всех позиций. На 1 товар скидка 100%
         $order = $this->getNewOrderInstance(13010.0000, 11691.0000, 0);
         $this->addItem($order, $this->getItem(12990.0000, 12990.0000, 1299.0000, 1));
         $this->addItem($order, $this->getItem(20.0000, 20.0000, 20.0000, 1));
         $finalArray = [
-            'sum'            => 11691.0,
+            'sum'            => 11690.99,
             'origGrandTotal' => 11691.0,
             'items'          =>
                 [
                     152        =>
                         [
-                            'price'    => 11691.0,
+                            'price'    => 11673.02,
                             'quantity' => 1,
-                            'sum'      => 11691.0,
+                            'sum'      => 11673.02,
                         ],
                         153        =>
                         [
-                            'price'    => 0.0,
+                            'price'    => 17.97,
                             'quantity' => 1,
-                            'sum'      => 0.0,
+                            'sum'      => 17.97,
                         ],
                         'shipping' => [
-                        'price'    => 0.00,
+                        'price'    => 0.01,
                         'quantity' => 1,
-                        'sum'      => 0.00,
+                        'sum'      => 0.01,
                         ],
                 ],
         ];
@@ -282,15 +260,15 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11591.15,
+                            'price'    => 11593.15,
                             'quantity' => 1,
-                            'sum'      => 11591.15,
+                            'sum'      => 11593.15,
                         ],
                         153        =>
                         [
-                            'price'    => 19.84,
+                            'price'    => 17.84,
                             'quantity' => 1,
-                            'sum'      => 19.84,
+                            'sum'      => 17.84,
                         ],
                         'shipping' => [
                         'price'    => 0.01,
@@ -300,31 +278,8 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
                 ],
         ];
 
-        $final['#case 8. Reward points в заказе. 1 товар со скидкой, 1 без'] = [$order, $finalArray];
+        $final['#case 8. Reward points в заказе'] = [$order, $finalArray];
 
-        //Reward Points included 2
-        $order = $this->getNewOrderInstance(12990.0000, 12890.0000, 0, 100);
-        $this->addItem($order, $this->getItem(12990.0000, 12990.0000, 0.0000, 1));
-        $finalArray = [
-            'sum'            => 12890.0,
-            'origGrandTotal' => 12890.0,
-            'items'          =>
-                [
-                    152        =>
-                        [
-                            'price'    => 12890.0,
-                            'quantity' => 1,
-                            'sum'      => 12890.0,
-                        ],
-                        'shipping' => [
-                        'price'    => 0.00,
-                        'quantity' => 1,
-                        'sum'      => 0.00,
-                        ],
-                ],
-        ];
-
-        $final['#case 9. Reward points в заказе. В заказе только 1 товар и тот без скидки'] = [$order, $finalArray];
 
         //Reward Points included 2
         $order = $this->getNewOrderInstance(13010.0000, 12909.9900, 0, 100.01);

@@ -9,12 +9,13 @@ require 'bootstrap.php';
  * @package Mygento_KKM
  * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
-class DiscountSplitItemsTest extends DiscountGeneralTestCase
+class DiscountSpreadAndSplitTest extends DiscountGeneralTestCase
 {
 
     protected function setUp()
     {
         $this->discountHelp = new Mygento_Kkm_Helper_Discount();
+        $this->discountHelp->setSpreadDiscOnAllUnits(true);
         $this->discountHelp->setIsSplitItemsAllowed(true);
     }
 
@@ -48,32 +49,6 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         }
     }
 
-    /** Test splitting item mechanism
-     *
-     * @dataProvider dataProviderItemsForSplitting
-     */
-    public function testProcessedItem($item, $expectedArray)
-    {
-        $discountHelp = new Mygento_Kkm_Helper_Discount();
-        $discountHelp->setIsSplitItemsAllowed(true);
-
-        $split = $discountHelp->getProcessedItem($item);
-
-//        var_export($split);
-//        die();
-
-        $this->assertEquals(count($split), count($expectedArray), 'Item was not splitted correctly!');
-
-        $i = 0;
-        foreach ($split as $item) {
-            $this->assertEquals($expectedArray[$i]['price'], $item['price'], 'Price of item failed');
-            $this->assertEquals($expectedArray[$i]['quantity'], $item['quantity']);
-            $this->assertEquals($expectedArray[$i]['sum'], $item['sum'], 'Sum of item failed');
-
-            $i++;
-        }
-    }
-
     /**
      * @return array
      * @SuppressWarnings(PHPMD)
@@ -94,14 +69,14 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11691,
+                            'price'    => 11717.5,
                             'quantity' => 1,
-                            'sum'      => 11691,
+                            'sum'      => 11717.5,
                         ],
                         153        => [
-                        'price'    => 378.30,
+                        'price'    => 351.8,
                         'quantity' => 1,
-                        'sum'      => 378.30,
+                        'sum'      => 351.8,
                         ],
                         154        => [
                         'price'    => 0,
@@ -128,19 +103,19 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 5054.4,
+                            'price'    => 5015.28,
                             'quantity' => 1,
-                            'sum'      => 5054.4,
+                            'sum'      => 5015.28,
                         ],
-                        '154_1'        => [
-                        'price'    => 10.59,
+                        '153_1'    => [
+                        'price'    => 23.63,
                         'quantity' => 1,
-                        'sum'      => 10.59,
+                        'sum'      => 23.63,
                         ],
-                        '153_2'        => [
-                        'price'    => 10.6,
+                        '153_2'    => [
+                        'price'    => 23.64,
                         'quantity' => 2,
-                        'sum'      => 21.2,
+                        'sum'      => 47.28,
                         ],
                         'shipping' => [
                         'price'    => 4287.00,
@@ -227,27 +202,27 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     '152_1'        =>
                         [
-                            'price'    => 33.66,
-                            'quantity' => 1,
-                            'sum'      => 33.66,
+                            'price'    => 36.41,
+                            'quantity' => 2,
+                            'sum'      => 72.82,
                         ],
                         '152_2'        =>
                         [
-                            'price'    => 33.67,
-                            'quantity' => 2,
-                            'sum'      => 67.34,
+                            'price'    => 36.42,
+                            'quantity' => 1,
+                            'sum'      => 36.42,
                         ],
                         '153_1'        =>
                         [
-                            'price'    => 25.27,
+                            'price'    => 23.21,
                             'quantity' => 2,
-                            'sum'      => 50.54,
+                            'sum'      => 46.42,
                         ],
                         '153_2'        =>
                         [
-                            'price'    => 25.28,
+                            'price'    => 23.22,
                             'quantity' => 2,
-                            'sum'      => 50.56,
+                            'sum'      => 46.44,
                         ],
                         'shipping' => [
                         'price'    => 0.0,
@@ -271,33 +246,39 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     '152_1'        =>
                         [
-                            'price'    => 33.66,
+                            'price'    => 38.89,
                             'quantity' => 1,
-                            'sum'      => 33.66,
+                            'sum'      => 38.89,
                         ],
                         '152_2'        =>
                         [
-                            'price'    => 33.67,
+                            'price'    => 38.9,
                             'quantity' => 2,
-                            'sum'      => 67.34,
+                            'sum'      => 77.8,
                         ],
                         '153_1'        =>
                         [
-                            'price'    => 25.27,
-                            'quantity' => 2,
-                            'sum'      => 50.54,
+                            'price'    => 24.79,
+                            'quantity' => 1,
+                            'sum'      => 24.79,
                         ],
                         '153_2'        =>
                         [
-                            'price'    => 25.28,
-                            'quantity' => 2,
-                            'sum'      => 50.56,
+                            'price'    => 24.8,
+                            'quantity' => 3,
+                            'sum'      => 74.40,
                         ],
-                        154        =>
+                        '154_1'        =>
                         [
-                            'price'    => 100,
-                            'quantity' => 5,
-                            'sum'      => 500,
+                            'price'    => 97.24,
+                            'quantity' => 3,
+                            'sum'      => 291.72,
+                        ],
+                        '154_2'        =>
+                        [
+                            'price'    => 97.25,
+                            'quantity' => 2,
+                            'sum'      => 194.5,
                         ],
                         'shipping' => [
                         'price'    => 0.00,
@@ -307,7 +288,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 ],
         ];
 
-        $final['#case 6. Есть позиция, на которую НЕ ДОЛЖНА распространиться скидка.'] = [$order, $finalArray];
+        $final['#case 6. Есть позиция без скидок, но на нее размажется скидка с других продуктов.'] = [$order, $finalArray];
 
         //Bug GrandTotal заказа меньше, чем сумма всех позиций. На 1 товар скидка 100%
         $order = $this->getNewOrderInstance(13010.0000, 11691.0000, 0);
@@ -320,15 +301,15 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11691.0,
+                            'price'    => 11673.03,
                             'quantity' => 1,
-                            'sum'      => 11691.0,
+                            'sum'      => 11673.03,
                         ],
                         153        =>
                         [
-                            'price'    => 0.0,
+                            'price'    => 17.97,
                             'quantity' => 1,
-                            'sum'      => 0.0,
+                            'sum'      => 17.97,
                         ],
                         'shipping' => [
                         'price'    => 0.00,
@@ -351,15 +332,15 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11591.15,
+                            'price'    => 11593.15,
                             'quantity' => 1,
-                            'sum'      => 11591.15,
+                            'sum'      => 11593.15,
                         ],
                         153        =>
                         [
-                            'price'    => 19.85,
+                            'price'    => 17.85,
                             'quantity' => 1,
-                            'sum'      => 19.85,
+                            'sum'      => 17.85,
                         ],
                         'shipping' => [
                         'price'    => 0.00,
@@ -369,33 +350,9 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 ],
         ];
 
-        $final['#case 8. Reward points в заказе. 1 товар со скидкой, 1 без'] = [$order, $finalArray];
+        $final['#case 8. Reward points в заказе'] = [$order, $finalArray];
 
         //Reward Points included 2
-        $order = $this->getNewOrderInstance(12990.0000, 12890.0000, 0, 100);
-        $this->addItem($order, $this->getItem(12990.0000, 12990.0000, 0.0000, 1));
-        $finalArray = [
-            'sum'            => 12890.0,
-            'origGrandTotal' => 12890.0,
-            'items'          =>
-                [
-                    152        =>
-                        [
-                            'price'    => 12890.0,
-                            'quantity' => 1,
-                            'sum'      => 12890.0,
-                        ],
-                        'shipping' => [
-                        'price'    => 0.00,
-                        'quantity' => 1,
-                        'sum'      => 0.00,
-                        ],
-                ],
-        ];
-
-        $final['#case 9. Reward points в заказе. В заказе только 1 товар и тот без скидки'] = [$order, $finalArray];
-
-        //Reward Points included 3
         $order = $this->getNewOrderInstance(13010.0000, 12909.9900, 0, 100.01);
         $this->addItem($order, $this->getItem(12990.0000, 12990.0000, 0.0000, 1));
         $this->addItem($order, $this->getItem(20.0000, 20.0000, 0.0000, 1));
@@ -425,71 +382,6 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         ];
 
         $final['#case 10. Reward points в заказе. На товары нет скидок'] = [$order, $finalArray];
-
-        return $final;
-    }
-
-        /**
-     * @return array
-     * @SuppressWarnings(PHPMD)
-     */
-    public function dataProviderItemsForSplitting()
-    {
-        $final = [];
-
-        // #1 rowDiff = 2 kop. qty = 3. qtyUpdate = 3
-        $item = $this->getItem(0, 0, 0, 3);
-        $item->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 2);
-        $item->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10.59);
-
-        $expected = [
-            [
-                'price' => 10.59,
-                'quantity' => 1,
-                'sum' => 10.59,
-                'tax' => null,
-            ],
-            [
-                'price' => 10.6,
-                'quantity' => 2,
-                'sum' => 21.2,
-                'tax' => null,
-            ],
-        ];
-        $final['#case 1. 2 копейки распределить по 3м товарам.'] = [$item, $expected];
-
-        // #2 rowDiff = 150 kop. qty = 30. qtyUpdate = 0
-        $item2 = $this->getItem(0, 0, 0, 30);
-        $item2->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 150);
-        $item2->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10);
-
-        $expected2 = [
-            [
-                'price' => 10.05,
-                'quantity' => 30,
-                'sum' => 301.5,
-            ]
-        ];
-        $final['#case 2. 150 копеек распределить по 30 товарам.'] = [$item2, $expected2];
-
-        // #3 rowDiff = 5 kop. qty = 3. qtyUpdate = 2
-        $item3 = $this->getItem(0, 0, 0, 3);
-        $item3->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 5);
-        $item3->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10);
-
-        $expected3 = [
-            [
-                'price' => 10.01,
-                'quantity' => 1,
-                'sum' => 10.01,
-            ],
-            [
-                'price' => 10.02,
-                'quantity' => 2,
-                'sum' => 20.04,
-            ],
-        ];
-        $final['#case 3. 5 копеек распределить по 3 товарам.'] = [$item3, $expected3];
 
         return $final;
     }
