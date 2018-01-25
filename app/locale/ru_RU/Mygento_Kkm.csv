@@ -25,6 +25,8 @@
 "It changes external_id before sending to KKM. For advanced users","Принудительно изменяет external_id перед отправкой. Для продвинутых пользователей"
 "Apply Discount Algorithm","Применять алгоритм перерасчета скидок"
 "Spread Discount evenly","Размазывать скидку равномерно"
+"Split items allowed","Разделять позицию на 2"
+"Ability to split 1 item to 2 with different prices (if needed)","Возможность разделять товарную позицию на 2, если цена не делится с точностью до копеек"
 
 "Error handling","Обработка ошибок"
 "Level of logs to send","Уровень логов, которые будут отправлены"
