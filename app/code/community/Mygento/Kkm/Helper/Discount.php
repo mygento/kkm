@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.14';
+    const VERSION = '1.0.13';
 
     protected $generalHelper = null;
 
@@ -31,7 +31,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     /** @var bool Включить перерасчет? */
     protected $doCalculation = true;
 
-    protected $spreadDiscOnAllUnits = null;
+    /** @var bool Размазывать ли скидку по всей позициям? */
+    protected $spreadDiscOnAllUnits = false;
 
     const NAME_UNIT_PRICE = 'disc_hlpr_price';
     const NAME_ROW_DIFF   = 'recalc_row_diff';
@@ -43,7 +44,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      * @param string $shippingTaxValue
      * @return array with calculated items and sum
      */
-    public function getRecalculated($entity, $taxValue = '', $taxAttributeCode = '', $shippingTaxValue = '', $spreadDiscOnAllUnits = false)
+    public function getRecalculated($entity, $taxValue = '', $taxAttributeCode = '', $shippingTaxValue = '')
     {
         if (!$entity) {
             return;
@@ -54,10 +55,20 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->_taxAttributeCode    = $taxAttributeCode;
         $this->_shippingTaxValue    = $shippingTaxValue;
         $this->generalHelper        = Mage::helper($this->_code);
-        $this->spreadDiscOnAllUnits = $spreadDiscOnAllUnits;
+
+        $globalDiscount = $this->getGlobalDiscount();
 
         $this->generalHelper->addLog("== START == Recalculation of entity prices. Helper Version: " . self::VERSION . ".  Entity class: " . get_class($entity) . ". Entity id: {$entity->getId()}");
         $this->generalHelper->addLog("Do calculation: " . ($this->doCalculation ? 'Yes' : 'No'));
+        $this->generalHelper->addLog("Spread discount: " . ($this->spreadDiscOnAllUnits ? 'Yes' : 'No'));
+        $this->generalHelper->addLog("Split items: " . ($this->isSplitItemsAllowed ? 'Yes' : 'No'));
+
+        //Если есть RewardPoints - то калькуляцию применять необходимо принудительно
+        if (!$this->doCalculation && ($globalDiscount !== 0.00)) {
+            $this->doCalculation       = true;
+            $this->isSplitItemsAllowed = true;
+            $this->generalHelper->addLog("SplitItems and DoCalculation set to true because of global Discount (e.g. reward points)");
+        }
 
         switch (true) {
             case (!$this->doCalculation):
@@ -81,12 +92,24 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $this->buildFinalArray();
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
+     */
     public function applyDiscount()
     {
         $subTotal       = $this->_entity->getData('subtotal_incl_tax');
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
-        $grandDiscount  = $grandTotal - $subTotal - $shippingAmount;
+
+        /** @var float $superGrandDiscount Скидка на весь заказ. Например, rewardPoints или storeCredit */
+        $superGrandDiscount = $this->getGlobalDiscount();
+        $grandDiscount      = $superGrandDiscount;
+
+        //Если размазываем скидку - то размазываем всё: (скидки товаров + $superGrandDiscount)
+        if ($this->spreadDiscOnAllUnits) {
+            $grandDiscount  = floatval($grandTotal - $subTotal - $shippingAmount);
+        }
 
         $percentageSum = 0;
 
@@ -97,20 +120,38 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                 continue;
             }
 
-            $price    = $item->getData('price_incl_tax');
-            $qty      = $item->getQty() ?: $item->getQtyOrdered();
-            $rowTotal = $item->getData('row_total_incl_tax');
+            $price       = $item->getData('price_incl_tax');
+            $qty         = $item->getQty() ?: $item->getQtyOrdered();
+            $rowTotal    = $item->getData('row_total_incl_tax');
+            $rowDiscount = round((-1.00) * $item->getDiscountAmount(), 2);
 
-            //Calculate Percentage. The heart of logic.
-            $denominator   = ($this->spreadDiscOnAllUnits || ($subTotal == $this->_discountlessSum)) ? $subTotal : ($subTotal - $this->_discountlessSum);
+            // ==== Start Calculate Percentage. The heart of logic. ====
+
+            /** @var float $denominator Это знаменатель дроби (rowTotal/сумма).
+             * Если скидка должна распространиться на все позиции - то это subTotal.
+             * Если же позиции без скидок должны остаться без изменений - то это
+             * subTotal за вычетом всех позиций без скидок.*/
+            $denominator = $subTotal - $this->_discountlessSum;
+
+            if ($this->spreadDiscOnAllUnits || ($subTotal == $this->_discountlessSum) || ($superGrandDiscount !== 0.00)) {
+                $denominator = $subTotal;
+            }
+
             $rowPercentage = $rowTotal / $denominator;
 
-            if (!$this->spreadDiscOnAllUnits && (floatval($item->getDiscountAmount()) === 0.00)) {
+            // ==== End Calculate Percentage. ====
+
+            if (!$this->spreadDiscOnAllUnits && (floatval($rowDiscount) === 0.00) && ($superGrandDiscount === 0.00)) {
                 $rowPercentage = 0;
             }
             $percentageSum += $rowPercentage;
 
-            $discountPerUnit   = $rowPercentage * $grandDiscount / $qty;
+            if ($this->spreadDiscOnAllUnits) {
+                $rowDiscount = 0;
+            }
+
+            $discountPerUnit = $this->slyCeil(($rowDiscount + $rowPercentage * $grandDiscount) / $qty);
+
             $priceWithDiscount = bcadd($price, $discountPerUnit, 2);
 
             //Set Recalculated unit price for the item
@@ -119,13 +160,28 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $rowTotalNew = round($priceWithDiscount * $qty, 2);
             $itemsSum += $rowTotalNew;
 
-            $rowDiscountNew = round($rowPercentage * $grandDiscount, 2);
+            $rowDiscountNew = $rowDiscount + round($rowPercentage * $grandDiscount, 2);
+
             $rowDiff = round($rowTotal + $rowDiscountNew - $rowTotalNew, 2) * 100;
 
             $item->setData(self::NAME_ROW_DIFF, $rowDiff);
         }
 
         $this->generalHelper->addLog("Sum of all percentages: {$percentageSum}");
+    }
+
+    /** Возвращает скидку на весь заказ (если есть). Например, rewardPoints или storeCredit.
+     * Если нет скидки - возвращает 0.00
+     * @return float
+     */
+    protected function getGlobalDiscount()
+    {
+
+        $subTotal       = $this->_entity->getData('subtotal_incl_tax');
+        $shippingAmount = $this->_entity->getData('shipping_incl_tax');
+        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
+
+        return floatval($grandTotal - $subTotal - $shippingAmount - $this->_entity->getData('discount_amount'));
     }
 
     /**If everything is evenly divisible - set up prices without extra recalculations
@@ -291,8 +347,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $item2['quantity'] = $qtyUpdate;
         $item2['sum'] = round($item2['quantity'] * $item2['price'], 2);
 
-        $final[$item->getId() . '_1'] = $item2;
-        $final[$item->getId() . '_2'] = $item1;
+        $final[$item->getId() . '_1'] = $item1;
+        $final[$item->getId() . '_2'] = $item2;
 
         return $final;
     }
@@ -332,6 +388,18 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         }
 
         return (floor(abs($val) * $divider) / $divider) * $factor;
+    }
+
+    public function slyCeil($val, $precision = 2)
+    {
+        $factor  = 1.00;
+        $divider = pow(10, $precision);
+
+        if ($val < 0) {
+            $factor = -1.00;
+        }
+
+        return (ceil(abs($val) * $divider) / $divider) * $factor;
     }
 
     protected function addTaxValue($taxAttributeCode, $entity, $item)
@@ -392,13 +460,18 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         if (bccomp($grandTotal - $shippingAmount - $sum, 0.00, 2) !== 0) {
             $this->generalHelper->addLog("1. Global discount on whole cheque.");
 
-            $this->spreadDiscOnAllUnits = true;
             return true;
         }
 
         //ok, есть товар, который не делится нацело
         if ($this->_wryItemUnitPriceExists) {
             $this->generalHelper->addLog("2. Item with price which is not divisible evenly.");
+
+            return true;
+        }
+
+        if ($this->spreadDiscOnAllUnits) {
+            $this->generalHelper->addLog("3. SpreadDiscount = Yes.");
 
             return true;
         }
@@ -433,5 +506,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function setDoCalculation($doCalculation)
     {
         $this->doCalculation = boolval($doCalculation);
+    }
+
+    /**
+     * @param null $spreadDiscOnAllUnits
+     */
+    public function setSpreadDiscOnAllUnits($spreadDiscOnAllUnits)
+    {
+        $this->spreadDiscOnAllUnits = boolval($spreadDiscOnAllUnits);
     }
 }
