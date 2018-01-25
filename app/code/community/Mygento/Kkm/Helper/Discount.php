@@ -181,7 +181,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
 
-        return floatval($grandTotal - $subTotal - $shippingAmount - $this->_entity->getData('discount_amount'));
+        return round($grandTotal - $subTotal - $shippingAmount - $this->_entity->getData('discount_amount'), 2);
     }
 
     /**If everything is evenly divisible - set up prices without extra recalculations
