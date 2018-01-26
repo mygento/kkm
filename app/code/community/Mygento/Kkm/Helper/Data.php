@@ -302,4 +302,15 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
                 );
         }
     }
+
+    public function skipCheque($paymentMethod, $currency)
+    {
+        $paymentMethods = explode(',', $this->getConfig('general/payment_methods'));
+
+        if (!in_array($paymentMethod, $paymentMethods) || $currency != 'RUB') {
+            return true;
+        }
+
+        return false;
+    }
 }

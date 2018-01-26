@@ -109,6 +109,9 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             $helper->saveTransactionInfoToOrder($entity, $this->getCommentForOrder($getRequest), self::_code);
         } catch (Exception $e) {
+            $getRequest = json_encode(['status' => 'fail', 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+            $this->saveTransaction($getRequest, $entity);
+
             throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), $debugData);
         }
     }
@@ -377,6 +380,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $receipt->getOrder()->setShippingDescription($this->getConfig('general/custom_shipping_name'));
         }
 
+        //Set mode flags for Discount logic
         $discountHelper->setDoCalculation(boolval($this->getConfig('general/apply_algorithm')));
         if ($this->getConfig('general/apply_algorithm')) {
             $discountHelper->setSpreadDiscOnAllUnits(boolval($this->getConfig('general/spread_discount')));
@@ -446,7 +450,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
     public function isResponseFailed($response)
     {
-        return ($response->error !== null && $response->status == 'fail');
+        return (property_exists($response, 'error') && $response->error !== null && $response->status == 'fail');
     }
 
     protected function increaseExternalId($statusModel)
