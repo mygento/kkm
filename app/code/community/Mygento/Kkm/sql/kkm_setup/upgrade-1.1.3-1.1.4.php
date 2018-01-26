@@ -24,6 +24,7 @@ $installer->getConnection()->changeColumn($tbl, 'increment_id', 'increment_id', 
     'comment'  => 'Increment Id of the entity'
 ]);
 
+//In order to improve search by 'entity_type' and 'increment_id'
 $installer->getConnection()->addIndex(
         $tbl, $installer->getIdxName(
                 'kkm/status',
@@ -32,6 +33,15 @@ $installer->getConnection()->addIndex(
         ),
         ['entity_type', 'increment_id'],
         Varien_Db_Adapter_Interface::INDEX_TYPE_UNIQUE
+);
+
+//In order to improve search by uuid
+$installer->getConnection()->addIndex(
+        $tbl, $installer->getIdxName(
+                'kkm/status',
+                ['uuid']
+        ),
+        ['uuid']
 );
 
 $installer->endSetup();
