@@ -130,6 +130,13 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             $order->setShippingDescription($generalHelper->getConfig('general/custom_shipping_name'));
         }
 
+        //Set mode flags for Discount logic
+        $discountHelper->setDoCalculation(boolval($generalHelper->getConfig('general/apply_algorithm')));
+        if ($generalHelper->getConfig('general/apply_algorithm')) {
+            $discountHelper->setSpreadDiscOnAllUnits(boolval($generalHelper->getConfig('general/spread_discount')));
+            $discountHelper->setIsSplitItemsAllowed(boolval($generalHelper->getConfig('general/split_allowed')));
+        }
+
         $recalcData = $discountHelper->getRecalculated($order, $tax_value, $attribute_code, $shipping_tax);
         $jsonToSend = json_encode($recalcData, JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
         $filename   = "json_{$incId}.json";
