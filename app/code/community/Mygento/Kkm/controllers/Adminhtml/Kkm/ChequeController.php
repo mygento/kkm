@@ -106,7 +106,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $this->_redirectReferer();
     }
 
-    public function showjsonAction()
+    public function getjsonAction()
     {
         $incId = $this->getRequest()->getParam('id');
 
@@ -224,8 +224,8 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             case 'clearlogs':
                 $aclResource = 'kkm_cheque/clearlogs';
                 break;
-            case 'showjson':
-                $aclResource = 'kkm_cheque/showjson';
+            case 'getjson':
+                $aclResource = 'kkm_cheque/getjson';
                 break;
             default:
                 $aclResource = 'kkm_cheque';

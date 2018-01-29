@@ -303,7 +303,7 @@ class Mygento_Kkm_Model_Observer
         }
 
         $url  = Mage::getModel('adminhtml/url')
-                ->getUrl('adminhtml/kkm_cheque/showjson', ['id' => $order->getIncrementId()]);
+                ->getUrl('adminhtml/kkm_cheque/getjson', ['id' => $order->getIncrementId()]);
         $data = [
             'label'   => Mage::helper('kkm')->__('Download KKM json'),
             'class'   => '',

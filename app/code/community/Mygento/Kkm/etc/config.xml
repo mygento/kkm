@@ -164,9 +164,9 @@
                                 <clearlogs translate="title">
                                     <title>Clear logs table</title>
                                 </clearlogs>
-                                <showjson translate="title">
+                                <getjson translate="title">
                                     <title>Download KKM order data in *.json file</title>
-                                </showjson>
+                                </getjson>
                             </children>
                         </kkm_cheque>
                     </children>
