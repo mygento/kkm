@@ -133,6 +133,91 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $this->renderLayout();
     }
 
+    public function getunittestAction()
+    {
+        $entityType = strtolower($this->getRequest()->getParam('entity'));
+        $id         = $this->getRequest()->getParam('id');
+
+        try {
+            $this->checkResendRequest();
+
+            $entity = Mage::getModel('sales/order_' . $entityType)->load($id);
+        } catch (Exception $e) {
+            Mage::getSingleton('adminhtml/session')->addError($e->getMessage() . ' Json error: ' . json_last_error());
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        $orderSubTotal   = $entity->getData('subtotal_incl_tax');
+        $orderGrandTotal = $entity->getData('grand_total');
+        $orderShipping   = $entity->getData('shipping_incl_tax');
+        $globalDiscount  =
+            $entity->getData('reward_currency_amount')
+            + $entity->getData('gift_cards_amount')
+            + $entity->getData('customer_balance_amount');
+
+        $testCode =
+            "\$order = \$this->getNewOrderInstance({$orderSubTotal}, {$orderGrandTotal}, {$orderShipping}, {$globalDiscount});";
+
+        $items = $entity->getAllVisibleItems()
+            ? $entity->getAllVisibleItems()
+            : $entity->getAllItems();
+
+        foreach ($items as $item) {
+            $rowTotal = $item->getData('row_total_incl_tax');
+            $price    = $item->getData('row_total_incl_tax');
+            $discount = $item->getData('discount_amount');
+            $qty      = $item->getData('qty');
+
+            $testCode .= "\n";
+            $testCode .= "\$this->addItem(\$order, \$this->getItem({$rowTotal}, {$price}, {$discount}, {$qty}));";
+        }
+        $testCode .= "\n";
+
+        $atolModel = Mage::getModel('kkm/vendor_atol');
+        $json      = $atolModel->generateJsonPost($entity, '');
+        $receipt   = json_decode($json, true);
+
+        if (!is_array($receipt) || !isset($receipt['receipt']['items'])) {
+            Mage::getSingleton('adminhtml/session')->addError('Calculation error');
+            $this->_redirectReferer();
+
+            return;
+        }
+
+        //Calculate sum
+        $itemsSum = 0;
+        foreach ($receipt['receipt']['items'] as $itemArray) {
+            $itemsSum += $itemArray['sum'];
+        }
+        $shipping = end($receipt['receipt']['items']);
+        $itemsSum = $itemsSum - $shipping['sum'];
+
+        $actualArray = [
+            'sum'            => round($itemsSum, 2),
+            'origGrandTotal' => round($orderGrandTotal, 2)
+        ];
+
+        $actualArray['items'] = $receipt['receipt']['items'];
+        $actualArrayStr       = var_export($actualArray, true);
+
+        $testCode .= "\$actualArray = {$actualArrayStr};";
+        $testCode .= "\n";
+        $testCode .= "\$final['{$entityType} {$entity->getIncrementId()}'] = [\$order, \$actualArray];";
+
+
+        $testCode = "//Copy and paste following content to dataProvider method of the proper class in ./tests folder.
+//Choose test class in accordance with KKM module algorithm settings\n\n" . $testCode;
+
+        $filename = "phpUnitTest_{$entityType}_{$entity->getIncrementId()}.test";
+
+        $response = $this->getResponse();
+        $response->setHeader('Content-type', 'application/text', true);
+        $response->setHeader('Content-Disposition', 'attachment; filename=' . $filename);
+        return $this->getResponse()->setBody($testCode);
+    }
+
     public function viewlogsAction()
     {
         $this->loadLayout();
