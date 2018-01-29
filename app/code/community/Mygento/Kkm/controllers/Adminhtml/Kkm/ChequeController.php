@@ -116,29 +116,8 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             return;
         }
 
-        $discountHelper = Mage::helper('kkm/discount');
-        $generalHelper  = Mage::helper('kkm');
-
-        $shipping_tax   = $generalHelper->getConfig('general/shipping_tax');
-        $tax_value      = $generalHelper->getConfig('general/tax_options');
-        $attribute_code = '';
-        if (!$generalHelper->getConfig('general/tax_all')) {
-            $attribute_code = $generalHelper->getConfig('general/product_tax_attr');
-        }
-
-        if (!$generalHelper->getConfig('general/default_shipping_name')) {
-            $order->setShippingDescription($generalHelper->getConfig('general/custom_shipping_name'));
-        }
-
-        //Set mode flags for Discount logic
-        $discountHelper->setDoCalculation(boolval($generalHelper->getConfig('general/apply_algorithm')));
-        if ($generalHelper->getConfig('general/apply_algorithm')) {
-            $discountHelper->setSpreadDiscOnAllUnits(boolval($generalHelper->getConfig('general/spread_discount')));
-            $discountHelper->setIsSplitItemsAllowed(boolval($generalHelper->getConfig('general/split_allowed')));
-        }
-
-        $recalcData = $discountHelper->getRecalculated($order, $tax_value, $attribute_code, $shipping_tax);
-        $jsonToSend = json_encode($recalcData, JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+        $atolModel  = Mage::getModel('kkm/vendor_atol');
+        $jsonToSend = $atolModel->generateJsonPost($order, 'manual');
         $filename   = "json_{$incId}.json";
 
         if ($jsonToSend) {
