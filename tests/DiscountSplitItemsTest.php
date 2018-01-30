@@ -29,7 +29,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         $recalculatedData = $this->discountHelp->getRecalculated($order, 'vat18');
 
 //        echo '<pre>';
-//        var_dump($recalculatedData);
+//        var_export($recalculatedData);
 //        echo '</pre>';
 //        die();
 
@@ -425,6 +425,57 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         ];
 
         $final['#case 10. Reward points в заказе. На товары нет скидок'] = [$order, $finalArray];
+
+        //Very bad order 100374806 (prd nn)
+        $order = $this->getNewOrderInstance(31130.0000, 32130.0100, 0);
+        $this->addItem($order, $this->getItem(19990.0000, 19990.0000, 0.0000, 1));
+        $this->addItem($order, $this->getItem(14500.0000, 29.0000, 5000.0000, 500));
+        $this->addItem($order, $this->getItem(1000.0100, 1000.0000, 0.0000, 1));
+        $this->addItem($order, $this->getItem(1640.0000, 410.0000, 0.0000, 4));
+        $finalArray = [
+            'sum'            => 32130.01,
+            'origGrandTotal' => 32130.01,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 19990,
+                            'quantity' => 1,
+                            'sum'      => 19990,
+                            'tax'      => 'vat18',
+                        ],
+                        1          =>
+                        [
+                            'price'    => 19,
+                            'quantity' => 500,
+                            'sum'      => 9500,
+                            'tax'      => 'vat18',
+                        ],
+                        2          =>
+                        [
+                            'price'    => 1000.01,
+                            'quantity' => 1,
+                            'sum'      => 1000.01,
+                            'tax'      => 'vat18',
+                        ],
+                        3          =>
+                        [
+                            'price'    => 410,
+                            'quantity' => 4,
+                            'sum'      => 1640,
+                            'tax'      => 'vat18',
+                        ],
+                        'shipping' =>
+                        [
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $final['#case 11. (prd nn) order 100374806'] = [$order, $finalArray];
 
         return $final;
     }

@@ -324,7 +324,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         //$qtyUpdate == 0 - то всем товарам увеличить цену, не разделяя.
         //$qtyUpdate > 0  - считаем сколько товаров будут увеличены
 
-        /** @var int "$inc + 1 коп" На столько должны быть увеленичены цены */
+        /** @var int "$inc + 1 коп" На столько должны быть увеличены цены */
         $inc = intval($rowDiff / $qty);
 
         $generalHelper->addLog("Item {$item->getId()} has rowDiff={$rowDiff}.");
