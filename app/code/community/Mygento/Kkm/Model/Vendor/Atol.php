@@ -93,7 +93,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
                 $this->saveTransaction('{"initial":1}', $entity);
             }
 
-            $jsonPost = $this->_generateJsonPost($entity, $entity->getOrder(), $statusModel->getResendCount());
+            $jsonPost = $this->generateJsonPost($entity, $statusModel->getResendCount());
             $helper->addLog('Request to ATOL json: ' . $jsonPost);
 
             $token = $debugData['token'] = $this->getToken();
@@ -357,14 +357,17 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     }
 
     /**
-     * @param $receipt entity (Invoice or Creditmemo)
-     * @param $order
+     * @param $receipt entity (Order, Invoice or Creditmemo)
      * @param $externalIdPostfix
      * @return string
      */
-    protected function _generateJsonPost($receipt, $order, $externalIdPostfix)
+    public function generateJsonPost($receipt, $externalIdPostfix)
     {
         $discountHelper = Mage::helper('kkm/discount');
+
+        $order = defined(get_class($receipt) . '::HISTORY_ENTITY_NAME') && $receipt::HISTORY_ENTITY_NAME == 'order'
+            ? $receipt
+            : $receipt->getOrder();
 
         $shipping_tax   = $this->getConfig('general/shipping_tax');
         $tax_value      = $this->getConfig('general/tax_options');
@@ -374,7 +377,13 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         }
 
         if (!$this->getConfig('general/default_shipping_name')) {
-            $receipt->getOrder()->setShippingDescription($this->getConfig('general/custom_shipping_name'));
+            $order->setShippingDescription($this->getConfig('general/custom_shipping_name'));
+        }
+
+        $discountHelper->setDoCalculation(boolval($this->getConfig('general/apply_algorithm')));
+        if ($this->getConfig('general/apply_algorithm')) {
+            $discountHelper->setSpreadDiscOnAllUnits(boolval($this->getConfig('general/spread_discount')));
+            $discountHelper->setIsSplitItemsAllowed(boolval($this->getConfig('general/split_allowed')));
         }
 
         $recalculatedReceiptData          = $discountHelper->getRecalculated($receipt, $tax_value, $attribute_code, $shipping_tax);

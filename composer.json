@@ -29,7 +29,8 @@
         "sebastian/phpcpd": "*",
         "jakub-onderka/php-parallel-lint": "0.*",
         "jakub-onderka/php-console-highlighter": "0.*",
-        "phpmd/phpmd": "@stable"
+        "phpmd/phpmd": "@stable",
+        "phpunit/phpunit": "4.*"
     },
     "extra": {
         "magento-root-dir": ".",

@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Mygento_Kkm>
-            <version>1.1.3</version>
+            <version>1.1.4</version>
         </Mygento_Kkm>
     </modules>
     <frontend>
@@ -164,6 +164,9 @@
                                 <clearlogs translate="title">
                                     <title>Clear logs table</title>
                                 </clearlogs>
+                                <showjson translate="title">
+                                    <title>Download KKM order data in *.json file</title>
+                                </showjson>
                             </children>
                         </kkm_cheque>
                     </children>
@@ -186,6 +189,9 @@
                 <cron_update_expr>10 * * * *</cron_update_expr>
                 <autosend_limit>5</autosend_limit>
                 <force_resend>0</force_resend>
+                <apply_algorithm>1</apply_algorithm>
+                <spread_discount>0</spread_discount>
+                <split_allowed>0</split_allowed>
                 <show_notif_in_admin>1</show_notif_in_admin>
                 <debug_level>3</debug_level>
             </general>

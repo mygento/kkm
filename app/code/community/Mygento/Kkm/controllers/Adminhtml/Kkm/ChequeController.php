@@ -106,6 +106,33 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         $this->_redirectReferer();
     }
 
+    public function showjsonAction()
+    {
+        $incId = $this->getRequest()->getParam('id');
+
+        $order = Mage::getModel('sales/order')->loadByIncrementId($incId);
+
+        if (!$order) {
+            return;
+        }
+
+        $atolModel  = Mage::getModel('kkm/vendor_atol');
+        $jsonToSend = $atolModel->generateJsonPost($order, 'manual');
+        $filename   = "json_{$incId}.json";
+
+        if ($jsonToSend) {
+            $response = $this->getResponse();
+            $response->setHeader('Content-type', 'application/json', true);
+            $response->setHeader('Content-Disposition', 'attachment; filename=' . $filename);
+            return $this->getResponse()->setBody($jsonToSend);
+        }
+
+        Mage::getSingleton('adminhtml/session')
+                ->addError(Mage::helper('kkm')->__('Can not generate json. Last error: ') . json_last_error());
+        $this->loadLayout();
+        $this->renderLayout();
+    }
+
     public function viewlogsAction()
     {
         $this->loadLayout();
@@ -196,6 +223,9 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
                 break;
             case 'clearlogs':
                 $aclResource = 'kkm_cheque/clearlogs';
+                break;
+            case 'showjson':
+                $aclResource = 'kkm_cheque/showjson';
                 break;
             default:
                 $aclResource = 'kkm_cheque';
