@@ -81,6 +81,10 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
      */
     protected function sendToAtol($entity)
     {
+        if (!$entity->getId()) {
+            throw new Exception('Entity does not have an id. Class: ' . get_class($entity) . '.');
+        }
+
         $helper      = Mage::helper('kkm');
         $type        = $entity::HISTORY_ENTITY_NAME;
         $debugData   = [];

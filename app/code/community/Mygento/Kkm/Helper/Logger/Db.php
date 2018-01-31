@@ -26,7 +26,6 @@ trait Mygento_Kkm_Helper_Logger_Db
         $this->_getDbLogger()
             ->setModuleCode($this->_code)
             ->setMessage($message)
-            ->setTimestamp(date('Y-m-d H:i:s', Mage::getModel('core/date')->timestamp(time())))
             ->setSeverity($severity)
             ->setAdvancedInfo($advancedMessage)
             ->save();

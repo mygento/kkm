@@ -180,9 +180,13 @@ class Mygento_Kkm_Model_Observer
             $method = $failStatus->getEntityType() == 'creditmemo' ? 'cancelCheque' : 'sendCheque';
             $entity = $helper->getEntityModelByStatusModel($failStatus);
 
+            if (!$entity->getId()) {
+                continue;
+            }
+
             try {
                 $vendor->processExistingTransactionBeforeSending($failStatus);
-                $vendor->$method($entity, $entity->getOrder());
+                $vendor->$method($entity);
 
                 $failUpdated++;
             } catch (Mygento_Kkm_SendingException $e) {
@@ -190,7 +194,9 @@ class Mygento_Kkm_Model_Observer
 
                 $failUpdated++;
             } catch (Exception $e) {
-                $helper->addLog($e->getMessage(), Zend_Log::WARN);
+                $debug = json_encode($failStatus->getData(), JSON_UNESCAPED_UNICODE);
+
+                $helper->addLog($e->getMessage() . ' Status object: ' . $debug, Zend_Log::ERR);
             }
         }
 
