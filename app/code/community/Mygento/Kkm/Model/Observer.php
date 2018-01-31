@@ -19,20 +19,18 @@ class Mygento_Kkm_Model_Observer
         $helper  = Mage::helper('kkm');
         $invoice = $observer->getEvent()->getInvoice();
 
-        $helper->addLog('sendCheque ' . $invoice->getOrigData('increment_id'));
-
-        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice') || $invoice->getOrderCurrencyCode() != 'RUB') {
-            $helper->addLog('Skipped send cheque.');
+        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice')) {
             return;
         }
 
-        $order           = $invoice->getOrder();
-        $paymentMethod   = $order->getPayment()->getMethod();
-        $invoiceOrigData = $invoice->getOrigData();
-        $paymentMethods  = explode(',', $helper->getConfig('general/payment_methods'));
+        $helper->addLog('sendCheque ' . $invoice->getData('increment_id'));
 
-        if (!in_array($paymentMethod, $paymentMethods)) {
-            $helper->addLog('paymentMethod: ' . $paymentMethod . ' is not allowed for sending cheque.');
+        $order           = $invoice->getOrder();
+        $invoiceOrigData = $invoice->getOrigData();
+
+        if ($helper->skipCheque($order)) {
+            $helper->addLog('Skipped send cheque. Payment method: ' . $order->getPayment()->getMethod()
+                            . ', currency: ' . $order->getOrderCurrencyCode());
             return;
         }
 
@@ -58,20 +56,19 @@ class Mygento_Kkm_Model_Observer
         $helper->addLog('cancelCheque');
 
         $creditmemo = $observer->getEvent()->getCreditmemo();
-        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_cancel') || $creditmemo->getOrderCurrencyCode() !== 'RUB') {
-            $helper->addLog('Skipped cancel cheque.');
+        if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_cancel')) {
             return;
         }
 
         $order              = $creditmemo->getOrder();
-        $paymentMethod      = $order->getPayment()->getMethod();
         $creditmemoOrigData = $creditmemo->getOrigData();
-        $paymentMethods     = explode(',', $helper->getConfig('general/payment_methods'));
 
-        if (!in_array($paymentMethod, $paymentMethods)) {
-            $helper->addLog('paymentMethod: ' . $paymentMethod . ' is not allowed for cancelling cheque.');
+        if ($helper->skipCheque($order)) {
+            $helper->addLog('Skipped cancel cheque. Payment method: ' . $order->getPayment()->getMethod()
+                            . ', currency: ' . $order->getOrderCurrencyCode());
             return;
         }
+
         if ($creditmemo->getOrigData() && isset($creditmemoOrigData['increment_id'])) {
             return;
         }
@@ -84,17 +81,17 @@ class Mygento_Kkm_Model_Observer
         }
     }
 
-    /**Check and change order's status. if it has failed kkm transactions status should be kkm_failed.
-     *If no - status should not be kkm_failed.
+    /** Check and change order's status. if it has failed kkm transactions status should be kkm_failed.
+     *  If no - status should not be kkm_failed.
      * @param $observer
      */
     public function checkStatus($observer)
     {
-        if (!Mage::helper('kkm')->getConfig('general/enabled')) {
+        $order = $observer->getEvent()->getOrder();
+
+        if (Mage::helper('kkm')->skipCheque($order)) {
             return;
         }
-
-        $order      = $observer->getEvent()->getOrder();
         $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
 
         if ($order->getKkmChangeStatusFlag()) {
@@ -219,12 +216,10 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $entity         = $container->getInvoice() ?: $container->getCreditmemo();
-        $order          = $entity->getOrder();
-        $paymentMethod  = $order->getPayment()->getMethod();
-        $paymentMethods = explode(',', Mage::helper('kkm')->getConfig('general/payment_methods'));
+        $entity = $container->getInvoice() ?: $container->getCreditmemo();
+        $order  = $entity->getOrder();
 
-        if (!in_array($paymentMethod, $paymentMethods) || $entity->getOrderCurrencyCode() != 'RUB') {
+        if (Mage::helper('kkm')->skipCheque($order)) {
             return;
         }
 
