@@ -497,7 +497,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      */
     public function setIsSplitItemsAllowed($isSplitItemsAllowed)
     {
-        $this->isSplitItemsAllowed = boolval($isSplitItemsAllowed);
+        $this->isSplitItemsAllowed = (bool)$isSplitItemsAllowed;
     }
 
     /**
@@ -505,7 +505,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      */
     public function setDoCalculation($doCalculation)
     {
-        $this->doCalculation = boolval($doCalculation);
+        $this->doCalculation = (bool)$doCalculation;
     }
 
     /**
@@ -513,6 +513,6 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      */
     public function setSpreadDiscOnAllUnits($spreadDiscOnAllUnits)
     {
-        $this->spreadDiscOnAllUnits = boolval($spreadDiscOnAllUnits);
+        $this->spreadDiscOnAllUnits = (bool)$spreadDiscOnAllUnits;
     }
 }
