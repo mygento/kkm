@@ -167,6 +167,9 @@
                                 <getjson translate="title">
                                     <title>Download KKM order data in *.json file</title>
                                 </getjson>
+                                <getunittest translate="title">
+                                    <title>Download data for PhpUnit test from Invoice or Creditmemo</title>
+                                </getunittest>
                             </children>
                         </kkm_cheque>
                     </children>

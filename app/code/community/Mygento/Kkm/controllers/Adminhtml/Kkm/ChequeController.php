@@ -312,6 +312,9 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             case 'getjson':
                 $aclResource = 'kkm_cheque/getjson';
                 break;
+            case 'getunittest':
+                $aclResource = 'kkm_cheque/getunittest';
+                break;
             default:
                 $aclResource = 'kkm_cheque';
                 break;
