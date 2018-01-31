@@ -46,7 +46,6 @@ class DiscountWithoutCalcTest extends DiscountGeneralTestCase
             $this->assertEquals($recalcExpectedItems[$index]['quantity'], $recalcItem['quantity']);
 //            $this->assertEquals($recalcExpectedItems[$index]['sum'], $recalcItem['sum'], 'Sum of item failed');
 
-            //TODO: check is it correct for test?
             $sumEqual = bccomp($recalcExpectedItems[$index]['sum'], $recalcItem['sum']);
             $this->assertEquals($sumEqual, 0, 'Sum of item failed');
         }

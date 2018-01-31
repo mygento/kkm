@@ -19,16 +19,16 @@ class Mygento_Kkm_Model_Observer
         $helper  = Mage::helper('kkm');
         $invoice = $observer->getEvent()->getInvoice();
 
-        $helper->addLog('sendCheque ' . $invoice->getOrigData('increment_id'));
-
         if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_invoice')) {
             return;
         }
 
+        $helper->addLog('sendCheque ' . $invoice->getData('increment_id'));
+
         $order           = $invoice->getOrder();
         $invoiceOrigData = $invoice->getOrigData();
 
-        if ($this->skipCheque($order)) {
+        if ($helper->skipCheque($order)) {
             $helper->addLog('Skipped send cheque. Payment method: ' . $order->getPayment()->getMethod()
                             . ', currency: ' . $order->getOrderCurrencyCode());
             return;
@@ -63,7 +63,7 @@ class Mygento_Kkm_Model_Observer
         $order              = $creditmemo->getOrder();
         $creditmemoOrigData = $creditmemo->getOrigData();
 
-        if ($this->skipCheque($order)) {
+        if ($helper->skipCheque($order)) {
             $helper->addLog('Skipped cancel cheque. Payment method: ' . $order->getPayment()->getMethod()
                             . ', currency: ' . $order->getOrderCurrencyCode());
             return;
@@ -89,7 +89,7 @@ class Mygento_Kkm_Model_Observer
     {
         $order = $observer->getEvent()->getOrder();
 
-        if ($this->skipCheque($order)) {
+        if (Mage::helper('kkm')->skipCheque($order)) {
             return;
         }
         $vendorName = Mage::helper('kkm')->getConfig('general/vendor');
@@ -213,7 +213,7 @@ class Mygento_Kkm_Model_Observer
         $entity = $container->getInvoice() ?: $container->getCreditmemo();
         $order  = $entity->getOrder();
 
-        if ($this->skipCheque($order)) {
+        if (Mage::helper('kkm')->skipCheque($order)) {
             return;
         }
 
@@ -334,24 +334,5 @@ class Mygento_Kkm_Model_Observer
         $status             = json_decode($statusModel->getStatus());
 
         return ($checkStatusAllowed && $status && $status->status == 'wait' && $status->uuid);
-    }
-
-    /** Check payment method and other conditions
-     * We need this separate method to decrease CyclomaticComplexity of some methods
-     *
-     * @param $order
-     * @return bool
-     */
-    public function skipCheque($order)
-    {
-        if (!Mage::helper('kkm')->getConfig('general/enabled')) {
-            return true;
-        }
-
-        if (Mage::helper('kkm')->skipCheque($order->getPayment()->getMethod(), $order->getOrderCurrencyCode())) {
-            return true;
-        }
-
-        return false;
     }
 }
