@@ -225,6 +225,8 @@ class Mygento_Kkm_Model_Observer
         $statusModel      = Mage::getModel('kkm/status')->loadByEntity($entity);
         $status           = json_decode($statusModel->getStatus());
 
+        $this->addPhpUnitTestButton($observer);
+
         //Add ReSend to KKM button
         if ($this->canBeShownResendButton($statusModel)) {
             $this->addResendButton($observer);
@@ -303,7 +305,7 @@ class Mygento_Kkm_Model_Observer
         }
 
         $url  = Mage::getModel('adminhtml/url')
-                ->getUrl('adminhtml/kkm_cheque/showjson', ['id' => $order->getIncrementId()]);
+                ->getUrl('adminhtml/kkm_cheque/getjson', ['id' => $order->getIncrementId()]);
         $data = [
             'label'   => Mage::helper('kkm')->__('Download KKM json'),
             'class'   => '',
@@ -311,6 +313,35 @@ class Mygento_Kkm_Model_Observer
         ];
 
         $block->addButton('json_to_kkm', $data);
+    }
+
+    public function addPhpUnitTestButton($observer)
+    {
+        $block  = $observer->getBlock();
+        $entity = $block->getInvoice() ?: $block->getCreditmemo();
+
+        $unitTestButtonEnabled = Mage::helper('kkm')->getConfig('unit_test_button');
+
+        if (!$entity || !$entity->getId() || !$unitTestButtonEnabled) {
+            return;
+        }
+
+        $url = Mage::getModel('adminhtml/url')
+            ->getUrl(
+                'adminhtml/kkm_cheque/getunittest',
+                [
+                    'entity' => $entity::HISTORY_ENTITY_NAME,
+                    'id'     => $entity->getId()
+                ]
+            );
+
+        $data = [
+            'label'   => Mage::helper('kkm')->__('Download test data'),
+            'class'   => '',
+            'onclick' => 'setLocation(\'' . $url . '\')',
+        ];
+
+        $block->addButton('phpunit_data', $data);
     }
 
     /**Check is current page appropriate for "resend to kkm" button
