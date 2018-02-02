@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Mygento_Kkm>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
         </Mygento_Kkm>
     </modules>
     <frontend>
@@ -164,9 +164,12 @@
                                 <clearlogs translate="title">
                                     <title>Clear logs table</title>
                                 </clearlogs>
-                                <showjson translate="title">
+                                <getjson translate="title">
                                     <title>Download KKM order data in *.json file</title>
-                                </showjson>
+                                </getjson>
+                                <getunittest translate="title">
+                                    <title>Download data for PhpUnit test from Invoice or Creditmemo</title>
+                                </getunittest>
                             </children>
                         </kkm_cheque>
                     </children>

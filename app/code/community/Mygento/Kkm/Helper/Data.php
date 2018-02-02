@@ -21,11 +21,11 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $logsToDb = method_exists($this, 'writeLog');
 
-        if (!Mage::getStoreConfig('kkm/general/debug')) {
+        if (!$this->getConfig('enabled') || !$this->getConfig('debug')) {
             return false;
         }
 
-        if ($severity > Mage::getStoreConfig('kkm/general/debug_level')) {
+        if ($severity > $this->getConfig('debug_level')) {
             return false;
         }
 
@@ -301,5 +301,29 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
                     $params
                 );
         }
+    }
+
+    /** Check payment method and other conditions
+     * We need this separate method to decrease CyclomaticComplexity of some methods
+     *
+     * @param $order
+     * @return bool
+     */
+    public function skipCheque($order)
+    {
+        if (!$this->getConfig('enabled')) {
+            return true;
+        }
+
+        $paymentMethod = $order->getPayment()->getMethod();
+        $currency      = $order->getOrderCurrencyCode();
+
+        $paymentMethods = explode(',', $this->getConfig('general/payment_methods'));
+
+        if (!in_array($paymentMethod, $paymentMethods) || $currency != 'RUB') {
+            return true;
+        }
+
+        return false;
     }
 }
