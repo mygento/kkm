@@ -14,4 +14,20 @@ class Mygento_Kkm_Model_Resource_Log_Entry extends Mage_Core_Model_Resource_Db_A
     {
         $this->_init('kkm/log_entry', 'entity_id');
     }
+
+    /**
+     * Prepare data for save
+     *
+     * @param Mage_Core_Model_Abstract $object
+     * @return array
+     */
+    protected function _prepareDataForSave(Mage_Core_Model_Abstract $object)
+    {
+        $currentTime = Varien_Date::now();
+        if ((!$object->getId() || $object->isObjectNew()) && !$object->getCreatedAt()) {
+            $object->setCreatedAt($currentTime);
+        }
+        $data = parent::_prepareDataForSave($object);
+        return $data;
+    }
 }
