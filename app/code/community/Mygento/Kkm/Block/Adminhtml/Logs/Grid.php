@@ -53,12 +53,12 @@ class Mygento_Kkm_Block_Adminhtml_Logs_Grid extends Mage_Adminhtml_Block_Widget_
             'type'   => 'options',
             'options' => Mage::getSingleton('kkm/source_severity')->getOptions(),
         ]);
-        $this->addColumn('timestamp', [
+        $this->addColumn('created_at', [
             'header' => Mage::helper('kkm')->__('Time'),
             'align'  => 'right',
-            'index'  => 'timestamp',
             'type'   => 'datetime',
             'width'  => '100px',
+            'index'  => 'created_at',
         ]);
         $this->addColumn('advanced_info', [
             'header' => Mage::helper('kkm')->__('Advanced Info'),
