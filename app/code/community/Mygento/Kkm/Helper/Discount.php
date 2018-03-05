@@ -64,9 +64,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $this->generalHelper->addLog("Split items: " . ($this->isSplitItemsAllowed ? 'Yes' : 'No'));
 
         //Если есть RewardPoints - то калькуляцию применять необходимо принудительно
-        if (!$this->doCalculation && ($globalDiscount !== 0.00)) {
+        if ($globalDiscount !== 0.00) {
             $this->doCalculation       = true;
-            $this->isSplitItemsAllowed = true;
             $this->generalHelper->addLog("SplitItems and DoCalculation set to true because of global Discount (e.g. reward points)");
         }
 
@@ -104,7 +103,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         /** @var float $superGrandDiscount Скидка на весь заказ. Например, rewardPoints или storeCredit */
         $superGrandDiscount = $this->getGlobalDiscount();
-        $grandDiscount      = $superGrandDiscount;
+
+        //Bug NN-347. -1 коп в доставке, если Magento неверно посчитала grandTotal заказа
+        if ($superGrandDiscount && abs($superGrandDiscount) < 10.00) {
+            $this->fixLowDiscount();
+            $superGrandDiscount = 0.00;
+        }
+        $grandDiscount = $superGrandDiscount;
 
         //Если размазываем скидку - то размазываем всё: (скидки товаров + $superGrandDiscount)
         if ($this->spreadDiscOnAllUnits) {
@@ -176,12 +181,65 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      */
     protected function getGlobalDiscount()
     {
+        $items = $this->getAllItems();
+        $totalItemsSum = 0;
+        foreach ($items as $item) {
+            $totalItemsSum += $item->getData('row_total_incl_tax');
+        }
 
-        $subTotal       = $this->_entity->getData('subtotal_incl_tax');
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
+        $discount       = round($this->_entity->getData('discount_amount'), 2);
 
-        return round($grandTotal - $subTotal - $shippingAmount - $this->_entity->getData('discount_amount'), 2);
+        $globDisc = round($grandTotal - $shippingAmount - $totalItemsSum - $discount, 2);
+
+        return $globDisc;
+    }
+
+    protected function fixLowDiscount()
+    {
+        $items          = $this->getAllItems();
+        $globalDiscount = $this->getGlobalDiscount();
+
+        $sign = $globalDiscount / abs($globalDiscount);
+        $i    = abs($globalDiscount) * 100;
+        $iter = 0;
+        while ($i > 0) {
+            $item = current($items);
+
+            echo("\n" . 'i:' . $i . "\t\t");
+
+            $itDisc  = $item->getData('discount_amount');
+            $itTotal = $item->getData('row_total_incl_tax');
+
+            //Пытаемся размазать поровну
+            $discPerItem = intval($i / count($items));
+            $inc         = ($discPerItem > 1) && ($itTotal - $itDisc) > $discPerItem
+                ? $sign * $discPerItem
+                : $sign * 1;
+
+            //Изменяем скидку позиции
+            if (($itTotal - $itDisc) > abs($inc)) {
+                $item->setData('discount_amount', $itDisc - $inc/100);
+                echo('add:' . ($inc/100) . "\t\t");
+                $i = $i - abs($inc);
+            }
+
+            $next = next($items);
+            if (!$next) {
+                reset($items);
+            }
+
+            echo('inc:' . $inc . "\t\t");
+            $iter++;
+        }
+
+        //Радуемся
+        echo "\033[1;32m";
+        echo "\n\n ===== Total iterations: \t $iter ===== \n";
+        echo "\033[0m";
+
+        return $iter;
     }
 
     /**If everything is evenly divisible - set up prices without extra recalculations
@@ -208,16 +266,17 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     {
         $grandTotal = round($this->_entity->getData('grand_total'), 2);
 
-        $items      = $this->getAllItems();
+        $items = $this->getAllItems();
+
         $itemsFinal = [];
         $itemsSum   = 0.00;
+
         foreach ($items as $item) {
             if (!$this->isValidItem($item)) {
                 continue;
             }
 
             $splitedItems = $this->getProcessedItem($item);
-
             $itemsFinal = array_merge($itemsFinal, $splitedItems);
         }
 
