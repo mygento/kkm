@@ -201,27 +201,25 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $items          = $this->getAllItems();
         $globalDiscount = $this->getGlobalDiscount();
 
-        $sign = $globalDiscount / abs($globalDiscount);
-        $i    = abs($globalDiscount) * 100;
-        $iter = 0;
+        $sign  = $globalDiscount / abs($globalDiscount);
+        $i     = abs($globalDiscount) * 100;
+        $count = count($items);
+        $iter  = 0;
         while ($i > 0) {
             $item = current($items);
-
-            echo("\n" . 'i:' . $i . "\t\t");
 
             $itDisc  = $item->getData('discount_amount');
             $itTotal = $item->getData('row_total_incl_tax');
 
             //Пытаемся размазать поровну
-            $discPerItem = intval($i / count($items));
+            $discPerItem = intval($i / $count);
             $inc         = ($discPerItem > 1) && ($itTotal - $itDisc) > $discPerItem
                 ? $sign * $discPerItem
-                : $sign * 1;
+                : $sign;
 
             //Изменяем скидку позиции
             if (($itTotal - $itDisc) > abs($inc)) {
                 $item->setData('discount_amount', $itDisc - $inc/100);
-                echo('add:' . ($inc/100) . "\t\t");
                 $i = $i - abs($inc);
             }
 
@@ -230,14 +228,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                 reset($items);
             }
 
-            echo('inc:' . $inc . "\t\t");
             $iter++;
         }
-
-        //Радуемся
-        echo "\033[1;32m";
-        echo "\n\n ===== Total iterations: \t $iter ===== \n";
-        echo "\033[0m";
 
         return $iter;
     }
