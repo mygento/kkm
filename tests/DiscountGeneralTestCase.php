@@ -44,6 +44,32 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $this->discountHelp = new Mygento_Kkm_Helper_Discount();
     }
 
+    protected function onNotSuccessfulTest(Exception $e)
+    {
+        //beautify output
+        echo "\033[1;31m"; // light red
+        echo "\t" . $e->getMessage() . "\n";
+        echo "\033[0m"; //reset color
+
+        throw $e;
+    }
+
+    public function testCalculation($order, $expectedArray)
+    {
+        //В случае если добавили новый тест и у него еще нет expectedArray - то выводим его с соотв. округлением значений
+        if (is_null($expectedArray)) {
+            echo "\033[1;32m"; // green
+            echo $this->getName() . PHP_EOL;
+            echo "\033[1;33m"; // yellow
+            $storedValue = ini_get('serialize_precision');
+            ini_set('serialize_precision', 12);
+            var_export($this->discountHelp->getRecalculated($order, 'vat18'));
+            ini_set('serialize_precision', $storedValue);
+            echo "\033[0m"; // reset color
+            exit();
+        }
+    }
+
     protected function getNewOrderInstance($subTotalInclTax, $grandTotal, $shippingInclTax, $rewardPoints = 0.00)
     {
         $order = new Varien_Object();
@@ -81,6 +107,26 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $items[] = $item;
 
         $order->setData('all_items', $items);
+    }
+
+    /**
+     * @return array
+     * @SuppressWarnings(PHPMD)
+     */
+    public function dataProviderOrdersForCheckCalculation()
+    {
+        $final = [];
+
+        //Тест кейсы одинаковые для всех вариантов настроек класса Discount
+        $orders  = self::getOrders();
+        //А ожидаемые результаты должны быть в каждом классе свои
+        $expected = static::getExpected();
+
+        foreach ($orders as $key => $order) {
+            $final[$key] = [$order, $expected[$key]];
+        }
+
+        return $final;
     }
 
     /**
@@ -149,7 +195,7 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $final[self::TEST_CASE_NAME_10] = $order;
 
         //Very bad order 100374806 (prd nn)
-        $order = $this->getNewOrderInstance(31130.0000, 32130.0100, 0);
+        $order = $this->getNewOrderInstance(37130.0100, 32130.0100, 0);
         $this->addItem($order, $this->getItem(19990.0000, 19990.0000, 0.0000, 1));
         $this->addItem($order, $this->getItem(14500.0000, 29.0000, 5000.0000, 500));
         $this->addItem($order, $this->getItem(1000.0100, 1000.0000, 0.0000, 1));
@@ -165,7 +211,7 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $this->addItem($order, $this->getItem(1450.0000, 29.0000, 710.7800, 50.0000));
         $this->addItem($order, $this->getItem(1080.0000, 36.0000, 529.4100, 30.0000));
         $this->addItem($order, $this->getItem(360.0000, 36.0000, 176.4700, 10.0000));
-        $this->addItem($order, $this->getItem(1800.0000, 36.0000, 882.3500, 50.0000));
+        $this->addItem($order, $this->getItem(1800.00, 36.00, 882.35, 50.00));
         $this->addItem($order, $this->getItem(330.0000, 33.0000, 161.7600, 10.0000));
         $this->addItem($order, $this->getItem(720.0000, 36.0000, 352.9400, 20.0000));
         $this->addItem($order, $this->getItem(780.0000, 39.0000, 382.3700, 20.0000));
@@ -216,7 +262,7 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $final[self::TEST_CASE_NAME_15] = $order;
 
         //тестируем размазывание мелких ревардов
-        $order = $this->getNewOrderInstance(10200,5190.0100, 0.0000,9.99);
+        $order = $this->getNewOrderInstance(10200, 5190.0100, 0.0000, 9.99);
         $this->addItem($order, $this->getItem(1440.0000, 36.0000, 705.8800, 40.0000));
         $this->addItem($order, $this->getItem(1080.0000, 36.0000, 529.4100, 30.0000));
         $this->addItem($order, $this->getItem(1160.0000, 29.0000, 568.6300, 40.0000));

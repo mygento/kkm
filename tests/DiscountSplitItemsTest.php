@@ -24,23 +24,11 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
      */
     public function testCalculation($order, $expectedArray)
     {
+        parent::testCalculation($order, $expectedArray);
+
         $this->assertTrue(method_exists($this->discountHelp, 'getRecalculated'));
 
         $recalculatedData = $this->discountHelp->getRecalculated($order, 'vat18');
-
-        if (is_null($expectedArray)) {
-            $storedValue = ini_get('serialize_precision');
-            ini_set('serialize_precision', 12);
-            var_export($recalculatedData);
-            ini_set('serialize_precision', $storedValue);
-            die();
-        }
-
-//        echo '<pre>';
-//        var_dump($recalculatedData);
-////        var_export($recalculatedData);
-//        echo '</pre>';
-//        die();
 
         $this->assertEquals($recalculatedData['sum'], $expectedArray['sum'], 'Total sum failed');
         $this->assertEquals($recalculatedData['origGrandTotal'], $expectedArray['origGrandTotal']);
@@ -83,27 +71,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         }
     }
 
-    /**
-     * @return array
-     * @SuppressWarnings(PHPMD)
-     */
-    public function dataProviderOrdersForCheckCalculation()
-    {
-        $final = [];
-
-        //Тест кейсы одинаковые для всех вариантов настроек класса Discount
-        $orders  = parent::getOrders();
-        //А ожидаемые результаты должны быть в каждом классе свои
-        $expected = self::getActuals();
-
-        foreach ($orders as $key => $order) {
-            $final[$key] = [$order, $expected[$key]];
-        }
-
-        return $final;
-    }
-
-    protected static function getActuals()
+    protected static function getExpected()
     {
         $actualData[parent::TEST_CASE_NAME_1] = [
             'sum'            => 12069.30,
@@ -116,21 +84,21 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 11691,
                         ],
-                    153        => [
+                        153        => [
                         'price'    => 378.30,
                         'quantity' => 1,
                         'sum'      => 378.30,
-                    ],
-                    154        => [
+                        ],
+                        154        => [
                         'price'    => 0,
                         'quantity' => 1,
                         'sum'      => 0,
-                    ],
-                    'shipping' => [
+                        ],
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0,
-                    ],
+                        ],
                 ],
         ];
 
@@ -145,21 +113,21 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 5054.4,
                         ],
-                    '154_1'        => [
+                        '154_1'        => [
                         'price'    => 10.59,
                         'quantity' => 1,
                         'sum'      => 10.59,
-                    ],
-                    '153_2'        => [
+                        ],
+                        '153_2'        => [
                         'price'    => 10.6,
                         'quantity' => 2,
                         'sum'      => 21.2,
-                    ],
-                    'shipping' => [
+                        ],
+                        'shipping' => [
                         'price'    => 4287.00,
                         'quantity' => 1,
                         'sum'      => 4287.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -174,22 +142,22 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 5015.28,
                         ],
-                    '153_1'    => [
+                        '153_1'    => [
                         'price'    => 23.63,
                         'quantity' => 1,
                         'sum'      => 23.63,
-                    ],
-                    '153_2'    =>
+                        ],
+                        '153_2'    =>
                         [
                             'price'    => 23.64,
                             'quantity' => 2,
                             'sum'      => 47.28,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 20.00,
                         'quantity' => 1,
                         'sum'      => 20.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -204,16 +172,16 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 2,
                             'sum'      => 1000.82,
                         ],
-                    153        => [
+                        153        => [
                         'price'    => 1000.01,
                         'quantity' => 4,
                         'sum'      => 4000.04,
-                    ],
-                    'shipping' => [
+                        ],
+                        'shipping' => [
                         'price'    => 200,
                         'quantity' => 1,
                         'sum'      => 200,
-                    ],
+                        ],
                 ],
         ];
 
@@ -228,29 +196,29 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 33.66,
                         ],
-                    '152_2'        =>
+                        '152_2'        =>
                         [
                             'price'    => 33.67,
                             'quantity' => 2,
                             'sum'      => 67.34,
                         ],
-                    '153_1'        =>
+                        '153_1'        =>
                         [
                             'price'    => 25.27,
                             'quantity' => 2,
                             'sum'      => 50.54,
                         ],
-                    '153_2'        =>
+                        '153_2'        =>
                         [
                             'price'    => 25.28,
                             'quantity' => 2,
                             'sum'      => 50.56,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.0,
                         'quantity' => 1,
                         'sum'      => 0.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -265,35 +233,35 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 33.66,
                         ],
-                    '152_2'        =>
+                        '152_2'        =>
                         [
                             'price'    => 33.67,
                             'quantity' => 2,
                             'sum'      => 67.34,
                         ],
-                    '153_1'        =>
+                        '153_1'        =>
                         [
                             'price'    => 25.27,
                             'quantity' => 2,
                             'sum'      => 50.54,
                         ],
-                    '153_2'        =>
+                        '153_2'        =>
                         [
                             'price'    => 25.28,
                             'quantity' => 2,
                             'sum'      => 50.56,
                         ],
-                    154        =>
+                        154        =>
                         [
                             'price'    => 100,
                             'quantity' => 5,
                             'sum'      => 500,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -308,17 +276,17 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 11691.0,
                         ],
-                    153        =>
+                        153        =>
                         [
                             'price'    => 0.0,
                             'quantity' => 1,
                             'sum'      => 0.0,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -333,17 +301,17 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 11591.15,
                         ],
-                    153        =>
+                        153        =>
                         [
                             'price'    => 19.85,
                             'quantity' => 1,
                             'sum'      => 19.85,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -358,11 +326,11 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 12890.0,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -377,17 +345,17 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'quantity' => 1,
                             'sum'      => 12890.14,
                         ],
-                    153        =>
+                        153        =>
                         [
                             'price'    => 19.85,
                             'quantity' => 1,
                             'sum'      => 19.85,
                         ],
-                    'shipping' => [
+                        'shipping' => [
                         'price'    => 0.00,
                         'quantity' => 1,
                         'sum'      => 0.00,
-                    ],
+                        ],
                 ],
         ];
 
@@ -403,28 +371,28 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 19990,
                             'tax'      => 'vat18',
                         ],
-                    1          =>
+                        1          =>
                         [
                             'price'    => 19,
                             'quantity' => 500,
                             'sum'      => 9500,
                             'tax'      => 'vat18',
                         ],
-                    2          =>
+                        2          =>
                         [
                             'price'    => 1000.01,
                             'quantity' => 1,
                             'sum'      => 1000.01,
                             'tax'      => 'vat18',
                         ],
-                    3          =>
+                        3          =>
                         [
                             'price'    => 410,
                             'quantity' => 4,
                             'sum'      => 1640,
                             'tax'      => 'vat18',
                         ],
-                    'shipping' =>
+                        'shipping' =>
                         [
                             'price'    => 0,
                             'quantity' => 1,
@@ -447,7 +415,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 7989.99,
                             'tax'      => 'vat18',
                         ],
-                    '100527_1' =>
+                        '100527_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'iVZQ2iMO',
@@ -455,7 +423,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 513.8,
                             'tax'      => 'vat18',
                         ],
-                    '100527_2' =>
+                        '100527_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'iVZQ2iMO',
@@ -463,7 +431,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 220.32,
                             'tax'      => 'vat18',
                         ],
-                    '100528_1' =>
+                        '100528_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'CVUohjpK',
@@ -471,7 +439,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
                         ],
-                    '100528_2' =>
+                        '100528_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'CVUohjpK',
@@ -479,7 +447,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
                         ],
-                    '100529_1' =>
+                        '100529_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => '3JFWNpUY',
@@ -487,7 +455,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 339.94,
                             'tax'      => 'vat18',
                         ],
-                    '100529_2' =>
+                        '100529_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => '3JFWNpUY',
@@ -495,7 +463,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 251.43,
                             'tax'      => 'vat18',
                         ],
-                    '100530_1' =>
+                        '100530_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => 'eLjly6un',
@@ -503,7 +471,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 413.84,
                             'tax'      => 'vat18',
                         ],
-                    '100530_2' =>
+                        '100530_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => 'eLjly6un',
@@ -511,7 +479,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 325.38,
                             'tax'      => 'vat18',
                         ],
-                    '100531_1' =>
+                        '100531_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'nZ0KslHN',
@@ -519,7 +487,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
                         ],
-                    '100531_2' =>
+                        '100531_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'nZ0KslHN',
@@ -527,7 +495,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
                         ],
-                    '100532_1' =>
+                        '100532_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'xk0eWAiC',
@@ -535,7 +503,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 128.45,
                             'tax'      => 'vat18',
                         ],
-                    '100532_2' =>
+                        '100532_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'xk0eWAiC',
@@ -543,7 +511,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 55.08,
                             'tax'      => 'vat18',
                         ],
-                    '100533_1' =>
+                        '100533_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'QZc84oGJ',
@@ -551,7 +519,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 642.25,
                             'tax'      => 'vat18',
                         ],
-                    '100533_2' =>
+                        '100533_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'QZc84oGJ',
@@ -559,7 +527,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 275.4,
                             'tax'      => 'vat18',
                         ],
-                    '100534_1' =>
+                        '100534_1' =>
                         [
                             'price'    => 16.82,
                             'name'     => 'EZ45M8YX',
@@ -567,7 +535,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 100.92,
                             'tax'      => 'vat18',
                         ],
-                    '100534_2' =>
+                        '100534_2' =>
                         [
                             'price'    => 16.83,
                             'name'     => 'EZ45M8YX',
@@ -575,7 +543,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 67.32,
                             'tax'      => 'vat18',
                         ],
-                    '100535_1' =>
+                        '100535_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => '1fSGTfUL',
@@ -583,7 +551,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 256.9,
                             'tax'      => 'vat18',
                         ],
-                    '100535_2' =>
+                        '100535_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => '1fSGTfUL',
@@ -591,7 +559,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 110.16,
                             'tax'      => 'vat18',
                         ],
-                    '100536_1' =>
+                        '100536_1' =>
                         [
                             'price'    => 19.88,
                             'name'     => 'KK1Iub5Q',
@@ -599,7 +567,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 337.96,
                             'tax'      => 'vat18',
                         ],
-                    '100536_2' =>
+                        '100536_2' =>
                         [
                             'price'    => 19.89,
                             'name'     => 'KK1Iub5Q',
@@ -607,7 +575,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 59.67,
                             'tax'      => 'vat18',
                         ],
-                    'shipping' =>
+                        'shipping' =>
                         [
                             'name'     => '',
                             'price'    => 0,
@@ -631,7 +599,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 532.15,
                             'tax'      => 'vat18',
                         ],
-                    '100537_2' =>
+                        '100537_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'QasOwBxx',
@@ -639,7 +607,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 201.96,
                             'tax'      => 'vat18',
                         ],
-                    '100538_1' =>
+                        '100538_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'i3q2Pqi2',
@@ -647,7 +615,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
                         ],
-                    '100538_2' =>
+                        '100538_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'i3q2Pqi2',
@@ -655,7 +623,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
                         ],
-                    '100539_1' =>
+                        '100539_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => '4yAnOQ9Q',
@@ -663,7 +631,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 339.94,
                             'tax'      => 'vat18',
                         ],
-                    '100539_2' =>
+                        '100539_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => '4yAnOQ9Q',
@@ -671,7 +639,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 251.43,
                             'tax'      => 'vat18',
                         ],
-                    '100540_1' =>
+                        '100540_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => 'BpzRVt8O',
@@ -679,7 +647,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 413.84,
                             'tax'      => 'vat18',
                         ],
-                    '100540_2' =>
+                        '100540_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => 'BpzRVt8O',
@@ -687,7 +655,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 325.38,
                             'tax'      => 'vat18',
                         ],
-                    '100541_1' =>
+                        '100541_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'bOsve0El',
@@ -695,7 +663,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
                         ],
-                    '100541_2' =>
+                        '100541_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'bOsve0El',
@@ -703,7 +671,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
                         ],
-                    '100542_1' =>
+                        '100542_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'VD4fh7ow',
@@ -711,7 +679,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 128.45,
                             'tax'      => 'vat18',
                         ],
-                    '100542_2' =>
+                        '100542_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'VD4fh7ow',
@@ -719,7 +687,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 55.08,
                             'tax'      => 'vat18',
                         ],
-                    '100543_1' =>
+                        '100543_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => '7rUyXogC',
@@ -727,7 +695,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 642.25,
                             'tax'      => 'vat18',
                         ],
-                    '100543_2' =>
+                        '100543_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => '7rUyXogC',
@@ -735,7 +703,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 275.4,
                             'tax'      => 'vat18',
                         ],
-                    '100544_1' =>
+                        '100544_1' =>
                         [
                             'price'    => 16.82,
                             'name'     => '4Vjv1sDw',
@@ -743,7 +711,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 100.92,
                             'tax'      => 'vat18',
                         ],
-                    '100544_2' =>
+                        '100544_2' =>
                         [
                             'price'    => 16.83,
                             'name'     => '4Vjv1sDw',
@@ -751,7 +719,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 67.32,
                             'tax'      => 'vat18',
                         ],
-                    '100545_1' =>
+                        '100545_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'I1v7ozqi',
@@ -759,7 +727,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 256.9,
                             'tax'      => 'vat18',
                         ],
-                    '100545_2' =>
+                        '100545_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'I1v7ozqi',
@@ -767,7 +735,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 110.16,
                             'tax'      => 'vat18',
                         ],
-                    '100546_1' =>
+                        '100546_1' =>
                         [
                             'price'    => 19.88,
                             'name'     => 'vPZr7cV2',
@@ -775,7 +743,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 337.96,
                             'tax'      => 'vat18',
                         ],
-                    '100546_2' =>
+                        '100546_2' =>
                         [
                             'price'    => 19.89,
                             'name'     => 'vPZr7cV2',
@@ -783,7 +751,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 59.67,
                             'tax'      => 'vat18',
                         ],
-                    'shipping' =>
+                        'shipping' =>
                         [
                             'name'     => '',
                             'price'    => 0,
@@ -807,7 +775,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 7990.01,
                             'tax'      => 'vat18',
                         ],
-                    '100548_1' =>
+                        '100548_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'kXtzFQk9',
@@ -815,7 +783,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 513.8,
                             'tax'      => 'vat18',
                         ],
-                    '100548_2' =>
+                        '100548_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'kXtzFQk9',
@@ -823,7 +791,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 220.32,
                             'tax'      => 'vat18',
                         ],
-                    '100549_1' =>
+                        '100549_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'VjBZWKqC',
@@ -831,7 +799,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
                         ],
-                    '100549_2' =>
+                        '100549_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'VjBZWKqC',
@@ -839,7 +807,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
                         ],
-                    '100550_1' =>
+                        '100550_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => 'yOhCey5i',
@@ -847,7 +815,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 339.94,
                             'tax'      => 'vat18',
                         ],
-                    '100550_2' =>
+                        '100550_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => 'yOhCey5i',
@@ -855,7 +823,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 251.43,
                             'tax'      => 'vat18',
                         ],
-                    '100551_1' =>
+                        '100551_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => 'x744Y2VU',
@@ -863,7 +831,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 413.84,
                             'tax'      => 'vat18',
                         ],
-                    '100551_2' =>
+                        '100551_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => 'x744Y2VU',
@@ -871,7 +839,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 325.38,
                             'tax'      => 'vat18',
                         ],
-                    '100552_1' =>
+                        '100552_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'LNgNKsqq',
@@ -879,7 +847,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
                         ],
-                    '100552_2' =>
+                        '100552_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'LNgNKsqq',
@@ -887,7 +855,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
                         ],
-                    '100553_1' =>
+                        '100553_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => '4vrYuAmx',
@@ -895,7 +863,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 128.45,
                             'tax'      => 'vat18',
                         ],
-                    '100553_2' =>
+                        '100553_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => '4vrYuAmx',
@@ -903,7 +871,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 55.08,
                             'tax'      => 'vat18',
                         ],
-                    '100554_1' =>
+                        '100554_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => '5KCqwVCK',
@@ -911,7 +879,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 642.25,
                             'tax'      => 'vat18',
                         ],
-                    '100554_2' =>
+                        '100554_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => '5KCqwVCK',
@@ -919,7 +887,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 275.4,
                             'tax'      => 'vat18',
                         ],
-                    '100555_1' =>
+                        '100555_1' =>
                         [
                             'price'    => 16.82,
                             'name'     => 'SiJ3Zm9y',
@@ -927,7 +895,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 100.92,
                             'tax'      => 'vat18',
                         ],
-                    '100555_2' =>
+                        '100555_2' =>
                         [
                             'price'    => 16.83,
                             'name'     => 'SiJ3Zm9y',
@@ -935,7 +903,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 67.32,
                             'tax'      => 'vat18',
                         ],
-                    '100556_1' =>
+                        '100556_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => '2IqCgAK6',
@@ -943,7 +911,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 256.9,
                             'tax'      => 'vat18',
                         ],
-                    '100556_2' =>
+                        '100556_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => '2IqCgAK6',
@@ -951,7 +919,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 110.16,
                             'tax'      => 'vat18',
                         ],
-                    '100557_1' =>
+                        '100557_1' =>
                         [
                             'price'    => 19.88,
                             'name'     => 'UDzfCEuJ',
@@ -959,7 +927,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 337.96,
                             'tax'      => 'vat18',
                         ],
-                    '100557_2' =>
+                        '100557_2' =>
                         [
                             'price'    => 19.89,
                             'name'     => 'UDzfCEuJ',
@@ -967,7 +935,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 59.67,
                             'tax'      => 'vat18',
                         ],
-                    'shipping' =>
+                        'shipping' =>
                         [
                             'name'     => '',
                             'price'    => 0,
@@ -991,7 +959,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 7989.96,
                             'tax'      => 'vat18',
                         ],
-                    '100559_1' =>
+                        '100559_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'TGKkaZv4',
@@ -999,7 +967,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 587.2,
                             'tax'      => 'vat18',
                         ],
-                    '100559_2' =>
+                        '100559_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'TGKkaZv4',
@@ -1007,7 +975,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 146.88,
                             'tax'      => 'vat18',
                         ],
-                    '100560_1' =>
+                        '100560_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'EixOXbqy',
@@ -1015,7 +983,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 458.75,
                             'tax'      => 'vat18',
                         ],
-                    '100560_2' =>
+                        '100560_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'EixOXbqy',
@@ -1023,7 +991,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 91.8,
                             'tax'      => 'vat18',
                         ],
-                    '100561_1' =>
+                        '100561_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => 'kCJIu3aM',
@@ -1031,7 +999,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 399.06,
                             'tax'      => 'vat18',
                         ],
-                    '100561_2' =>
+                        '100561_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => 'kCJIu3aM',
@@ -1039,7 +1007,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 192.27,
                             'tax'      => 'vat18',
                         ],
-                    '100562_1' =>
+                        '100562_1' =>
                         [
                             'price'    => 14.78,
                             'name'     => 'MdGYRsVO',
@@ -1047,7 +1015,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 458.18,
                             'tax'      => 'vat18',
                         ],
-                    '100562_2' =>
+                        '100562_2' =>
                         [
                             'price'    => 14.79,
                             'name'     => 'MdGYRsVO',
@@ -1055,7 +1023,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 281.01,
                             'tax'      => 'vat18',
                         ],
-                    '100563_1' =>
+                        '100563_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'ttQ8ylbR',
@@ -1063,7 +1031,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 422.05,
                             'tax'      => 'vat18',
                         ],
-                    '100563_2' =>
+                        '100563_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'ttQ8ylbR',
@@ -1071,7 +1039,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 128.52,
                             'tax'      => 'vat18',
                         ],
-                    '100564_1' =>
+                        '100564_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'wWrAvSS9',
@@ -1079,7 +1047,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 165.15,
                             'tax'      => 'vat18',
                         ],
-                    '100564_2' =>
+                        '100564_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'wWrAvSS9',
@@ -1087,7 +1055,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 18.36,
                             'tax'      => 'vat18',
                         ],
-                    '100565_1' =>
+                        '100565_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'v415Myym',
@@ -1095,7 +1063,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 678.95,
                             'tax'      => 'vat18',
                         ],
-                    '100565_2' =>
+                        '100565_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'v415Myym',
@@ -1103,7 +1071,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 238.68,
                             'tax'      => 'vat18',
                         ],
-                    '100566_1' =>
+                        '100566_1' =>
                         [
                             'price'    => 16.82,
                             'name'     => '2KkA1lAQ',
@@ -1111,7 +1079,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 134.56,
                             'tax'      => 'vat18',
                         ],
-                    '100566_2' =>
+                        '100566_2' =>
                         [
                             'price'    => 16.83,
                             'name'     => '2KkA1lAQ',
@@ -1119,7 +1087,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 33.66,
                             'tax'      => 'vat18',
                         ],
-                    '100567_1' =>
+                        '100567_1' =>
                         [
                             'price'    => 18.35,
                             'name'     => 'Mbg5nGZU',
@@ -1127,7 +1095,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 293.6,
                             'tax'      => 'vat18',
                         ],
-                    '100567_2' =>
+                        '100567_2' =>
                         [
                             'price'    => 18.36,
                             'name'     => 'Mbg5nGZU',
@@ -1135,7 +1103,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 73.44,
                             'tax'      => 'vat18',
                         ],
-                    '100568_1' =>
+                        '100568_1' =>
                         [
                             'price'    => 19.88,
                             'name'     => 'janvE9Ay',
@@ -1143,7 +1111,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 377.72,
                             'tax'      => 'vat18',
                         ],
-                    '100568_2' =>
+                        '100568_2' =>
                         [
                             'price'    => 19.89,
                             'name'     => 'janvE9Ay',
@@ -1151,7 +1119,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 19.89,
                             'tax'      => 'vat18',
                         ],
-                    'shipping' =>
+                        'shipping' =>
                         [
                             'name'     => '',
                             'price'    => 0,
@@ -1175,7 +1143,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 366.2,
                             'tax'      => 'vat18',
                         ],
-                    '100569_2' =>
+                        '100569_2' =>
                         [
                             'price'    => 18.32,
                             'name'     => 'aQQcXkLB',
@@ -1183,7 +1151,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 366.4,
                             'tax'      => 'vat18',
                         ],
-                    '100570_1' =>
+                        '100570_1' =>
                         [
                             'price'    => 18.3,
                             'name'     => 'pP4cXE4c',
@@ -1191,7 +1159,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 164.7,
                             'tax'      => 'vat18',
                         ],
-                    '100570_2' =>
+                        '100570_2' =>
                         [
                             'price'    => 18.31,
                             'name'     => 'pP4cXE4c',
@@ -1199,7 +1167,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 384.51,
                             'tax'      => 'vat18',
                         ],
-                    '100571_1' =>
+                        '100571_1' =>
                         [
                             'price'    => 14.75,
                             'name'     => 'NeU6lQRX',
@@ -1207,7 +1175,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 398.25,
                             'tax'      => 'vat18',
                         ],
-                    '100571_2' =>
+                        '100571_2' =>
                         [
                             'price'    => 14.76,
                             'name'     => 'NeU6lQRX',
@@ -1215,7 +1183,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 191.88,
                             'tax'      => 'vat18',
                         ],
-                    '100572_1' =>
+                        '100572_1' =>
                         [
                             'price'    => 14.76,
                             'name'     => 'aHX2WaxX',
@@ -1223,7 +1191,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 575.64,
                             'tax'      => 'vat18',
                         ],
-                    '100572_2' =>
+                        '100572_2' =>
                         [
                             'price'    => 14.77,
                             'name'     => 'aHX2WaxX',
@@ -1231,7 +1199,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 162.47,
                             'tax'      => 'vat18',
                         ],
-                    '100573_1' =>
+                        '100573_1' =>
                         [
                             'price'    => 18.31,
                             'name'     => 'fLjhVF9j',
@@ -1239,7 +1207,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 36.62,
                             'tax'      => 'vat18',
                         ],
-                    '100573_2' =>
+                        '100573_2' =>
                         [
                             'price'    => 18.32,
                             'name'     => 'fLjhVF9j',
@@ -1247,7 +1215,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 512.96,
                             'tax'      => 'vat18',
                         ],
-                    '100574_1' =>
+                        '100574_1' =>
                         [
                             'price'    => 18.26,
                             'name'     => 'xuu28xie',
@@ -1255,7 +1223,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 146.08,
                             'tax'      => 'vat18',
                         ],
-                    '100574_2' =>
+                        '100574_2' =>
                         [
                             'price'    => 18.27,
                             'name'     => 'xuu28xie',
@@ -1263,7 +1231,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 36.54,
                             'tax'      => 'vat18',
                         ],
-                    '100575_1' =>
+                        '100575_1' =>
                         [
                             'price'    => 18.33,
                             'name'     => 'XjE4SYr8',
@@ -1271,7 +1239,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 293.28,
                             'tax'      => 'vat18',
                         ],
-                    '100575_2' =>
+                        '100575_2' =>
                         [
                             'price'    => 18.34,
                             'name'     => 'XjE4SYr8',
@@ -1279,7 +1247,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 623.56,
                             'tax'      => 'vat18',
                         ],
-                    '100576_1' =>
+                        '100576_1' =>
                         [
                             'price'    => 16.74,
                             'name'     => 'ZW6A11yF',
@@ -1287,7 +1255,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 16.74,
                             'tax'      => 'vat18',
                         ],
-                    '100576_2' =>
+                        '100576_2' =>
                         [
                             'price'    => 16.75,
                             'name'     => 'ZW6A11yF',
@@ -1295,7 +1263,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 150.75,
                             'tax'      => 'vat18',
                         ],
-                    '100577_1' =>
+                        '100577_1' =>
                         [
                             'price'    => 18.31,
                             'name'     => 'UOn0RlkO',
@@ -1303,7 +1271,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 18.31,
                             'tax'      => 'vat18',
                         ],
-                    '100577_2' =>
+                        '100577_2' =>
                         [
                             'price'    => 18.32,
                             'name'     => 'UOn0RlkO',
@@ -1311,7 +1279,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 348.08,
                             'tax'      => 'vat18',
                         ],
-                    '100578_1' =>
+                        '100578_1' =>
                         [
                             'price'    => 19.85,
                             'name'     => 'ZFV54mXu',
@@ -1319,7 +1287,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 317.6,
                             'tax'      => 'vat18',
                         ],
-                    '100578_2' =>
+                        '100578_2' =>
                         [
                             'price'    => 19.86,
                             'name'     => 'ZFV54mXu',
@@ -1327,7 +1295,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 79.44,
                             'tax'      => 'vat18',
                         ],
-                    'shipping' =>
+                        'shipping' =>
                         [
                             'name'     => '',
                             'price'    => 0,
@@ -1351,7 +1319,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 0,
                             'tax'      => 'vat18',
                         ],
-                    1          =>
+                        1          =>
                         [
                             'price'    => 7989.99,
                             'name'     => 'hUSwdaHQ',
@@ -1359,7 +1327,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'sum'      => 7989.99,
                             'tax'      => 'vat18',
                         ],
-                    'shipping' =>
+                        'shipping' =>
                         [
                             'name'     => '',
                             'price'    => 0,

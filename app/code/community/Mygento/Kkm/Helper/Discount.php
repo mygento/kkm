@@ -98,22 +98,21 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function applyDiscount()
     {
         $subTotal       = $this->_entity->getData('subtotal_incl_tax');
-        $shippingAmount = $this->_entity->getData('shipping_incl_tax');
-        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
+        $discount       = $this->_entity->getData('discount_amount');
 
         /** @var float $superGrandDiscount Скидка на весь заказ. Например, rewardPoints или storeCredit */
         $superGrandDiscount = $this->getGlobalDiscount();
 
         //Bug NN-347. -1 коп в доставке, если Magento неверно посчитала grandTotal заказа
         if ($superGrandDiscount && abs($superGrandDiscount) < 10.00) {
-            $this->fixLowDiscount();
+            $this->preFixLowDiscount();
             $superGrandDiscount = 0.00;
         }
         $grandDiscount = $superGrandDiscount;
 
         //Если размазываем скидку - то размазываем всё: (скидки товаров + $superGrandDiscount)
         if ($this->spreadDiscOnAllUnits) {
-            $grandDiscount  = floatval($grandTotal - $subTotal - $shippingAmount);
+            $grandDiscount = $discount + $this->getGlobalDiscount();
         }
 
         $percentageSum = 0;
@@ -172,6 +171,10 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $item->setData(self::NAME_ROW_DIFF, $rowDiff);
         }
 
+        if ($this->spreadDiscOnAllUnits && $this->isSplitItemsAllowed) {
+            $this->postFixLowDiscount();
+        }
+
         $this->generalHelper->addLog("Sum of all percentages: {$percentageSum}");
     }
 
@@ -196,7 +199,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $globDisc;
     }
 
-    protected function fixLowDiscount()
+    protected function preFixLowDiscount()
     {
         $items          = $this->getAllItems();
         $globalDiscount = $this->getGlobalDiscount();
@@ -205,33 +208,104 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $i     = abs($globalDiscount) * 100;
         $count = count($items);
         $iter  = 0;
+
         while ($i > 0) {
             $item = current($items);
+
+//            echo("\n" . 'i:' . $i . "\t\t");
 
             $itDisc  = $item->getData('discount_amount');
             $itTotal = $item->getData('row_total_incl_tax');
 
-            //Пытаемся размазать поровну
-            $discPerItem = intval($i / $count);
-            $inc         = ($discPerItem > 1) && ($itTotal - $itDisc) > $discPerItem
-                ? $sign * $discPerItem
-                : $sign;
-
-            //Изменяем скидку позиции
-            if (($itTotal - $itDisc) > abs($inc)) {
-                $item->setData('discount_amount', $itDisc - $inc/100);
-                $i = $i - abs($inc);
-            }
+            $inc = $this->getDicsountIncrement($sign * $i, $count, $itTotal, $itDisc);
+            $item->setData('discount_amount', $itDisc - $inc / 100);
+//            echo('add:' . ($inc/100) . "\t\t");
+            $i = intval($i - abs($inc));
 
             $next = next($items);
             if (!$next) {
                 reset($items);
             }
-
+//            echo('inc:' . $inc . "\t\t");
             $iter++;
         }
 
+//        echo(PHP_EOL . PHP_EOL.  'iter:' . $iter . PHP_EOL);
+
         return $iter;
+    }
+
+    protected function postFixLowDiscount()
+    {
+        $items          = $this->getAllItems();
+        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
+        $shippingAmount = $this->_entity->getData('shipping_incl_tax');
+
+        $newItemsSum = 0;
+        $rowDiffSum  = 0;
+        foreach ($items as $item) {
+            $rowTotalNew = $item->getData(self::NAME_UNIT_PRICE) * $item->getQty() + ($item->getData(self::NAME_ROW_DIFF) / 100);
+            $rowDiffSum  += $item->getData(self::NAME_ROW_DIFF);
+            $newItemsSum += $rowTotalNew;
+        }
+
+        $lostDiscount = round($grandTotal - $shippingAmount - $newItemsSum, 2);
+
+        $sign  = $lostDiscount / abs($lostDiscount);
+        $i     = abs($lostDiscount) * 100;
+        $count = count($items);
+        $iter  = 0;
+        while ($i > 0) {
+            $item = current($items);
+
+//            echo("\n" . 'i:' . $i . "\t\t");
+
+            $qty        = $item->getQty() ?: $item->getQtyOrdered();
+            $rowDiff    = $item->getData(self::NAME_ROW_DIFF);
+            $itTotalNew = $item->getData(self::NAME_UNIT_PRICE) * $qty + $rowDiff / 100;
+
+            $inc = $this->getDicsountIncrement($sign * $i, $count, $itTotalNew, 0);
+
+            $item->setData(self::NAME_ROW_DIFF, $item->getData(self::NAME_ROW_DIFF) + $inc);
+//            echo('add:' . ($inc/100) . "\t\t");
+            $i = intval($i - abs($inc));
+
+            $next = next($items);
+            if (!$next) {
+                reset($items);
+            }
+//            echo('inc:' . $inc . "\t\t");
+//            echo('rowDiff:' . $item->getData(self::NAME_ROW_DIFF) . "\t\t");
+            $iter++;
+        }
+
+//        echo(PHP_EOL . PHP_EOL.  '===== iter: ' . $iter . PHP_EOL);
+
+        return $iter;
+    }
+
+    /**
+     * @param int $amountToSpread (in kops)
+     * @param $itemsCount
+     * @param $itemTotal
+     * @param $itemDiscount
+     */
+    public function getDicsountIncrement($amountToSpread, $itemsCount, $itemTotal, $itemDiscount)
+    {
+        $sign = $amountToSpread / abs($amountToSpread);
+
+        //Пытаемся размазать поровну
+        $discPerItem = intval(abs($amountToSpread) / $itemsCount);
+        $inc         = ($discPerItem > 1) && ($itemTotal - $itemDiscount) > $discPerItem
+            ? $sign * $discPerItem
+            : $sign;
+
+        //Изменяем скидку позиции
+        if (($itemTotal - $itemDiscount) > abs($inc)) {
+            return $inc;
+        }
+
+        return 0;
     }
 
     /**If everything is evenly divisible - set up prices without extra recalculations
@@ -257,19 +331,17 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function buildFinalArray()
     {
         $grandTotal = round($this->_entity->getData('grand_total'), 2);
-
-        $items = $this->getAllItems();
+        $items      = $this->getAllItems();
 
         $itemsFinal = [];
         $itemsSum   = 0.00;
-
         foreach ($items as $item) {
             if (!$this->isValidItem($item)) {
                 continue;
             }
 
             $splitedItems = $this->getProcessedItem($item);
-            $itemsFinal = array_merge($itemsFinal, $splitedItems);
+            $itemsFinal   = array_merge($itemsFinal, $splitedItems);
         }
 
         //Calculate sum
@@ -482,8 +554,6 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     {
         $items = $this->getAllItems();
 
-        $sum                    = 0.00;
-        $sumDiscountAmount      = 0.00;
         $this->_discountlessSum = 0.00;
         foreach ($items as $item) {
             $qty      = $item->getQty() ?: $item->getQtyOrdered();
@@ -499,16 +569,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
                 $this->_wryItemUnitPriceExists = $decimals > 2 ? true : false;
             }
-
-            $sum               += $rowPrice;
-            $sumDiscountAmount += $item->getData('discount_amount');
         }
 
-        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
-        $shippingAmount = $this->_entity->getData('shipping_incl_tax');
 
         //Есть ли общая скидка на Чек. bccomp returns 0 if operands are equal
-        if (bccomp($grandTotal - $shippingAmount - $sum, 0.00, 2) !== 0) {
+        if (bccomp($this->getGlobalDiscount(), 0.00, 2) !== 0) {
             $this->generalHelper->addLog("1. Global discount on whole cheque.");
 
             return true;
