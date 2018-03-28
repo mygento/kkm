@@ -4,8 +4,8 @@
  *
  *
  * @category Mygento
- * @package Mygento_projects
- * @copyright 2017 NKS LLC. (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ * @copyright 2018 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_SendingException extends Exception
 {
