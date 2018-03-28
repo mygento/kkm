@@ -45,6 +45,9 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
         }
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     */
     protected static function getExpected()
     {
         $actualData[parent::TEST_CASE_NAME_1] =  [

@@ -49,8 +49,8 @@ class DiscountWithoutCalcTest extends DiscountGeneralTestCase
     }
 
     /** Для этой группы тестов - если есть глобальная скидка, то мы все равно пытаемся её распределить между позициями
-     *
      * @return mixed
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected static function getExpected()
     {

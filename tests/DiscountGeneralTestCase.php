@@ -54,6 +54,9 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         throw $e;
     }
 
+    /**
+     * @SuppressWarnings(PHPMD.ExitExpression)
+     */
     public function testCalculation($order, $expectedArray)
     {
         //В случае если добавили новый тест и у него еще нет expectedArray - то выводим его с соотв. округлением значений

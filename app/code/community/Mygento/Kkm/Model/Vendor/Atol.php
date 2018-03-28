@@ -479,7 +479,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         ' Status: '
         . ucwords($responseObj->status)
         . '. Uuid: '
-        . $responseObj->uuid ?: 'no uuid';
+        . ($responseObj->uuid ?: 'no uuid');
 
         $com .= $responseObj && $this->isResponseFailed($responseObj)
             ? '. Error code: '
