@@ -212,10 +212,14 @@ class Mygento_Kkm_Model_Observer
             }
         }
 
-        $helper->addLog("{$waitUpdated} records with status 'wait' were successfully updated by CRON.",
-                        Zend_Log::WARN);
-        $helper->addLog("{$failUpdated} records with status 'fail' were successfully resent or updated by CRON.",
-                        Zend_Log::WARN);
+        $helper->addLog(
+            "{$waitUpdated} records with status 'wait' were successfully updated by CRON.",
+            Zend_Log::WARN
+        );
+        $helper->addLog(
+            "{$failUpdated} records with status 'fail' were successfully resent or updated by CRON.",
+            Zend_Log::WARN
+        );
     }
 
     public function addExtraButtons($observer)
