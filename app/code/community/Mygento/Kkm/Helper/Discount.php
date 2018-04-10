@@ -145,7 +145,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
             // ==== End Calculate Percentage. ====
 
-            if (!$this->spreadDiscOnAllUnits && (floatval($rowDiscount) === 0.00) && ($superGrandDiscount === 0.00)) {
+            if (!$this->spreadDiscOnAllUnits && ($rowDiscount === 0.00) && ($superGrandDiscount === 0.00)) {
                 $rowPercentage = 0;
             }
             $percentageSum += $rowPercentage;
@@ -199,6 +199,9 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return $globDisc;
     }
 
+    /** Calculates extra discounts and adds them to items $item->setData('discount_amount', ...)
+     * @return int count of iterations
+     */
     protected function preFixLowDiscount()
     {
         $items          = $this->getAllItems();
@@ -212,29 +215,26 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         while ($i > 0) {
             $item = current($items);
 
-//            echo("\n" . 'i:' . $i . "\t\t");
-
             $itDisc  = $item->getData('discount_amount');
             $itTotal = $item->getData('row_total_incl_tax');
 
-            $inc = $this->getDicsountIncrement($sign * $i, $count, $itTotal, $itDisc);
+            $inc = $this->getDiscountIncrement($sign * $i, $count, $itTotal, $itDisc);
             $item->setData('discount_amount', $itDisc - $inc / 100);
-//            echo('add:' . ($inc/100) . "\t\t");
-            $i = intval($i - abs($inc));
+            $i = (int)($i - abs($inc));
 
             $next = next($items);
             if (!$next) {
                 reset($items);
             }
-//            echo('inc:' . $inc . "\t\t");
             $iter++;
         }
-
-//        echo(PHP_EOL . PHP_EOL.  'iter:' . $iter . PHP_EOL);
 
         return $iter;
     }
 
+    /** Calculates extra discounts and adds them to items rowDiscount value
+     * @return int count of iterations
+     */
     protected function postFixLowDiscount()
     {
         $items          = $this->getAllItems();
@@ -258,44 +258,39 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         while ($i > 0) {
             $item = current($items);
 
-//            echo("\n" . 'i:' . $i . "\t\t");
-
             $qty        = $item->getQty() ?: $item->getQtyOrdered();
             $rowDiff    = $item->getData(self::NAME_ROW_DIFF);
             $itTotalNew = $item->getData(self::NAME_UNIT_PRICE) * $qty + $rowDiff / 100;
 
-            $inc = $this->getDicsountIncrement($sign * $i, $count, $itTotalNew, 0);
+            $inc = $this->getDiscountIncrement($sign * $i, $count, $itTotalNew, 0);
 
             $item->setData(self::NAME_ROW_DIFF, $item->getData(self::NAME_ROW_DIFF) + $inc);
-//            echo('add:' . ($inc/100) . "\t\t");
-            $i = intval($i - abs($inc));
+            $i = (int)($i - abs($inc));
 
             $next = next($items);
             if (!$next) {
                 reset($items);
             }
-//            echo('inc:' . $inc . "\t\t");
-//            echo('rowDiff:' . $item->getData(self::NAME_ROW_DIFF) . "\t\t");
             $iter++;
         }
-
-//        echo(PHP_EOL . PHP_EOL.  '===== iter: ' . $iter . PHP_EOL);
 
         return $iter;
     }
 
-    /**
+    /** Calculates how many kopeyki can be added to item
+     * considering number of items, rowTotal and rowDiscount
      * @param int $amountToSpread (in kops)
      * @param $itemsCount
      * @param $itemTotal
      * @param $itemDiscount
+     * @return int
      */
-    public function getDicsountIncrement($amountToSpread, $itemsCount, $itemTotal, $itemDiscount)
+    public function getDiscountIncrement($amountToSpread, $itemsCount, $itemTotal, $itemDiscount)
     {
         $sign = $amountToSpread / abs($amountToSpread);
 
         //Пытаемся размазать поровну
-        $discPerItem = intval(abs($amountToSpread) / $itemsCount);
+        $discPerItem = (int)(abs($amountToSpread) / $itemsCount);
         $inc         = ($discPerItem > 1) && ($itemTotal - $itemDiscount) > $discPerItem
             ? $sign * $discPerItem
             : $sign;
@@ -308,13 +303,13 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         return 0;
     }
 
-    /**If everything is evenly divisible - set up prices without extra recalculations
+    /** If everything is evenly divisible - set up prices without extra recalculations
      * like applyDiscount() method does.
      *
      */
     public function setSimplePrices()
     {
-        $items    = $this->getAllItems();
+        $items = $this->getAllItems();
         foreach ($items as $item) {
             if (!$this->isValidItem($item)) {
                 continue;
@@ -351,7 +346,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $receipt = [
             'sum'            => $itemsSum,
-            'origGrandTotal' => floatval($grandTotal)
+            'origGrandTotal' => $grandTotal
         ];
 
         $shippingAmount = $this->_entity->getData('shipping_incl_tax') + 0.00;
@@ -448,7 +443,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         //$qtyUpdate > 0  - считаем сколько товаров будут увеличены
 
         /** @var int "$inc + 1 коп" На столько должны быть увеличены цены */
-        $inc = intval($rowDiff / $qty);
+        $inc = (int)($rowDiff / $qty);
 
         $generalHelper->addLog("Item {$item->getId()} has rowDiff={$rowDiff}.");
         $generalHelper->addLog("qtyUpdate={$qtyUpdate}. inc={$inc} kop.");
@@ -548,7 +543,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     }
 
     /** It checks do we need to spread discount on all units and sets flag $this->spreadDiscOnAllUnits
-     * @return nothing
+     * @return bool
      */
     public function checkSpread()
     {
@@ -559,7 +554,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $qty      = $item->getQty() ?: $item->getQtyOrdered();
             $rowPrice = $item->getData('row_total_incl_tax') - $item->getData('discount_amount');
 
-            if (floatval($item->getData('discount_amount')) === 0.00) {
+            if ((float)$item->getData('discount_amount') === 0.00) {
                 $this->_discountlessSum += $item->getData('row_total_incl_tax');
             }
 
@@ -597,8 +592,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function getDecimalsCountAfterDiv($x, $y)
     {
-        $divRes   = strval(round($x / $y, 20));
-        $decimals = strrchr($divRes, ".") ? strlen(strrchr($divRes, ".")) - 1 : 0;
+        $divRes   = (string)round($x / $y, 20);
+        $decimals = strrchr($divRes, '.') ? strlen(strrchr($divRes, '.')) - 1 : 0;
 
         return $decimals;
     }
