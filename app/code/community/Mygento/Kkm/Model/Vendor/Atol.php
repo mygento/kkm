@@ -112,15 +112,21 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             $this->validateResponse($getRequest);
 
             $helper->saveTransactionInfoToOrder($entity, $this->getCommentForOrder($getRequest), self::_code);
-        } catch (Exception $e) {
+
+            //Note: Don't use finally {} here. Because there is no finally in PHP 5.4
+        } catch (Mygento_Kkm_AtolException $e) {
             $getRequest = json_encode(['status' => 'fail', 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
+            $this->saveTransaction($getRequest, $entity);
+
+            throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), $debugData);
+        } catch (Exception $e) {
             $this->saveTransaction($getRequest, $entity);
 
             throw new Mygento_Kkm_SendingException($entity, $e->getMessage(), $debugData);
         }
     }
 
-    /**Method saves status entity and writes info to order
+    /** Method saves status entity and writes info to order
      * @param $getRequest
      * @param $entity
      */
@@ -148,7 +154,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             ->save();
     }
 
-    /**Check and process existing transaction. Do not run it from observer.
+    /** Check and process existing transaction. Do not run it from observer.
      * @param $statusModel
      */
     public function processExistingTransactionBeforeSending($statusModel)
@@ -197,8 +203,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
                 throw new Exception('Unknown status');
         }
 
-        $atolResponse = json_decode($statusModel->getStatus(), true);
-        $errorCode    = isset($atolResponse['error']) && is_array($atolResponse['error']) ? $atolResponse['error']['code'] : null;
+        $errorCode = $this->getErrorCode($statusModel->getStatus());
 
         //Ошибки при работе с ККТ (cash machine errors)
         if ((int)$errorCode < 0) {
@@ -309,12 +314,36 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         return true;
     }
 
-    /**Returns External_Id for Atol
+    /** Returns External_Id for Atol
      *
      */
     public function generateExternalId($entity, $postfix = '')
     {
         return $entity::HISTORY_ENTITY_NAME . '_' . $entity->getIncrementId() . ($postfix ? "_{$postfix}" : '');
+    }
+
+    /** Returns Error code if transaction is failed
+     *
+     * @param string $status
+     */
+    public function getErrorCode($status)
+    {
+        $atolResponse = json_decode($status, true);
+
+        if (!isset($atolResponse['error'])) {
+            return null;
+        }
+
+        if (is_array($atolResponse['error']) && isset($atolResponse['error']['code'])) {
+            return $atolResponse['error']['code'];
+        }
+
+        //Because of early bug $atolResponse['error'] might be a string
+        preg_match('/Error code:\s\d+/', (string)$atolResponse['error'], $errorInfo);
+        $errorText = array_shift($errorInfo);
+        $errorCode = filter_var($errorText, FILTER_SANITIZE_NUMBER_INT);
+
+        return $errorCode;
     }
 
     /**
@@ -336,13 +365,13 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $getRequest = Mage::helper('kkm')->requestApiPost(self::_URL . self::_operationGetToken, json_encode($data));
 
         if (!$getRequest) {
-            throw new Exception(Mage::helper('kkm')->__('There is no response from Atol.'));
+            throw new Mygento_Kkm_AtolException(Mage::helper('kkm')->__('There is no response from Atol.'));
         }
 
         $decodedResult = json_decode($getRequest);
 
         if (!$decodedResult->token || $decodedResult->token == '') {
-            throw new Exception(Mage::helper('kkm')->__('Response from Atol does not contain valid token value. Response: ') . strval($getRequest));
+            throw new Mygento_Kkm_AtolException(Mage::helper('kkm')->__('Response from Atol does not contain valid token value. Response: ') . strval($getRequest));
         }
 
         $this->token = $decodedResult->token;
@@ -355,7 +384,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $response = json_decode($atolResponse);
 
         if ($this->isResponseInvalid($response)) {
-            throw new Exception(Mage::helper('kkm')->__('Response from KKM vendor is empty or incorrect.'));
+            throw new Mygento_Kkm_AtolException(Mage::helper('kkm')->__('Response from KKM vendor is empty or incorrect.'));
         }
 
         if ($this->isResponseFailed($response)) {
@@ -481,7 +510,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         ' Status: '
         . ucwords($responseObj->status)
         . '. Uuid: '
-        . $responseObj->uuid ?: 'no uuid';
+        . ($responseObj->uuid ?: 'no uuid');
 
         $com .= $responseObj && $this->isResponseFailed($responseObj)
             ? '. Error code: '
