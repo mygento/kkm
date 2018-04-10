@@ -126,7 +126,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         }
     }
 
-    /**Method saves status entity and writes info to order
+    /** Method saves status entity and writes info to order
      * @param $getRequest
      * @param $entity
      */
@@ -154,7 +154,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             ->save();
     }
 
-    /**Check and process existing transaction. Do not run it from observer.
+    /** Check and process existing transaction. Do not run it from observer.
      * @param $statusModel
      */
     public function processExistingTransactionBeforeSending($statusModel)
@@ -314,7 +314,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         return true;
     }
 
-    /**Returns External_Id for Atol
+    /** Returns External_Id for Atol
      *
      */
     public function generateExternalId($entity, $postfix = '')
@@ -322,7 +322,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         return $entity::HISTORY_ENTITY_NAME . '_' . $entity->getIncrementId() . ($postfix ? "_{$postfix}" : '');
     }
 
-    /**Returns Error code if transaction is failed
+    /** Returns Error code if transaction is failed
      *
      * @param string $status
      */
