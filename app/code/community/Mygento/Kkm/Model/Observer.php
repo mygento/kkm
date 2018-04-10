@@ -23,10 +23,18 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $helper->addLog('sendCheque ' . $invoice->getData('increment_id'));
+        $order = $invoice->getOrder();
 
-        $order           = $invoice->getOrder();
+        //Проверяем флаг, чтобы предотвратить повторную отправку
+        if ($invoice->getSendCheque()) {
+            return;
+        }
+
         $invoiceOrigData = $invoice->getOrigData();
+
+        if ($invoice->getOrigData() && isset($invoiceOrigData['increment_id'])) {
+            return;
+        }
 
         if ($helper->skipCheque($order)) {
             $helper->addLog('Skipped send cheque. Payment method: ' . $order->getPayment()->getMethod()
@@ -34,11 +42,10 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        if ($invoice->getOrigData() && isset($invoiceOrigData['increment_id'])) {
-            return;
-        }
-
+        $helper->addLog('sendCheque ' . $invoice->getData('increment_id'));
         try {
+            //Сетим флаг, чтобы предотвратить повторную отправку
+            $invoice->setSendCheque(1);
             $helper->getVendorModel()->sendCheque($invoice, $order);
         } catch (Mygento_Kkm_SendingException $e) {
             $helper->processError($e);
@@ -53,14 +60,19 @@ class Mygento_Kkm_Model_Observer
     public function cancelCheque($observer)
     {
         $helper = Mage::helper('kkm');
-        $helper->addLog('cancelCheque');
 
         $creditmemo = $observer->getEvent()->getCreditmemo();
         if (!$helper->getConfig('general/enabled') || !$helper->getConfig('general/auto_send_after_cancel')) {
             return;
         }
 
-        $order              = $creditmemo->getOrder();
+        $order = $creditmemo->getOrder();
+
+        //Проверяем флаг, чтобы предотвратить повторную отправку
+        if ($creditmemo->getCancelCheque()) {
+            return;
+        }
+
         $creditmemoOrigData = $creditmemo->getOrigData();
 
         if ($helper->skipCheque($order)) {
@@ -73,7 +85,10 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
+        $helper->addLog('cancelCheque');
         try {
+            //Сетим флаг, чтобы предотвратить повторную отправку
+            $creditmemo->setCancelCheque(1);
             $helper->getVendorModel()->cancelCheque($creditmemo, $order);
         } catch (Mygento_Kkm_SendingException $e) {
             $helper->processError($e);
@@ -144,7 +159,7 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $waitStatuses        = Mage::getModel('kkm/status')->getCollection()
+        $waitStatuses = Mage::getModel('kkm/status')->getCollection()
             ->addFieldToFilter('short_status', 'wait')
             //->addFieldToFilter('resend_count', [["null" => true], ['lt' => $autoSendLimit]])
         ;
@@ -197,8 +212,14 @@ class Mygento_Kkm_Model_Observer
             }
         }
 
-        $helper->addLog("{$waitUpdated} records with status 'wait' were successfully updated by CRON.", Zend_Log::WARN);
-        $helper->addLog("{$failUpdated} records with status 'fail' were successfully resent or updated by CRON.", Zend_Log::WARN);
+        $helper->addLog(
+            "{$waitUpdated} records with status 'wait' were successfully updated by CRON.",
+            Zend_Log::WARN
+        );
+        $helper->addLog(
+            "{$failUpdated} records with status 'fail' were successfully resent or updated by CRON.",
+            Zend_Log::WARN
+        );
     }
 
     public function addExtraButtons($observer)
@@ -223,8 +244,8 @@ class Mygento_Kkm_Model_Observer
             return;
         }
 
-        $statusModel      = Mage::getModel('kkm/status')->loadByEntity($entity);
-        $status           = json_decode($statusModel->getStatus());
+        $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
+        $status      = json_decode($statusModel->getStatus());
 
         $this->addPhpUnitTestButton($observer);
 
@@ -345,7 +366,7 @@ class Mygento_Kkm_Model_Observer
         $block->addButton('phpunit_data', $data);
     }
 
-    /**Check is current page appropriate for "resend to kkm" button
+    /** Check is current page appropriate for "resend to kkm" button
      *
      * @param type $block
      * @return boolean
