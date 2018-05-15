@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.13';
+    const VERSION = '1.0.14';
 
     protected $generalHelper = null;
 
