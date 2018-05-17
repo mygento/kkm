@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.13';
+    const VERSION = '1.0.15';
 
     protected $generalHelper = null;
 
@@ -191,7 +191,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         }
 
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
-        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
+        $grandTotal     = $this->getGrandTotal();
         $discount       = round($this->_entity->getData('discount_amount'), 2);
 
         $globDisc = round($grandTotal - $shippingAmount - $totalItemsSum - $discount, 2);
@@ -238,7 +238,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     protected function postFixLowDiscount()
     {
         $items          = $this->getAllItems();
-        $grandTotal     = round($this->_entity->getData('grand_total'), 2);
+        $grandTotal     = $this->getGrandTotal();
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
 
         $newItemsSum = 0;
@@ -325,7 +325,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
     public function buildFinalArray()
     {
-        $grandTotal = round($this->_entity->getData('grand_total'), 2);
+        $grandTotal = $this->getGrandTotal();
         $items      = $this->getAllItems();
 
         $itemsFinal = [];
@@ -625,5 +625,18 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     public function setSpreadDiscOnAllUnits($spreadDiscOnAllUnits)
     {
         $this->spreadDiscOnAllUnits = (bool)$spreadDiscOnAllUnits;
+    }
+
+    /**
+     * Workaround to use GiftCards
+     */
+    protected function getGrandTotal()
+    {
+        return round(
+            $this->_entity->getData('grand_total') + $this->_entity->getData(
+                'gift_cards_amount'
+            ),
+            2
+        );
     }
 }
