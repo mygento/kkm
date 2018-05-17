@@ -54,10 +54,12 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         $discountHelp = new Mygento_Kkm_Helper_Discount();
         $discountHelp->setIsSplitItemsAllowed(true);
 
-        $split = $discountHelp->getProcessedItem($item);
+        //Set Data helper to object
+        $reflector = new ReflectionProperty('Mygento_Kkm_Helper_Discount', 'generalHelper');
+        $reflector->setAccessible(true);
+        $reflector->setValue($discountHelp, new Mygento_Kkm_Helper_Data());
 
-//        var_export($split);
-//        die();
+        $split = $discountHelp->getProcessedItem($item);
 
         $this->assertEquals(count($split), count($expectedArray), 'Item was not splitted correctly!');
 
@@ -70,6 +72,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
             $i++;
         }
     }
+
 
     /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
