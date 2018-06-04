@@ -227,23 +227,17 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
     public function clearlogsAction()
     {
+        $moduleCode = $this->getRequest()->getParam('code');
+        $moduleCode = $moduleCode ? $moduleCode : 'kkm';
+
         $model      = Mage::getModel('kkm/log_entry');
         $resource   = $model->getResource();
         $connection = $resource->getReadConnection();
 
-        /* @see Varien_Db_Adapter_Pdo_Mysql - For Magento > 1.5 */
-        if (!method_exists($connection, 'truncateTable')) {
-            Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Your Magento is too old. Please clear logs manually.'));
-            $this->_redirectReferer();
-
-            return;
-        }
-        $connection->truncateTable($resource->getMainTable());
-
-        if (method_exists($connection, 'changeTableAutoIncrement')) {
-            /* @see Varien_Db_Adapter_Pdo_Mysql - For Magento > 1.7 */
-            $connection->changeTableAutoIncrement($resource->getMainTable(), 1);
-        }
+        $connection->delete(
+            $resource->getMainTable(),
+            "`module_code` = '{$moduleCode}'"
+        );
 
         $this->_redirectReferer();
     }
