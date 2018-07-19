@@ -90,11 +90,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $debugData   = [];
         $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
         $operation   = $type === 'invoice' ? self::_operationSell : self::_operationSellRefund;
+        $getRequest  = '{"initial":1}';
 
         try {
             //Cheque is being sent for the 1st time
             if (!$statusModel->getId()) {
-                $this->saveTransaction('{"initial":1}', $entity);
+                $this->saveTransaction($getRequest, $entity);
             }
 
             $jsonPost = $this->generateJsonPost($entity, $statusModel->getResendCount());
