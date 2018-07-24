@@ -1,0 +1,18 @@
+parameters:
+    git_dir: .
+    bin_dir: vendor/bin
+    tasks:
+        composer:
+            no_check_lock: true
+        git_blacklist:
+            keywords:
+                - "die("
+                - "var_dump("
+        phplint:
+        phpmd:
+            ruleset: ['vendor/mygento/coding-standard/Mygento-Mage1/phpmd.xml']
+        phpcs:
+            warning_severity: null
+        phpunit:
+            testsuite: 'Test'
+        xmllint:

@@ -879,6 +879,62 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
                 ],
         ];
 
+        $actualData[parent::TEST_CASE_NAME_18] = [
+            'sum'            => 4297.34,
+            'origGrandTotal' => 4297.34,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 531.66,
+                            'name'     => 'ef3H6yfu',
+                            'quantity' => 1,
+                            'sum'      => 531.66,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 0,
+                            'name'     => 'gEwo9Ya6',
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 790.62,
+                            'name'     => 'ST1wrkyq',
+                            'quantity' => 1,
+                            'sum'      => 790.62,
+                            'tax'      => 'vat18',
+                        ],
+                    3          =>
+                        [
+                            'price'    => 2612.25,
+                            'name'     => 'N1l0lmPT',
+                            'quantity' => 1,
+                            'sum'      => 2612.25,
+                            'tax'      => 'vat18',
+                        ],
+                    4          =>
+                        [
+                            'price'    => 362.81,
+                            'name'     => 'N1xslSmm',
+                            'quantity' => 1,
+                            'sum'      => 362.81,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
         return $actualData;
     }
 }

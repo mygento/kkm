@@ -851,6 +851,62 @@ class DiscountWithoutCalcTest extends DiscountGeneralTestCase
                 ],
         ];
 
+        $actualData[parent::TEST_CASE_NAME_18] = [
+            'sum'            => 4297.34,
+            'origGrandTotal' => 4297.34,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 1,
+                            'name'     => 'ku70JISE',
+                            'quantity' => 1,
+                            'sum'      => 531.66,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 1,
+                            'name'     => 'mjuOyj35',
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 1,
+                            'name'     => 'qOIarnkS',
+                            'quantity' => 1,
+                            'sum'      => 790.62,
+                            'tax'      => 'vat18',
+                        ],
+                    3          =>
+                        [
+                            'price'    => 1,
+                            'name'     => 'aFVDa1nu',
+                            'quantity' => 1,
+                            'sum'      => 2612.25,
+                            'tax'      => 'vat18',
+                        ],
+                    4          =>
+                        [
+                            'price'    => 1,
+                            'name'     => 'uHUim1HY',
+                            'quantity' => 1,
+                            'sum'      => 362.81,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
         return $actualData;
     }
 }

@@ -22,15 +22,11 @@
         "mygento/base": "1.*"
     },
     "require-dev": {
-        "squizlabs/php_codesniffer": "2.*",
-        "magento-ecg/coding-standard": "2.*",
         "mygento/coding-standard": "1.*",
-        "sebastian/phpdcd": "*",
-        "sebastian/phpcpd": "*",
-        "jakub-onderka/php-parallel-lint": "0.*",
-        "jakub-onderka/php-console-highlighter": "0.*",
-        "phpmd/phpmd": "@stable",
         "phpunit/phpunit": "4.*"
+    },
+    "autoload-dev": {
+        "classmap": ["app/code/community/Mygento/Kkm/"]
     },
     "extra": {
         "magento-root-dir": ".",

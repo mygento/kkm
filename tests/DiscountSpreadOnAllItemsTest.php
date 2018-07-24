@@ -832,6 +832,62 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                 ],
         ];
 
+        $actualData[parent::TEST_CASE_NAME_18] = [
+            'sum'            => 4297.32,
+            'origGrandTotal' => 4297.34,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 531.58,
+                            'name'     => 'nMmvlOAz',
+                            'quantity' => 1,
+                            'sum'      => 531.58,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 0,
+                            'name'     => 'wbXGe16K',
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 790.59,
+                            'name'     => 'QGqFfLTH',
+                            'quantity' => 1,
+                            'sum'      => 790.59,
+                            'tax'      => 'vat18',
+                        ],
+                    3          =>
+                        [
+                            'price'    => 2612.35,
+                            'name'     => 'Rwap6BTl',
+                            'quantity' => 1,
+                            'sum'      => 2612.35,
+                            'tax'      => 'vat18',
+                        ],
+                    4          =>
+                        [
+                            'price'    => 362.8,
+                            'name'     => 'nq7jH66c',
+                            'quantity' => 1,
+                            'sum'      => 362.8,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0.02,
+                            'quantity' => 1,
+                            'sum'      => 0.02,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
         return $actualData;
     }
 }

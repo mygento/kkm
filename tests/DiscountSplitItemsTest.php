@@ -56,9 +56,6 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
 
         $split = $discountHelp->getProcessedItem($item);
 
-//        var_export($split);
-//        die();
-
         $this->assertEquals(count($split), count($expectedArray), 'Item was not splitted correctly!');
 
         $i = 0;
@@ -1331,6 +1328,62 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax' => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_18] = [
+            'sum'            => 4297.34,
+            'origGrandTotal' => 4297.34,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 531.66,
+                            'name'     => 'YXeRYBXo',
+                            'quantity' => 1,
+                            'sum'      => 531.66,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 0,
+                            'name'     => '9Bxbstfm',
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 790.62,
+                            'name'     => '1cIi7VzH',
+                            'quantity' => 1,
+                            'sum'      => 790.62,
+                            'tax'      => 'vat18',
+                        ],
+                    3          =>
+                        [
+                            'price'    => 2612.25,
+                            'name'     => 'WooMopAr',
+                            'quantity' => 1,
+                            'sum'      => 2612.25,
+                            'tax'      => 'vat18',
+                        ],
+                    4          =>
+                        [
+                            'price'    => 362.81,
+                            'name'     => 'yhDgr1ag',
+                            'quantity' => 1,
+                            'sum'      => 362.81,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
                         [
                             'name'     => '',
                             'price'    => 0,
