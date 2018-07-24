@@ -1,8 +1,7 @@
 <phpunit colors="true">
     <testsuites>
         <testsuite name="Test">
-            <directory>./tests</directory>
-            <!--<directory>app/code/local/Mygento/Elcsales/Tests</directory>-->
+            <directory>app/code/community/Mygento/Kkm/Tests</directory>
         </testsuite>
     </testsuites>
 </phpunit>

@@ -1,6 +1,7 @@
 <?php
 
 //Run tests on installed Magento
+// @codingStandardsIgnoreStart
 
 /**
  *
@@ -16,9 +17,8 @@ if (!class_exists('Mage_Core_Helper_Abstract')) {
     }
 }
 
-// @codingStandardsIgnoreStart
 chdir(__DIR__);
-require_once './../vendor/autoload.php';
+require_once './../../../../../../vendor/autoload.php';
 require_once './DiscountGeneralTestCase.php';
 require_once './lib/Object.php';
 require_once './lib/Mage.php';

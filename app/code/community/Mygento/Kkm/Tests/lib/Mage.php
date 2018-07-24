@@ -1,5 +1,6 @@
 <?php
 
+// @codingStandardsIgnoreStart
 class Mage
 {
     public static function helper()
@@ -18,8 +19,9 @@ class Mage
 
 class Helper
 {
-    function __call($arg, $arg2)
+    public function __call($arg, $arg2)
     {
         return false;
     }
 }
+// @codingStandardsIgnoreEnd
