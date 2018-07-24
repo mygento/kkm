@@ -227,8 +227,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
     public function clearlogsAction()
     {
-        $moduleCode = $this->getRequest()->getParam('code');
-        $moduleCode = $moduleCode ? $moduleCode : 'kkm';
+        $moduleCode = $this->getRequest()->getParam('code', 'kkm');
 
         $model      = Mage::getModel('kkm/log_entry');
         $resource   = $model->getResource();
