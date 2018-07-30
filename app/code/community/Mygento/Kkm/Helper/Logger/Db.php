@@ -33,7 +33,7 @@ trait Mygento_Kkm_Helper_Logger_Db
 
     public function _getDbLogger()
     {
-        return Mage::getModel($this->_code . '/log_entry');
+        return Mage::getModel('kkm/log_entry');
     }
 
     public function getCallstack($delim = "\n")
