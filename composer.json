@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "mygento/coding-standard": "1.*",
-        "phpunit/phpunit": "4.*"
+        "phpunit/phpunit": "*"
     },
     "autoload-dev": {
         "classmap": ["app/code/community/Mygento/Kkm/"]

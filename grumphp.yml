@@ -11,6 +11,7 @@ parameters:
         phplint:
         phpmd:
             ruleset: ['vendor/mygento/coding-standard/Mygento-Mage1/phpmd.xml']
+            exclude: ['app/code/community/Mygento/Kkm/Tests']
         phpcs:
             warning_severity: null
         phpunit:

@@ -22,7 +22,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
      * Attention! Order of items in array is important!
      * @dataProvider dataProviderOrdersForCheckCalculation
      */
-    public function testCalculation($order, $expectedArray)
+    public function testCalculation($order, $expectedArray, $key = null)
     {
         parent::testCalculation($order, $expectedArray);
 
@@ -1381,6 +1381,62 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                             'name'     => 'yhDgr1ag',
                             'quantity' => 1,
                             'sum'      => 362.81,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_19] = [
+            'sum'            => 14671.6,
+            'origGrandTotal' => 14671.6,
+            'items'          =>
+                [
+                    '100586_1' =>
+                        [
+                            'price'    => 1144.58,
+                            'name'     => 'Lf7ji4Ms',
+                            'quantity' => 2,
+                            'sum'      => 2289.16,
+                            'tax'      => 'vat18',
+                        ],
+                    '100586_2' =>
+                        [
+                            'price'    => 1144.57,
+                            'name'     => 'Lf7ji4Ms',
+                            'quantity' => 3,
+                            'sum'      => 3433.71,
+                            'tax'      => 'vat18',
+                        ],
+                    '100587_1' =>
+                        [
+                            'price'    => 2801.86,
+                            'name'     => 'RD57qiHD',
+                            'quantity' => 2,
+                            'sum'      => 5603.72,
+                            'tax'      => 'vat18',
+                        ],
+                    '100587_2' =>
+                        [
+                            'price'    => 2801.85,
+                            'name'     => 'RD57qiHD',
+                            'quantity' => 1,
+                            'sum'      => 2801.85,
+                            'tax'      => 'vat18',
+                        ],
+                    0          =>
+                        [
+                            'price'    => 543.16,
+                            'name'     => 'L7vuod9b',
+                            'quantity' => 1,
+                            'sum'      => 543.16,
                             'tax'      => 'vat18',
                         ],
                     'shipping' =>

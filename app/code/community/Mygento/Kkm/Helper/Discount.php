@@ -5,13 +5,13 @@
  *
  * @category Mygento
  * @package Mygento_Kkm
- * @copyright 2017 NKS LLC. (https://www.mygento.ru)
+ * @copyright 2018 NKS LLC. (https://www.mygento.ru)
  */
 class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.15';
+    const VERSION = '1.0.16';
 
     protected $generalHelper = null;
 
@@ -244,7 +244,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $newItemsSum = 0;
         $rowDiffSum  = 0;
         foreach ($items as $item) {
-            $rowTotalNew = $item->getData(self::NAME_UNIT_PRICE) * $item->getQty() + ($item->getData(self::NAME_ROW_DIFF) / 100);
+            $qty         = $item->getQty() ?: $item->getQtyOrdered();
+            $rowTotalNew = $item->getData(self::NAME_UNIT_PRICE) * $qty + ($item->getData(self::NAME_ROW_DIFF) / 100);
             $rowDiffSum  += $item->getData(self::NAME_ROW_DIFF);
             $newItemsSum += $rowTotalNew;
         }
@@ -319,8 +320,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
                 continue;
             }
 
-            $qty               = $item->getQty() ?: $item->getQtyOrdered();
-            $rowTotal          = $item->getData('row_total_incl_tax');
+            $qty      = $item->getQty() ?: $item->getQtyOrdered();
+            $rowTotal = $item->getData('row_total_incl_tax');
 
             $priceWithDiscount = ($rowTotal - $item->getData('discount_amount')) / $qty;
             $item->setData(self::NAME_UNIT_PRICE, $priceWithDiscount);
@@ -437,10 +438,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 
         $qty = $item->getQty() ?: $item->getQtyOrdered();
 
-        /** @var int $qtyUpdate Сколько товаров из ряда нуждаются в увеличении цены
+        /** @var int $qtyUpdate Сколько товаров из ряда нуждаются в изменении цены
          *  Если $qtyUpdate =0 - то цена всех товаров должна быть увеличина
          */
-        $qtyUpdate = $rowDiff % $qty;
+        $qtyUpdate = abs($rowDiff % $qty);
+        $sign = abs($rowDiff)/$rowDiff;
 
         //2 кейса:
         //$qtyUpdate == 0 - то всем товарам увеличить цену, не разделяя.
@@ -465,7 +467,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             return $final;
         }
 
-        $item2['price'] = $item2['price'] + 0.01 + $inc / 100;
+        $item2['price'] = $item2['price'] + $sign*0.01 + $inc / 100;
         $item2['quantity'] = $qtyUpdate;
         $item2['sum'] = round($item2['quantity'] * $item2['price'], 2);
 

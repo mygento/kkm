@@ -22,7 +22,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
      * Attention! Order of items in array is important!
      * @dataProvider dataProviderOrdersForCheckCalculation
      */
-    public function testCalculation($order, $expectedArray)
+    public function testCalculation($order, $expectedArray, $key = null)
     {
         parent::testCalculation($order, $expectedArray);
 
@@ -883,6 +883,47 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                             'price'    => 0.02,
                             'quantity' => 1,
                             'sum'      => 0.02,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_19] = [
+            'sum'            => 14671.65,
+            'origGrandTotal' => 14671.6,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 1144.58,
+                            'name'     => 'vhHU0E84',
+                            'quantity' => 5,
+                            'sum'      => 5722.9,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 2801.86,
+                            'name'     => 'i9Mt0o1G',
+                            'quantity' => 3,
+                            'sum'      => 8405.58,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 543.17,
+                            'name'     => '9eQwBxLI',
+                            'quantity' => 1,
+                            'sum'      => 543.17,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            //Accordingly to current algorithms it is expected result
+                            'price'    => -0.05,
+                            'quantity' => 1,
+                            'sum'      => -0.05,
                             'tax'      => '',
                         ],
                 ],
