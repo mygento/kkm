@@ -51,7 +51,7 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $this->discountHelp = new Mygento_Kkm_Helper_Discount();
     }
 
-    protected function onNotSuccessfulTest($e)
+    protected function onNotSuccessfulTest(Exception $e)
     {
         //beautify output
         echo "\033[1;31m"; // light red

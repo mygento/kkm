@@ -260,6 +260,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $i     = abs($lostDiscount) * 100;
         $count = count($items);
         $iter  = 0;
+        reset($items);
         while ($i > 0) {
             $item = current($items);
 
@@ -341,7 +342,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             }
 
             $splitedItems = $this->getProcessedItem($item);
-            $itemsFinal   = array_merge($itemsFinal, $splitedItems);
+            $itemsFinal   = $itemsFinal + $splitedItems;
         }
 
         //Calculate sum
