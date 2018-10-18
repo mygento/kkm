@@ -9,20 +9,13 @@ require 'bootstrap.php';
  * @package Mygento_KKM
  * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
-class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
+class DiscountAffectsShippingTest extends DiscountGeneralTestCase
 {
-
-    protected function setUp()
-    {
-        $this->discountHelp = new Mygento_Kkm_Helper_Discount();
-        $this->discountHelp->setSpreadDiscOnAllUnits(true);
-    }
-
     /**
      * Attention! Order of items in array is important!
      * @dataProvider dataProviderOrdersForCheckCalculation
      */
-    public function testCalculation($order, $expectedArray)
+    public function testCalculation($order, $expectedArray, $key = null)
     {
         parent::testCalculation($order, $expectedArray);
 
@@ -51,20 +44,20 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
     protected static function getExpected()
     {
         $actualData[parent::TEST_CASE_NAME_1] =  [
-            'sum'            => 12069.29,
+            'sum'            => 12069.30,
             'origGrandTotal' => 12069.30,
             'items'          =>
                 [
                     152        =>
                         [
-                            'price'    => 11717.5,
+                            'price'    => 11691,
                             'quantity' => 1,
-                            'sum'      => 11717.5,
+                            'sum'      => 11691,
                         ],
                         153        => [
-                        'price'    => 351.79,
+                        'price'    => 378.30,
                         'quantity' => 1,
-                        'sum'      => 351.79,
+                        'sum'      => 378.30,
                         ],
                         154        => [
                         'price'    => 0,
@@ -72,9 +65,9 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         'sum'      => 0,
                         ],
                         'shipping' => [
-                        'price'    => 0.01,
+                        'price'    => 0.00,
                         'quantity' => 1,
-                        'sum'      => 0.01,
+                        'sum'      => 0,
                         ],
                 ],
         ];
@@ -86,14 +79,14 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 5015.28,
+                            'price'    => 5054.4,
                             'quantity' => 1,
-                            'sum'      => 5015.28,
+                            'sum'      => 5054.4,
                         ],
-                        '153_1'    => [
-                        'price'    => 23.63,
+                        153        => [
+                        'price'    => 10.59,
                         'quantity' => 3,
-                        'sum'      => 70.89,
+                        'sum'      => 31.77,
                         ],
                         'shipping' => [
                         'price'    => 4287.02,
@@ -111,7 +104,6 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                     0          =>
                         [
                             'price'    => 5015.28,
-                            'name'     => 'EUzlTJZ0',
                             'quantity' => 1,
                             'sum'      => 5015.28,
                             'tax'      => 'vat18',
@@ -119,14 +111,12 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         1          =>
                         [
                             'price'    => 23.63,
-                            'name'     => 'QoPowh4G',
                             'quantity' => 3,
                             'sum'      => 70.89,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
-                            'name'     => '',
                             'price'    => 20.02,
                             'quantity' => 1,
                             'sum'      => 20.02,
@@ -160,82 +150,82 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
         ];
 
         $actualData[parent::TEST_CASE_NAME_5] = [
-            'sum'            => 202.07,
+            'sum'            => 202.06,
             'origGrandTotal' => 202.1,
             'items'          =>
                 [
                     152        =>
                         [
-                            'price'    => 36.41,
+                            'price'    => 33.66,
                             'quantity' => 3,
-                            'sum'      => 109.23
+                            'sum'      => 100.98,
                         ],
                         153        =>
                         [
-                            'price'    => 23.21,
+                            'price'    => 25.27,
                             'quantity' => 4,
-                            'sum'      => 92.84
+                            'sum'      => 101.08,
                         ],
                         'shipping' => [
-                        'price'    => 0.03,
+                        'price'    => 0.04,
                         'quantity' => 1,
-                        'sum'      => 0.03,
+                        'sum'      => 0.04,
                         ],
                 ],
         ];
 
         $actualData[parent::TEST_CASE_NAME_6] = [
-            'sum'            => 702.03,
+            'sum'            => 702.06,
             'origGrandTotal' => 702.1,
             'items'          =>
                 [
-                    '152'        =>
+                    152        =>
                         [
-                            'price'    => 38.89,
+                            'price'    => 33.66,
                             'quantity' => 3,
-                            'sum'      => 116.67,
+                            'sum'      => 100.98,
                         ],
-                        '153'        =>
+                        153        =>
                         [
-                            'price'    => 24.79,
+                            'price'    => 25.27,
                             'quantity' => 4,
-                            'sum'      => 99.16,
+                            'sum'      => 101.08,
                         ],
                         154        =>
                         [
-                            'price'    => 97.24,
+                            'price'    => 100,
                             'quantity' => 5,
-                            'sum'      => 486.2,
+                            'sum'      => 500,
                         ],
                         'shipping' => [
-                        'price'    => 0.07,
+                        'price'    => 0.04,
                         'quantity' => 1,
-                        'sum'      => 0.07,
+                        'sum'      => 0.04,
                         ],
                 ],
         ];
 
         $actualData[parent::TEST_CASE_NAME_7] = [
-            'sum'            => 11690.99,
+            'sum'            => 11691.0,
             'origGrandTotal' => 11691.0,
             'items'          =>
                 [
                     152        =>
                         [
-                            'price'    => 11673.02,
+                            'price'    => 11691.0,
                             'quantity' => 1,
-                            'sum'      => 11673.02,
+                            'sum'      => 11691.0,
                         ],
                         153        =>
                         [
-                            'price'    => 17.97,
+                            'price'    => 0.0,
                             'quantity' => 1,
-                            'sum'      => 17.97,
+                            'sum'      => 0.0,
                         ],
                         'shipping' => [
-                        'price'    => 0.01,
+                        'price'    => 0.00,
                         'quantity' => 1,
-                        'sum'      => 0.01,
+                        'sum'      => 0.00,
                         ],
                 ],
         ];
@@ -247,15 +237,15 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11593.15,
+                            'price'    => 11591.15,
                             'quantity' => 1,
-                            'sum'      => 11593.15,
+                            'sum'      => 11591.15,
                         ],
                         153        =>
                         [
-                            'price'    => 17.84,
+                            'price'    => 19.84,
                             'quantity' => 1,
-                            'sum'      => 17.84,
+                            'sum'      => 19.84,
                         ],
                         'shipping' => [
                         'price'    => 0.01,
@@ -266,23 +256,20 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
         ];
 
         $actualData[parent::TEST_CASE_NAME_9] = [
-            'sum'            => 12890,
-            'origGrandTotal' => 12890,
+            'sum'            => 12890.0,
+            'origGrandTotal' => 12890.0,
             'items'          =>
                 [
-                    0          =>
+                    152        =>
                         [
-                            'price'    => 12890,
+                            'price'    => 12890.0,
                             'quantity' => 1,
-                            'sum'      => 12890,
-                            'tax'      => 'vat18',
+                            'sum'      => 12890.0,
                         ],
-                        'shipping' =>
-                        [
-                            'price'    => 0,
-                            'quantity' => 1,
-                            'sum'      => 0,
-                            'tax'      => '',
+                        'shipping' => [
+                        'price'    => 0.00,
+                        'quantity' => 1,
+                        'sum'      => 0.00,
                         ],
                 ],
         ];
@@ -312,138 +299,148 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                 ],
         ];
 
-
         $actualData[parent::TEST_CASE_NAME_11] = [
-            'sum'            => 32127.55,
+            'sum'            => 32130.01,
             'origGrandTotal' => 32130.01,
             'items'          =>
                 [
                     0          =>
                         [
-                            'price'    => 17298.1,
+                            'price'    => 19990,
                             'quantity' => 1,
-                            'sum'      => 17298.1,
+                            'sum'      => 19990,
                             'tax'      => 'vat18',
                         ],
                         1          =>
                         [
-                            'price'    => 25.09,
+                            'price'    => 19,
                             'quantity' => 500,
-                            'sum'      => 12545,
+                            'sum'      => 9500,
                             'tax'      => 'vat18',
                         ],
                         2          =>
                         [
-                            'price'    => 865.33,
+                            'price'    => 1000.01,
                             'quantity' => 1,
-                            'sum'      => 865.33,
+                            'sum'      => 1000.01,
                             'tax'      => 'vat18',
                         ],
                         3          =>
                         [
-                            'price'    => 354.78,
+                            'price'    => 410,
                             'quantity' => 4,
-                            'sum'      => 1419.12,
+                            'sum'      => 1640,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
-                            'price'    => 2.46,
+                            'price'    => 0,
                             'quantity' => 1,
-                            'sum'      => 2.46,
+                            'sum'      => 0,
                             'tax'      => '',
                         ],
                 ],
         ];
 
-
         $actualData[parent::TEST_CASE_NAME_12] = [
-            'sum'            => 13188.13,
+            'sum'            => 13188.99,
             'origGrandTotal' => 13189.99,
             'items'          =>
                 [
                     0          =>
                         [
-                            'price'    => 5793.73,
+                            'price'    => 7989.99,
+                            'name'     => 'P9MNKYhl',
                             'quantity' => 1,
-                            'sum'      => 5793.73,
+                            'sum'      => 7989.99,
                             'tax'      => 'vat18',
                         ],
                         1          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => '4ERY91mu',
                             'quantity' => 40,
-                            'sum'      => 1044,
+                            'sum'      => 734,
                             'tax'      => 'vat18',
                         ],
                         2          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'KfeQ4b7b',
                             'quantity' => 30,
-                            'sum'      => 783,
+                            'sum'      => 550.5,
                             'tax'      => 'vat18',
                         ],
                         3          =>
                         [
-                            'price'    => 21.02,
+                            'price'    => 14.78,
+                            'name'     => 't5A2Rxrh',
                             'quantity' => 40,
-                            'sum'      => 840.8,
+                            'sum'      => 591.2,
                             'tax'      => 'vat18',
                         ],
                         4          =>
                         [
-                            'price'    => 21.02,
+                            'price'    => 14.78,
+                            'name'     => 'hK09CiPH',
                             'quantity' => 50,
-                            'sum'      => 1051,
+                            'sum'      => 739,
                             'tax'      => 'vat18',
                         ],
                         5          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'tcL2igh1',
                             'quantity' => 30,
-                            'sum'      => 783,
+                            'sum'      => 550.5,
                             'tax'      => 'vat18',
                         ],
                         6          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'xeFWcmLR',
                             'quantity' => 10,
-                            'sum'      => 261,
+                            'sum'      => 183.5,
                             'tax'      => 'vat18',
                         ],
                         7          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'igEqwmIn',
                             'quantity' => 50,
-                            'sum'      => 1305,
+                            'sum'      => 917.5,
                             'tax'      => 'vat18',
                         ],
                         8          =>
                         [
-                            'price'    => 23.92,
+                            'price'    => 16.82,
+                            'name'     => 'eEIuB9Qa',
                             'quantity' => 10,
-                            'sum'      => 239.2,
+                            'sum'      => 168.2,
                             'tax'      => 'vat18',
                         ],
                         9          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'Xbkx2msA',
                             'quantity' => 20,
-                            'sum'      => 522,
+                            'sum'      => 367,
                             'tax'      => 'vat18',
                         ],
                         10         =>
                         [
-                            'price'    => 28.27,
+                            'price'    => 19.88,
+                            'name'     => 'Frg6nmw6',
                             'quantity' => 20,
-                            'sum'      => 565.4,
+                            'sum'      => 397.6,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
-                            'price'    => 1.86,
+                            'name'     => '',
+                            'price'    => 1,
                             'quantity' => 1,
-                            'sum'      => 1.86,
+                            'sum'      => 1,
                             'tax'      => '',
                         ],
                 ],
@@ -457,6 +454,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                     0          =>
                         [
                             'price'    => 18.35,
+                            'name'     => 'MZq6NgUu',
                             'quantity' => 40,
                             'sum'      => 734,
                             'tax'      => 'vat18',
@@ -464,6 +462,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         1          =>
                         [
                             'price'    => 18.35,
+                            'name'     => 'rFGIjBMZ',
                             'quantity' => 30,
                             'sum'      => 550.5,
                             'tax'      => 'vat18',
@@ -471,6 +470,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         2          =>
                         [
                             'price'    => 14.78,
+                            'name'     => 'LjayXom2',
                             'quantity' => 40,
                             'sum'      => 591.2,
                             'tax'      => 'vat18',
@@ -478,6 +478,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         3          =>
                         [
                             'price'    => 14.78,
+                            'name'     => 'n2uBhwkF',
                             'quantity' => 50,
                             'sum'      => 739,
                             'tax'      => 'vat18',
@@ -485,6 +486,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         4          =>
                         [
                             'price'    => 18.35,
+                            'name'     => 'JFe1Ch42',
                             'quantity' => 30,
                             'sum'      => 550.5,
                             'tax'      => 'vat18',
@@ -492,6 +494,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         5          =>
                         [
                             'price'    => 18.35,
+                            'name'     => 'lA3FKtTZ',
                             'quantity' => 10,
                             'sum'      => 183.5,
                             'tax'      => 'vat18',
@@ -499,6 +502,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         6          =>
                         [
                             'price'    => 18.35,
+                            'name'     => 'XKrOuj4K',
                             'quantity' => 50,
                             'sum'      => 917.5,
                             'tax'      => 'vat18',
@@ -506,6 +510,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         7          =>
                         [
                             'price'    => 16.82,
+                            'name'     => 'Xwd89uKe',
                             'quantity' => 10,
                             'sum'      => 168.2,
                             'tax'      => 'vat18',
@@ -513,6 +518,7 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         8          =>
                         [
                             'price'    => 18.35,
+                            'name'     => 'Zf8D4wlJ',
                             'quantity' => 20,
                             'sum'      => 367,
                             'tax'      => 'vat18',
@@ -520,12 +526,14 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                         9          =>
                         [
                             'price'    => 19.88,
+                            'name'     => 'IerjMQ0P',
                             'quantity' => 20,
                             'sum'      => 397.6,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
+                            'name'     => '',
                             'price'    => 0.99,
                             'quantity' => 1,
                             'sum'      => 0.99,
@@ -535,298 +543,433 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
         ];
 
         $actualData[parent::TEST_CASE_NAME_14] = [
-            'sum'            => 13188.14,
+            'sum'            => 13189.01,
             'origGrandTotal' => 13190.01,
             'items'          =>
                 [
                     0          =>
                         [
-                            'price'    => 5793.74,
+                            'price'    => 7990.01,
+                            'name'     => '5pX9HUkK',
                             'quantity' => 1,
-                            'sum'      => 5793.74,
+                            'sum'      => 7990.01,
                             'tax'      => 'vat18',
                         ],
                         1          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'RVauXqDg',
                             'quantity' => 40,
-                            'sum'      => 1044,
+                            'sum'      => 734,
                             'tax'      => 'vat18',
                         ],
                         2          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'eXMVmtNM',
                             'quantity' => 30,
-                            'sum'      => 783,
+                            'sum'      => 550.5,
                             'tax'      => 'vat18',
                         ],
                         3          =>
                         [
-                            'price'    => 21.02,
+                            'price'    => 14.78,
+                            'name'     => 'rKpM7xsp',
                             'quantity' => 40,
-                            'sum'      => 840.8,
+                            'sum'      => 591.2,
                             'tax'      => 'vat18',
                         ],
                         4          =>
                         [
-                            'price'    => 21.02,
+                            'price'    => 14.78,
+                            'name'     => 'f3UEyJsu',
                             'quantity' => 50,
-                            'sum'      => 1051,
+                            'sum'      => 739,
                             'tax'      => 'vat18',
                         ],
                         5          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'QRZPcPcn',
                             'quantity' => 30,
-                            'sum'      => 783,
+                            'sum'      => 550.5,
                             'tax'      => 'vat18',
                         ],
                         6          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'SjPkhLxi',
                             'quantity' => 10,
-                            'sum'      => 261,
+                            'sum'      => 183.5,
                             'tax'      => 'vat18',
                         ],
                         7          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'ogIuOKZy',
                             'quantity' => 50,
-                            'sum'      => 1305,
+                            'sum'      => 917.5,
                             'tax'      => 'vat18',
                         ],
                         8          =>
                         [
-                            'price'    => 23.92,
+                            'price'    => 16.82,
+                            'name'     => 'ShFH5gnF',
                             'quantity' => 10,
-                            'sum'      => 239.2,
+                            'sum'      => 168.2,
                             'tax'      => 'vat18',
                         ],
                         9          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'ZdKlAkHt',
                             'quantity' => 20,
-                            'sum'      => 522,
+                            'sum'      => 367,
                             'tax'      => 'vat18',
                         ],
                         10         =>
                         [
-                            'price'    => 28.27,
+                            'price'    => 19.88,
+                            'name'     => 'QOrfYuvX',
                             'quantity' => 20,
-                            'sum'      => 565.4,
+                            'sum'      => 397.6,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
-                            'price'    => 1.87,
+                            'name'     => '',
+                            'price'    => 1,
                             'quantity' => 1,
-                            'sum'      => 1.87,
+                            'sum'      => 1,
                             'tax'      => '',
                         ],
                 ],
         ];
 
         $actualData[parent::TEST_CASE_NAME_15] = [
-            'sum'            => 13188,
+            'sum'            => 13188.96,
             'origGrandTotal' => 13189.69,
             'items'          =>
                 [
                     0          =>
                         [
-                            'price'    => 5793.6,
+                            'price'    => 7989.96,
+                            'name'     => 'Z7aMJRHe',
                             'quantity' => 1,
-                            'sum'      => 5793.6,
+                            'sum'      => 7989.96,
                             'tax'      => 'vat18',
                         ],
                         1          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'ZGzlY3lG',
                             'quantity' => 40,
-                            'sum'      => 1044,
+                            'sum'      => 734,
                             'tax'      => 'vat18',
                         ],
                         2          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => '0QhYCfOx',
                             'quantity' => 30,
-                            'sum'      => 783,
+                            'sum'      => 550.5,
                             'tax'      => 'vat18',
                         ],
                         3          =>
                         [
-                            'price'    => 21.02,
+                            'price'    => 14.78,
+                            'name'     => 'Ddebej9A',
                             'quantity' => 40,
-                            'sum'      => 840.8,
+                            'sum'      => 591.2,
                             'tax'      => 'vat18',
                         ],
                         4          =>
                         [
-                            'price'    => 21.02,
+                            'price'    => 14.78,
+                            'name'     => 'x3B4cOC0',
                             'quantity' => 50,
-                            'sum'      => 1051,
+                            'sum'      => 739,
                             'tax'      => 'vat18',
                         ],
                         5          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'y8k9XsO1',
                             'quantity' => 30,
-                            'sum'      => 783,
+                            'sum'      => 550.5,
                             'tax'      => 'vat18',
                         ],
                         6          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'jKIoyDr1',
                             'quantity' => 10,
-                            'sum'      => 261,
+                            'sum'      => 183.5,
                             'tax'      => 'vat18',
                         ],
                         7          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'ScpiBhc7',
                             'quantity' => 50,
-                            'sum'      => 1305,
+                            'sum'      => 917.5,
                             'tax'      => 'vat18',
                         ],
                         8          =>
                         [
-                            'price'    => 23.92,
+                            'price'    => 16.82,
+                            'name'     => 'ZsULLCo2',
                             'quantity' => 10,
-                            'sum'      => 239.2,
+                            'sum'      => 168.2,
                             'tax'      => 'vat18',
                         ],
                         9          =>
                         [
-                            'price'    => 26.1,
+                            'price'    => 18.35,
+                            'name'     => 'C2mcTUaA',
                             'quantity' => 20,
-                            'sum'      => 522,
+                            'sum'      => 367,
                             'tax'      => 'vat18',
                         ],
                         10         =>
                         [
-                            'price'    => 28.27,
+                            'price'    => 19.88,
+                            'name'     => 'XyibNKuf',
                             'quantity' => 20,
-                            'sum'      => 565.4,
+                            'sum'      => 397.6,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
-                            'price'    => 1.69,
+                            'name'     => '',
+                            'price'    => 0.73,
                             'quantity' => 1,
-                            'sum'      => 1.69,
+                            'sum'      => 0.73,
                             'tax'      => '',
                         ],
                 ],
         ];
 
         $actualData[parent::TEST_CASE_NAME_16] = [
-            'sum'            => 5188,
+            'sum' => 5188.4,
             'origGrandTotal' => 5190.01,
             'items'          =>
                 [
                     0          =>
                         [
                             'price'    => 18.31,
+                            'name'     => 'PYGIbulV',
                             'quantity' => 40,
                             'sum'      => 732.4,
                             'tax'      => 'vat18',
                         ],
                         1          =>
                         [
-                            'price'    => 18.31,
+                            'price'    => 18.3,
+                            'name'     => 'Fhor0s1t',
                             'quantity' => 30,
-                            'sum'      => 549.3,
+                            'sum'      => 549,
                             'tax'      => 'vat18',
                         ],
                         2          =>
                         [
                             'price'    => 14.75,
+                            'name'     => '2QE7DEhC',
                             'quantity' => 40,
                             'sum'      => 590,
                             'tax'      => 'vat18',
                         ],
                         3          =>
                         [
-                            'price'    => 14.75,
+                            'price'    => 14.76,
+                            'name'     => 'cuhpCjPM',
                             'quantity' => 50,
-                            'sum'      => 737.5,
+                            'sum'      => 738,
                             'tax'      => 'vat18',
                         ],
                         4          =>
                         [
                             'price'    => 18.31,
+                            'name'     => 'jYG8dyAQ',
                             'quantity' => 30,
                             'sum'      => 549.3,
                             'tax'      => 'vat18',
                         ],
                         5          =>
                         [
-                            'price'    => 18.31,
+                            'price'    => 18.26,
+                            'name'     => 'Wc9zz8mX',
                             'quantity' => 10,
-                            'sum'      => 183.1,
+                            'sum'      => 182.6,
                             'tax'      => 'vat18',
                         ],
                         6          =>
                         [
-                            'price'    => 18.31,
+                            'price'    => 18.33,
+                            'name'     => 'ShtjbsVl',
                             'quantity' => 50,
-                            'sum'      => 915.5,
+                            'sum'      => 916.5,
                             'tax'      => 'vat18',
                         ],
                         7          =>
                         [
-                            'price'    => 16.79,
+                            'price'    => 16.74,
+                            'name'     => 'JJLF9Lim',
                             'quantity' => 10,
-                            'sum'      => 167.9,
+                            'sum'      => 167.4,
                             'tax'      => 'vat18',
                         ],
                         8          =>
                         [
                             'price'    => 18.31,
+                            'name'     => 'Exyvd5Gy',
                             'quantity' => 20,
                             'sum'      => 366.2,
                             'tax'      => 'vat18',
                         ],
                         9          =>
                         [
-                            'price'    => 19.84,
+                            'price'    => 19.85,
+                            'name'     => 'YLrmTbGC',
                             'quantity' => 20,
-                            'sum'      => 396.8,
+                            'sum'      => 397,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
-                            'price'    => 2.01,
+                            'name'     => '',
+                            'price'    => 1.61,
                             'quantity' => 1,
-                            'sum'      => 2.01,
+                            'sum'      => 1.61,
                             'tax'      => '',
                         ],
                 ],
         ];
 
         $actualData[parent::TEST_CASE_NAME_17] = [
-            'sum'            => 7989.54,
+            'sum'            => 7989.99,
             'origGrandTotal' => 7989.99,
             'items'          =>
                 [
                     0          =>
                         [
-                            'price'    => 30.75,
+                            'price'    => 0,
+                            'name'     => 'NGUlxstu',
                             'quantity' => 100,
-                            'sum'      => 3075,
+                            'sum'      => 0,
                             'tax'      => 'vat18',
                         ],
                         1          =>
                         [
-                            'price'    => 4914.54,
+                            'price'    => 7989.99,
+                            'name'     => 'fMLjGnBE',
                             'quantity' => 1,
-                            'sum'      => 4914.54,
+                            'sum'      => 7989.99,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
-                            'price'    => 0.45,
+                            'name'     => '',
+                            'price'    => 0,
                             'quantity' => 1,
-                            'sum'      => 0.45,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_18] = [
+            'sum'            => 4297.34,
+            'origGrandTotal' => 4297.34,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 531.66,
+                            'name'     => 'ef3H6yfu',
+                            'quantity' => 1,
+                            'sum'      => 531.66,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 0,
+                            'name'     => 'gEwo9Ya6',
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 790.62,
+                            'name'     => 'ST1wrkyq',
+                            'quantity' => 1,
+                            'sum'      => 790.62,
+                            'tax'      => 'vat18',
+                        ],
+                    3          =>
+                        [
+                            'price'    => 2612.25,
+                            'name'     => 'N1l0lmPT',
+                            'quantity' => 1,
+                            'sum'      => 2612.25,
+                            'tax'      => 'vat18',
+                        ],
+                    4          =>
+                        [
+                            'price'    => 362.81,
+                            'name'     => 'N1xslSmm',
+                            'quantity' => 1,
+                            'sum'      => 362.81,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_19] = [
+            'sum'            => 14671.65,
+            'origGrandTotal' => 14671.6,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 1144.58,
+                            'name'     => 'YJmwecYY',
+                            'quantity' => 5,
+                            'sum'      => 5722.9,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 2801.86,
+                            'name'     => 'lm8sDuAm',
+                            'quantity' => 3,
+                            'sum'      => 8405.58,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 543.17,
+                            'name'     => 'Gs9i60km',
+                            'quantity' => 1,
+                            'sum'      => 543.17,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            //Accordingly to current algorithms it is expected result
+                            'price'    => -0.05,
+                            'quantity' => 1,
+                            'sum'      => -0.05,
                             'tax'      => '',
                         ],
                 ],

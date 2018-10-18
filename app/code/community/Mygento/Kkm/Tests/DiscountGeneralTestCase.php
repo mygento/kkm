@@ -29,6 +29,13 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
     const TEST_CASE_NAME_15 = '#case 15. Тест 2 на мелкие rewardPoints (0.31)';
     const TEST_CASE_NAME_16 = '#case 16. Тест 1 на мелкие rewardPoints (9.99)';
     const TEST_CASE_NAME_17 = '#case 17. гипотетическая ситуация с ошибкой расчета Мagento -1 коп.';
+    const TEST_CASE_NAME_18 = '#case 18. Issue #23 Github';
+    const TEST_CASE_NAME_19 = '#case 19. Bug with negative Qty';
+
+    const CHARS_LOWERS   = 'abcdefghijklmnopqrstuvwxyz';
+    const CHARS_UPPERS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const CHARS_DIGITS   = '0123456789';
+    const CHARS_SPECIALS = '!$*+-.=?@^_|~';
 
     protected $discountHelp = null;
 
@@ -48,7 +55,7 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
     {
         //beautify output
         echo "\033[1;31m"; // light red
-        echo "\t" . $e->getMessage() . "\n";
+        echo "\t".$e->getMessage()."\n";
         echo "\033[0m"; //reset color
 
         throw $e;
@@ -57,12 +64,13 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
     /**
      * @SuppressWarnings(PHPMD.ExitExpression)
      */
-    public function testCalculation($order, $expectedArray)
+    public function testCalculation($order, $expectedArray, $key = null)
     {
         //В случае если добавили новый тест и у него еще нет expectedArray - то выводим его с соотв. округлением значений
         if (is_null($expectedArray)) {
             echo "\033[1;32m"; // green
-            echo $this->getName() . PHP_EOL;
+            echo "\n".get_class($this)."\n";
+            echo $this->getName().PHP_EOL;
             echo "\033[1;33m"; // yellow
             $storedValue = ini_get('serialize_precision');
             ini_set('serialize_precision', 12);
@@ -73,26 +81,36 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         }
     }
 
-    protected function getNewOrderInstance($subTotalInclTax, $grandTotal, $shippingInclTax, $rewardPoints = 0.00)
-    {
+    protected function getNewOrderInstance(
+        $subTotalInclTax,
+        $grandTotal,
+        $shippingInclTax,
+        $rewardPoints = 0.00
+    ) {
         $order = new Varien_Object();
 
         $order->setData('subtotal_incl_tax', $subTotalInclTax);
         $order->setData('grand_total', $grandTotal);
         $order->setData('shipping_incl_tax', $shippingInclTax);
-        $order->setData('discount_amount', $grandTotal + $rewardPoints - $subTotalInclTax - $shippingInclTax);
+        $order->setData(
+            'discount_amount',
+            $grandTotal + $rewardPoints - $subTotalInclTax - $shippingInclTax
+        );
 
         return $order;
     }
 
-    public function getItem($rowTotalInclTax, $priceInclTax, $discountAmount, $qty = 1, $name = null)
-    {
+    public function getItem(
+        $rowTotalInclTax,
+        $priceInclTax,
+        $discountAmount,
+        $qty = 1,
+        $name = null
+    ) {
         static $id = 100500;
         $id++;
 
-        $coreHelper = Mage::helper('core');
-
-        $name = $name ?: $coreHelper->getRandomString(8);
+        $name = $name ?: $this->getRandomString(8);
 
         $item = new Varien_Object();
         $item->setData('id', $id);
@@ -104,12 +122,25 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
 
         return $item;
     }
+
     public function addItem($order, $item)
     {
         $items   = (array)$order->getData('all_items');
         $items[] = $item;
 
         $order->setData('all_items', $items);
+    }
+
+    public function getRandomString($len, $chars = null)
+    {
+        if (is_null($chars)) {
+            $chars = self::CHARS_LOWERS.self::CHARS_UPPERS.self::CHARS_DIGITS;
+        }
+        for ($i = 0, $str = '', $lc = strlen($chars) - 1; $i < $len; $i++) {
+            $str .= $chars[mt_rand(0, $lc)];
+        }
+
+        return $str;
     }
 
     /**
@@ -121,12 +152,12 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $final = [];
 
         //Тест кейсы одинаковые для всех вариантов настроек класса Discount
-        $orders  = self::getOrders();
+        $orders = self::getOrders();
         //А ожидаемые результаты должны быть в каждом классе свои
         $expected = static::getExpected();
 
         foreach ($orders as $key => $order) {
-            $final[$key] = [$order, $expected[$key]];
+            $final[$key] = [$order, $expected[$key], $key];
         }
 
         return $final;
@@ -283,6 +314,21 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $this->addItem($order, $this->getItem(5000.0000, 50.0000, 5000.0000, 100.0000));
         $this->addItem($order, $this->getItem(7990.0000, 7990.0000, 0, 1.0000));
         $final[self::TEST_CASE_NAME_17] = $order;
+
+        $order = $this->getNewOrderInstance(4430.0000, 4297.3400, 0.0000, 0);
+        $this->addItem($order, $this->getItem(548.0000, 548.0000, 16.3400, 1.0000));
+        $this->addItem($order, $this->getItem('', '', 0.0000, 1.0000));
+        $this->addItem($order, $this->getItem(815.0000, 815.0000, 24.3800, 1.0000));
+        $this->addItem($order, $this->getItem(2693.0000, 2693.0000, 80.7500, 1.0000));
+        $this->addItem($order, $this->getItem(374.0000, 374.0000, 11.1900, 1.0000));
+        $final[self::TEST_CASE_NAME_18] = $order;
+
+        //Стоимость доставки 315 Р надо распределить по товарам.
+        $order = $this->getNewOrderInstance(14356.6000, 14671.6000, 0.0000, -315.0000);
+        $this->addItem($order, $this->getItem(5600.0000, 1120.0000, 0.0000, 5.0000));
+        $this->addItem($order, $this->getItem(8225.1000, 2741.7000, 0.0000, 3.0000));
+        $this->addItem($order, $this->getItem(531.5000, 531.5000, 0.0000, 1.0000));
+        $final[self::TEST_CASE_NAME_19] = $order;
 
         return $final;
     }

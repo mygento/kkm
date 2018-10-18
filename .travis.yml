@@ -1,13 +1,9 @@
 language: php
 
 php:
-  - 5.4
-  - 5.5
   - 5.6
-
-matrix:
-  allow_failures:
-    - php: hhvm
+  - 5.5
+  - 5.4
 
 before_script:
   - composer self-update --no-interaction
@@ -15,8 +11,7 @@ before_script:
   - php vendor/bin/phpcs --config-set ignore_warnings_on_exit 1
 
 script:
-  - php vendor/bin/parallel-lint --exclude vendor .
-  - php vendor/bin/phpcs --standard=vendor/magento-ecg/coding-standard/Ecg,vendor/mygento/coding-standard/Mygento-Mage1 --ignore=lib .
-  - php vendor/bin/phpcpd --exclude=vendor --exclude tests .
-  - php vendor/bin/phpdcd --exclude=vendor .
-  - php vendor/bin/phpmd . text vendor/mygento/coding-standard/Mygento-Mage1/phpmd.xml --exclude vendor,lib
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} == "5.6" ]]; then php vendor/bin/grumphp run; fi
+  - if [[ ${TRAVIS_PHP_VERSION:0:3} != "5.6" ]]; then php vendor/bin/phpunit; fi
+
+

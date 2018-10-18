@@ -9,12 +9,13 @@ require 'bootstrap.php';
  * @package Mygento_KKM
  * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
-class DiscountSplitItemsTest extends DiscountGeneralTestCase
+class DiscountSpreadAndSplitTest extends DiscountGeneralTestCase
 {
 
     protected function setUp()
     {
         $this->discountHelp = new Mygento_Kkm_Helper_Discount();
+        $this->discountHelp->setSpreadDiscOnAllUnits(true);
         $this->discountHelp->setIsSplitItemsAllowed(true);
     }
 
@@ -22,7 +23,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
      * Attention! Order of items in array is important!
      * @dataProvider dataProviderOrdersForCheckCalculation
      */
-    public function testCalculation($order, $expectedArray)
+    public function testCalculation($order, $expectedArray, $key = null)
     {
         parent::testCalculation($order, $expectedArray);
 
@@ -45,32 +46,6 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         }
     }
 
-    /** Test splitting item mechanism
-     *
-     * @dataProvider dataProviderItemsForSplitting
-     */
-    public function testProcessedItem($item, $expectedArray)
-    {
-        $discountHelp = new Mygento_Kkm_Helper_Discount();
-        $discountHelp->setIsSplitItemsAllowed(true);
-
-        $split = $discountHelp->getProcessedItem($item);
-
-//        var_export($split);
-//        die();
-
-        $this->assertEquals(count($split), count($expectedArray), 'Item was not splitted correctly!');
-
-        $i = 0;
-        foreach ($split as $item) {
-            $this->assertEquals($expectedArray[$i]['price'], $item['price'], 'Price of item failed');
-            $this->assertEquals($expectedArray[$i]['quantity'], $item['quantity']);
-            $this->assertEquals($expectedArray[$i]['sum'], $item['sum'], 'Sum of item failed');
-
-            $i++;
-        }
-    }
-
     /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
@@ -83,14 +58,14 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11691,
+                            'price'    => 11717.5,
                             'quantity' => 1,
-                            'sum'      => 11691,
+                            'sum'      => 11717.5,
                         ],
                         153        => [
-                        'price'    => 378.30,
+                        'price'    => 351.8,
                         'quantity' => 1,
-                        'sum'      => 378.30,
+                        'sum'      => 351.8,
                         ],
                         154        => [
                         'price'    => 0,
@@ -112,19 +87,19 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 5054.4,
+                            'price'    => 5015.28,
                             'quantity' => 1,
-                            'sum'      => 5054.4,
+                            'sum'      => 5015.28,
                         ],
-                        '154_1'        => [
-                        'price'    => 10.59,
+                        '153_1'    => [
+                        'price'    => 23.63,
                         'quantity' => 1,
-                        'sum'      => 10.59,
+                        'sum'      => 23.63,
                         ],
-                        '153_2'        => [
-                        'price'    => 10.6,
+                        '153_2'    => [
+                        'price'    => 23.64,
                         'quantity' => 2,
-                        'sum'      => 21.2,
+                        'sum'      => 47.28,
                         ],
                         'shipping' => [
                         'price'    => 4287.00,
@@ -195,27 +170,27 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     '152_1'        =>
                         [
-                            'price'    => 33.66,
-                            'quantity' => 1,
-                            'sum'      => 33.66,
+                            'price'    => 36.41,
+                            'quantity' => 2,
+                            'sum'      => 72.82,
                         ],
                         '152_2'        =>
                         [
-                            'price'    => 33.67,
-                            'quantity' => 2,
-                            'sum'      => 67.34,
+                            'price'    => 36.42,
+                            'quantity' => 1,
+                            'sum'      => 36.42,
                         ],
                         '153_1'        =>
                         [
-                            'price'    => 25.27,
+                            'price'    => 23.21,
                             'quantity' => 2,
-                            'sum'      => 50.54,
+                            'sum'      => 46.42,
                         ],
                         '153_2'        =>
                         [
-                            'price'    => 25.28,
+                            'price'    => 23.22,
                             'quantity' => 2,
-                            'sum'      => 50.56,
+                            'sum'      => 46.44,
                         ],
                         'shipping' => [
                         'price'    => 0.0,
@@ -232,33 +207,39 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     '152_1'        =>
                         [
-                            'price'    => 33.66,
+                            'price'    => 38.89,
                             'quantity' => 1,
-                            'sum'      => 33.66,
+                            'sum'      => 38.89,
                         ],
                         '152_2'        =>
                         [
-                            'price'    => 33.67,
+                            'price'    => 38.9,
                             'quantity' => 2,
-                            'sum'      => 67.34,
+                            'sum'      => 77.8,
                         ],
                         '153_1'        =>
                         [
-                            'price'    => 25.27,
-                            'quantity' => 2,
-                            'sum'      => 50.54,
+                            'price'    => 24.79,
+                            'quantity' => 1,
+                            'sum'      => 24.79,
                         ],
                         '153_2'        =>
                         [
-                            'price'    => 25.28,
-                            'quantity' => 2,
-                            'sum'      => 50.56,
+                            'price'    => 24.8,
+                            'quantity' => 3,
+                            'sum'      => 74.40,
                         ],
-                        154        =>
+                        '154_1'        =>
                         [
-                            'price'    => 100,
-                            'quantity' => 5,
-                            'sum'      => 500,
+                            'price'    => 97.24,
+                            'quantity' => 3,
+                            'sum'      => 291.72,
+                        ],
+                        '154_2'        =>
+                        [
+                            'price'    => 97.25,
+                            'quantity' => 2,
+                            'sum'      => 194.5,
                         ],
                         'shipping' => [
                         'price'    => 0.00,
@@ -275,15 +256,15 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11691.0,
+                            'price'    => 11673.03,
                             'quantity' => 1,
-                            'sum'      => 11691.0,
+                            'sum'      => 11673.03,
                         ],
                         153        =>
                         [
-                            'price'    => 0.0,
+                            'price'    => 17.97,
                             'quantity' => 1,
-                            'sum'      => 0.0,
+                            'sum'      => 17.97,
                         ],
                         'shipping' => [
                         'price'    => 0.00,
@@ -300,15 +281,15 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     152        =>
                         [
-                            'price'    => 11591.15,
+                            'price'    => 11593.15,
                             'quantity' => 1,
-                            'sum'      => 11591.15,
+                            'sum'      => 11593.15,
                         ],
                         153        =>
                         [
-                            'price'    => 19.85,
+                            'price'    => 17.85,
                             'quantity' => 1,
-                            'sum'      => 19.85,
+                            'sum'      => 17.85,
                         ],
                         'shipping' => [
                         'price'    => 0.00,
@@ -319,20 +300,25 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
         ];
 
         $actualData[parent::TEST_CASE_NAME_9] = [
-            'sum'            => 12890.0,
-            'origGrandTotal' => 12890.0,
+            'sum'            => 12890,
+            'origGrandTotal' => 12890,
             'items'          =>
                 [
-                    152        =>
+                    0          =>
                         [
-                            'price'    => 12890.0,
+                            'price'    => 12890,
+                            'name'     => 'qGsDb5jK',
                             'quantity' => 1,
-                            'sum'      => 12890.0,
+                            'sum'      => 12890,
+                            'tax'      => 'vat18',
                         ],
-                        'shipping' => [
-                        'price'    => 0.00,
-                        'quantity' => 1,
-                        'sum'      => 0.00,
+                        'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
                         ],
                 ],
         ];
@@ -369,34 +355,55 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     0          =>
                         [
-                            'price'    => 19990,
+                            'price'    => 17298.11,
+                            'name'     => 'tVPQqM6P',
                             'quantity' => 1,
-                            'sum'      => 19990,
+                            'sum'      => 17298.11,
+                            'tax'      => 'vat18',
+                        ],
+                        '100523_1' =>
+                        [
+                            'price'    => 25.09,
+                            'name'     => 'dawEIFWS',
+                            'quantity' => 260,
+                            'sum'      => 6523.4,
+                            'tax'      => 'vat18',
+                        ],
+                        '100523_2' =>
+                        [
+                            'price'    => 25.1,
+                            'name'     => 'dawEIFWS',
+                            'quantity' => 240,
+                            'sum'      => 6024,
                             'tax'      => 'vat18',
                         ],
                         1          =>
                         [
-                            'price'    => 19,
-                            'quantity' => 500,
-                            'sum'      => 9500,
-                            'tax'      => 'vat18',
-                        ],
-                        2          =>
-                        [
-                            'price'    => 1000.01,
+                            'price'    => 865.35,
+                            'name'     => 'GLr5lhBO',
                             'quantity' => 1,
-                            'sum'      => 1000.01,
+                            'sum'      => 865.35,
                             'tax'      => 'vat18',
                         ],
-                        3          =>
+                        '100525_1' =>
                         [
-                            'price'    => 410,
-                            'quantity' => 4,
-                            'sum'      => 1640,
+                            'price'    => 354.78,
+                            'name'     => 'DgCaf1zm',
+                            'quantity' => 1,
+                            'sum'      => 354.78,
+                            'tax'      => 'vat18',
+                        ],
+                        '100525_2' =>
+                        [
+                            'price'    => 354.79,
+                            'name'     => 'DgCaf1zm',
+                            'quantity' => 3,
+                            'sum'      => 1064.37,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
                         [
+                            'name'     => '',
                             'price'    => 0,
                             'quantity' => 1,
                             'sum'      => 0,
@@ -412,170 +419,162 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     0          =>
                         [
-                            'price'    => 7989.99,
-                            'name'     => 'HbcIyFpc',
+                            'price'    => 5793.74,
+                            'name'     => 'KJmABDf6',
                             'quantity' => 1,
-                            'sum'      => 7989.99,
+                            'sum'      => 5793.74,
                             'tax'      => 'vat18',
                         ],
                         '100527_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'iVZQ2iMO',
-                            'quantity' => 28,
-                            'sum'      => 513.8,
+                            'price'    => 26.1,
+                            'name'     => '6nFZC8V8',
+                            'quantity' => 22,
+                            'sum'      => 574.2,
                             'tax'      => 'vat18',
                         ],
                         '100527_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'iVZQ2iMO',
-                            'quantity' => 12,
-                            'sum'      => 220.32,
+                            'price'    => 26.11,
+                            'name'     => '6nFZC8V8',
+                            'quantity' => 18,
+                            'sum'      => 469.98,
                             'tax'      => 'vat18',
                         ],
                         '100528_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'CVUohjpK',
-                            'quantity' => 21,
-                            'sum'      => 385.35,
+                            'price'    => 26.1,
+                            'name'     => '0YMYJeK7',
+                            'quantity' => 17,
+                            'sum'      => 443.7,
                             'tax'      => 'vat18',
                         ],
                         '100528_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'CVUohjpK',
-                            'quantity' => 9,
-                            'sum'      => 165.24,
+                            'price'    => 26.11,
+                            'name'     => '0YMYJeK7',
+                            'quantity' => 13,
+                            'sum'      => 339.43,
                             'tax'      => 'vat18',
                         ],
                         '100529_1' =>
                         [
-                            'price'    => 14.78,
-                            'name'     => '3JFWNpUY',
-                            'quantity' => 23,
-                            'sum'      => 339.94,
+                            'price'    => 21.02,
+                            'name'     => '1jPzAF9j',
+                            'quantity' => 6,
+                            'sum'      => 126.12,
                             'tax'      => 'vat18',
                         ],
                         '100529_2' =>
                         [
-                            'price'    => 14.79,
-                            'name'     => '3JFWNpUY',
-                            'quantity' => 17,
-                            'sum'      => 251.43,
+                            'price'    => 21.03,
+                            'name'     => '1jPzAF9j',
+                            'quantity' => 34,
+                            'sum'      => 715.02,
                             'tax'      => 'vat18',
                         ],
                         '100530_1' =>
                         [
-                            'price'    => 14.78,
-                            'name'     => 'eLjly6un',
-                            'quantity' => 28,
-                            'sum'      => 413.84,
+                            'price'    => 21.02,
+                            'name'     => 'gD8Tjaok',
+                            'quantity' => 7,
+                            'sum'      => 147.14,
                             'tax'      => 'vat18',
                         ],
                         '100530_2' =>
                         [
-                            'price'    => 14.79,
-                            'name'     => 'eLjly6un',
-                            'quantity' => 22,
-                            'sum'      => 325.38,
+                            'price'    => 21.03,
+                            'name'     => 'gD8Tjaok',
+                            'quantity' => 43,
+                            'sum'      => 904.29,
                             'tax'      => 'vat18',
                         ],
                         '100531_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'nZ0KslHN',
-                            'quantity' => 21,
-                            'sum'      => 385.35,
+                            'price'    => 26.1,
+                            'name'     => 'rLfMKyoC',
+                            'quantity' => 17,
+                            'sum'      => 443.7,
                             'tax'      => 'vat18',
                         ],
                         '100531_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'nZ0KslHN',
-                            'quantity' => 9,
-                            'sum'      => 165.24,
+                            'price'    => 26.11,
+                            'name'     => 'rLfMKyoC',
+                            'quantity' => 13,
+                            'sum'      => 339.43,
                             'tax'      => 'vat18',
                         ],
                         '100532_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'xk0eWAiC',
-                            'quantity' => 7,
-                            'sum'      => 128.45,
+                            'price'    => 26.1,
+                            'name'     => 'L4IqEshr',
+                            'quantity' => 6,
+                            'sum'      => 156.6,
                             'tax'      => 'vat18',
                         ],
                         '100532_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'xk0eWAiC',
-                            'quantity' => 3,
-                            'sum'      => 55.08,
+                            'price'    => 26.11,
+                            'name'     => 'L4IqEshr',
+                            'quantity' => 4,
+                            'sum'      => 104.44,
                             'tax'      => 'vat18',
                         ],
                         '100533_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'QZc84oGJ',
-                            'quantity' => 35,
-                            'sum'      => 642.25,
+                            'price'    => 26.1,
+                            'name'     => 'l4p1n791',
+                            'quantity' => 28,
+                            'sum'      => 730.8,
                             'tax'      => 'vat18',
                         ],
                         '100533_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'QZc84oGJ',
-                            'quantity' => 15,
-                            'sum'      => 275.4,
+                            'price'    => 26.11,
+                            'name'     => 'l4p1n791',
+                            'quantity' => 22,
+                            'sum'      => 574.42,
                             'tax'      => 'vat18',
                         ],
                         '100534_1' =>
                         [
-                            'price'    => 16.82,
-                            'name'     => 'EZ45M8YX',
-                            'quantity' => 6,
-                            'sum'      => 100.92,
+                            'price'    => 23.92,
+                            'name'     => 'hfzoDuFf',
+                            'quantity' => 1,
+                            'sum'      => 23.92,
                             'tax'      => 'vat18',
                         ],
                         '100534_2' =>
                         [
-                            'price'    => 16.83,
-                            'name'     => 'EZ45M8YX',
-                            'quantity' => 4,
-                            'sum'      => 67.32,
+                            'price'    => 23.93,
+                            'name'     => 'hfzoDuFf',
+                            'quantity' => 9,
+                            'sum'      => 215.37,
                             'tax'      => 'vat18',
                         ],
                         '100535_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => '1fSGTfUL',
-                            'quantity' => 14,
-                            'sum'      => 256.9,
+                            'price'    => 26.1,
+                            'name'     => '8PWR3Pop',
+                            'quantity' => 11,
+                            'sum'      => 287.1,
                             'tax'      => 'vat18',
                         ],
                         '100535_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => '1fSGTfUL',
-                            'quantity' => 6,
-                            'sum'      => 110.16,
+                            'price'    => 26.11,
+                            'name'     => '8PWR3Pop',
+                            'quantity' => 9,
+                            'sum'      => 234.99,
                             'tax'      => 'vat18',
                         ],
-                        '100536_1' =>
+                        1          =>
                         [
-                            'price'    => 19.88,
-                            'name'     => 'KK1Iub5Q',
-                            'quantity' => 17,
-                            'sum'      => 337.96,
-                            'tax'      => 'vat18',
-                        ],
-                        '100536_2' =>
-                        [
-                            'price'    => 19.89,
-                            'name'     => 'KK1Iub5Q',
-                            'quantity' => 3,
-                            'sum'      => 59.67,
+                            'price'    => 28.28,
+                            'name'     => 'kOto9Vfv',
+                            'quantity' => 20,
+                            'sum'      => 565.6,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
@@ -597,23 +596,23 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                     '100537_1' =>
                         [
                             'price'    => 18.35,
-                            'name'     => 'QasOwBxx',
-                            'quantity' => 29,
-                            'sum'      => 532.15,
+                            'name'     => 'LAgOo1AI',
+                            'quantity' => 28,
+                            'sum'      => 513.8,
                             'tax'      => 'vat18',
                         ],
                         '100537_2' =>
                         [
                             'price'    => 18.36,
-                            'name'     => 'QasOwBxx',
-                            'quantity' => 11,
-                            'sum'      => 201.96,
+                            'name'     => 'LAgOo1AI',
+                            'quantity' => 12,
+                            'sum'      => 220.32,
                             'tax'      => 'vat18',
                         ],
                         '100538_1' =>
                         [
                             'price'    => 18.35,
-                            'name'     => 'i3q2Pqi2',
+                            'name'     => 'NqIQuqd7',
                             'quantity' => 21,
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
@@ -621,7 +620,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100538_2' =>
                         [
                             'price'    => 18.36,
-                            'name'     => 'i3q2Pqi2',
+                            'name'     => 'NqIQuqd7',
                             'quantity' => 9,
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
@@ -629,7 +628,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100539_1' =>
                         [
                             'price'    => 14.78,
-                            'name'     => '4yAnOQ9Q',
+                            'name'     => 'xzZITJyE',
                             'quantity' => 23,
                             'sum'      => 339.94,
                             'tax'      => 'vat18',
@@ -637,7 +636,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100539_2' =>
                         [
                             'price'    => 14.79,
-                            'name'     => '4yAnOQ9Q',
+                            'name'     => 'xzZITJyE',
                             'quantity' => 17,
                             'sum'      => 251.43,
                             'tax'      => 'vat18',
@@ -645,23 +644,23 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100540_1' =>
                         [
                             'price'    => 14.78,
-                            'name'     => 'BpzRVt8O',
-                            'quantity' => 28,
-                            'sum'      => 413.84,
+                            'name'     => 'wKiM556l',
+                            'quantity' => 29,
+                            'sum'      => 428.62,
                             'tax'      => 'vat18',
                         ],
                         '100540_2' =>
                         [
                             'price'    => 14.79,
-                            'name'     => 'BpzRVt8O',
-                            'quantity' => 22,
-                            'sum'      => 325.38,
+                            'name'     => 'wKiM556l',
+                            'quantity' => 21,
+                            'sum'      => 310.59,
                             'tax'      => 'vat18',
                         ],
                         '100541_1' =>
                         [
                             'price'    => 18.35,
-                            'name'     => 'bOsve0El',
+                            'name'     => 'n1MkSUN8',
                             'quantity' => 21,
                             'sum'      => 385.35,
                             'tax'      => 'vat18',
@@ -669,7 +668,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100541_2' =>
                         [
                             'price'    => 18.36,
-                            'name'     => 'bOsve0El',
+                            'name'     => 'n1MkSUN8',
                             'quantity' => 9,
                             'sum'      => 165.24,
                             'tax'      => 'vat18',
@@ -677,7 +676,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100542_1' =>
                         [
                             'price'    => 18.35,
-                            'name'     => 'VD4fh7ow',
+                            'name'     => 'yG0B7EKY',
                             'quantity' => 7,
                             'sum'      => 128.45,
                             'tax'      => 'vat18',
@@ -685,7 +684,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100542_2' =>
                         [
                             'price'    => 18.36,
-                            'name'     => 'VD4fh7ow',
+                            'name'     => 'yG0B7EKY',
                             'quantity' => 3,
                             'sum'      => 55.08,
                             'tax'      => 'vat18',
@@ -693,39 +692,39 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100543_1' =>
                         [
                             'price'    => 18.35,
-                            'name'     => '7rUyXogC',
-                            'quantity' => 35,
-                            'sum'      => 642.25,
+                            'name'     => 'P2aMixwX',
+                            'quantity' => 36,
+                            'sum'      => 660.6,
                             'tax'      => 'vat18',
                         ],
                         '100543_2' =>
                         [
                             'price'    => 18.36,
-                            'name'     => '7rUyXogC',
-                            'quantity' => 15,
-                            'sum'      => 275.4,
+                            'name'     => 'P2aMixwX',
+                            'quantity' => 14,
+                            'sum'      => 257.04,
                             'tax'      => 'vat18',
                         ],
                         '100544_1' =>
                         [
                             'price'    => 16.82,
-                            'name'     => '4Vjv1sDw',
-                            'quantity' => 6,
-                            'sum'      => 100.92,
+                            'name'     => 'RdIoXoWg',
+                            'quantity' => 7,
+                            'sum'      => 117.74,
                             'tax'      => 'vat18',
                         ],
                         '100544_2' =>
                         [
                             'price'    => 16.83,
-                            'name'     => '4Vjv1sDw',
-                            'quantity' => 4,
-                            'sum'      => 67.32,
+                            'name'     => 'RdIoXoWg',
+                            'quantity' => 3,
+                            'sum'      => 50.49,
                             'tax'      => 'vat18',
                         ],
                         '100545_1' =>
                         [
                             'price'    => 18.35,
-                            'name'     => 'I1v7ozqi',
+                            'name'     => 'i0mX1Des',
                             'quantity' => 14,
                             'sum'      => 256.9,
                             'tax'      => 'vat18',
@@ -733,7 +732,7 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100545_2' =>
                         [
                             'price'    => 18.36,
-                            'name'     => 'I1v7ozqi',
+                            'name'     => 'i0mX1Des',
                             'quantity' => 6,
                             'sum'      => 110.16,
                             'tax'      => 'vat18',
@@ -741,17 +740,17 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                         '100546_1' =>
                         [
                             'price'    => 19.88,
-                            'name'     => 'vPZr7cV2',
-                            'quantity' => 17,
-                            'sum'      => 337.96,
+                            'name'     => 'u40iqwaA',
+                            'quantity' => 15,
+                            'sum'      => 298.2,
                             'tax'      => 'vat18',
                         ],
                         '100546_2' =>
                         [
                             'price'    => 19.89,
-                            'name'     => 'vPZr7cV2',
-                            'quantity' => 3,
-                            'sum'      => 59.67,
+                            'name'     => 'u40iqwaA',
+                            'quantity' => 5,
+                            'sum'      => 99.45,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
@@ -772,170 +771,162 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     0          =>
                         [
-                            'price'    => 7990.01,
-                            'name'     => 'BPIXObQh',
+                            'price'    => 5793.75,
+                            'name'     => '84MEoc1Y',
                             'quantity' => 1,
-                            'sum'      => 7990.01,
+                            'sum'      => 5793.75,
                             'tax'      => 'vat18',
                         ],
                         '100548_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'kXtzFQk9',
-                            'quantity' => 28,
-                            'sum'      => 513.8,
+                            'price'    => 26.1,
+                            'name'     => 'VDAYw0zS',
+                            'quantity' => 21,
+                            'sum'      => 548.1,
                             'tax'      => 'vat18',
                         ],
                         '100548_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'kXtzFQk9',
-                            'quantity' => 12,
-                            'sum'      => 220.32,
+                            'price'    => 26.11,
+                            'name'     => 'VDAYw0zS',
+                            'quantity' => 19,
+                            'sum'      => 496.09,
                             'tax'      => 'vat18',
                         ],
                         '100549_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'VjBZWKqC',
-                            'quantity' => 21,
-                            'sum'      => 385.35,
+                            'price'    => 26.1,
+                            'name'     => '4UUBllTv',
+                            'quantity' => 17,
+                            'sum'      => 443.7,
                             'tax'      => 'vat18',
                         ],
                         '100549_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'VjBZWKqC',
-                            'quantity' => 9,
-                            'sum'      => 165.24,
+                            'price'    => 26.11,
+                            'name'     => '4UUBllTv',
+                            'quantity' => 13,
+                            'sum'      => 339.43,
                             'tax'      => 'vat18',
                         ],
                         '100550_1' =>
                         [
-                            'price'    => 14.78,
-                            'name'     => 'yOhCey5i',
-                            'quantity' => 23,
-                            'sum'      => 339.94,
+                            'price'    => 21.02,
+                            'name'     => 'lVP8ceEm',
+                            'quantity' => 6,
+                            'sum'      => 126.12,
                             'tax'      => 'vat18',
                         ],
                         '100550_2' =>
                         [
-                            'price'    => 14.79,
-                            'name'     => 'yOhCey5i',
-                            'quantity' => 17,
-                            'sum'      => 251.43,
+                            'price'    => 21.03,
+                            'name'     => 'lVP8ceEm',
+                            'quantity' => 34,
+                            'sum'      => 715.02,
                             'tax'      => 'vat18',
                         ],
                         '100551_1' =>
                         [
-                            'price'    => 14.78,
-                            'name'     => 'x744Y2VU',
-                            'quantity' => 28,
-                            'sum'      => 413.84,
+                            'price'    => 21.02,
+                            'name'     => 'Lx52oORB',
+                            'quantity' => 7,
+                            'sum'      => 147.14,
                             'tax'      => 'vat18',
                         ],
                         '100551_2' =>
                         [
-                            'price'    => 14.79,
-                            'name'     => 'x744Y2VU',
-                            'quantity' => 22,
-                            'sum'      => 325.38,
+                            'price'    => 21.03,
+                            'name'     => 'Lx52oORB',
+                            'quantity' => 43,
+                            'sum'      => 904.29,
                             'tax'      => 'vat18',
                         ],
                         '100552_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'LNgNKsqq',
-                            'quantity' => 21,
-                            'sum'      => 385.35,
+                            'price'    => 26.1,
+                            'name'     => '9APZJHJX',
+                            'quantity' => 17,
+                            'sum'      => 443.7,
                             'tax'      => 'vat18',
                         ],
                         '100552_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'LNgNKsqq',
-                            'quantity' => 9,
-                            'sum'      => 165.24,
+                            'price'    => 26.11,
+                            'name'     => '9APZJHJX',
+                            'quantity' => 13,
+                            'sum'      => 339.43,
                             'tax'      => 'vat18',
                         ],
                         '100553_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => '4vrYuAmx',
-                            'quantity' => 7,
-                            'sum'      => 128.45,
+                            'price'    => 26.1,
+                            'name'     => '1jSEl731',
+                            'quantity' => 6,
+                            'sum'      => 156.6,
                             'tax'      => 'vat18',
                         ],
                         '100553_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => '4vrYuAmx',
-                            'quantity' => 3,
-                            'sum'      => 55.08,
+                            'price'    => 26.11,
+                            'name'     => '1jSEl731',
+                            'quantity' => 4,
+                            'sum'      => 104.44,
                             'tax'      => 'vat18',
                         ],
                         '100554_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => '5KCqwVCK',
-                            'quantity' => 35,
-                            'sum'      => 642.25,
+                            'price'    => 26.1,
+                            'name'     => 'mU5bfDEV',
+                            'quantity' => 28,
+                            'sum'      => 730.8,
                             'tax'      => 'vat18',
                         ],
                         '100554_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => '5KCqwVCK',
-                            'quantity' => 15,
-                            'sum'      => 275.4,
+                            'price'    => 26.11,
+                            'name'     => 'mU5bfDEV',
+                            'quantity' => 22,
+                            'sum'      => 574.42,
                             'tax'      => 'vat18',
                         ],
                         '100555_1' =>
                         [
-                            'price'    => 16.82,
-                            'name'     => 'SiJ3Zm9y',
-                            'quantity' => 6,
-                            'sum'      => 100.92,
+                            'price'    => 23.92,
+                            'name'     => '3seC8xNP',
+                            'quantity' => 1,
+                            'sum'      => 23.92,
                             'tax'      => 'vat18',
                         ],
                         '100555_2' =>
                         [
-                            'price'    => 16.83,
-                            'name'     => 'SiJ3Zm9y',
-                            'quantity' => 4,
-                            'sum'      => 67.32,
+                            'price'    => 23.93,
+                            'name'     => '3seC8xNP',
+                            'quantity' => 9,
+                            'sum'      => 215.37,
                             'tax'      => 'vat18',
                         ],
                         '100556_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => '2IqCgAK6',
-                            'quantity' => 14,
-                            'sum'      => 256.9,
+                            'price'    => 26.1,
+                            'name'     => 'Yf5U4J8g',
+                            'quantity' => 11,
+                            'sum'      => 287.1,
                             'tax'      => 'vat18',
                         ],
                         '100556_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => '2IqCgAK6',
-                            'quantity' => 6,
-                            'sum'      => 110.16,
+                            'price'    => 26.11,
+                            'name'     => 'Yf5U4J8g',
+                            'quantity' => 9,
+                            'sum'      => 234.99,
                             'tax'      => 'vat18',
                         ],
-                        '100557_1' =>
+                        1          =>
                         [
-                            'price'    => 19.88,
-                            'name'     => 'UDzfCEuJ',
-                            'quantity' => 17,
-                            'sum'      => 337.96,
-                            'tax'      => 'vat18',
-                        ],
-                        '100557_2' =>
-                        [
-                            'price'    => 19.89,
-                            'name'     => 'UDzfCEuJ',
-                            'quantity' => 3,
-                            'sum'      => 59.67,
+                            'price'    => 28.28,
+                            'name'     => 'cbn8w9ya',
+                            'quantity' => 20,
+                            'sum'      => 565.6,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
@@ -956,170 +947,170 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 [
                     0          =>
                         [
-                            'price'    => 7989.96,
-                            'name'     => 'WK6xqA9P',
+                            'price'    => 5793.6,
+                            'name'     => 'kz5oHmL6',
                             'quantity' => 1,
-                            'sum'      => 7989.96,
+                            'sum'      => 5793.6,
                             'tax'      => 'vat18',
                         ],
                         '100559_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'TGKkaZv4',
-                            'quantity' => 32,
-                            'sum'      => 587.2,
+                            'price'    => 26.1,
+                            'name'     => 'cewKmxkL',
+                            'quantity' => 25,
+                            'sum'      => 652.5,
                             'tax'      => 'vat18',
                         ],
                         '100559_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'TGKkaZv4',
-                            'quantity' => 8,
-                            'sum'      => 146.88,
+                            'price'    => 26.11,
+                            'name'     => 'cewKmxkL',
+                            'quantity' => 15,
+                            'sum'      => 391.65,
                             'tax'      => 'vat18',
                         ],
                         '100560_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'EixOXbqy',
-                            'quantity' => 25,
-                            'sum'      => 458.75,
+                            'price'    => 26.1,
+                            'name'     => 'Mkr1KjKu',
+                            'quantity' => 18,
+                            'sum'      => 469.8,
                             'tax'      => 'vat18',
                         ],
                         '100560_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'EixOXbqy',
-                            'quantity' => 5,
-                            'sum'      => 91.8,
+                            'price'    => 26.11,
+                            'name'     => 'Mkr1KjKu',
+                            'quantity' => 12,
+                            'sum'      => 313.32,
                             'tax'      => 'vat18',
                         ],
                         '100561_1' =>
                         [
-                            'price'    => 14.78,
-                            'name'     => 'kCJIu3aM',
-                            'quantity' => 27,
-                            'sum'      => 399.06,
+                            'price'    => 21.02,
+                            'name'     => '2lqFDqfm',
+                            'quantity' => 8,
+                            'sum'      => 168.16,
                             'tax'      => 'vat18',
                         ],
                         '100561_2' =>
                         [
-                            'price'    => 14.79,
-                            'name'     => 'kCJIu3aM',
-                            'quantity' => 13,
-                            'sum'      => 192.27,
+                            'price'    => 21.03,
+                            'name'     => '2lqFDqfm',
+                            'quantity' => 32,
+                            'sum'      => 672.96,
                             'tax'      => 'vat18',
                         ],
                         '100562_1' =>
                         [
-                            'price'    => 14.78,
-                            'name'     => 'MdGYRsVO',
-                            'quantity' => 31,
-                            'sum'      => 458.18,
+                            'price'    => 21.02,
+                            'name'     => '91IG7jzc',
+                            'quantity' => 10,
+                            'sum'      => 210.2,
                             'tax'      => 'vat18',
                         ],
                         '100562_2' =>
                         [
-                            'price'    => 14.79,
-                            'name'     => 'MdGYRsVO',
-                            'quantity' => 19,
-                            'sum'      => 281.01,
+                            'price'    => 21.03,
+                            'name'     => '91IG7jzc',
+                            'quantity' => 40,
+                            'sum'      => 841.2,
                             'tax'      => 'vat18',
                         ],
                         '100563_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'ttQ8ylbR',
-                            'quantity' => 23,
-                            'sum'      => 422.05,
+                            'price'    => 26.1,
+                            'name'     => 'ICYKymBz',
+                            'quantity' => 18,
+                            'sum'      => 469.8,
                             'tax'      => 'vat18',
                         ],
                         '100563_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'ttQ8ylbR',
-                            'quantity' => 7,
-                            'sum'      => 128.52,
+                            'price'    => 26.11,
+                            'name'     => 'ICYKymBz',
+                            'quantity' => 12,
+                            'sum'      => 313.32,
                             'tax'      => 'vat18',
                         ],
                         '100564_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'wWrAvSS9',
-                            'quantity' => 9,
-                            'sum'      => 165.15,
+                            'price'    => 26.1,
+                            'name'     => 'gjn12tUv',
+                            'quantity' => 6,
+                            'sum'      => 156.6,
                             'tax'      => 'vat18',
                         ],
                         '100564_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'wWrAvSS9',
-                            'quantity' => 1,
-                            'sum'      => 18.36,
+                            'price'    => 26.11,
+                            'name'     => 'gjn12tUv',
+                            'quantity' => 4,
+                            'sum'      => 104.44,
                             'tax'      => 'vat18',
                         ],
                         '100565_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'v415Myym',
-                            'quantity' => 37,
-                            'sum'      => 678.95,
+                            'price'    => 26.1,
+                            'name'     => '25wUYkjA',
+                            'quantity' => 31,
+                            'sum'      => 809.1,
                             'tax'      => 'vat18',
                         ],
                         '100565_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'v415Myym',
-                            'quantity' => 13,
-                            'sum'      => 238.68,
+                            'price'    => 26.11,
+                            'name'     => '25wUYkjA',
+                            'quantity' => 19,
+                            'sum'      => 496.09,
                             'tax'      => 'vat18',
                         ],
                         '100566_1' =>
                         [
-                            'price'    => 16.82,
-                            'name'     => '2KkA1lAQ',
-                            'quantity' => 8,
-                            'sum'      => 134.56,
+                            'price'    => 23.92,
+                            'name'     => 'iFEcrv17',
+                            'quantity' => 1,
+                            'sum'      => 23.92,
                             'tax'      => 'vat18',
                         ],
                         '100566_2' =>
                         [
-                            'price'    => 16.83,
-                            'name'     => '2KkA1lAQ',
-                            'quantity' => 2,
-                            'sum'      => 33.66,
+                            'price'    => 23.93,
+                            'name'     => 'iFEcrv17',
+                            'quantity' => 9,
+                            'sum'      => 215.37,
                             'tax'      => 'vat18',
                         ],
                         '100567_1' =>
                         [
-                            'price'    => 18.35,
-                            'name'     => 'Mbg5nGZU',
-                            'quantity' => 16,
-                            'sum'      => 293.6,
+                            'price'    => 26.1,
+                            'name'     => 'znVtmS3R',
+                            'quantity' => 12,
+                            'sum'      => 313.2,
                             'tax'      => 'vat18',
                         ],
                         '100567_2' =>
                         [
-                            'price'    => 18.36,
-                            'name'     => 'Mbg5nGZU',
-                            'quantity' => 4,
-                            'sum'      => 73.44,
+                            'price'    => 26.11,
+                            'name'     => 'znVtmS3R',
+                            'quantity' => 8,
+                            'sum'      => 208.88,
                             'tax'      => 'vat18',
                         ],
                         '100568_1' =>
                         [
-                            'price'    => 19.88,
-                            'name'     => 'janvE9Ay',
-                            'quantity' => 19,
-                            'sum'      => 377.72,
+                            'price'    => 28.27,
+                            'name'     => 'ItbDrgQm',
+                            'quantity' => 2,
+                            'sum'      => 56.54,
                             'tax'      => 'vat18',
                         ],
                         '100568_2' =>
                         [
-                            'price'    => 19.89,
-                            'name'     => 'janvE9Ay',
-                            'quantity' => 1,
-                            'sum'      => 19.89,
+                            'price'    => 28.28,
+                            'name'     => 'ItbDrgQm',
+                            'quantity' => 18,
+                            'sum'      => 509.04,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
@@ -1141,161 +1132,161 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                     '100569_1' =>
                         [
                             'price'    => 18.31,
-                            'name'     => 'aQQcXkLB',
-                            'quantity' => 20,
-                            'sum'      => 366.2,
+                            'name'     => 'v24x4rdR',
+                            'quantity' => 9,
+                            'sum'      => 164.79,
                             'tax'      => 'vat18',
                         ],
                         '100569_2' =>
                         [
                             'price'    => 18.32,
-                            'name'     => 'aQQcXkLB',
-                            'quantity' => 20,
-                            'sum'      => 366.4,
+                            'name'     => 'v24x4rdR',
+                            'quantity' => 31,
+                            'sum'      => 567.92,
                             'tax'      => 'vat18',
                         ],
                         '100570_1' =>
                         [
-                            'price'    => 18.3,
-                            'name'     => 'pP4cXE4c',
-                            'quantity' => 9,
-                            'sum'      => 164.7,
+                            'price'    => 18.31,
+                            'name'     => 'fbt8jFkP',
+                            'quantity' => 7,
+                            'sum'      => 128.17,
                             'tax'      => 'vat18',
                         ],
                         '100570_2' =>
                         [
-                            'price'    => 18.31,
-                            'name'     => 'pP4cXE4c',
-                            'quantity' => 21,
-                            'sum'      => 384.51,
+                            'price'    => 18.32,
+                            'name'     => 'fbt8jFkP',
+                            'quantity' => 23,
+                            'sum'      => 421.36,
                             'tax'      => 'vat18',
                         ],
                         '100571_1' =>
                         [
                             'price'    => 14.75,
-                            'name'     => 'NeU6lQRX',
-                            'quantity' => 27,
-                            'sum'      => 398.25,
+                            'name'     => '8x5ke1tD',
+                            'quantity' => 16,
+                            'sum'      => 236,
                             'tax'      => 'vat18',
                         ],
                         '100571_2' =>
                         [
                             'price'    => 14.76,
-                            'name'     => 'NeU6lQRX',
-                            'quantity' => 13,
-                            'sum'      => 191.88,
+                            'name'     => '8x5ke1tD',
+                            'quantity' => 24,
+                            'sum'      => 354.24,
                             'tax'      => 'vat18',
                         ],
                         '100572_1' =>
                         [
-                            'price'    => 14.76,
-                            'name'     => 'aHX2WaxX',
-                            'quantity' => 39,
-                            'sum'      => 575.64,
+                            'price'    => 14.75,
+                            'name'     => 'abCGLpaj',
+                            'quantity' => 20,
+                            'sum'      => 295,
                             'tax'      => 'vat18',
                         ],
                         '100572_2' =>
                         [
-                            'price'    => 14.77,
-                            'name'     => 'aHX2WaxX',
-                            'quantity' => 11,
-                            'sum'      => 162.47,
+                            'price'    => 14.76,
+                            'name'     => 'abCGLpaj',
+                            'quantity' => 30,
+                            'sum'      => 442.8,
                             'tax'      => 'vat18',
                         ],
                         '100573_1' =>
                         [
                             'price'    => 18.31,
-                            'name'     => 'fLjhVF9j',
-                            'quantity' => 2,
-                            'sum'      => 36.62,
+                            'name'     => 'X7sQC7ys',
+                            'quantity' => 7,
+                            'sum'      => 128.17,
                             'tax'      => 'vat18',
                         ],
                         '100573_2' =>
                         [
                             'price'    => 18.32,
-                            'name'     => 'fLjhVF9j',
-                            'quantity' => 28,
-                            'sum'      => 512.96,
+                            'name'     => 'X7sQC7ys',
+                            'quantity' => 23,
+                            'sum'      => 421.36,
                             'tax'      => 'vat18',
                         ],
                         '100574_1' =>
                         [
-                            'price'    => 18.26,
-                            'name'     => 'xuu28xie',
-                            'quantity' => 8,
-                            'sum'      => 146.08,
+                            'price'    => 18.31,
+                            'name'     => 'JIiAUxQW',
+                            'quantity' => 2,
+                            'sum'      => 36.62,
                             'tax'      => 'vat18',
                         ],
                         '100574_2' =>
                         [
-                            'price'    => 18.27,
-                            'name'     => 'xuu28xie',
-                            'quantity' => 2,
-                            'sum'      => 36.54,
+                            'price'    => 18.32,
+                            'name'     => 'JIiAUxQW',
+                            'quantity' => 8,
+                            'sum'      => 146.56,
                             'tax'      => 'vat18',
                         ],
                         '100575_1' =>
                         [
-                            'price'    => 18.33,
-                            'name'     => 'XjE4SYr8',
-                            'quantity' => 16,
-                            'sum'      => 293.28,
+                            'price'    => 18.31,
+                            'name'     => '7hqtKHLX',
+                            'quantity' => 12,
+                            'sum'      => 219.72,
                             'tax'      => 'vat18',
                         ],
                         '100575_2' =>
                         [
-                            'price'    => 18.34,
-                            'name'     => 'XjE4SYr8',
-                            'quantity' => 34,
-                            'sum'      => 623.56,
+                            'price'    => 18.32,
+                            'name'     => '7hqtKHLX',
+                            'quantity' => 38,
+                            'sum'      => 696.16,
                             'tax'      => 'vat18',
                         ],
                         '100576_1' =>
                         [
-                            'price'    => 16.74,
-                            'name'     => 'ZW6A11yF',
-                            'quantity' => 1,
-                            'sum'      => 16.74,
+                            'price'    => 16.79,
+                            'name'     => '4IfUtXvp',
+                            'quantity' => 9,
+                            'sum'      => 151.11,
                             'tax'      => 'vat18',
                         ],
                         '100576_2' =>
                         [
-                            'price'    => 16.75,
-                            'name'     => 'ZW6A11yF',
-                            'quantity' => 9,
-                            'sum'      => 150.75,
+                            'price'    => 16.8,
+                            'name'     => '4IfUtXvp',
+                            'quantity' => 1,
+                            'sum'      => 16.8,
                             'tax'      => 'vat18',
                         ],
                         '100577_1' =>
                         [
                             'price'    => 18.31,
-                            'name'     => 'UOn0RlkO',
-                            'quantity' => 1,
-                            'sum'      => 18.31,
+                            'name'     => 'cEdxQcNd',
+                            'quantity' => 5,
+                            'sum'      => 91.55,
                             'tax'      => 'vat18',
                         ],
                         '100577_2' =>
                         [
                             'price'    => 18.32,
-                            'name'     => 'UOn0RlkO',
-                            'quantity' => 19,
-                            'sum'      => 348.08,
+                            'name'     => 'cEdxQcNd',
+                            'quantity' => 15,
+                            'sum'      => 274.8,
                             'tax'      => 'vat18',
                         ],
                         '100578_1' =>
                         [
-                            'price'    => 19.85,
-                            'name'     => 'ZFV54mXu',
-                            'quantity' => 16,
-                            'sum'      => 317.6,
+                            'price'    => 19.84,
+                            'name'     => 'q5Lk3U2W',
+                            'quantity' => 12,
+                            'sum'      => 238.08,
                             'tax'      => 'vat18',
                         ],
                         '100578_2' =>
                         [
-                            'price'    => 19.86,
-                            'name'     => 'ZFV54mXu',
-                            'quantity' => 4,
-                            'sum'      => 79.44,
+                            'price'    => 19.85,
+                            'name'     => 'q5Lk3U2W',
+                            'quantity' => 8,
+                            'sum'      => 158.8,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
@@ -1314,20 +1305,28 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
             'origGrandTotal' => 7989.99,
             'items'          =>
                 [
-                    0          =>
+                    '100579_1' =>
                         [
-                            'price'    => 0,
-                            'name'     => 'BNjkAE3U',
-                            'quantity' => 100,
-                            'sum'      => 0,
+                            'price'    => 30.75,
+                            'name'     => '4kiTDqhU',
+                            'quantity' => 56,
+                            'sum'      => 1722,
                             'tax'      => 'vat18',
                         ],
-                        1          =>
+                        '100579_2' =>
                         [
-                            'price'    => 7989.99,
-                            'name'     => 'hUSwdaHQ',
+                            'price'    => 30.76,
+                            'name'     => '4kiTDqhU',
+                            'quantity' => 44,
+                            'sum'      => 1353.44,
+                            'tax'      => 'vat18',
+                        ],
+                        0          =>
+                        [
+                            'price'    => 4914.55,
+                            'name'     => 'PqbrzrVx',
                             'quantity' => 1,
-                            'sum'      => 7989.99,
+                            'sum'      => 4914.55,
                             'tax'      => 'vat18',
                         ],
                         'shipping' =>
@@ -1341,71 +1340,118 @@ class DiscountSplitItemsTest extends DiscountGeneralTestCase
                 ],
         ];
 
+        $actualData[parent::TEST_CASE_NAME_18] = [
+            'sum'            => 4297.34,
+            'origGrandTotal' => 4297.34,
+            'items'          =>
+                [
+                    0          =>
+                        [
+                            'price'    => 531.59,
+                            'name'     => 'rD33vPqF',
+                            'quantity' => 1,
+                            'sum'      => 531.59,
+                            'tax'      => 'vat18',
+                        ],
+                    1          =>
+                        [
+                            'price'    => 0,
+                            'name'     => 'APDi6acw',
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    2          =>
+                        [
+                            'price'    => 790.59,
+                            'name'     => '0y20FgPx',
+                            'quantity' => 1,
+                            'sum'      => 790.59,
+                            'tax'      => 'vat18',
+                        ],
+                    3          =>
+                        [
+                            'price'    => 2612.36,
+                            'name'     => 'RcI9wDOL',
+                            'quantity' => 1,
+                            'sum'      => 2612.36,
+                            'tax'      => 'vat18',
+                        ],
+                    4          =>
+                        [
+                            'price'    => 362.8,
+                            'name'     => 'nDlDLvPc',
+                            'quantity' => 1,
+                            'sum'      => 362.8,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_19] = [
+            'sum'            => 14671.6,
+            'origGrandTotal' => 14671.6,
+            'items'          =>
+                [
+                    '100586_1' =>
+                        [
+                            'price'    => 1144.58,
+                            'name'     => 'gDghRkvg',
+                            'quantity' => 2,
+                            'sum'      => 2289.16,
+                            'tax'      => 'vat18',
+                        ],
+                    '100586_2' =>
+                        [
+                            'price'    => 1144.57,
+                            'name'     => 'gDghRkvg',
+                            'quantity' => 3,
+                            'sum'      => 3433.71,
+                            'tax'      => 'vat18',
+                        ],
+                    '100587_1' =>
+                        [
+                            'price'    => 2801.86,
+                            'name'     => '9WgjLFHY',
+                            'quantity' => 2,
+                            'sum'      => 5603.72,
+                            'tax'      => 'vat18',
+                        ],
+                    '100587_2' =>
+                        [
+                            'price'    => 2801.85,
+                            'name'     => '9WgjLFHY',
+                            'quantity' => 1,
+                            'sum'      => 2801.85,
+                            'tax'      => 'vat18',
+                        ],
+                    0          =>
+                        [
+                            'price'    => 543.16,
+                            'name'     => '5b3e0rfX',
+                            'quantity' => 1,
+                            'sum'      => 543.16,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
         return $actualData;
-    }
-
-    /**
-     * @return array
-     * @SuppressWarnings(PHPMD)
-     */
-    public function dataProviderItemsForSplitting()
-    {
-        $final = [];
-
-        // #1 rowDiff = 2 kop. qty = 3. qtyUpdate = 3
-        $item = $this->getItem(0, 0, 0, 3);
-        $item->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 2);
-        $item->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10.59);
-
-        $expected = [
-            [
-                'price' => 10.59,
-                'quantity' => 1,
-                'sum' => 10.59,
-                'tax' => null,
-            ],
-            [
-                'price' => 10.6,
-                'quantity' => 2,
-                'sum' => 21.2,
-                'tax' => null,
-            ],
-        ];
-        $final['#case 1. 2 копейки распределить по 3м товарам.'] = [$item, $expected];
-
-        // #2 rowDiff = 150 kop. qty = 30. qtyUpdate = 0
-        $item2 = $this->getItem(0, 0, 0, 30);
-        $item2->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 150);
-        $item2->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10);
-
-        $expected2 = [
-            [
-                'price' => 10.05,
-                'quantity' => 30,
-                'sum' => 301.5,
-            ]
-        ];
-        $final['#case 2. 150 копеек распределить по 30 товарам.'] = [$item2, $expected2];
-
-        // #3 rowDiff = 5 kop. qty = 3. qtyUpdate = 2
-        $item3 = $this->getItem(0, 0, 0, 3);
-        $item3->setData(Mygento_Kkm_Helper_Discount::NAME_ROW_DIFF, 5);
-        $item3->setData(Mygento_Kkm_Helper_Discount::NAME_UNIT_PRICE, 10);
-
-        $expected3 = [
-            [
-                'price' => 10.01,
-                'quantity' => 1,
-                'sum' => 10.01,
-            ],
-            [
-                'price' => 10.02,
-                'quantity' => 2,
-                'sum' => 20.04,
-            ],
-        ];
-        $final['#case 3. 5 копеек распределить по 3 товарам.'] = [$item3, $expected3];
-
-        return $final;
     }
 }

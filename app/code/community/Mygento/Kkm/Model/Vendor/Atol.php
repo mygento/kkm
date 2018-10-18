@@ -10,12 +10,12 @@
 class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 {
 
-    const _URL                 = 'https://online.atol.ru/possystem/v3/';
-    const _code                = 'atol';
-    const _operationSell       = 'sell';
-    const _operationSellRefund = 'sell_refund';
-    const _operationGetToken   = 'getToken';
-    const _operationGetReport  = 'report';
+    const URL                  = 'https://online.atol.ru/possystem/v3/';
+    const CODE                 = 'atol';
+    const OPERATION_SELL       = 'sell';
+    const OPERATION_REFUND     = 'sell_refund';
+    const OPERATION_GET_TOKEN  = 'getToken';
+    const OPERATION_GET_REPORT = 'report';
 
     protected $token;
 
@@ -89,7 +89,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $type        = $entity::HISTORY_ENTITY_NAME;
         $debugData   = [];
         $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
-        $operation   = $type === 'invoice' ? self::_operationSell : self::_operationSellRefund;
+        $operation   = $type === 'invoice' ? self::OPERATION_SELL : self::OPERATION_REFUND;
         $getRequest  = '{"initial":1}';
 
         try {
@@ -103,7 +103,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             $token = $debugData['token'] = $this->getToken();
 
-            $url = self::_URL . $this->getConfig('general/group_code') . '/' . $operation . '?tokenid=' . $token;
+            $url = self::URL . $this->getConfig('general/group_code') . '/' . $operation . '?tokenid=' . $token;
             $helper->addLog('url: ' . $url);
 
             $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost);
@@ -112,7 +112,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             $this->validateResponse($getRequest);
 
-            $helper->saveTransactionInfoToOrder($entity, $this->getCommentForOrder($getRequest), self::_code);
+            $helper->saveTransactionInfoToOrder($entity, $this->getCommentForOrder($getRequest), self::CODE);
 
             //Note: Don't use finally {} here. Because there is no finally in PHP 5.4
         } catch (Mygento_Kkm_AtolException $e) {
@@ -136,12 +136,12 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
         $type        = $entity::HISTORY_ENTITY_NAME;
         $request     = json_decode($getRequest);
         $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
-        $operation   = $type === 'invoice' ? self::_operationSell : self::_operationSellRefund;
+        $operation   = $type === 'invoice' ? self::OPERATION_SELL : self::OPERATION_REFUND;
 
         Mage::helper('kkm')->addLog(ucwords($entity::HISTORY_ENTITY_NAME) . 'Cheque getRequest ' . $getRequest);
 
         if (!$statusModel->getId()) {
-            $statusModel->setVendor(self::_code)
+            $statusModel->setVendor(self::CODE)
                 ->setExternalId($this->generateExternalId($entity))
                 ->setOperation($operation);
         }
@@ -156,6 +156,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     }
 
     /** Check and process existing transaction. Do not run it from observer.
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @param $statusModel
      */
     public function processExistingTransactionBeforeSending($statusModel)
@@ -263,7 +264,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $token = $this->getToken();
 
-        $url = self::_URL . $this->getConfig('general/group_code') . '/' . self::_operationGetReport . '/' . $uuid . '?tokenid=' . $token;
+        $url = self::URL . $this->getConfig('general/group_code') . '/' . self::OPERATION_GET_REPORT . '/' . $uuid . '?tokenid=' . $token;
         $helper->addLog('updateStatus of cheque: ' . $statusModel->getEntityType() . ' ' . $statusModel->getIncrementId());
         $helper->addLog('checkStatus url: ' . $url);
 
@@ -349,7 +350,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
     /**
      * 
-     * @return boolean || string
+     * @return string
      * @throws Exception
      */
     public function getToken($renew = false)
@@ -363,7 +364,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'pass'  => Mage::helper('core')->decrypt($this->getConfig('general/password'))
         ];
 
-        $getRequest = Mage::helper('kkm')->requestApiPost(self::_URL . self::_operationGetToken, json_encode($data));
+        $getRequest = Mage::helper('kkm')->requestApiPost(self::URL . self::OPERATION_GET_TOKEN, json_encode($data));
 
         if (!$getRequest) {
             throw new Mygento_Kkm_AtolException(Mage::helper('kkm')->__('There is no response from Atol.'));

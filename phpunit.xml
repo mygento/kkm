@@ -1,0 +1,7 @@
+<phpunit colors="true">
+    <testsuites>
+        <testsuite name="Test">
+            <directory>app/code/community/Mygento/Kkm/Tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

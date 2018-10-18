@@ -166,7 +166,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
 
         foreach ($items as $item) {
             $rowTotal = $item->getData('row_total_incl_tax');
-            $price    = $item->getData('row_total_incl_tax');
+            $price    = $item->getData('price_incl_tax');
             $discount = $item->getData('discount_amount');
             $qty      = $item->getData('qty');
 
