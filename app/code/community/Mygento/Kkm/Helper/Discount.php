@@ -100,6 +100,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $subTotal       = $this->_entity->getData('subtotal_incl_tax');
         $discount       = $this->_entity->getData('discount_amount');
 
+        echo "\n\n\t ========= APPLY DISCOUNT  mthd==========\n\n";
+
         /** @var float $superGrandDiscount Скидка на весь заказ. Например, rewardPoints или storeCredit */
         $superGrandDiscount = $this->getGlobalDiscount();
 
@@ -164,9 +166,14 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
             $rowTotalNew = round($priceWithDiscount * $qty, 2);
             $itemsSum += $rowTotalNew;
 
+
             $rowDiscountNew = $rowDiscount + round($rowPercentage * $grandDiscount, 2);
 
             $rowDiff = round($rowTotal + $rowDiscountNew - $rowTotalNew, 2) * 100;
+
+            echo "\n\n\t === ITEM {$item->getId()}===\n";
+            _echoRow('RowDiscount', 'RowPercentage', 'RowDiff', 'PriceWithDiscount', 'RowDiscountNew', 'RowTotalNew');
+            _echoRow($rowDiscount, $rowPercentage, $rowDiff, $priceWithDiscount, $rowDiscountNew, $rowTotalNew);
 
             $item->setData(self::NAME_ROW_DIFF, $rowDiff);
         }
@@ -184,17 +191,25 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      */
     protected function getGlobalDiscount()
     {
+        echo "\n\n\t ========= GLOBAL DISCOUNT calculation ==========\n\n";
+        _echoRow('ID', 'RT', 'Discount');
+
         $items = $this->getAllItems();
         $totalItemsSum = 0;
         foreach ($items as $item) {
             $totalItemsSum += $item->getData('row_total_incl_tax');
+            _echoRow($item->getId(), $item->getData('row_total_incl_tax'), $item->getData('discount_amount'));
         }
+
+        echo "\n" . "Items SUM: \t {$totalItemsSum}\n";
+        echo "Discount SUM: \t {$discountSum}\n";
 
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
         $discount       = round($this->_entity->getData('discount_amount'), 2);
 
-        $globDisc = round($grandTotal - $shippingAmount - $totalItemsSum - $discount, 2);
+        echo "GlobDiscount: \t {$this->globalDiscountCalculated}\n";
+        echo "\n\n\t ========= GLOBAL DISCOUNT END ==========\n\n";
 
         return $globDisc;
     }
@@ -206,6 +221,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     {
         $items          = $this->getAllItems();
         $globalDiscount = $this->getGlobalDiscount();
+
+        echo "\t\t ========= PRE FIX ==========";
 
         $sign  = $globalDiscount / abs($globalDiscount);
         $i     = abs($globalDiscount) * 100;
@@ -240,7 +257,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         $items          = $this->getAllItems();
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
-
+        echo "\t\t ========= POST FIX ==========";
         $newItemsSum = 0;
         $rowDiffSum  = 0;
         foreach ($items as $item) {
@@ -633,4 +650,15 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
     {
         $this->spreadDiscOnAllUnits = (bool)$spreadDiscOnAllUnits;
     }
+}
+
+function _echoRow()
+{
+    $offset = 16;
+    $args   = func_get_args();
+
+    foreach ($args as $arg) {
+        echo str_pad($arg, $offset)."\t";
+    }
+    echo "\n";
 }
