@@ -46,6 +46,31 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
     }
 
     /**
+     * Attention! Order of items in array is important!
+     * @dataProvider dataProviderOrdersForCheckIds
+     */
+    public function testItemIds($order, $expectedArray)
+    {
+        $recalculatedData = $this->discountHelp->getRecalculated($order, 'vat18');
+
+        $this->assertArrayHasKey('items', $recalculatedData);
+
+        $recalcItemKeys      = array_keys($recalculatedData['items']);
+        $recalcExpectedItems = array_keys($expectedArray['items']);
+
+        $this->assertTrue($recalcItemKeys === $recalcExpectedItems, 'Ids of calculated items are invalid');
+    }
+
+    public function dataProviderOrdersForCheckIds()
+    {
+        $allOrders = $this->dataProviderOrdersForCheckCalculation();
+
+        return [
+            parent::TEST_CASE_NAME_20 => $allOrders[parent::TEST_CASE_NAME_20]
+        ];
+    }
+
+    /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected static function getExpected()
@@ -924,6 +949,78 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                             'price'    => -0.05,
                             'quantity' => 1,
                             'sum'      => -0.05,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_20] = [
+            'sum'            => 14159.26,
+            'origGrandTotal' => 14160.01,
+            'items'          =>
+                [
+                    100589     =>
+                        [
+                            'price'    => 21.43,
+                            'name'     => 'Zx7XFefZ',
+                            'quantity' => 100,
+                            'sum'      => 2143,
+                            'tax'      => 'vat18',
+                        ],
+                    100590     =>
+                        [
+                            'price'    => 29.56,
+                            'name'     => 'HPIqiTuW',
+                            'quantity' => 50,
+                            'sum'      => 1478,
+                            'tax'      => 'vat18',
+                        ],
+                    100591     =>
+                        [
+                            'price'    => 21.43,
+                            'name'     => 'd2vyhvZW',
+                            'quantity' => 50,
+                            'sum'      => 1071.5,
+                            'tax'      => 'vat18',
+                        ],
+                    100592     =>
+                        [
+                            'price'    => 26.6,
+                            'name'     => 'dU3xnsCx',
+                            'quantity' => 30,
+                            'sum'      => 798,
+                            'tax'      => 'vat18',
+                        ],
+                    100593     =>
+                        [
+                            'price'    => 6643.96,
+                            'name'     => 'zjbrhW3O',
+                            'quantity' => 1,
+                            'sum'      => 6643.96,
+                            'tax'      => 'vat18',
+                        ],
+                    100594     =>
+                        [
+                            'price'    => 29.56,
+                            'name'     => 'QRXwwqh6',
+                            'quantity' => 50,
+                            'sum'      => 1478,
+                            'tax'      => 'vat18',
+                        ],
+                    100595     =>
+                        [
+                            'price'    => 27.34,
+                            'name'     => '7Kfdf6Sb',
+                            'quantity' => 20,
+                            'sum'      => 546.8,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0.75,
+                            'quantity' => 1,
+                            'sum'      => 0.75,
                             'tax'      => '',
                         ],
                 ],

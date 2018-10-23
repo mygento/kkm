@@ -975,6 +975,78 @@ class DiscountAffectsShippingTest extends DiscountGeneralTestCase
                 ],
         ];
 
+        $actualData[parent::TEST_CASE_NAME_20] = [
+            'sum'            => 14161,
+            'origGrandTotal' => 14160.01,
+            'items'          =>
+                [
+                    100589     =>
+                        [
+                            'price'    => 29.01,
+                            'name'     => 'nKRZuyly',
+                            'quantity' => 100,
+                            'sum'      => 2901,
+                            'tax'      => 'vat18',
+                        ],
+                    100590     =>
+                        [
+                            'price'    => 40,
+                            'name'     => 'x9E07wnw',
+                            'quantity' => 50,
+                            'sum'      => 2000,
+                            'tax'      => 'vat18',
+                        ],
+                    100591     =>
+                        [
+                            'price'    => 29,
+                            'name'     => 'q2zNbzDr',
+                            'quantity' => 50,
+                            'sum'      => 1450,
+                            'tax'      => 'vat18',
+                        ],
+                    100592     =>
+                        [
+                            'price'    => 36,
+                            'name'     => 'v0x3q6dW',
+                            'quantity' => 30,
+                            'sum'      => 1080,
+                            'tax'      => 'vat18',
+                        ],
+                    100593     =>
+                        [
+                            'price'    => 3990,
+                            'name'     => '6RtdEZc8',
+                            'quantity' => 1,
+                            'sum'      => 3990,
+                            'tax'      => 'vat18',
+                        ],
+                    100594     =>
+                        [
+                            'price'    => 40,
+                            'name'     => 'vNeI9KeQ',
+                            'quantity' => 50,
+                            'sum'      => 2000,
+                            'tax'      => 'vat18',
+                        ],
+                    100595     =>
+                        [
+                            'price'    => 37,
+                            'name'     => 'tGU1Xod7',
+                            'quantity' => 20,
+                            'sum'      => 740,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => -0.99,
+                            'quantity' => 1,
+                            'sum'      => -0.99,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
         return $actualData;
     }
 }

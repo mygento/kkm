@@ -47,6 +47,30 @@ class DiscountSpreadAndSplitTest extends DiscountGeneralTestCase
     }
 
     /**
+     * @dataProvider dataProviderOrdersForCheckIds
+     */
+    public function testItemIds($order, $expectedArray)
+    {
+        $recalculatedData = $this->discountHelp->getRecalculated($order, 'vat18');
+
+        $this->assertArrayHasKey('items', $recalculatedData);
+
+        $recalcItemKeys      = array_keys($recalculatedData['items']);
+        $recalcExpectedItems = array_keys($expectedArray['items']);
+
+        $this->assertTrue($recalcItemKeys === $recalcExpectedItems, 'Ids of calculated items are invalid');
+    }
+
+    public function dataProviderOrdersForCheckIds()
+    {
+        $allOrders = $this->dataProviderOrdersForCheckCalculation();
+
+        return [
+            parent::TEST_CASE_NAME_20 => $allOrders[parent::TEST_CASE_NAME_20]
+        ];
+    }
+
+    /**
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     protected static function getExpected()
@@ -1439,6 +1463,126 @@ class DiscountSpreadAndSplitTest extends DiscountGeneralTestCase
                             'name'     => '5b3e0rfX',
                             'quantity' => 1,
                             'sum'      => 543.16,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'name'     => '',
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
+        $actualData[parent::TEST_CASE_NAME_20] = [
+            'sum'            => 14160.01,
+            'origGrandTotal' => 14160.01,
+            'items'          =>
+                [
+                    '100589_1' =>
+                        [
+                            'price'    => 21.43,
+                            'name'     => 'MISWF7ak',
+                            'quantity' => 78,
+                            'sum'      => 1671.54,
+                            'tax'      => 'vat18',
+                        ],
+                    '100589_2' =>
+                        [
+                            'price'    => 21.44,
+                            'name'     => 'MISWF7ak',
+                            'quantity' => 22,
+                            'sum'      => 471.68,
+                            'tax'      => 'vat18',
+                        ],
+                    '100590_1' =>
+                        [
+                            'price'    => 29.56,
+                            'name'     => 'gzLPRUEZ',
+                            'quantity' => 42,
+                            'sum'      => 1241.52,
+                            'tax'      => 'vat18',
+                        ],
+                    '100590_2' =>
+                        [
+                            'price'    => 29.57,
+                            'name'     => 'gzLPRUEZ',
+                            'quantity' => 8,
+                            'sum'      => 236.56,
+                            'tax'      => 'vat18',
+                        ],
+                    '100591_1' =>
+                        [
+                            'price'    => 21.43,
+                            'name'     => 'fi30mddy',
+                            'quantity' => 39,
+                            'sum'      => 835.77,
+                            'tax'      => 'vat18',
+                        ],
+                    '100591_2' =>
+                        [
+                            'price'    => 21.44,
+                            'name'     => 'fi30mddy',
+                            'quantity' => 11,
+                            'sum'      => 235.84,
+                            'tax'      => 'vat18',
+                        ],
+                    '100592_1' =>
+                        [
+                            'price'    => 26.6,
+                            'name'     => 'fvilvPih',
+                            'quantity' => 14,
+                            'sum'      => 372.4,
+                            'tax'      => 'vat18',
+                        ],
+                    '100592_2' =>
+                        [
+                            'price'    => 26.61,
+                            'name'     => 'fvilvPih',
+                            'quantity' => 16,
+                            'sum'      => 425.76,
+                            'tax'      => 'vat18',
+                        ],
+                    100593     =>
+                        [
+                            'price'    => 6643.97,
+                            'name'     => '57Dkkn5Y',
+                            'quantity' => 1,
+                            'sum'      => 6643.97,
+                            'tax'      => 'vat18',
+                        ],
+                    '100594_1' =>
+                        [
+                            'price'    => 29.56,
+                            'name'     => '5XtNTgn4',
+                            'quantity' => 42,
+                            'sum'      => 1241.52,
+                            'tax'      => 'vat18',
+                        ],
+                    '100594_2' =>
+                        [
+                            'price'    => 29.57,
+                            'name'     => '5XtNTgn4',
+                            'quantity' => 8,
+                            'sum'      => 236.56,
+                            'tax'      => 'vat18',
+                        ],
+                    '100595_1' =>
+                        [
+                            'price'    => 27.34,
+                            'name'     => 'fy22UvUI',
+                            'quantity' => 11,
+                            'sum'      => 300.74,
+                            'tax'      => 'vat18',
+                        ],
+                    '100595_2' =>
+                        [
+                            'price'    => 27.35,
+                            'name'     => 'fy22UvUI',
+                            'quantity' => 9,
+                            'sum'      => 246.15,
                             'tax'      => 'vat18',
                         ],
                     'shipping' =>

@@ -11,9 +11,11 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.16';
+    const VERSION = '1.0.18';
 
     protected $generalHelper = null;
+
+    private $globalDiscountCalculated;
 
     protected $_entity           = null;
     protected $_taxValue         = null;
@@ -49,6 +51,8 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         if (!$entity) {
             return;
         }
+
+        $this->globalDiscountCalculated = null;
 
         $this->_entity              = $entity;
         $this->_taxValue            = $taxValue;
@@ -184,19 +188,25 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
      */
     protected function getGlobalDiscount()
     {
+        if (isset($this->globalDiscountCalculated)) {
+            return $this->globalDiscountCalculated;
+        }
+
         $items = $this->getAllItems();
         $totalItemsSum = 0;
+        $discountSum   = 0;
         foreach ($items as $item) {
             $totalItemsSum += $item->getData('row_total_incl_tax');
+            $discountSum   += $item->getData('discount_amount');
         }
 
         $shippingAmount = $this->_entity->getData('shipping_incl_tax');
         $grandTotal     = round($this->_entity->getData('grand_total'), 2);
-        $discount       = round($this->_entity->getData('discount_amount'), 2);
+        $discount       = -1 * $discountSum;
 
-        $globDisc = round($grandTotal - $shippingAmount - $totalItemsSum - $discount, 2);
+        $this->globalDiscountCalculated = round($grandTotal - $shippingAmount - $totalItemsSum - $discount, 2);
 
-        return $globDisc;
+        return $this->globalDiscountCalculated;
     }
 
     /** Calculates extra discounts and adds them to items $item->setData('discount_amount', ...)
