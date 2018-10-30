@@ -32,7 +32,11 @@ class Mygento_Kkm_Model_Source_Taxoption
             ],
             [
                 'value' => 'vat18',
-                'label' => Mage::helper('kkm')->__('vat18')
+                'label' => Mage::helper('kkm')->__('vat18 (deprecated)')
+            ],
+            [
+                'value' => 'vat20',
+                'label' => Mage::helper('kkm')->__('vat20')
             ],
             [
                 'value' => 'vat110',
@@ -40,7 +44,11 @@ class Mygento_Kkm_Model_Source_Taxoption
             ],
             [
                 'value' => 'vat118',
-                'label' => Mage::helper('kkm')->__('vat118')
+                'label' => Mage::helper('kkm')->__('vat118 (deprecated)')
+            ],
+            [
+                'value' => 'vat120',
+                'label' => Mage::helper('kkm')->__('vat120')
             ]
         ];
     }
