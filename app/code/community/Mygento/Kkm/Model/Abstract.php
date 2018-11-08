@@ -47,8 +47,8 @@ abstract class Mygento_Kkm_Model_Abstract
 
     /**
      *
-     * @param type $param
-     * @return type
+     * @param string $param
+     * @return mixed
      */
     protected function getConfig($param)
     {

@@ -11,6 +11,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 {
 
     const URL                  = 'https://online.atol.ru/possystem/v3/';
+    const TEST_URL             = 'https://testonline.atol.ru/possystem/v3/';
     const CODE                 = 'atol';
     const OPERATION_SELL       = 'sell';
     const OPERATION_REFUND     = 'sell_refund';
@@ -103,7 +104,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
             $token = $debugData['token'] = $this->getToken();
 
-            $url = self::URL . $this->getConfig('general/group_code') . '/' . $operation . '?tokenid=' . $token;
+            $url = $this->getUrl() . $this->getConfig('general/group_code') . '/' . $operation . '?tokenid=' . $token;
             $helper->addLog('url: ' . $url);
 
             $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost);
@@ -264,7 +265,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
 
         $token = $this->getToken();
 
-        $url = self::URL . $this->getConfig('general/group_code') . '/' . self::OPERATION_GET_REPORT . '/' . $uuid . '?tokenid=' . $token;
+        $url = $this->getUrl() . $this->getConfig('general/group_code') . '/' . self::OPERATION_GET_REPORT . '/' . $uuid . '?tokenid=' . $token;
         $helper->addLog('updateStatus of cheque: ' . $statusModel->getEntityType() . ' ' . $statusModel->getIncrementId());
         $helper->addLog('checkStatus url: ' . $url);
 
@@ -364,7 +365,7 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
             'pass'  => Mage::helper('core')->decrypt($this->getConfig('general/password'))
         ];
 
-        $getRequest = Mage::helper('kkm')->requestApiPost(self::URL . self::OPERATION_GET_TOKEN, json_encode($data));
+        $getRequest = Mage::helper('kkm')->requestApiPost($this->getUrl() . self::OPERATION_GET_TOKEN, json_encode($data));
 
         if (!$getRequest) {
             throw new Mygento_Kkm_AtolException(Mage::helper('kkm')->__('There is no response from Atol.'));
@@ -497,6 +498,13 @@ class Mygento_Kkm_Model_Vendor_Atol extends Mygento_Kkm_Model_Abstract
     {
         $statusModel->setResendCount($statusModel->getResendCount() + 1);
         $statusModel->save();
+    }
+
+    private function getUrl()
+    {
+        $isTest = (bool)$this->getConfig('general/test_mode');
+
+        return $isTest ? self::TEST_URL : self::URL;
     }
 
     /**
