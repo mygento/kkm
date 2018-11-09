@@ -1026,6 +1026,140 @@ class DiscountSpreadOnAllItemsTest extends DiscountGeneralTestCase
                 ],
         ];
 
+        $actualData[parent::TEST_CASE_NAME_21] = [
+            'sum'            => 17429.18,
+            'origGrandTotal' => 17431.01,
+            'items'          =>
+                [
+                    100596     =>
+                        [
+                            'price'    => 6350.68,
+                            'quantity' => 1,
+                            'sum'      => 6350.68,
+                            'tax'      => 'vat18',
+                        ],
+                    100597     =>
+                        [
+                            'price'    => 18.43,
+                            'quantity' => 30,
+                            'sum'      => 552.9,
+                            'tax'      => 'vat18',
+                        ],
+                    100598     =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 40,
+                            'sum'      => 940.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100599     =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 40,
+                            'sum'      => 940.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100600     =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 40,
+                            'sum'      => 940.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100601     =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 40,
+                            'sum'      => 940.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100602     =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 40,
+                            'sum'      => 940.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100603     =>
+                        [
+                            'price'    => 22.88,
+                            'quantity' => 10,
+                            'sum'      => 228.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100604     =>
+                        [
+                            'price'    => 18.43,
+                            'quantity' => 60,
+                            'sum'      => 1105.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100605     =>
+                        [
+                            'price'    => 18.43,
+                            'quantity' => 80,
+                            'sum'      => 1474.4,
+                            'tax'      => 'vat18',
+                        ],
+                    100606     =>
+                        [
+                            'price'    => 20.97,
+                            'quantity' => 30,
+                            'sum'      => 629.1,
+                            'tax'      => 'vat18',
+                        ],
+                    100607     =>
+                        [
+                            'price'    => 20.97,
+                            'quantity' => 20,
+                            'sum'      => 419.4,
+                            'tax'      => 'vat18',
+                        ],
+                    100608     =>
+                        [
+                            'price'    => 20.97,
+                            'quantity' => 10,
+                            'sum'      => 209.7,
+                            'tax'      => 'vat18',
+                        ],
+                    100609     =>
+                        [
+                            'price'    => 29.24,
+                            'quantity' => 20,
+                            'sum'      => 584.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100610     =>
+                        [
+                            'price'    => 29.24,
+                            'quantity' => 20,
+                            'sum'      => 584.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100611     =>
+                        [
+                            'price'    => 29.24,
+                            'quantity' => 20,
+                            'sum'      => 584.8,
+                            'tax'      => 'vat18',
+                        ],
+                    100612     =>
+                        [
+                            'price'    => 0,
+                            'quantity' => 4,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'price'    => 1.83,
+                            'quantity' => 1,
+                            'sum'      => 1.83,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
         return $actualData;
     }
 }

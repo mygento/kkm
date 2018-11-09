@@ -11,7 +11,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
 {
     protected $_code = 'kkm';
 
-    const VERSION = '1.0.18';
+    const VERSION = '1.0.19';
 
     protected $generalHelper = null;
 
@@ -452,7 +452,7 @@ class Mygento_Kkm_Helper_Discount extends Mage_Core_Helper_Abstract
         /** @var int $qtyUpdate Сколько товаров из ряда нуждаются в изменении цены
          *  Если $qtyUpdate =0 - то цена всех товаров должна быть увеличина
          */
-        $qtyUpdate = abs($rowDiff % $qty);
+        $qtyUpdate = abs(bcmod($rowDiff, $qty));
         $sign = abs($rowDiff)/$rowDiff;
 
         //2 кейса:

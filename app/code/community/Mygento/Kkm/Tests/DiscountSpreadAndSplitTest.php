@@ -1596,6 +1596,245 @@ class DiscountSpreadAndSplitTest extends DiscountGeneralTestCase
                 ],
         ];
 
+        $actualData[parent::TEST_CASE_NAME_21] = [
+            'sum'            => 17431.01,
+            'origGrandTotal' => 17431.01,
+            'items'          =>
+                [
+                    100596     =>
+                        [
+                            'price'    => 6350.7,
+                            'quantity' => 1,
+                            'sum'      => 6350.7,
+                            'tax'      => 'vat18',
+                        ],
+                    '100597_1' =>
+                        [
+                            'price'    => 18.43,
+                            'quantity' => 14,
+                            'sum'      => 258.02,
+                            'tax'      => 'vat18',
+                        ],
+                    '100597_2' =>
+                        [
+                            'price'    => 18.44,
+                            'quantity' => 16,
+                            'sum'      => 295.04,
+                            'tax'      => 'vat18',
+                        ],
+                    '100598_1' =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 36,
+                            'sum'      => 846.72,
+                            'tax'      => 'vat18',
+                        ],
+                    '100598_2' =>
+                        [
+                            'price'    => 23.53,
+                            'quantity' => 4,
+                            'sum'      => 94.12,
+                            'tax'      => 'vat18',
+                        ],
+                    '100599_1' =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 36,
+                            'sum'      => 846.72,
+                            'tax'      => 'vat18',
+                        ],
+                    '100599_2' =>
+                        [
+                            'price'    => 23.53,
+                            'quantity' => 4,
+                            'sum'      => 94.12,
+                            'tax'      => 'vat18',
+                        ],
+                    '100600_1' =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 36,
+                            'sum'      => 846.72,
+                            'tax'      => 'vat18',
+                        ],
+                    '100600_2' =>
+                        [
+                            'price'    => 23.53,
+                            'quantity' => 4,
+                            'sum'      => 94.12,
+                            'tax'      => 'vat18',
+                        ],
+                    '100601_1' =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 36,
+                            'sum'      => 846.72,
+                            'tax'      => 'vat18',
+                        ],
+                    '100601_2' =>
+                        [
+                            'price'    => 23.53,
+                            'quantity' => 4,
+                            'sum'      => 94.12,
+                            'tax'      => 'vat18',
+                        ],
+                    '100602_1' =>
+                        [
+                            'price'    => 23.52,
+                            'quantity' => 36,
+                            'sum'      => 846.72,
+                            'tax'      => 'vat18',
+                        ],
+                    '100602_2' =>
+                        [
+                            'price'    => 23.53,
+                            'quantity' => 4,
+                            'sum'      => 94.12,
+                            'tax'      => 'vat18',
+                        ],
+                    '100603_1' =>
+                        [
+                            'price'    => 22.88,
+                            'quantity' => 5,
+                            'sum'      => 114.4,
+                            'tax'      => 'vat18',
+                        ],
+                    '100603_2' =>
+                        [
+                            'price'    => 22.89,
+                            'quantity' => 5,
+                            'sum'      => 114.45,
+                            'tax'      => 'vat18',
+                        ],
+                    '100604_1' =>
+                        [
+                            'price'    => 18.43,
+                            'quantity' => 27,
+                            'sum'      => 497.61,
+                            'tax'      => 'vat18',
+                        ],
+                    '100604_2' =>
+                        [
+                            'price'    => 18.44,
+                            'quantity' => 33,
+                            'sum'      => 608.52,
+                            'tax'      => 'vat18',
+                        ],
+                    '100605_1' =>
+                        [
+                            'price'    => 18.43,
+                            'quantity' => 37,
+                            'sum'      => 681.91,
+                            'tax'      => 'vat18',
+                        ],
+                    '100605_2' =>
+                        [
+                            'price'    => 18.44,
+                            'quantity' => 43,
+                            'sum'      => 792.92,
+                            'tax'      => 'vat18',
+                        ],
+                    '100606_1' =>
+                        [
+                            'price'    => 20.97,
+                            'quantity' => 5,
+                            'sum'      => 104.85,
+                            'tax'      => 'vat18',
+                        ],
+                    '100606_2' =>
+                        [
+                            'price'    => 20.98,
+                            'quantity' => 25,
+                            'sum'      => 524.5,
+                            'tax'      => 'vat18',
+                        ],
+                    '100607_1' =>
+                        [
+                            'price'    => 20.97,
+                            'quantity' => 4,
+                            'sum'      => 83.88,
+                            'tax'      => 'vat18',
+                        ],
+                    '100607_2' =>
+                        [
+                            'price'    => 20.98,
+                            'quantity' => 16,
+                            'sum'      => 335.68,
+                            'tax'      => 'vat18',
+                        ],
+                    '100608_1' =>
+                        [
+                            'price'    => 20.97,
+                            'quantity' => 2,
+                            'sum'      => 41.94,
+                            'tax'      => 'vat18',
+                        ],
+                    '100608_2' =>
+                        [
+                            'price'    => 20.98,
+                            'quantity' => 8,
+                            'sum'      => 167.84,
+                            'tax'      => 'vat18',
+                        ],
+                    '100609_1' =>
+                        [
+                            'price'    => 29.24,
+                            'quantity' => 15,
+                            'sum'      => 438.6,
+                            'tax'      => 'vat18',
+                        ],
+                    '100609_2' =>
+                        [
+                            'price'    => 29.25,
+                            'quantity' => 5,
+                            'sum'      => 146.25,
+                            'tax'      => 'vat18',
+                        ],
+                    '100610_1' =>
+                        [
+                            'price'    => 29.24,
+                            'quantity' => 15,
+                            'sum'      => 438.6,
+                            'tax'      => 'vat18',
+                        ],
+                    '100610_2' =>
+                        [
+                            'price'    => 29.25,
+                            'quantity' => 5,
+                            'sum'      => 146.25,
+                            'tax'      => 'vat18',
+                        ],
+                    '100611_1' =>
+                        [
+                            'price'    => 29.24,
+                            'quantity' => 15,
+                            'sum'      => 438.6,
+                            'tax'      => 'vat18',
+                        ],
+                    '100611_2' =>
+                        [
+                            'price'    => 29.25,
+                            'quantity' => 5,
+                            'sum'      => 146.25,
+                            'tax'      => 'vat18',
+                        ],
+                    100612     =>
+                        [
+                            'price'    => 0,
+                            'quantity' => 4,
+                            'sum'      => 0,
+                            'tax'      => 'vat18',
+                        ],
+                    'shipping' =>
+                        [
+                            'price'    => 0,
+                            'quantity' => 1,
+                            'sum'      => 0,
+                            'tax'      => '',
+                        ],
+                ],
+        ];
+
         return $actualData;
     }
 }

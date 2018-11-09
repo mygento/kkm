@@ -32,6 +32,7 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
     const TEST_CASE_NAME_18 = '#case 18. Issue #23 Github';
     const TEST_CASE_NAME_19 = '#case 19. Bug with negative Qty';
     const TEST_CASE_NAME_20 = '#case 20. Bug with negative Price (e.g. invoice 100087282)';
+    const TEST_CASE_NAME_21 = '#case 21. Bug with negative Price because of converting float -28.9999999999999 to int  (e.g. invoice 100091106)';
 
     const CHARS_LOWERS   = 'abcdefghijklmnopqrstuvwxyz';
     const CHARS_UPPERS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -337,6 +338,26 @@ class DiscountGeneralTestCase extends PHPUnit_Framework_TestCase
         $this->addItem($order, $this->getItem(2000.0000, 40.0000, 0, 50.0000, 100594));
         $this->addItem($order, $this->getItem(740.0000, 37.0000, 0, 20.0000, 100595));
         $final[self::TEST_CASE_NAME_20] = $order;
+
+        $order = $this->getNewOrderInstance(27420.0000, 17431.0100, 0.0000, 0);
+        $this->addItem($order, $this->getItem(9990.0000, 9990.0000, 9989.0000, 1.0000));
+        $this->addItem($order, $this->getItem(870.0000, 29.0000, -0.0100, 30.0000));
+        $this->addItem($order, $this->getItem(1480.0000, 37.0000, 0, 40.0000));
+        $this->addItem($order, $this->getItem(1480.0000, 37.0000, 0, 40.0000));
+        $this->addItem($order, $this->getItem(1480.0000, 37.0000, 0, 40.0000));
+        $this->addItem($order, $this->getItem(1480.0000, 37.0000, 0, 40.0000));
+        $this->addItem($order, $this->getItem(1480.0000, 37.0000, 0, 40.0000));
+        $this->addItem($order, $this->getItem(360.0000, 36.0000, 0, 10.0000));
+        $this->addItem($order, $this->getItem(1740.0000, 29.0000, 0, 60.0000));
+        $this->addItem($order, $this->getItem(2320.0000, 29.0000, 0, 80.0000));
+        $this->addItem($order, $this->getItem(990.0000, 33.0000, 0, 30.0000));
+        $this->addItem($order, $this->getItem(660.0000, 33.0000, 0, 20.0000));
+        $this->addItem($order, $this->getItem(330.0000, 33.0000, 0, 10.0000));
+        $this->addItem($order, $this->getItem(920.0000, 46.0000, 0, 20.0000));
+        $this->addItem($order, $this->getItem(920.0000, 46.0000, 0, 20.0000));
+        $this->addItem($order, $this->getItem(920.0000, 46.0000, 0, 20.0000));
+        $this->addItem($order, $this->getItem(0.0000, 0.0000, 0, 4.0000));
+        $final[self::TEST_CASE_NAME_21] = $order;
 
         return $final;
     }
