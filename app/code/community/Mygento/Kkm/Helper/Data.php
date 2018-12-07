@@ -81,14 +81,17 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         return Mage::getModel('kkm/vendor_' . $this->getConfig('general/vendor'));
     }
 
-    public function requestApiPost($url, $arpost)
+    public function requestApiPost($url, $arpost, $headers = [])
     {
+        $headers[] = 'Content-type: application/json; charset=utf-8';
+
         // @codingStandardsIgnoreStart
         $ch     = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($arpost) ? http_build_query($arpost) : $arpost);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
         if ($result === false) {
@@ -101,12 +104,15 @@ class Mygento_Kkm_Helper_Data extends Mage_Core_Helper_Abstract
         return $result;
     }
 
-    public function requestApiGet($url)
+    public function requestApiGet($url, $headers = [])
     {
+        $headers[] = 'Content-type: application/json; charset=utf-8';
+
         // @codingStandardsIgnoreStart
         $ch     = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $result = curl_exec($ch);
         if ($result === false) {

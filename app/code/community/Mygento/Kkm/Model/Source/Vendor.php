@@ -23,8 +23,12 @@ class Mygento_Kkm_Model_Source_Vendor
                 'label' => Mage::helper('adminhtml')->__('-- Please select --')
             ],
             [
-                'value' => 'atol',
-                'label' => Mage::helper('kkm')->__('Atol')
+                'value' => 'atol3',
+                'label' => Mage::helper('kkm')->__('Atol v.3')
+            ],
+            [
+                'value' => 'atol4',
+                'label' => Mage::helper('kkm')->__('Atol v.4')
             ]
         ];
     }
