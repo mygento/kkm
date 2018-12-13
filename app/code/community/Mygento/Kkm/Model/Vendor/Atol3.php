@@ -97,7 +97,7 @@ class Mygento_Kkm_Model_Vendor_Atol3 extends Mygento_Kkm_Model_Vendor_AtolAbstra
 
         $post['receipt']['payments'][] = [
             'sum'  => $receiptTotal,
-            'type' => 1
+            'type' => self::PAYMENT_TYPE_BASIC
         ];
 
         $recalculatedReceiptData['items'] = array_map([$this, 'sanitizeItem'], $recalculatedReceiptData['items']);

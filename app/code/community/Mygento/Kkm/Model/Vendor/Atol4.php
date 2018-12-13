@@ -9,8 +9,11 @@
  */
 class Mygento_Kkm_Model_Vendor_Atol4 extends Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Model_Vendor_VendorInterface
 {
-    const URL      = 'https://online.atol.ru/possystem/v4/';
+    const URL = 'https://online.atol.ru/possystem/v4/';
     const TEST_URL = 'https://testonline.atol.ru/possystem/v4/';
+
+    const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
+    const PAYMENT_OBJECT_BASIC = 'commodity';
 
     protected function getUrl()
     {
@@ -26,14 +29,14 @@ class Mygento_Kkm_Model_Vendor_Atol4 extends Mygento_Kkm_Model_Vendor_AtolAbstra
      */
     protected function getSendUrl($operation)
     {
-        return $this->getUrl().$this->getConfig('general/group_code').'/'.$operation;
+        return $this->getUrl() . $this->getConfig('general/group_code') . '/' . $operation;
     }
 
     protected function getUpdateStatusUrl($uuid)
     {
-        return $this->getUrl().$this->getConfig(
+        return $this->getUrl() . $this->getConfig(
                 'general/group_code'
-            ).'/'.self::OPERATION_GET_REPORT.'/'.$uuid;
+            ) . '/' . self::OPERATION_GET_REPORT . '/' . $uuid;
     }
 
 
@@ -68,66 +71,71 @@ class Mygento_Kkm_Model_Vendor_Atol4 extends Mygento_Kkm_Model_Vendor_AtolAbstra
             $discountHelper->setIsSplitItemsAllowed($this->getConfig('general/split_allowed'));
         }
 
-        $recalculatedReceiptData          = $discountHelper->getRecalculated(
+        $recalculatedReceiptData = $discountHelper->getRecalculated(
             $receipt,
             $tax_value,
             $attribute_code,
             $shipping_tax
         );
         $recalculatedReceiptData['items'] = array_values($recalculatedReceiptData['items']);
+        $items = $this->getPreparedItems($recalculatedReceiptData['items']);
 
         $callbackUrl = $this->getConfig('general/callback_url') ?: Mage::getUrl(
             'kkm/index/callback',
             ['_secure' => true]
         );
-
-        $client = [
-            'email' => $order->getCustomerEmail(),
-        ];
-        $company = [
-            'email'           => $order->getCustomerEmail(),
-            'sno'             => $this->getSno(),
-            'inn'             => $this->getInn(),
-            'payment_address' => $this->getPaymentAddress(),
-        ];
-
         $now_time = Mage::getModel('core/date')->timestamp(time());
-        $post     = [
+
+        $client = [];
+        $this->getConfig('general/send_phone') && $order->getShippingAddress()->getTelephone()
+            ? $client['phone'] = $order->getShippingAddress()->getTelephone()
+            : $client['email'] = $order->getCustomerEmail();
+        $company = [
+            'email' => Mage::getStoreConfig('trans_email/ident_general/name'),
+            'sno' => $this->getConfig('general/sno'),
+            'inn' => $this->getConfig('general/inn'),
+            'payment_address' => $this->getConfig('general/payment_address'),
+        ];
+
+        $total = round($receipt->getGrandTotal(), 2);
+        $payments[] = [
+            'sum' => $total,
+            'type' => self::PAYMENT_TYPE_BASIC,
+        ];
+
+        $post = [
             'external_id' => $this->generateExternalId($receipt, $externalIdPostfix),
-            'service'     => [
-                'payment_address' => $this->getConfig('general/payment_address'),
-                'callback_url'    => $callbackUrl,
-                'inn'             => $this->getConfig('general/inn'),
+            'receipt' => [
+                'client' => $client,
+                'company' => $company,
+                'items' => $items,
+                'payments' => $payments,
+                'total' => $total,
             ],
-            'timestamp'   => date('d-m-Y H:i:s', $now_time),
-            'receipt'     => [],
-        ];
-
-        $receiptTotal = round($receipt->getGrandTotal(), 2);
-
-        $post['receipt'] = [
-            'attributes' => [
-                'sno'   => $this->getConfig('general/sno'),
-                'phone' => $this->getConfig('general/send_phone') ? $order->getShippingAddress(
-                )->getTelephone() : '',
-                'email' => $order->getCustomerEmail(),
+            'service' => [
+                'callback_url' => $callbackUrl,
             ],
-            'total'      => $receiptTotal,
-            'payments'   => [],
-            'items'      => [],
+            'timestamp' => date('d-m-Y H:i:s', $now_time),
         ];
-
-        $post['receipt']['payments'][] = [
-            'sum'  => $receiptTotal,
-            'type' => 1,
-        ];
-
-        $recalculatedReceiptData['items'] = array_map(
-            [$this, 'sanitizeItem'],
-            $recalculatedReceiptData['items']
-        );
-        $post['receipt']['items']         = $recalculatedReceiptData['items'];
 
         return json_encode($post);
+    }
+
+    protected function getPreparedItems($items)
+    {
+        $items = array_map(
+            [$this, 'sanitizeItem'],
+            $items
+        );
+
+        foreach ($items as $key => $item) {
+            $item['vat']['type'] = $item['tax'];
+            $item['payment_method'] = self::PAYMENT_METHOD_FULL_PAYMENT;
+            $item['payment_object'] = self::PAYMENT_OBJECT_BASIC;
+            unset($item['tax']);
+            $items[$key] = $item;
+        }
+
+        return $items;
     }
 }

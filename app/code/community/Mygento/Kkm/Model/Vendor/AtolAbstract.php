@@ -15,6 +15,8 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
     const OPERATION_GET_TOKEN  = 'getToken';
     const OPERATION_GET_REPORT = 'report';
 
+    const PAYMENT_TYPE_BASIC = 1;
+
     protected $token;
 
     abstract protected function getUrl();
