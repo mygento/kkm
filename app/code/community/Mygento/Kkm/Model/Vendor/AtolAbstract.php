@@ -105,11 +105,6 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
 
             $jsonPost = $this->generateJsonPost($entity, $statusModel->getResendCount());
 
-            echo '<pre>';
-            var_dump($jsonPost);
-            echo '</pre>';
-            die();
-
             $helper->addLog('Request to ATOL json: ' . $jsonPost);
 
             $token = $debugData['token'] = $this->getToken();

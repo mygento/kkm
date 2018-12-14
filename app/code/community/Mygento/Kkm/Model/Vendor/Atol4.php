@@ -41,7 +41,7 @@ class Mygento_Kkm_Model_Vendor_Atol4 extends Mygento_Kkm_Model_Vendor_AtolAbstra
 
 
     /**
-     * @param $receipt entity (Order, Invoice or Creditmemo)
+     * @param $receipt Invoice|Creditmemo
      * @param $externalIdPostfix
      * @return string
      */
@@ -91,7 +91,7 @@ class Mygento_Kkm_Model_Vendor_Atol4 extends Mygento_Kkm_Model_Vendor_AtolAbstra
             ? $client['phone'] = $order->getShippingAddress()->getTelephone()
             : $client['email'] = $order->getCustomerEmail();
         $company = [
-            'email' => Mage::getStoreConfig('trans_email/ident_general/name'),
+            'email' => Mage::getStoreConfig('trans_email/ident_general/email'),
             'sno' => $this->getConfig('general/sno'),
             'inn' => $this->getConfig('general/inn'),
             'payment_address' => $this->getConfig('general/payment_address'),
