@@ -49,6 +49,7 @@
 "Cheque has been sent to KKM vendor.","Чек был успешно отправлен в ККМ."
 "Cheque has been rejected by KKM vendor.","Чек был отвергнут ККМ."
 "There is no response from Atol.","Нет ответа от Атол."
+"No uuid. The cheque has not been registered.","Отсутствует UUID. Чек не был зарегистрирован."
 "There is no transactions for %s. Force send works for existing transactions only.","Для %s нет сохраненных транзакций. Принудительная отправка работает только для существующих транзакций."
 "Response from Atol does not contain valid token value. Response: ","Ответ от Атол не найден корректный токен сессии. Ответ: "
 "Product %s has invalid tax","Товар %s содержит некорректное значение налога"

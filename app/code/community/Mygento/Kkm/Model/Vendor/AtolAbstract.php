@@ -111,7 +111,6 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
 
             $url = $this->getSendUrl($operation);
             $headers[] = "Token: $token";
-            $headers[] = 'Content-Type: application/x-www-form-urlencoded; charset=utf-8';
             $helper->addLog('url: ' . $url);
 
             $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost, $headers);
@@ -403,6 +402,10 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
 
         if ($this->isResponseFailed($response)) {
             throw new Exception($this->getCommentForOrder($atolResponse));
+        }
+
+        if (!property_exists($response, 'uuid')) {
+            throw new Mygento_Kkm_AtolException(Mage::helper('kkm')->__('No uuid. The cheque has not been registered.'));
         }
     }
 
