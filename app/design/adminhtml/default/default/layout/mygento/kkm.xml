@@ -12,4 +12,9 @@
             <block type="kkm/adminhtml_logs" name="kkm_logs_grid"/>
         </reference>
     </adminhtml_kkm_cheque_viewlogs>
+    <adminhtml_kkm_status_index>
+        <reference name="content">
+            <block type="kkm/adminhtml_status" name="kkm_statuses_grid"/>
+        </reference>
+    </adminhtml_kkm_status_index>
 </layout>

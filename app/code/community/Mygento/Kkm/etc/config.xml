@@ -115,6 +115,35 @@
         </routers>
     </admin>
     <adminhtml>
+        <menu>
+            <mygento translate="title" module="kkm">
+                <title>Mygento Modules</title>
+                <sort_order>60</sort_order>
+                <children>
+                    <kkm translate="title" module="kkm">
+                        <title>KKM</title>
+                        <sort_order>40</sort_order>
+                        <children>
+                            <statuses module="kkm">
+                                <title>Statuses</title>
+                                <sort_order>0</sort_order>
+                                <action>adminhtml/kkm_status</action>
+                            </statuses>
+                            <logs translate="title" module="kkm">
+                                <title>Logs</title>
+                                <action>adminhtml/kkm_cheque/viewlogs</action>
+                                <sort_order>50</sort_order>
+                            </logs>
+                            <settings translate="title" module="kkm">
+                                <title>Settings</title>
+                                <action>adminhtml/system_config/edit/section/kkm</action>
+                                <sort_order>100</sort_order>
+                            </settings>
+                        </children>
+                    </kkm>
+                </children>
+            </mygento>
+        </menu>
         <layout>
             <updates>
                 <kkm>
@@ -149,6 +178,12 @@
                         <kkm_cheque translate="title" module="kkm">
                             <title>KKM options</title>
                             <children>
+                                <viewstatuses translate="title">
+                                    <title>View statuses</title>
+                                </viewstatuses>
+                                <newstatus translate="title">
+                                    <title>Add status manually</title>
+                                </newstatus>
                                 <viewlogs translate="title">
                                     <title>View logs</title>
                                 </viewlogs>
