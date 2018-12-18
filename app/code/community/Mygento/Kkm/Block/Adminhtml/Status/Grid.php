@@ -78,6 +78,26 @@ class Mygento_Kkm_Block_Adminhtml_Status_Grid extends Mage_Adminhtml_Block_Widge
             'index'  => 'updated_at',
         ]);
 
+        //other columns here
+        $this->addColumn('action', array(
+            'header' => Mage::helper('kkm')->__('Action'),
+            'width' => '50',
+            'type' => 'action',
+            'getter' => 'getId',
+            'actions' => array(
+                array(
+                    'caption' => Mage::helper('kkm')->__('Edit'),
+                    'url' => array('base' => '*/*/edit'),
+                    'field' => 'id'
+                )
+            ),
+            'filter' => false,
+            'sortable' => false,
+            'index' => 'stores',
+            'is_system' => true,
+        ));
+
+
         return parent::_prepareColumns();
     }
 }

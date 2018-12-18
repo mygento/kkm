@@ -40,26 +40,31 @@ class Mygento_Kkm_Adminhtml_Kkm_StatusController extends Mage_Adminhtml_Controll
         $this->loadLayout();
         $this->_setActiveMenu('kkm/statuses');
         $this->_addBreadcrumb(
-            Mage::helper('adminhtml')->__('Pvz Manager'),
-            Mage::helper('adminhtml')->__('Pvz Manager')
+            Mage::helper('adminhtml')->__('KKM Statuses'),
+            Mage::helper('adminhtml')->__('KKM Statuses')
         );
         $this->getLayout()->getBlock('head')->setCanLoadExtJs(true);
 
-        //TODO
         $this->_addContent($this->getLayout()->createBlock('kkm/adminhtml_status_edit'))
             ->_addLeft($this->getLayout()->createBlock('kkm/adminhtml_status_edit_tabs'));
         $this->renderLayout();
     }
 
-    //TODO
     public function saveAction()
     {
         if ($data = $this->getRequest()->getPost()) {
-            $model = Mage::getModel('cdek/pvz');
+            $model = Mage::getModel('kkm/status');
             $model->setData($data)->setId($this->getRequest()->getParam('id'));
+
+            $model->setOperation(
+                $model->getEntityType() == Mage_Sales_Model_Order_Invoice::HISTORY_ENTITY_NAME
+                    ? Mygento_Kkm_Model_Vendor_AtolAbstract::OPERATION_SELL
+                    : Mygento_Kkm_Model_Vendor_AtolAbstract::OPERATION_REFUND
+            );
+
             try {
                 $model->save();
-                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('cdek')->__('Pvz was successfully saved'));
+                Mage::getSingleton('adminhtml/session')->addSuccess(Mage::helper('kkm')->__('Status was successfully saved'));
                 Mage::getSingleton('adminhtml/session')->setFormData(false);
                 if ($this->getRequest()->getParam('back')) {
                     $this->_redirect('*/*/edit', array('id' => $model->getId()));
@@ -74,7 +79,7 @@ class Mygento_Kkm_Adminhtml_Kkm_StatusController extends Mage_Adminhtml_Controll
                 return;
             }
         }
-        Mage::getSingleton('adminhtml/session')->addError(Mage::helper('cdek')->__('Unable to find Pvz to save'));
+        Mage::getSingleton('adminhtml/session')->addError(Mage::helper('kkm')->__('Unable to find Status to save'));
         $this->_redirect('*/*/');
     }
 
