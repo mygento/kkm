@@ -11,7 +11,7 @@
 use Mage_Sales_Model_Order_Invoice as Invoice;
 use Mage_Sales_Model_Order_Creditmemo as Creditmemo;
 
-interface Mygento_Kkm_Model_Vendor_VendorInterface
+interface Mygento_Kkm_Model_Vendor_Interface
 {
     /**
      *

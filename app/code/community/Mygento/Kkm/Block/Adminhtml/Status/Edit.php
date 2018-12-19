@@ -32,8 +32,8 @@ class Mygento_Kkm_Block_Adminhtml_Status_Edit extends Mage_Adminhtml_Block_Widge
     {
         if (Mage::registry('kkm_status_data') && Mage::registry('kkm_status_data')->getId()) {
             return Mage::helper('kkm')->__("Edit Status %s", $this->htmlEscape(Mage::registry('kkm_status_data')->getId()));
-        } else {
-            return Mage::helper('kkm')->__('Add Status');
         }
+
+        return Mage::helper('kkm')->__('Add Status');
     }
 }

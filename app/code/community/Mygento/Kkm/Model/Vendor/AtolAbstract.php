@@ -7,7 +7,7 @@
  * @package Mygento_Kkm
  * @copyright 2018 NKS LLC. (https://www.mygento.ru)
  */
-abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Model_Vendor_VendorInterface
+abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Model_Vendor_Interface
 {
     const CODE                 = 'atol';
     const OPERATION_SELL       = 'sell';
@@ -19,7 +19,6 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
 
     protected $token;
 
-    abstract protected function getUrl();
     abstract public function generateJsonPost($receipt, $externalIdPostfix);
     abstract protected function getSendUrl($operation);
     abstract protected function getUpdateStatusUrl($uuid);
@@ -93,9 +92,11 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
         $helper      = Mage::helper('kkm');
         $type        = $entity::HISTORY_ENTITY_NAME;
         $debugData   = [];
+        $headers     = [];
         $statusModel = Mage::getModel('kkm/status')->loadByEntity($entity);
         $operation   = $type === 'invoice' ? self::OPERATION_SELL : self::OPERATION_REFUND;
         $getRequest  = '{"initial":1}';
+        $url         = $this->getSendUrl($operation);
 
         try {
             //Cheque is being sent for the 1st time
@@ -106,12 +107,11 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
             $jsonPost = $this->generateJsonPost($entity, $statusModel->getResendCount());
 
             $helper->addLog('Request to ATOL json: ' . $jsonPost);
+            $helper->addLog('url: ' . $url);
 
             $token = $debugData['token'] = $this->getToken();
 
-            $url = $this->getSendUrl($operation);
             $headers[] = "Token: $token";
-            $helper->addLog('url: ' . $url);
 
             $getRequest = $debugData['atol_response'] = $helper->requestApiPost($url, $jsonPost, $headers);
 
@@ -264,6 +264,7 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
     protected function updateStatus($uuid)
     {
         $helper      = Mage::helper('kkm');
+        $headers     = [];
         $statusModel = Mage::getModel('kkm/status')->load($uuid, 'uuid');
         if (!$statusModel->getId()) {
             $helper->addLog('Uuid not found in store DB. Uuid: ' . $uuid, Zend_Log::ERR);
@@ -475,5 +476,12 @@ abstract class Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Mode
     protected function getConfig($param)
     {
         return Mage::helper('kkm')->getConfig($param);
+    }
+
+    protected function getUrl()
+    {
+        $isTest = (bool)$this->getConfig('general/test_mode');
+
+        return $isTest ? static::TEST_URL : static::URL;
     }
 }

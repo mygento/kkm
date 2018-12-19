@@ -7,17 +7,10 @@
  * @package Mygento_Kkm
  * @copyright 2017 NKS LLC. (https://www.mygento.ru)
  */
-class Mygento_Kkm_Model_Vendor_Atol3 extends Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Model_Vendor_VendorInterface
+class Mygento_Kkm_Model_Vendor_Atol3 extends Mygento_Kkm_Model_Vendor_AtolAbstract implements Mygento_Kkm_Model_Vendor_Interface
 {
     const URL      = 'https://online.atol.ru/possystem/v3/';
     const TEST_URL = 'https://testonline.atol.ru/possystem/v3/';
-
-    protected function getUrl()
-    {
-        $isTest = (bool)$this->getConfig('general/test_mode');
-
-        return $isTest ? self::TEST_URL : self::URL;
-    }
 
     /**
      * @param string $operation part of the url
