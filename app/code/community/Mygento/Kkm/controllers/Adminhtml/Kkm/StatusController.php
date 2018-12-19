@@ -47,6 +47,8 @@ class Mygento_Kkm_Adminhtml_Kkm_StatusController extends Mage_Adminhtml_Controll
 
         $this->_addContent($this->getLayout()->createBlock('kkm/adminhtml_status_edit'))
             ->_addLeft($this->getLayout()->createBlock('kkm/adminhtml_status_edit_tabs'));
+
+        $this->getLayout()->getBlock('head')->setTitle($this->__('Kkm Status'));
         $this->renderLayout();
     }
 

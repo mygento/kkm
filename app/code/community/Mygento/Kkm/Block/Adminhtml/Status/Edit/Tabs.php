@@ -15,7 +15,6 @@ class Mygento_Kkm_Block_Adminhtml_Status_Edit_Tabs extends Mage_Adminhtml_Block_
         parent::__construct();
         $this->setId('status_tabs');
         $this->setDestElementId('edit_form');
-        $this->setTitle(Mage::helper('kkm')->__('Status Information'));
     }
 
     protected function _beforeToHtml()
