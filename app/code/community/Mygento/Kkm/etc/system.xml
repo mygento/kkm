@@ -64,9 +64,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <depends>
-                                <vendor>atol</vendor>
-                            </depends>
                         </login>
                         <password translate="label">
                             <label>Kkm password</label>
@@ -76,9 +73,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <depends>
-                                <vendor>atol</vendor>
-                            </depends>
                         </password>
                         <test_mode translate="label">
                             <label>Test mode</label>
@@ -96,9 +90,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <depends>
-                                <vendor>atol</vendor>
-                            </depends>
                         </group_code>
                         <inn translate="label">
                             <label>INN</label>
@@ -256,9 +247,6 @@
                             <show_in_default>1</show_in_default>
                             <show_in_website>1</show_in_website>
                             <show_in_store>1</show_in_store>
-                            <depends>
-                                <vendor>atol</vendor>
-                            </depends>
                         </send_phone>
 
                         <heading_2 translate="label">
@@ -284,9 +272,6 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                             <comment>Format: http://www.domain.com/. Leave it empty for default value.</comment>
-                            <depends>
-                                <vendor>atol</vendor>
-                            </depends>
                         </callback_url>
                         <cron_update_expr translate="label comment">
                             <label>Frequency of updating</label>

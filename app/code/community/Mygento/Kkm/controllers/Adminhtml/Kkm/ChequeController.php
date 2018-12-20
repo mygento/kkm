@@ -116,7 +116,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
             return;
         }
 
-        $atolModel  = Mage::getModel('kkm/vendor_atol');
+        $atolModel  = Mage::helper('kkm')->getVendorModel();
         $jsonToSend = $atolModel->generateJsonPost($order, 'manual');
         $filename   = "json_{$incId}.json";
 
@@ -175,7 +175,7 @@ class Mygento_Kkm_Adminhtml_Kkm_ChequeController extends Mage_Adminhtml_Controll
         }
         $testCode .= "\n";
 
-        $atolModel = Mage::getModel('kkm/vendor_atol');
+        $atolModel = Mage::helper('kkm')->getVendorModel();
         $json      = $atolModel->generateJsonPost($entity, '');
         $receipt   = json_decode($json, true);
 
