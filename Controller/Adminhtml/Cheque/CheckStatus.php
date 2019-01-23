@@ -1,22 +1,21 @@
 <?php
 /**
- * @author Mygento Team
- * @copyright Copyright 2017 Mygento (https://www.mygento.ru)
+ * @author Mygento
+ * @copyright Copyright 2017 Mygento
  * @package Mygento_Kkm
  */
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
-/**
- * Class CheckStatus
- */
+use Magento\Framework\Exception\ValidatorException;
+
 class CheckStatus extends \Magento\Backend\App\Action
 {
-
     /** @var \Mygento\Kkm\Helper\Data */
-    protected $_helper;
-
-    /** @var \Magento\Backend\App\Action\Context */
-    protected $_context;
+    protected $kkmHelper;
+    /**
+     * @var \Mygento\Kkm\Model\Atol\Vendor
+     */
+    private $vendor;
 
     /**
      * Constructor
@@ -26,39 +25,54 @@ class CheckStatus extends \Magento\Backend\App\Action
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
-        \Mygento\Kkm\Helper\Data $helper
+        \Mygento\Kkm\Helper\Data $helper,
+        \Mygento\Kkm\Model\Atol\Vendor $vendor
     ) {
-    
         parent::__construct($context);
-        $this->_helper  = $helper;
-        $this->_context = $context;
+
+        $this->kkmHelper = $helper;
+        $this->vendor    = $vendor;
+    }
+
+    public function execute()
+    {
+        try {
+            $this->validateRequest();
+
+            $uuid = strtolower($this->_request->getParam('uuid'));
+
+            $response = $this->vendor->updateStatus($uuid);
+            $this->getMessageManager()->addSuccessMessage(
+                __('Kkm transaction status was updated. Status: %1', $response->getStatus())
+            );
+
+        } catch (\Exception $exc) {
+            $this->getMessageManager()->addErrorMessage(
+                __('Can not check status of the transaction.')
+            );
+            $this->getMessageManager()->addErrorMessage($exc->getMessage());
+            $this->kkmHelper->error($exc->getMessage());
+
+        } finally {
+
+            return $this->resultRedirectFactory->create()->setUrl(
+                $this->_redirect->getRefererUrl()
+            );
+        }
     }
 
     /**
-     * Main action
+     * @throws \Magento\Framework\Exception\ValidatorException
      */
-    public function execute()
+    protected function validateRequest()
     {
-        $uuid           = strtolower($this->_request->getParam('uuid'));
-        $resultRedirect = $this->resultRedirectFactory->create();
+        $uuid = $this->getRequest()->getParam('uuid');
 
         if (!$uuid) {
-            $this->getMessageManager()->addError(__('Uuid can not be empty.'));
-            return $resultRedirect->setUrl($this->_redirect->getRefererUrl());
+            $this->kkmHelper->error('Invalid url. No uuid. Params: ');
+            $this->kkmHelper->error($this->getRequest()->getParams());
+
+            throw new ValidatorException(__('Invalid request. Check logs.'));
         }
-
-        $helper     = $this->_helper;
-        $vendorName = ucfirst($this->_helper->getConfig('mygento_kkm/general/vendor'));
-        $vendor     = $this->_context->getObjectManager()->create('\Mygento\Kkm\Model\Vendor\\' . $vendorName);
-
-        $result = $vendor->checkStatus($uuid);
-
-        if (!$result) {
-            $this->getMessageManager()->addError(__('Can not check status of the transaction.'));
-        } else {
-            $this->getMessageManager()->addSuccess(__('Check Status was updated.'));
-        }
-
-        return $resultRedirect->setUrl($this->_redirect->getRefererUrl());
     }
 }

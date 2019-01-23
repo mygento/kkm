@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Mygento Team
+ * @author Mygento
  * @copyright See COPYING.txt for license details.
  * @package Mygento_Kkm
  */
@@ -20,19 +20,19 @@ class Severity implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             [
-                'value' => \Zend\Log\Logger::CRIT,
+                'value' => \Monolog\Logger::CRITICAL,
                 'label' => ('CRITICAL')
             ],
             [
-                'value' => \Zend\Log\Logger::ERR,
+                'value' => \Monolog\Logger::ERROR,
                 'label' => ('ERROR')
             ],
             [
-                'value' => \Zend\Log\Logger::WARN,
+                'value' => \Monolog\Logger::WARNING,
                 'label' => ('WARN')
             ],
             [
-                'value' => \Zend\Log\Logger::DEBUG,
+                'value' => \Monolog\Logger::DEBUG,
                 'label' => ('DEBUG')
             ],
         ];

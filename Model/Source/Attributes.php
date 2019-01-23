@@ -1,9 +1,5 @@
 <?php
-/**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
- * @package Mygento_Base
- */
+
 namespace Mygento\Kkm\Model\Source;
 
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\Collection;

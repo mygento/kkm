@@ -25,6 +25,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
 
         $installer->startSetup();
 
+
         //handle all possible upgrade versions
 
         if (version_compare($context->getVersion(), '2.0.1') < 0) {

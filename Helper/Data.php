@@ -6,171 +6,236 @@
  */
 namespace Mygento\Kkm\Helper;
 
+use Mygento\Kkm\Exception\CreateDocumentFailedException;
+use Psr\Log\LoggerInterface;
+
 /**
  * Class Data
  */
-class Data extends \Mygento\Base\Helper\Data
+class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
 {
+    const CONFIG_CODE = 'mygento_kkm';
 
     /** @var string */
-    protected $_code = 'kkm';
+    protected $_code = 'mygento_kkm';
 
     /** @var \Magento\Sales\Model\Order\InvoiceFactory */
-    protected $_orderInvoiceFactory;
+    private $orderInvoiceFactory;
 
     /** @var \Magento\Sales\Api\CreditmemoRepositoryInterface */
-    protected $_creditmemoRepository;
+    private $creditmemoRepository;
 
     /** @var \Magento\Framework\Message\ManagerInterface */
-    protected $_messageManager;
-
+    private $messageManager;
     /**
-     * Constructor
-     *
-     * @param \Magento\Framework\App\Helper\Context $context
-     * @param \Mygento\Base\Model\Logger\LoggerFactory $loggerFactory
-     * @param \Mygento\Base\Model\Logger\HandlerFactory $handlerFactory
-     * @param \Magento\Framework\Encryption\Encryptor $encryptor
-     * @param \Magento\Framework\HTTP\Client\Curl $curl
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory
-     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
-     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @var \Magento\Framework\Notification\NotifierInterface
      */
+    private $adminNotifier;
+    /**
+     * @var \Magento\Framework\Url
+     */
+    private $urlHelper;
+
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Mygento\Base\Model\Logger\LoggerFactory $loggerFactory,
         \Mygento\Base\Model\Logger\HandlerFactory $handlerFactory,
         \Magento\Framework\Encryption\Encryptor $encryptor,
         \Magento\Framework\HTTP\Client\Curl $curl,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
+        \Magento\Catalog\Model\ProductRepository $productRepository,
         \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        \Magento\Framework\Message\ManagerInterface $messageManager,
+        \Magento\Framework\Url $urlHelper,
+        \Magento\Framework\Notification\NotifierInterface $notifier
     ) {
-    
-        parent::__construct(
-            $context,
-            $loggerFactory,
-            $handlerFactory,
-            $encryptor,
-            $curl,
-            $storeManager
-        );
-        $this->_orderInvoiceFactory  = $orderInvoiceFactory;
-        $this->_creditmemoRepository = $creditmemoRepository;
-        $this->_messageManager       = $messageManager;
+        parent::__construct($context, $loggerFactory, $handlerFactory, $encryptor, $curl, $productRepository);
+
+        $this->orderInvoiceFactory  = $orderInvoiceFactory;
+        $this->creditmemoRepository = $creditmemoRepository;
+        $this->messageManager       = $messageManager;
+        $this->adminNotifier        = $notifier;
+        $this->urlHelper            = $urlHelper;
     }
 
     /**
-     * @return object \Magento\Framework\Message\ManagerInterface
+     * @return \Magento\Framework\Message\ManagerInterface
      */
     public function getMessageManager()
     {
-        return $this->_messageManager;
+        return $this->messageManager;
     }
 
-    /**
-     * @param mixed $json
-     * @param \Mygento\Kkm\Model\StatusFactory $status
-     * @param string constants $vendor
-     * @return boolean
-     */
-    public function updateKkmInfoInOrder($json, $status, $vendor = 'atol')
+    public function getConfig($param)
     {
-        $incrementId = $status->getIncrementId();
-        $entityType  = $status->getType();
-        $entity      = null;
+        return parent::getConfig($this->getCode() . '/' . $param);
+    }
 
-        if ($entityType === 'invoice') {
-            $entity = $this->_orderInvoiceFactory->create()->load($incrementId, 'increment_id');
-        } elseif ($entityType === 'creditmemo') {
-            $entity = $this->_creditmemoRepository->create()->load($incrementId, 'increment_id');
-        }
+    public function getStoreEmail()
+    {
+        return parent::getConfig('trans_email/ident_general/email');
+    }
 
-        if (!$entity || empty($incrementId) || !is_numeric($incrementId) || !$entity->getId()) {
-            $this->addLog(
-                "Error. Can not save callback info to order. Method params: Json = {$json} 
-        Extrnal_id = {$externalId}. Incrememnt_id = {$incrementId}. Entity_type = {$entityType}",
-                \Zend\Log\Logger::ERR
+    public function getFrontendUrl($routePath, $routeParams)
+    {
+        return $this->urlHelper->getUrl($routePath, $routeParams);
+    }
+
+    public function getCallbackUrl()
+    {
+        return $this->getConfig('atol/callback_url')
+            ?? $this->getFrontendUrl(
+                'kkm/frontend/callback',
+                ['_secure' => true]
             );
-
-            return false;
-        }
-
-        $this->saveTransactionInfoToOrder(
-            $json,
-            $entity,
-            $entity->getOrder(),
-            'Received message from KKM vendor.',
-            $vendor
-        );
     }
 
     /**
-     * Save info about transaction to order
-     * @param $getRequest string with json from vendor
-     * @param $entity \Magento\Sales\Model\Order\InvoiceFactory | \Magento\Sales\Api\CreditmemoRepositoryInterface
-     * @param $order \Magento\Sales\Model\Order
-     * @return boolean
+     *
+     * @param string $message
+     * @param array $context
      */
-    public function saveTransactionInfoToOrder(
-        $getRequest,
-        $entity,
-        $order,
-        $orderComment = '',
-        $vendorName = 'atol'
-    ) {
-    
-        $status = false;
+    public function alert($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::ALERT);
+    }
 
-        try {
-            $getRequestObj = json_decode($getRequest);
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function critical($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::CRITICAL);
+    }
 
-            if ($getRequestObj->error == null) {
-                $orderComment = $orderComment ?: 'Cheque has been sent to KKM vendor.';
-                $comment      = '[' . strtoupper($vendorName) . '] '
-                    . __($orderComment) . ' '
-                    . ucwords($entity->getEntityType()) . ': '
-                    . $entity->getIncrementId()
-                    . '. Status: '
-                    . ucwords($getRequestObj->status)
-                    . '. Uuid: '
-                    . $getRequestObj->uuid ?: 'no uuid';
-            } else {
-                $orderComment = $orderComment ?: 'Cheque has been rejected by KKM vendor.';
-                $comment      = '[' . strtoupper($vendorName) . '] '
-                    . __($orderComment) . ' '
-                    . ucwords($entity->getEntityType()) . ': '
-                    . $entity->getIncrementId()
-                    . '. Status: '
-                    . ucwords($getRequestObj->status)
-                    . '. Error code: '
-                    . $getRequestObj->error->code
-                    . '. Error text: '
-                    . $getRequestObj->error->text
-                    . '. Uuid: '
-                    . $getRequestObj->uuid ?: 'no uuid';
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function debug($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::DEBUG);
+    }
 
-                if ($this->getConfig('mygento_kkm/general/fail_status')) {
-                    $status = $this->getConfig('mygento_kkm/general/fail_status');
-                }
-            }
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function emergency($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::EMERGENCY);
+    }
 
-            if ($status) {
-                $order->setState('processing', $status, $comment);
-            } else {
-                $order->addStatusHistoryComment($comment);
-            }
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function error($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::ERROR);
+    }
 
-            $order->save();
-        } catch (\Exception $e) {
-            $this->addLog(
-                'Can not save KKM transaction info to order. Reason: ' . $e->getMessage(),
-                \Zend\Log\Logger::CRIT
-            );
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function info($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::INFO);
+    }
 
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     * @param mixed $level
+     */
+    public function log($level, $message, array $context = [])
+    {
+        $this->writeLog($message, $level);
+    }
+
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function notice($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::NOTICE);
+    }
+
+    /**
+     *
+     * @param string $message
+     * @param array $context
+     */
+    public function warning($message, array $context = [])
+    {
+        $this->writeLog($message, \Monolog\Logger::WARNING);
+    }
+
+    /**
+     *
+     * @param string|array $message
+     * @param string $level
+     */
+    protected function writeLog($message, $level = \Monolog\Logger::DEBUG)
+    {
+        if (!parent::getConfig($this->getDebugConfigPath())) {
             return false;
+        }
+
+        if ($level < $this->getConfig('general/debug_level')) {
+            return false;
+        }
+
+        if (is_array($message)) {
+            // @codingStandardsIgnoreStart
+            $message = print_r($message, true);
+            // @codingStandardsIgnoreEnd
+        }
+
+        $this->_logger->log($level, $message);
+    }
+
+    public function isTestMode()
+    {
+        return $this->getConfig('atol/test_mode');
+    }
+
+    /** Makes different notifications if cheque was not successfully sent to KKM
+     * @param $entity
+     * @param \Exception|null $exception
+     */
+    public function processKkmChequeRegistrationError($entity, \Exception $exception = null)
+    {
+        $entityType = ucfirst($entity->getEntityType());
+
+        $fullMessage = $exception->getMessage().' ';
+        $fullMessage .= "{$entityType}: {$entity->getIncrementId()}. ";
+        $fullMessage .= "Order: {$entity->getOrder()->getIncrementId()}";
+
+        $this->error($fullMessage);
+        if ($exception instanceof CreateDocumentFailedException) {
+            $this->error('Params:');
+            $this->error($exception->getDebugData());
+            $this->error('Response: '.$exception->getResponse());
+            $fullMessage .= " Transaction Id (uuid): {$exception->getResponse()->getUuid()}";
+        }
+
+        //Show Admin Messages
+        if ($this->getConfig('general/admin_notifications')) {
+            $this->adminNotifier->addMajor(
+                __('KKM Cheque sending error. Order: %1', $entity->getOrder()->getIncrementId()),
+                $fullMessage
+            );
         }
     }
 }

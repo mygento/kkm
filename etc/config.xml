@@ -9,9 +9,12 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <mygento_kkm>
+            <atol>
+                <!--<api_version>4</api_version>-->
+                <test_mode>1</test_mode>
+            </atol>
             <general>
-                <enabled>1</enabled>
-                <vendor>atol</vendor>
+                <enabled>0</enabled>
                 <debug>1</debug>
                 <debug_level>2</debug_level>
                 <tax_all>1</tax_all>

@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Mygento Team
+ * @author Mygento
  * @copyright See COPYING.txt for license details.
  * @package Mygento_Kkm
  */
@@ -26,7 +26,6 @@ class Payments implements \Magento\Framework\Data\OptionSourceInterface
     public function __construct(
         \Magento\Payment\Helper\Data $paymentHelper
     ) {
-    
         $this->paymentHelper = $paymentHelper;
     }
 
@@ -38,7 +37,8 @@ class Payments implements \Magento\Framework\Data\OptionSourceInterface
     public function toOptionArray()
     {
         if ($this->options === null) {
-            $this->options = $this->paymentHelper->getPaymentMethodList(true, true, true);
+            //Do not use flag "withGroups" because some methods are absent
+            $this->options = $this->paymentHelper->getPaymentMethodList(true, true, false);
         }
         return $this->options;
     }

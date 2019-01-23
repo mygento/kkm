@@ -1,6 +1,6 @@
 <?php
 /**
- * @author Mygento Team
+ * @author Mygento
  * @copyright See COPYING.txt for license details.
  * @package Mygento_Kkm
  */
@@ -26,85 +26,125 @@ class InstallSchema implements InstallSchemaInterface
 
         $installer->startSetup();
 
+        $installer->getConnection()->addColumn(
+            $installer->getTable('sales_payment_transaction'),
+            'kkm_status',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'nullable' => true,
+                'length' => '16',
+                'comment' => 'Status. For KKM transactions',
+                'after' => 'is_closed'
+            ]
+        );
+
+        $installer->endSetup();
+    }
+
+    /**
+     * @param \Magento\Framework\Setup\SchemaSetupInterface $installer
+     */
+    public function installVer201($installer)
+    {
+        // Required tables
+        $statusTable      = $installer->getTable('sales_order_status');
+        $statusStateTable = $installer->getTable('sales_order_status_state');
+
+        // Insert statuses
+        $installer->getConnection()->insertArray(
+            $statusTable,
+            [
+                'status',
+                'label'
+            ],
+            [
+                ['status' => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS, 'label' => 'KKM Failed'],
+            ]
+        );
+
+        $installer->getConnection()->insertArray(
+            $statusStateTable,
+            [
+                'status',
+                'state',
+                'is_default'
+            ],
+            [
+                [
+                    'status'     => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                    'state'      => 'processing',
+                    'is_default' => 0
+                ],
+                [
+                    'status'     => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                    'state'      => 'complete',
+                    'is_default' => 0
+                ],
+                [
+                    'status'     => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                    'state'      => 'closed',
+                    'is_default' => 0
+                ]
+            ]
+        );
+    }
+
+    /**
+     * @param \Magento\Framework\Setup\SchemaSetupInterface $installer
+     */
+    public function installVer202($installer)
+    {
         /**
-         * Create table 'mygento_kkm_status'
+         * Create table 'mygento_kkm_log'
          */
         $table = $installer->getConnection()
-            ->newTable($installer->getTable('mygento_kkm_status'))
+            ->newTable($installer->getTable('mygento_kkm_log'))
             ->addColumn(
-                'id',
+                'entity_id',
                 \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
                 null,
                 ['identity'       => true, 'auto_increment' => true, 'unsigned'       => true,
-                'nullable'       => false, 'primary'        => true],
+                 'nullable'       => false, 'primary'        => true],
                 'ID'
             )
             ->addColumn(
-                'uuid',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Universally Unique Identifier'
-            )
-            ->addColumn(
-                'type',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Type Of Operation'
-            )
-            ->addColumn(
-                'increment_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Increment Id'
-            )
-            ->addColumn(
-                'operation',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Operation'
-            )
-            ->addColumn(
-                'vendor',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                ['unsigned' => true],
-                'Vendor code'
-            )
-            ->addColumn(
-                'response',
+                'message',
                 \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
                 null,
-                [
-                'nullable' => false,
-                'length'   => 255
-                ],
-                'Response'
+                [],
+                'Message'
             )
             ->addColumn(
-                'status',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'severity',
+                \Magento\Framework\DB\Ddl\Table::TYPE_SMALLINT,
+                null,
+                [],
+                'Severity'
+            )
+            ->addColumn(
+                'timestamp',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TIMESTAMP,
                 null,
                 [
-                'nullable' => false,
-                'length'   => 255
+                    'default' => \Magento\Framework\DB\Ddl\Table::TIMESTAMP_INIT,
                 ],
-                'Status'
+                'Time'
             )
-            ->setComment('Mygento Kkm Status');
+            ->addColumn(
+                'advanced_info',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                null,
+                [],
+                'Advanced Info'
+            )
+            ->addColumn(
+                'module_code',
+                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                255,
+                [],
+                'Module Code'
+            )
+        ;
         $installer->getConnection()->createTable($table);
-
-        $installer->endSetup();
     }
 }

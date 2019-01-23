@@ -1,86 +1,101 @@
 <?php
 /**
- * @author Mygento Team
- * @copyright Copyright 2017 Mygento (https://www.mygento.ru)
+ * @author Mygento
+ * @copyright Copyright 2017 Mygento
  * @package Mygento_Kkm
  */
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
-/**
- * Class Resend
- */
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\ValidatorException;
+
 class Resend extends \Magento\Backend\App\Action
 {
-
     /** @var \Mygento\Kkm\Helper\Data */
-    protected $_helper;
-
+    protected $kkmHelper;
     /**
-     * Constructor
-     *
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Mygento\Kkm\Helper\Data $helper
-     * @param \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory
-     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
+     * @var \Mygento\Kkm\Model\Atol\Vendor
      */
+    private $vendor;
+    /**
+     * @var \Magento\Sales\Model\Order\InvoiceFactory
+     */
+    private $invoiceFactory;
+    /**
+     * @var \Magento\Sales\Api\CreditmemoRepositoryInterface
+     */
+    private $creditmemoRepository;
+
     public function __construct(
+        \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Mygento\Kkm\Model\Atol\Vendor $vendor,
         \Magento\Backend\App\Action\Context $context,
-        \Mygento\Kkm\Helper\Data $helper,
-        \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory,
+        \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
     ) {
-    
         parent::__construct($context);
-        $this->_helper               = $helper;
-        $this->_context              = $context;
-        $this->_orderInvoiceFactory  = $orderInvoiceFactory;
-        $this->_creditmemoRepository = $creditmemoRepository;
+
+        $this->kkmHelper            = $kkmHelper;
+        $this->vendor               = $vendor;
+        $this->invoiceFactory       = $invoiceFactory;
+        $this->creditmemoRepository = $creditmemoRepository;
+    }
+
+    public function execute()
+    {
+        try {
+            $this->validateRequest();
+
+            $entityType = strtolower($this->_request->getParam('entity'));
+            $id         = $this->getRequest()->getParam('id');
+
+            switch ($entityType) {
+                case 'invoice':
+                    $entity = $this->invoiceFactory->create()->load($id);
+                    $comment = 'Cheque was sent to KKM. Status: %1';
+                    break;
+
+                case 'creditmemo':
+                    $entity = $this->creditmemoRepository->get($id);
+                    $comment = 'Refund was sent to KKM. Status: %1';
+                    break;
+            }
+            $response = $this->vendor->send($entity);
+            $this->getMessageManager()->addSuccessMessage(__($comment, $response->getStatus()));
+
+        } catch (NoSuchEntityException $exc) {
+
+            $this->getMessageManager()->addErrorMessage(
+                __(ucfirst($entityType))." {$id} ".__("not found")
+            );
+            $this->kkmHelper->error("Entity {$entityType} with Id {$id} not found.");
+
+        } catch (\Exception $exc) {
+
+            $this->getMessageManager()->addErrorMessage($exc->getMessage());
+            $this->kkmHelper->error("Resend failed. Reason: ".$exc->getMessage());
+
+        } finally {
+
+            return $this->resultRedirectFactory->create()->setUrl(
+                $this->_redirect->getRefererUrl()
+            );
+        }
     }
 
     /**
-     * Main action
+     * @throws \Magento\Framework\Exception\ValidatorException
      */
-    public function execute()
+    protected function validateRequest()
     {
+        $entityType = $this->getRequest()->getParam('entity');
+        $id         = $this->getRequest()->getParam('id');
 
-        $entityType = strtolower($this->_request->getParam('entity'));
-        $id         = $this->_request->getParam('id');
-
-        $helper     = $this->_helper;
-        $vendorName = ucfirst($this->_helper->getConfig('mygento_kkm/general/vendor'));
-        $vendor     = $this->_context->getObjectManager()->create('\Mygento\Kkm\Model\Vendor\\' . $vendorName);
-        
         if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
-            $this->getMessageManager()->addError(__('Something goes wrong. Check logs.'));
-            $helper->addLog('Invalid url. No id or invalid entity type. Params: ', \Zend\Log\Logger::ERR);
-            $helper->addLog($this->getRequest()->getParams(), \Zend\Log\Logger::ERR);
-            return $this->resultRedirectFactory->create()->setUrl($this->_redirect->getRefererUrl());
+            $this->kkmHelper->error('Invalid url. No id or invalid entity type. Params: ');
+            $this->kkmHelper->error($this->getRequest()->getParams());
+
+            throw new ValidatorException(__('Invalid request. Check logs.'));
         }
-        
-        if ($entityType === 'invoice') {
-            $entity = $this->_orderInvoiceFactory->create()->load($id);
-        } elseif ($entityType === 'creditmemo') {
-            $entity = $this->_creditmemoRepository->get($id);
-        }
-        
-        if (!$entity->getId()) {
-            $this->getMessageManager()->addError(__('Something goes wrong. Check log file.'));
-            $helper->addLog('Entity with Id from request does not exist. Id: ' . $id, \Zend\Log\Logger::ERR);
-            return $this->resultRedirectFactory->create()->setUrl($this->_redirect->getRefererUrl());
-        }
-        
-        $method = 'sendCheque';
-        
-        if ($entityType == 'creditmemo') {
-            $method  = 'cancelCheque';
-            $comment = 'Refund was sent to KKM. Status of the transaction see in orders comment.';
-        } else {
-            $comment = 'Cheque was sent to KKM. Status of the transaction see in orders comment.';
-        }
-        
-        $vendor->$method($entity, $entity->getOrder());
-        
-        $this->getMessageManager()->addSuccess(__($comment));
-        return $this->resultRedirectFactory->create()->setUrl($this->_redirect->getRefererUrl());
     }
 }
