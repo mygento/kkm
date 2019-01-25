@@ -1,0 +1,43 @@
+<!--@subject (ru) [KKM] Отчет @-->
+<!--@styles
+body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
+@-->
+
+<body style="background:#F6F6F6; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px; margin:0; padding:0;">
+
+    <div style="background:#F6F6F6; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px; margin:0; padding:0;">
+    <table cellspacing="0" cellpadding="0" border="0" width="98%" style="margin-top:10px; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; margin-bottom:10px;">
+        <tr>
+            <td>
+                <div style="background:#F6F6F6; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:18px; margin:30px 0; padding:0;">
+                    <strong>Период:</strong> c {{var statistics.getFromDate()}} по {{var statistics.getToDate()}}
+                </div>
+                <table cellspacing="3" cellpadding="10" border="1" width="20%">
+                    <tr>
+                        <td>Чеков с ошибкой</td>
+                        <td>{{var statistics.getFailsCount()}}</td>
+                    </tr>
+                    <tr>
+                        <td>Чеков в ожидании</td>
+                        <td>{{var statistics.getWaitsCount()}}</td>
+                    </tr>
+                    <tr>
+                        <td>Успешно отправленных</td>
+                        <td>{{var statistics.getDonesCount()}}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td align="center" valign="top">
+                {{if statistics.failsCount }}
+                    <h3>Подробно</h3>
+                    {{block type='core/template' area='adminhtml' template='email/kkm/statistics.phtml' statistics=$statistics}}
+                {{/if}}
+
+                <p>Это письмо сформировано автоматически. Пожалуйста, не отвечайте на него.</p>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>

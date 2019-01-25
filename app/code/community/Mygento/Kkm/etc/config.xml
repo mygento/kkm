@@ -96,10 +96,15 @@
         <template>
             <email>
                 <kkm_error_notification>
-                    <label>KKM Error Notification</label>
+                    <label>[KKM] Error Email</label>
                     <file>kkm_error_notification.html</file>
                     <type>html</type>
                 </kkm_error_notification>
+                <kkm_general_send_report_template translate="label" module="kkm">
+                    <label>[KKM] Report Email</label>
+                    <file>kkm_report.html</file>
+                    <type>html</type>
+                </kkm_general_send_report_template>
             </email>
         </template>
     </global>
@@ -230,6 +235,11 @@
                 <apply_algorithm>1</apply_algorithm>
                 <spread_discount>0</spread_discount>
                 <split_allowed>0</split_allowed>
+                <send_report_template>kkm_general_send_report_template</send_report_template>
+                <report_sender_name>KKM Reporter</report_sender_name>
+                <report_sender_email>no-reply@example.com</report_sender_email>
+                <report_period>dailyprev</report_period>
+                <cron_report_expr>1 0 * * *</cron_report_expr>
                 <show_notif_in_admin>1</show_notif_in_admin>
                 <debug_level>3</debug_level>
             </general>
@@ -245,6 +255,14 @@
                     <model>kkm/observer::updateTransactions</model>
                 </run>
             </kkm_update_transactions>
+            <kkm_send_report>
+                <schedule>
+                    <config_path>kkm/general/cron_report_expr</config_path>
+                </schedule>
+                <run>
+                    <model>kkm/report::sendReport</model>
+                </run>
+            </kkm_send_report>
         </jobs>
     </crontab>
 </config>
