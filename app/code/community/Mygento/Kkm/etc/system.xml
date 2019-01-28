@@ -340,6 +340,97 @@
                             <comment>Ability to split 1 item to 2 with different prices (if needed)</comment>
                         </split_allowed>
 
+                        <!--REPORT HANDLING-->
+                        <heading_report translate="label">
+                            <label>Reports</label>
+                            <frontend_model>adminhtml/system_config_form_field_heading</frontend_model>
+                            <sort_order>1000</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </heading_report>
+                        <send_report_enabled translate="label comment">
+                            <label>Send report to email</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>1110</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </send_report_enabled>
+                        <send_report_template translate="label">
+                            <label>Report Template</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_email_template</source_model>
+                            <sort_order>1120</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <depends>
+                                <send_report_enabled>1</send_report_enabled>
+                            </depends>
+                        </send_report_template>
+                        <report_sender_name translate="label">
+                            <label>Sender Name</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1130</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>required-entry</frontend_class>
+                            <backend_model>adminhtml/system_config_backend_email_sender</backend_model>
+                            <validate>validate-emailSender</validate>
+                            <depends>
+                                <send_report_enabled>1</send_report_enabled>
+                            </depends>
+                        </report_sender_name>
+                        <report_sender_email translate="label">
+                            <label>Sender Email</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1140</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <frontend_class>required-entry</frontend_class>
+                            <validate>validate-email</validate>
+                            <backend_model>adminhtml/system_config_backend_email_address</backend_model>
+                            <depends>
+                                <send_report_enabled>1</send_report_enabled>
+                            </depends>
+                        </report_sender_email>
+                        <report_emails translate="label comment">
+                            <label>Emails</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1150</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <comment>Separated by comma</comment>
+                            <depends>
+                                <send_report_enabled>1</send_report_enabled>
+                            </depends>
+                        </report_emails>
+                        <report_period translate="label">
+                            <label>Period of reports</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>kkm/source_periods</source_model>
+                            <sort_order>1160</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                            <comment>За какой период будет отправлен отчет</comment>
+                            <depends>
+                                <send_report_enabled>1</send_report_enabled>
+                            </depends>
+                        </report_period>
+                        <cron_report_expr translate="label comment">
+                            <label>Frequency of sending report</label>
+                            <frontend_type>text</frontend_type>
+                            <sort_order>1170</sort_order>
+                            <comment><![CDATA[Use Crontab Format (Eg. "*/5 * * * *" for every 5 minutes)]]></comment>
+                            <show_in_default>1</show_in_default>
+                        </cron_report_expr>
+
                         <!--ERROR HANDLING-->
                         <heading_error translate="label">
                             <label>Error handling</label>

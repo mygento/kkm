@@ -1,0 +1,50 @@
+<?php
+/**
+ * @var Mygento_Kkm_Model_Statistics
+ * $statistics
+ */
+
+$statistics = $this->getStatistics();
+$notSent = array_merge($statistics->getFails(), $statistics->getUnknowns());
+?>
+
+<table cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #EAEAEA;">
+    <thead>
+    <tr>
+        <th align="left" bgcolor="#EAEAEA" style="font-size:13px; padding:3px 9px"><?php echo $this->__('Updated at') ?></th>
+        <th align="left" bgcolor="#EAEAEA" style="font-size:13px; padding:3px 9px"><?php echo $this->__('UUID') ?></th>
+        <th align="left" bgcolor="#EAEAEA" style="font-size:13px; padding:3px 9px"><?php echo $this->__('Operation') ?></th>
+        <th align="left" bgcolor="#EAEAEA" style="font-size:13px; padding:3px 9px"><?php echo $this->__('Increment Id') ?></th>
+        <th align="center" bgcolor="#EAEAEA" style="font-size:13px; padding:3px 9px"><?php echo $this->__('Fail message') ?></th>
+    </tr>
+    </thead>
+    <tbody>
+        <?php $i=0; foreach ($notSent as $item): ?>
+            <?php
+                $responseObj = json_decode($item->getStatus());
+                $message = $responseObj->error
+                    ? json_encode($responseObj->error, JSON_UNESCAPED_UNICODE)
+                    : $this->__('Unknown error.') . ' ' . $this->__('Response') . ':' . $item->getStatus();
+            ?>
+
+            <tr <?php echo $i%2 ? 'bgcolor="#F6F6F6"' : '' ?>>
+                <td valign="top" style="padding:7px 9px 9px 9px; border:1px solid #bebcb7; border-top:0; border-bottom:0;">
+                    <?php echo $item->getUpdatedAt(); ?>
+                </td>
+                <td valign="top" style="padding:7px 9px 9px 9px; border:1px solid #bebcb7; border-top:0; border-bottom:0;">
+                    <?php echo $item->getUuid(); ?>
+                </td>
+                <td valign="top" style="padding:7px 9px 9px 9px; border:1px solid #bebcb7; border-top:0; border-bottom:0;">
+                    <?php echo ($item->getEntityType() == 'invoice' ? $this->__('Sell') : $this->__('Refund')); ?>
+                </td>
+                <td valign="top" style="padding:7px 9px 9px 9px; border:1px solid #bebcb7; border-top:0; border-bottom:0;">
+                    <?php echo $item->getIncrementId(); ?>
+                </td>
+                <td valign="top" style="padding:7px 9px 9px 9px; border:1px solid #bebcb7; border-top:0; border-bottom:0;">
+                    <?php echo $message ; ?>
+                </td>
+            </tr>
+            <?php $i++; ?>
+        <?php endforeach; ?>
+    </tbody>
+</table>
