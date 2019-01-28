@@ -64,6 +64,21 @@ class Mygento_Kkm_Model_Statistics extends Mage_Core_Model_Abstract
         return count($this->fails);
     }
 
+    public function getUnknowns()
+    {
+        return $this->unknown;
+    }
+
+    public function getUnknownsCount()
+    {
+        return count($this->unknown);
+    }
+
+    public function getNotSentCount()
+    {
+        return count($this->unknown) + count($this->fails);
+    }
+
     public function getWaitsCount()
     {
         return $this->waitCount;

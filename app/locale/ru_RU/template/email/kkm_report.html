@@ -2,6 +2,12 @@
 <!--@styles
 body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif; }
 @-->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <title>Email - Header</title>
+    <meta charset="utf-8">
+</head>
 
 <body style="background:#F6F6F6; font-family:Verdana, Arial, Helvetica, sans-serif; font-size:12px; margin:0; padding:0;">
 
@@ -14,8 +20,8 @@ body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif;
                 </div>
                 <table cellspacing="3" cellpadding="10" border="1" width="20%">
                     <tr>
-                        <td>Чеков с ошибкой</td>
-                        <td>{{var statistics.getFailsCount()}}</td>
+                        <td>Неотправленных чеков</td>
+                        <td>{{var statistics.getNotSentCount()}}</td>
                     </tr>
                     <tr>
                         <td>Чеков в ожидании</td>
@@ -30,8 +36,8 @@ body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif;
         </tr>
         <tr>
             <td align="center" valign="top">
-                {{if statistics.failsCount }}
-                    <h3>Подробно</h3>
+                {{if statistics.getNotSentCount() }}
+                    <h3>Информация о неотправленных чеках</h3>
                     {{block type='core/template' area='adminhtml' template='email/kkm/statistics.phtml' statistics=$statistics}}
                 {{/if}}
 
@@ -41,3 +47,4 @@ body,td { color:#2f2f2f; font:11px/1.35em Verdana, Arial, Helvetica, sans-serif;
     </table>
 </div>
 </body>
+</html>

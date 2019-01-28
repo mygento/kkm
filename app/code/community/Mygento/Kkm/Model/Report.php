@@ -27,7 +27,7 @@ class Mygento_Kkm_Model_Report
                 break;
         }
 
-        $this->send($statistics);
+        return $this->send($statistics);
     }
 
     /**

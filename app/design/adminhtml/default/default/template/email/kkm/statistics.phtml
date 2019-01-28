@@ -5,6 +5,7 @@
  */
 
 $statistics = $this->getStatistics();
+$notSent = array_merge($statistics->getFails(), $statistics->getUnknowns());
 ?>
 
 <table cellspacing="0" cellpadding="0" border="0" width="100%" style="border:1px solid #EAEAEA;">
@@ -18,12 +19,12 @@ $statistics = $this->getStatistics();
     </tr>
     </thead>
     <tbody>
-        <?php $i=0; foreach ($statistics->getFails() as $item): ?>
+        <?php $i=0; foreach ($notSent as $item): ?>
             <?php
                 $responseObj = json_decode($item->getStatus());
                 $message = $responseObj->error
                     ? json_encode($responseObj->error, JSON_UNESCAPED_UNICODE)
-                    : '';
+                    : $this->__('Unknown error.') . ' ' . $this->__('Response') . ':' . $item->getStatus();
             ?>
 
             <tr <?php echo $i%2 ? 'bgcolor="#F6F6F6"' : '' ?>>
