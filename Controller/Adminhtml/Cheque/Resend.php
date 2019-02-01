@@ -74,6 +74,7 @@ class Resend extends \Magento\Backend\App\Action
 
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error("Resend failed. Reason: ".$exc->getMessage());
+            $this->kkmHelper->processKkmChequeRegistrationError($entity, $exc);
 
         } finally {
 

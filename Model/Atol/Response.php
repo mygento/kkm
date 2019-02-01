@@ -61,13 +61,19 @@ class Response
         $this->uuid = $json->uuid ?? null;
         $this->error = $json->error ?? null;
         $this->payload = $json->payload ?? null;
-        $this->status = $json->status;
+        $this->status = $json->status ?? null;
         $this->timestamp = $json->timestamp;
         $this->groupCode = $json->group_code ?? null;
         $this->daemonCode = $json->daemon_code ?? null;
         $this->deviceCode = $json->device_code ?? null;
         $this->callbackUrl = $json->callback_url ?? null;
         $this->jsonResponse = json_encode($json);
+
+        if (!$this->uuid) {
+            throw new \Exception(
+                __('Receipt is not registered. Response: %1', (string)$jsonRaw)
+            );
+        }
     }
 
     /**

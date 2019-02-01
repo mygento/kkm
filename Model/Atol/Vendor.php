@@ -80,7 +80,7 @@ class Vendor
         $response = $this->apiClient->sendSell($request);
 
         $txn = $this->transactionHelper->saveSellTransaction($invoice, $response);
-        $this->addCommentToOrder($invoice, $response, $txn->getId());
+        $this->addCommentToOrder($invoice, $response, $txn->getId() ?? null);
 
         $this->validateResponse($response);
 

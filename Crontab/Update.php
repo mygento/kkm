@@ -1,4 +1,9 @@
 <?php
+/**
+ * @author Mygento Team
+ * @copyright See COPYING.txt for license details.
+ * @package Mygento_Kkm
+ */
 
 namespace Mygento\Kkm\Crontab;
 

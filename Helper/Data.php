@@ -35,6 +35,10 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      * @var \Magento\Framework\Url
      */
     private $urlHelper;
+    /**
+     * @var \Magento\Sales\Api\OrderRepositoryInterface
+     */
+    private $orderRepository;
 
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -43,6 +47,7 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
         \Magento\Framework\Encryption\Encryptor $encryptor,
         \Magento\Framework\HTTP\Client\Curl $curl,
         \Magento\Catalog\Model\ProductRepository $productRepository,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
         \Magento\Framework\Message\ManagerInterface $messageManager,
@@ -56,6 +61,7 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
         $this->messageManager       = $messageManager;
         $this->adminNotifier        = $notifier;
         $this->urlHelper            = $urlHelper;
+        $this->orderRepository      = $orderRepository;
     }
 
     /**
@@ -211,7 +217,7 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
     }
 
     /** Makes different notifications if cheque was not successfully sent to KKM
-     * @param $entity
+     * @param \Magento\Sales\Api\Data\EntityInterface $entity
      * @param \Exception|null $exception
      */
     public function processKkmChequeRegistrationError($entity, \Exception $exception = null)
@@ -222,12 +228,16 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
         $fullMessage .= "{$entityType}: {$entity->getIncrementId()}. ";
         $fullMessage .= "Order: {$entity->getOrder()->getIncrementId()}";
 
+        $uuid = $exception->getResponse()
+            ? $exception->getResponse()->getUuid()
+            : null;
+
         $this->error($fullMessage);
         if ($exception instanceof CreateDocumentFailedException) {
             $this->error('Params:');
             $this->error($exception->getDebugData());
-            $this->error('Response: '.$exception->getResponse());
-            $fullMessage .= " Transaction Id (uuid): {$exception->getResponse()->getUuid()}";
+            $this->error('Response: ' . $exception->getResponse());
+            $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
         }
 
         //Show Admin Messages
@@ -236,6 +246,17 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
                 __('KKM Cheque sending error. Order: %1', $entity->getOrder()->getIncrementId()),
                 $fullMessage
             );
+        }
+
+        try {
+            $order = $entity->getOrder();
+            $order->addStatusToHistory(
+                \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                $fullMessage
+            );
+            $this->orderRepository->save($order);
+        } catch (\Exception $e) {
+            $this->error($e->getMessage());
         }
     }
 }

@@ -34,14 +34,12 @@ class Item implements \JsonSerializable
             'sum'            => $this->getSum(),
             'payment_method' => $this->getPaymentMethod(),
             'payment_object' => $this->getPaymentObject(),
-            'tax' => $this->getTax(),//for API v3
             'vat'            => [
                 'type' => $this->getTax(),//for API v4
             ],
         ];
 
         if ($this->getTaxSum()) {
-            $item['tax_sum'] = $this->getTaxSum();//for API v3
             $item['vat']['sum'] = $this->getTaxSum();//for API v4
         }
 
