@@ -35,10 +35,6 @@ class Report extends Command
      */
     protected $appState;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
-     */
-    private $vendor;
-    /**
      * @var \Mygento\Kkm\Model\Report
      */
     private $report;
@@ -48,14 +44,12 @@ class Report extends Command
     private $output;
 
     public function __construct(
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
         \Mygento\Kkm\Model\Report $report,
         \Magento\Framework\App\State $state
     ) {
         parent::__construct();
 
         $this->appState = $state;
-        $this->vendor   = $vendor;
         $this->report   = $report;
     }
 

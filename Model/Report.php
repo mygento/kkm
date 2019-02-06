@@ -32,7 +32,7 @@ class Report
     private $statisticsFactory;
 
     public function __construct(
-        \Mygento\Kkm\Model\StatisticsFactory $statisticsFactory,
+        StatisticsFactory $statisticsFactory,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Stdlib\DateTime\Timezone $timezone
@@ -110,7 +110,8 @@ class Report
 
         foreach ($transactions->getItems() as $item) {
             $info   = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
-            $status = $info[Transaction::STATUS_KEY] ?? 'unknown';
+            $status = $item->getKkmStatus()
+                ?? ($info[Transaction::STATUS_KEY] ?? 'unknown');
 
             switch ($status) {
                 case Response::STATUS_DONE:

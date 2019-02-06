@@ -1,0 +1,72 @@
+<?php
+
+use \Mygento\Kkm\Helper\Transaction;
+use \Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+
+/**
+* @var \Mygento\Kkm\Model\Statistics
+ */
+$statistics = $this->getStatistics();
+$notSent = array_merge($statistics->getFails(), $statistics->getUnknowns(), $statistics->getWaits());
+?>
+
+<?php if ($statistics->getWaitsCount() + $statistics->getNotSentCount()): ?>
+<div style="background:#f0f0f0;background-color:#f0f0f0;Margin:0px auto;max-width:900px;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#f0f0f0;background-color:#f0f0f0;width:100%;">
+        <tbody>
+        <tr>
+            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
+                <div class="mj-column-per-100 outlook-group-fix" style="font-size:13px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+                    <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="vertical-align:top;" width="100%">
+                        <tr>
+                            <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
+                                <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:24px;font-style:italic;line-height:1;text-align:center;color:#626262;">
+                                    Детали
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div style="background:#f0f0f0;background-color:#f0f0f0;Margin:0px auto;max-width:900px;">
+    <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#f0f0f0;background-color:#f0f0f0;width:100%;">
+        <tbody>
+        <tr>
+            <td style="direction:ltr;font-size:0px;padding:20px 0;text-align:center;vertical-align:top;">
+                <table cellpadding="0" cellspacing="0" width="100%" border="0" style="cellspacing:0;color:#000000;font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:13px;line-height:22px;table-layout:auto;width:100%;">
+                    <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+                        <th style="padding: 0 15px 0 0;">Дата</th>
+                        <th style="padding: 0 15px;">Status</th>
+                        <th style="padding: 0 15px;">UUID</th>
+                        <th style="padding: 0 0 0 15px;">Операция</th>
+                        <th style="padding: 0 0 0 15px;">IncrementId</th>
+                        <th style="padding: 0 0 0 15px;">Сообщение</th>
+                    </tr>
+                    <?php foreach ($notSent as $item): ?>
+                    <?php
+                        $additional  = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+                        $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
+                        $message     = $additional[Transaction::ERROR_MESSAGE_KEY]
+                            ?? $additional[Transaction::RAW_RESPONSE_KEY];
+                        $message     = wordwrap($message, 50);
+                        ?>
+                    <tr>
+                        <td style="padding: 0 15px 0 0;"><?php echo $item->getCreatedAt(); ?></td>
+                        <td style="padding: 0 15px;"><?php echo $item->getKkmStatus(); ?></td>
+                        <td style="padding: 0 0 0 15px;"><?php echo $item->getTxnId(); ?></td>
+                        <td style="padding: 0 0 0 15px;"><?php echo $item->getTxnType(); ?></td>
+                        <td style="padding: 0 0 0 15px;"><?php echo $incrementId; ?></td>
+                        <td style="padding: 0 0 0 15px;"><?php echo $message; ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<?php endif; ?>

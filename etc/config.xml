@@ -13,6 +13,11 @@
                 <!--<api_version>4</api_version>-->
                 <test_mode>1</test_mode>
             </atol>
+            <report>
+                <enabled>0</enabled>
+                <template>mygento_kkm_report_template</template>
+                <sender_email>no-reply@example.com</sender_email>
+            </report>
             <general>
                 <enabled>0</enabled>
                 <debug>1</debug>
