@@ -7,9 +7,13 @@
 
 namespace Mygento\Kkm\Crontab;
 
+use Magento\Framework\Exception\MailException;
+use Mygento\Kkm\Model\Source\Period;
+
 class Report
 {
     const EMAIL_SUBJECT = 'KKM Report';
+    const EMAIL_SENDER_NAME = 'KKM Reporter';
 
     /**
      * @var \Mygento\Kkm\Helper\Data
@@ -42,31 +46,40 @@ class Report
         $this->kkmHelper->info('KKM Report Cron START');
 
         $senderEmail = $this->kkmHelper->getConfig('report/sender_email');
-        $senderName = 'KKM Reporter';
+        $senderName = self::EMAIL_SENDER_NAME;
         $recipient = $this->kkmHelper->getConfig('report/email');
         $template = $this->kkmHelper->getConfig('report/template');
+        $period = $this->kkmHelper->getConfig('report/period');
 
-        //TODO: use Source model to define report period
-
-
-        $statistics = $this->report->getTodayStatistics();
+        switch ($period) {
+            case Period::WEEKLY_NAME:
+                $statistics = $this->report->getWeekStatistics();
+                break;
+            case Period::TODAY_NAME:
+                $statistics = $this->report->getTodayStatistics();
+                break;
+            case Period::YESTERDAY_NAME:
+            default:
+                $statistics = $this->report->getYesterdayStatistics();
+                break;
+        }
 
         $fields = [
             'subject' => self::EMAIL_SUBJECT,
             'statistics' => $statistics
         ];
 
-        $this->emailHelper
-            ->setArea(\Magento\Framework\App\Area::AREA_ADMINHTML)
-            ->setSender($senderEmail, $senderName)
-            ->setRecipient($recipient)
-            ->setTemplate($template)
-            ->setFields($fields)
-            ->send();
-
-
-//        $this->kkmHelper->debug($result);
-//        $this->kkmHelper->info("{$i} transactions updated");
+        try {
+            $this->emailHelper
+                ->setArea(\Magento\Framework\App\Area::AREA_ADMINHTML)
+                ->setSender($senderEmail, $senderName)
+                ->setRecipient($recipient)
+                ->setTemplate($template)
+                ->setFields($fields)
+                ->send();
+        } catch (MailException $e) {
+            $this->kkmHelper->error('Report was not sent. ' . $e->getMessage());
+        }
         $this->kkmHelper->info('KKM Report Cron END');
     }
 }

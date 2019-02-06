@@ -17,6 +17,7 @@
                 <enabled>0</enabled>
                 <template>mygento_kkm_report_template</template>
                 <sender_email>no-reply@example.com</sender_email>
+                <period>yesterday</period>
             </report>
             <general>
                 <enabled>0</enabled>

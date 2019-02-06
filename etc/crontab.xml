@@ -4,5 +4,8 @@
         <job name="kkm_statuses" instance="Mygento\Kkm\Crontab\Update" method="execute">
             <schedule>* * * * *</schedule>
         </job>
+        <job name="kkm_report" instance="Mygento\Kkm\Crontab\Report" method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
     </group>
 </config>
