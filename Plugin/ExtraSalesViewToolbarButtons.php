@@ -16,9 +16,9 @@ class ExtraSalesViewToolbarButtons
 
     /**
      * Role Authorizations Service
-     * @var \Magento\Framework\AuthorizationInterface $_authorization
+     * @var \Magento\Framework\AuthorizationInterface $authorization
      */
-    protected $_authorization;
+    protected $authorization;
 
     /** @var \Magento\Backend\Model\UrlInterface */
     protected $urlBuilder;
@@ -40,9 +40,9 @@ class ExtraSalesViewToolbarButtons
         \Magento\Framework\AuthorizationInterface $authorization,
         \Magento\Backend\Model\UrlInterface $urlBuilder
     ) {
-        $this->kkmHelper     = $kkmHelper;
-        $this->_authorization = $authorization;
-        $this->urlBuilder    = $urlBuilder;
+        $this->kkmHelper         = $kkmHelper;
+        $this->authorization     = $authorization;
+        $this->urlBuilder        = $urlBuilder;
         $this->transactionHelper = $transactionHelper;
     }
 
@@ -127,7 +127,7 @@ class ExtraSalesViewToolbarButtons
         }
 
         //Check ACL
-        $resendAllowed = $this->_authorization->isAllowed('Mygento_Kkm::cheque_resend');
+        $resendAllowed = $this->authorization->isAllowed('Mygento_Kkm::cheque_resend');
 
         return $resendAllowed;
     }
@@ -147,7 +147,7 @@ class ExtraSalesViewToolbarButtons
         }
 
         //Check ACL
-        $checkStatusAllowed = $this->_authorization->isAllowed('Mygento_Kkm::cheque_checkstatus');
+        $checkStatusAllowed = $this->authorization->isAllowed('Mygento_Kkm::cheque_checkstatus');
 
         return $checkStatusAllowed && $isWait;
     }

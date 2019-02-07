@@ -10,7 +10,7 @@ namespace Mygento\Kkm\Model\Source;
 
 class ApiVersion implements \Magento\Framework\Option\ArrayInterface
 {
-    const API_VERSION_4                = 4;
+    const API_VERSION_4 = 4;
 
     /**
      * Get options

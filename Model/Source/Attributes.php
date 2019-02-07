@@ -34,9 +34,9 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
 
         $attrAll = $coll->load()->getItems();
 
-        $_options = [];
+        $options = [];
 
-        $_options[] = [
+        $options[] = [
             'label' => __('No usage'),
             'value' => 0
         ];
@@ -45,10 +45,10 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
         foreach ($attrAll as $attr) {
             $label = $attr->getStoreLabel() ? $attr->getStoreLabel() : $attr->getFrontendLabel();
             if ('' != $label) {
-                $_options[] = ['label' => $label, 'value' => $attr->getAttributeCode()];
+                $options[] = ['label' => $label, 'value' => $attr->getAttributeCode()];
             }
         }
-        return $_options;
+        return $options;
     }
 
     /**
