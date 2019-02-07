@@ -1,7 +1,8 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright Copyright 2017 Mygento
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -77,7 +78,6 @@ class Callback extends \Magento\Framework\App\Action\Action
             }
 
             $result->setContents($exc->getMessage());
-
         }
 
         return $result;

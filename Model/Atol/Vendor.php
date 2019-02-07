@@ -1,17 +1,19 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Model\Atol;
 
-use Mygento\Kkm\Exception\CreateDocumentFailedException;
-use Magento\Sales\Model\EntityInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
+use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Model\EntityInterface;
+use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
 class Vendor
 {
@@ -69,9 +71,9 @@ class Vendor
      * Send invoice to Vendor
      *
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
-     * @return \Mygento\Kkm\Model\Atol\Response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function sendSell($invoice)
     {
@@ -90,9 +92,9 @@ class Vendor
     /**
      * Send creditmemo to Vendor
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
-     * @return \Mygento\Kkm\Model\Atol\Response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function sendRefund($creditmemo)
     {
@@ -112,10 +114,10 @@ class Vendor
      * Send cheque (sell or refund) to Atol
      *
      * @param InvoiceInterface|CreditmemoInterface $entity
-     * @return \Mygento\Kkm\Model\Atol\Response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function send($entity)
     {
@@ -170,12 +172,11 @@ class Vendor
         return $response;
     }
 
-
     /** Save callback from Atol and return related entity (Invoice or Creditmemo)
      * @param \Mygento\Kkm\Model\Atol\Response $response $response
-     * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
+     * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
      */
     public function saveCallback($response)
     {
@@ -207,8 +208,8 @@ class Vendor
 
     /**
      * @param \Magento\Sales\Model\EntityInterface $salesEntity Order|Invoice|Creditmemo
-     * @return \Mygento\Kkm\Model\Atol\Request
      * @throws \Exception
+     * @return \Mygento\Kkm\Model\Atol\Request
      */
     public function buildRequest(EntityInterface $salesEntity): Request
     {
@@ -332,12 +333,15 @@ class Vendor
      */
     public function generateExternalId(EntityInterface $entity, $postfix = '')
     {
+        $postfix = '_ololo';
+
         return $entity->getEntityType() . '_' . $entity->getIncrementId() . ($postfix ? "_{$postfix}" : '');
     }
 
     /**
      * @param InvoiceInterface|CreditmemoInterface $entity
      * @param \Mygento\Kkm\Model\Atol\Response $response
+     * @param null|mixed $txnId
      */
     public function addCommentToOrder($entity, Response $response, $txnId = null)
     {
@@ -347,7 +351,7 @@ class Vendor
             return;
         }
 
-        $message = ucfirst($entity->getEntityType()).': '.$entity->getIncrementId().'. ';
+        $message = ucfirst($entity->getEntityType()) . ': ' . $entity->getIncrementId() . '. ';
         $message .= $response->getMessage();
 
         if ($txnId) {

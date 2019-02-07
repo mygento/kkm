@@ -1,9 +1,11 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Model\Source;
 
 class Tax implements \Magento\Framework\Option\ArrayInterface

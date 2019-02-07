@@ -1,9 +1,11 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Plugin;
 
 use Mygento\Kkm\Model\Atol\Response;
@@ -94,7 +96,7 @@ class ExtraSalesViewToolbarButtons
             $data = [
                 'label'   => __('Check status in KKM'),
                 'class'   => '',
-                'onclick' => 'setLocation(\''.$url.'\')',
+                'onclick' => 'setLocation(\'' . $url . '\')',
             ];
             $buttonList->add('check_status_in_kkm', $data);
         }

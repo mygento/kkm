@@ -1,12 +1,18 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Helper;
 
-use \Mygento\Kkm\Model\Atol\Response;
-use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Creditmemo;
-use \Magento\Sales\Api\Data\TransactionInterface;
-use \Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Model\Atol\Response;
 
 class Transaction
 {
@@ -67,14 +73,14 @@ class Transaction
     /**
      * @param \Magento\Sales\Model\Order\Invoice $invoice
      * @param \Mygento\Kkm\Model\Atol\Response $response
-     * @return \Magento\Sales\Api\Data\TransactionInterface
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
      */
     public function saveSellTransaction(Invoice $invoice, Response $response)
     {
         $this->kkmHelper->info(
             __(
-                "start save transaction %1. Invoice %2",
+                'start save transaction %1. Invoice %2',
                 $response->getUuid(),
                 $invoice->getIncrementId()
             )
@@ -87,14 +93,14 @@ class Transaction
     /**
      * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
      * @param \Mygento\Kkm\Model\Atol\Response $response
-     * @return \Magento\Sales\Api\Data\TransactionInterface
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
      */
     public function saveRefundTransaction(Creditmemo $creditmemo, Response $response)
     {
         $this->kkmHelper->info(
             __(
-                "start save transaction %1. Creditmemo %2",
+                'start save transaction %1. Creditmemo %2',
                 $response->getUuid(),
                 $creditmemo->getIncrementId()
             )
@@ -107,8 +113,9 @@ class Transaction
     /**
      * @param \Magento\Sales\Api\Data\EntityInterface $entity
      * @param \Mygento\Kkm\Model\Atol\Response $response
-     * @return \Magento\Sales\Api\Data\TransactionInterface
+     * @param mixed $type
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
      */
     protected function saveTransaction($entity, Response $response, $type)
     {
@@ -137,8 +144,7 @@ class Transaction
             );
             $transaction
                 ->setIsClosed($isClosed)
-                ->setKkmStatus($response->getStatus())
-            ;
+                ->setKkmStatus($response->getStatus());
 
             return $this->transactionRepo->save($transaction);
         }
@@ -163,15 +169,15 @@ class Transaction
     public function isTransactionExists($transactionId, $paymentId, $orderId)
     {
         return $transactionId && $this->transactionRepo->getByTransactionId(
-                $transactionId,
-                $paymentId,
-                $orderId
-            );
+            $transactionId,
+            $paymentId,
+            $orderId
+        );
     }
 
     protected function updateTransactionData($transactionId, $paymentId, $orderId, $transData)
     {
-        $this->kkmHelper->info('update transaction: '.$transactionId);
+        $this->kkmHelper->info('update transaction: ' . $transactionId);
         $transaction = $this->transactionRepo->getByTransactionId(
             $transactionId,
             $paymentId,
@@ -251,8 +257,8 @@ class Transaction
 
     /**
      * @param \Magento\Sales\Api\Data\TransactionInterface $transaction
-     * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
      * @throws \Exception
+     * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
      */
     public function getEntityByTransaction(TransactionInterface $transaction)
     {

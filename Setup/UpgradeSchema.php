@@ -1,14 +1,16 @@
 <?php
+
 /**
  * @author Mygento Team
- * @copyright See COPYING.txt for license details.
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Setup;
 
-use Magento\Framework\Setup\UpgradeSchemaInterface;
-use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
+use Magento\Framework\Setup\SchemaSetupInterface;
+use Magento\Framework\Setup\UpgradeSchemaInterface;
 
 /**
  * Class UpgradeSchema
@@ -24,7 +26,6 @@ class UpgradeSchema implements UpgradeSchemaInterface
         $installer = $setup;
 
         $installer->startSetup();
-
 
         //handle all possible upgrade versions
 
@@ -96,8 +97,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 255,
                 [],
                 'Module Code'
-            )
-        ;
+            );
         $installer->getConnection()->createTable($table);
     }
 

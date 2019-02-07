@@ -1,15 +1,17 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Observer;
 
-use \Mygento\Kkm\Model\Atol\Vendor;
-use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
-use \Magento\Framework\Event\ObserverInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Mygento\Kkm\Model\Atol\Vendor;
 
 class Send implements ObserverInterface
 {
@@ -57,7 +59,6 @@ class Send implements ObserverInterface
                 __($comment, $response->getStatus())
             );
             $this->kkmHelper->info(__($comment, $response->getStatus()));
-
         } catch (\Exception $exc) {
             $this->kkmHelper->getMessageManager()->addErrorMessage(
                 __(
@@ -73,13 +74,12 @@ class Send implements ObserverInterface
     /** Check Invoice|Creditmemo, Kkm setting, Currency etc before sending
      *
      * @param InvoiceInterface|CreditmemoInterface $entity
-     * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return bool
      */
     protected function canProceed($entity)
     {
-        if (
-            !$this->kkmHelper->getConfig('general/enabled')
+        if (!$this->kkmHelper->getConfig('general/enabled')
             || !$this->kkmHelper->getConfig('general/auto_send_after_invoice')
             || $entity->getOrderCurrencyCode() != 'RUB'
             || $entity->getData(Vendor::ALREADY_SENT_FLAG)

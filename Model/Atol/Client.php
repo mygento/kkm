@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Model\Atol;
 
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
@@ -40,7 +46,6 @@ class Client
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
-
     ) {
         $this->kkmHelper         = $kkmHelper;
         $this->responseFactory   = $responseFactory;
@@ -48,8 +53,8 @@ class Client
     }
 
     /**
-     * @return string
      * @throws \Exception
+     * @return string
      */
     public function getToken(): string
     {
@@ -67,7 +72,7 @@ class Client
             ]
         );
 
-        $url = $this->getBaseUrl().self::GET_TOKEN_URL_APPNX;
+        $url = $this->getBaseUrl() . self::GET_TOKEN_URL_APPNX;
 
         $curl = $this->curlClientFactory->create();
         $curl->addHeader('Content-Type', 'application/json; charset=utf-8');
@@ -79,43 +84,43 @@ class Client
         if (!$decodedResult || !isset($decodedResult->token) || $decodedResult->token == '') {
             throw new \Exception(
                 __('Response from Atol does not contain valid token value. Response: ')
-                .strval($response)
+                . strval($response)
             );
         }
 
         $this->token = $decodedResult->token;
 
-        $this->kkmHelper->info('Token: '.$this->token);
+        $this->kkmHelper->info('Token: ' . $this->token);
 
         return $this->token;
     }
 
     /**
      * @param string $uuid
-     * @return \Mygento\Kkm\Model\Atol\Response
      * @throws \Exception
+     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function receiveStatus(string $uuid): Response
     {
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
         $groupCode = $this->kkmHelper->getConfig('atol/group_code');
-        $url       = $this->getBaseUrl().$groupCode.'/'.self::REPORT_URL_APPNX.'/'.$uuid;
-        $this->kkmHelper->debug('URL: '.$url);
+        $url       = $this->getBaseUrl() . $groupCode . '/' . self::REPORT_URL_APPNX . '/' . $uuid;
+        $this->kkmHelper->debug('URL: ' . $url);
 
         $responseRaw = $this->sendGetRequest($url);
         $response    = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-        $this->kkmHelper->info('New status: '.$response->getStatus());
-        $this->kkmHelper->debug('Response: '.$response);
+        $this->kkmHelper->info('New status: ' . $response->getStatus());
+        $this->kkmHelper->debug('Response: ' . $response);
 
         return $response;
     }
 
     /**
      * @param \JsonSerializable|array $request
-     * @return \Mygento\Kkm\Model\Atol\Response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function sendRefund($request): Response
     {
@@ -125,17 +130,17 @@ class Client
         $groupCode = $this->kkmHelper->getConfig('atol/group_code');
         $request = $debugData['request'] = json_encode($request);
 
-        $this->kkmHelper->debug('Request : '.$request);
+        $this->kkmHelper->debug('Request : ' . $request);
 
         try {
-            $url = $debugData['url'] = $this->getBaseUrl().$groupCode.'/'.self::SELL_REFUND_URL_APPNX;
-            $this->kkmHelper->debug('URL: '.$url);
+            $url = $debugData['url'] = $this->getBaseUrl() . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
+            $this->kkmHelper->debug('URL: ' . $url);
 
             $responseRaw = $this->sendPostRequest($url, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
             $this->kkmHelper->info(__('Creditmemo is sent. Uuid: %1', $response->getUuid()));
-            $this->kkmHelper->debug('Response: '.$response);
+            $this->kkmHelper->debug('Response: ' . $response);
         } catch (\Exception $exc) {
             throw new CreateDocumentFailedException(
                 $exc->getMessage(),
@@ -149,8 +154,8 @@ class Client
 
     /**
      * @param \JsonSerializable|array $request
-     * @return \Mygento\Kkm\Model\Atol\Response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function sendSell($request): Response
     {
@@ -160,17 +165,17 @@ class Client
         $groupCode = $this->kkmHelper->getConfig('atol/group_code');
         $request = $debugData['request'] = json_encode($request);
 
-        $this->kkmHelper->debug('Request : '.$request);
+        $this->kkmHelper->debug('Request : ' . $request);
 
         try {
-            $url = $debugData['url'] = $this->getBaseUrl().$groupCode.'/'.self::SELL_URL_APPNX;
-            $this->kkmHelper->debug('URL: '.$url);
+            $url = $debugData['url'] = $this->getBaseUrl() . $groupCode . '/' . self::SELL_URL_APPNX;
+            $this->kkmHelper->debug('URL: ' . $url);
 
             $responseRaw = $this->sendPostRequest($url, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
             $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getUuid()));
-            $this->kkmHelper->debug('Response: '.$response);
+            $this->kkmHelper->debug('Response: ' . $response);
         } catch (\Exception $exc) {
             $this->kkmHelper->error($exc->getMessage());
             throw new CreateDocumentFailedException(
@@ -208,8 +213,8 @@ class Client
     /**
      * @param $url
      * @param array|string $params - use $params as a string in case of JSON POST request.
-     * @return string
      * @throws \Exception
+     * @return string
      */
     protected function sendPostRequest($url, $params = []): string
     {
@@ -224,8 +229,8 @@ class Client
 
     /**
      * @param $url
-     * @return string
      * @throws \Exception
+     * @return string
      */
     protected function sendGetRequest($url): string
     {
@@ -236,5 +241,4 @@ class Client
 
         return $response;
     }
-
 }

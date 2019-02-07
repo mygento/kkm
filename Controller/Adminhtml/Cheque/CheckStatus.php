@@ -1,9 +1,11 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright Copyright 2017 Mygento
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
 use Magento\Framework\Exception\ValidatorException;
@@ -45,16 +47,13 @@ class CheckStatus extends \Magento\Backend\App\Action
             $this->getMessageManager()->addSuccessMessage(
                 __('Kkm transaction status was updated. Status: %1', $response->getStatus())
             );
-
         } catch (\Exception $exc) {
             $this->getMessageManager()->addErrorMessage(
                 __('Can not check status of the transaction.')
             );
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error($exc->getMessage());
-
         } finally {
-
             return $this->resultRedirectFactory->create()->setUrl(
                 $this->_redirect->getRefererUrl()
             );

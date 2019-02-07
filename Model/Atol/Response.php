@@ -1,13 +1,18 @@
 <?php
 
-namespace Mygento\Kkm\Model\Atol;
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
 
+namespace Mygento\Kkm\Model\Atol;
 
 class Response
 {
-    public const STATUS_DONE = 'done';
-    public const STATUS_FAIL = 'fail';
-    public const STATUS_WAIT = 'wait';
+    const STATUS_DONE = 'done';
+    const STATUS_FAIL = 'fail';
+    const STATUS_WAIT = 'wait';
 
     /**
      * @var string
@@ -79,7 +84,7 @@ class Response
     /**
      * @return string
      */
-    public function getUuid(): ?string
+    public function getUuid()
     {
         return $this->uuid;
     }
@@ -95,16 +100,16 @@ class Response
     /**
      * @return null|string
      */
-    public function getErrorMessage(): ?string
+    public function getErrorMessage()
     {
         if (!$this->error) {
             return null;
         }
 
         $message = $this->getErrorText();
-        $message .= '. Code: '.$this->getErrorCode();
-        $message .= '. Error Id: '.$this->getErrorId();
-        $message .= '. Error type: '.$this->getErrorType();
+        $message .= '. Code: ' . $this->getErrorCode();
+        $message .= '. Error Id: ' . $this->getErrorId();
+        $message .= '. Error type: ' . $this->getErrorType();
 
         return $message;
     }
@@ -114,7 +119,7 @@ class Response
         $message = 'Status: ';
         $message .= ucfirst($this->getStatus());
         $message .= ' Uuid: ';
-        $message .= ($this->getUuid() ?? 'no uuid').' ';
+        $message .= ($this->getUuid() ?? 'no uuid') . ' ';
         $message .= $this->getErrorMessage() ?? '';
 
         return $message;
@@ -123,7 +128,7 @@ class Response
     /**
      * @return null|string
      */
-    public function getErrorId(): ?string
+    public function getErrorId()
     {
         return $this->error->error_id ?? null;
     }
@@ -131,7 +136,7 @@ class Response
     /**
      * @return null|string
      */
-    public function getErrorText(): ?string
+    public function getErrorText()
     {
         return $this->error->text ?? null;
     }
@@ -139,7 +144,7 @@ class Response
     /**
      * @return null|string
      */
-    public function getErrorCode(): ?string
+    public function getErrorCode()
     {
         return $this->error->code ?? null;
     }
@@ -147,7 +152,7 @@ class Response
     /**
      * @return null|string
      */
-    public function getErrorType(): ?string
+    public function getErrorType()
     {
         return $this->error->type ?? null;
     }
@@ -155,7 +160,7 @@ class Response
     /**
      * @return string
      */
-    public function getStatus(): string
+    public function getStatus()
     {
         return $this->status;
     }
@@ -171,7 +176,7 @@ class Response
     /**
      * @return string
      */
-    public function getTimestamp(): string
+    public function getTimestamp()
     {
         return $this->timestamp;
     }
@@ -179,7 +184,7 @@ class Response
     /**
      * @return string
      */
-    public function getGroupCode(): ?string
+    public function getGroupCode()
     {
         return $this->groupCode;
     }
@@ -187,7 +192,7 @@ class Response
     /**
      * @return string
      */
-    public function getDaemonCode(): ?string
+    public function getDaemonCode()
     {
         return $this->daemonCode;
     }
@@ -195,7 +200,7 @@ class Response
     /**
      * @return string
      */
-    public function getDeviceCode(): ?string
+    public function getDeviceCode()
     {
         return $this->deviceCode;
     }
@@ -203,7 +208,7 @@ class Response
     /**
      * @return string
      */
-    public function getCallbackUrl(): ?string
+    public function getCallbackUrl()
     {
         return $this->callbackUrl;
     }
@@ -239,4 +244,3 @@ class Response
         return $this->getJsonResponse();
     }
 }
-

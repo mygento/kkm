@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Controller\Adminhtml\Logs;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -31,16 +37,16 @@ class Download extends \Magento\Backend\App\Action
     }
 
     /**
-     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
      * @throws \Magento\Framework\Exception\FileSystemException
+     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\ResultInterface
      */
     public function execute()
     {
         $file = 'mygento_kkm.log';
 
         $filepath = $this->directory_list->getPath(DirectoryList::VAR_DIR)
-            .DIRECTORY_SEPARATOR.DirectoryList::LOG
-            .DIRECTORY_SEPARATOR.$file;
+            . DIRECTORY_SEPARATOR . DirectoryList::LOG
+            . DIRECTORY_SEPARATOR . $file;
 
         try {
             return $this->fileFactory->create(
@@ -53,7 +59,6 @@ class Download extends \Magento\Backend\App\Action
                 \Magento\Framework\App\Filesystem\DirectoryList::VAR_DIR,
                 'application/text'
             );
-
         } catch (\Exception $exc) {
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
 

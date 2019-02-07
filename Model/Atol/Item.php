@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Model\Atol;
 
 use Mygento\Kkm\Model\Source\Tax;
@@ -132,8 +138,8 @@ class Item implements \JsonSerializable
 
     /**
      * @param string $tax
-     * @return Item
      * @throws \Exception
+     * @return Item
      */
     public function setTax(string $tax): Item
     {
@@ -142,24 +148,24 @@ class Item implements \JsonSerializable
         }
 
         $this->tax = $tax;
-/*        switch ($tax) {
-            case (self::TAX_VAT110):
-                $this->setTaxSum($this->getPrice() * $this->getQuantity() * 10 / 110);
-                break;
-            case (self::TAX_VAT118):
-                $this->setTaxSum($this->getPrice() * $this->getQuantity() * 18 / 118);
-                break;
-            case (self::TAX_VAT10):
-                $this->setTaxSum($this->getPrice() * $this->getQuantity() * 0.1);
-                break;
-            case (self::TAX_VAT18):
-                $this->setTaxSum($this->getPrice() * $this->getQuantity() * 0.18);
-                break;
-            case (self::TAX_VAT0):
-            case (self::TAX_NONE):
-            default:
-                $this->setTaxSum(0);
-        }*/
+        /*        switch ($tax) {
+                    case (self::TAX_VAT110):
+                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 10 / 110);
+                        break;
+                    case (self::TAX_VAT118):
+                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 18 / 118);
+                        break;
+                    case (self::TAX_VAT10):
+                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 0.1);
+                        break;
+                    case (self::TAX_VAT18):
+                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 0.18);
+                        break;
+                    case (self::TAX_VAT0):
+                    case (self::TAX_NONE):
+                    default:
+                        $this->setTaxSum(0);
+                }*/
 
         return $this;
     }

@@ -1,9 +1,11 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Helper;
 
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
@@ -224,7 +226,7 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
     {
         $entityType = ucfirst($entity->getEntityType());
 
-        $fullMessage = $exception->getMessage().' ';
+        $fullMessage = $exception->getMessage() . ' ';
         $fullMessage .= "{$entityType}: {$entity->getIncrementId()}. ";
         $fullMessage .= "Order: {$entity->getOrder()->getIncrementId()}";
 

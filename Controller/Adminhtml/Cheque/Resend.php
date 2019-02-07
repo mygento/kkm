@@ -1,9 +1,11 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright Copyright 2017 Mygento
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -62,22 +64,16 @@ class Resend extends \Magento\Backend\App\Action
             }
             $response = $this->vendor->send($entity);
             $this->getMessageManager()->addSuccessMessage(__($comment, $response->getStatus()));
-
         } catch (NoSuchEntityException $exc) {
-
             $this->getMessageManager()->addErrorMessage(
-                __(ucfirst($entityType))." {$id} ".__("not found")
+                __(ucfirst($entityType)) . " {$id} " . __('not found')
             );
             $this->kkmHelper->error("Entity {$entityType} with Id {$id} not found.");
-
         } catch (\Exception $exc) {
-
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
-            $this->kkmHelper->error("Resend failed. Reason: ".$exc->getMessage());
+            $this->kkmHelper->error('Resend failed. Reason: ' . $exc->getMessage());
             $this->kkmHelper->processKkmChequeRegistrationError($entity, $exc);
-
         } finally {
-
             return $this->resultRedirectFactory->create()->setUrl(
                 $this->_redirect->getRefererUrl()
             );

@@ -1,16 +1,16 @@
 <?php
+
 /**
  * @author Mygento Team
- * @copyright See COPYING.txt for license details.
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Model;
 
-use Mygento\Kkm\Model\Atol\Response;
-use Mygento\Kkm\Helper\Transaction;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
-
+use Mygento\Kkm\Helper\Transaction;
+use Mygento\Kkm\Model\Atol\Response;
 
 class Report
 {
@@ -54,8 +54,8 @@ class Report
     }
 
     /**
-     * @return \Mygento\Kkm\Model\Statistics
      * @throws \Exception
+     * @return \Mygento\Kkm\Model\Statistics
      */
     public function getYesterdayStatistics()
     {
@@ -68,8 +68,8 @@ class Report
     }
 
     /**
-     * @return \Mygento\Kkm\Model\Statistics
      * @throws \Exception
+     * @return \Mygento\Kkm\Model\Statistics
      */
     public function getWeekStatistics()
     {
@@ -86,7 +86,7 @@ class Report
      */
     public function getStatisticsByPeriod($from, $to = null)
     {
-        if  ($to) {
+        if ($to) {
             $this->searchCriteriaBuilder->addFilter('created_at', $to, 'lteq');
         }
 

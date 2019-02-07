@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Model\Atol;
 
 abstract class Request implements \JsonSerializable
@@ -29,7 +35,6 @@ abstract class Request implements \JsonSerializable
     abstract public function jsonSerialize(): array;
 
     public function __construct(
-//        \Mygento\Kkm\Helper\Data $kkmHelper,
         \Magento\Framework\Stdlib\DateTime\Timezone $date
     ) {
         $this->date = $date;
@@ -138,7 +143,7 @@ abstract class Request implements \JsonSerializable
      */
     public function getTotal(): float
     {
-        if (empty($this->getItems())){
+        if (empty($this->getItems())) {
             throw new \Exception(
                 'Can not calculate totals. No items in the request'
             );
@@ -256,13 +261,14 @@ abstract class Request implements \JsonSerializable
     /**
      * @param float $sum
      */
-    public function addTotal($sum): void
+    public function addTotal($sum)
     {
         $this->total += $sum;
     }
 
     /**
      * @param float $sum
+     * @param mixed $payment
      */
 //    public function setTotal($sum): Request
 //    {

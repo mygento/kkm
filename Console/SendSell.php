@@ -1,12 +1,19 @@
 <?php
+
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Console;
 
+use Magento\Framework\Exception\NoSuchEntityException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
-use Magento\Framework\Exception\NoSuchEntityException;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class SendSell extends Command
 {
@@ -43,9 +50,9 @@ class SendSell extends Command
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return int|null
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return int|null
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

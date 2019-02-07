@@ -1,7 +1,8 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -80,9 +81,9 @@ class Email
     }
 
     /**
-     * @return bool
      * @throws \Magento\Framework\Exception\MailException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return bool
      */
     public function send()
     {
