@@ -11,7 +11,7 @@ namespace Mygento\Kkm\Controller\Adminhtml\Logs;
 use Magento\Framework\App\Filesystem\DirectoryList;
 
 /**
- * Crutch Class to Download file with logs
+ * Workaround Class to Download file with logs
  * @package Mygento\Kkm\Controller\Adminhtml\Logs
  */
 class Download extends \Magento\Backend\App\Action
@@ -19,7 +19,7 @@ class Download extends \Magento\Backend\App\Action
     /**
      * @var \Magento\Framework\App\Filesystem\DirectoryList
      */
-    private $directory_list;
+    private $directoryList;
     /**
      * @var \Magento\Framework\App\Response\Http\FileFactory
      */
@@ -30,8 +30,8 @@ class Download extends \Magento\Backend\App\Action
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
         \Magento\Framework\App\Response\Http\FileFactory $fileFactory
     ) {
-        $this->directory_list = $directoryList;
-        $this->fileFactory    = $fileFactory;
+        $this->directoryList = $directoryList;
+        $this->fileFactory   = $fileFactory;
 
         parent::__construct($context);
     }
@@ -44,7 +44,7 @@ class Download extends \Magento\Backend\App\Action
     {
         $file = 'mygento_kkm.log';
 
-        $filepath = $this->directory_list->getPath(DirectoryList::VAR_DIR)
+        $filepath = $this->directoryList->getPath(DirectoryList::VAR_DIR)
             . DIRECTORY_SEPARATOR . DirectoryList::LOG
             . DIRECTORY_SEPARATOR . $file;
 

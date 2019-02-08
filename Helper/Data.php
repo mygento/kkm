@@ -13,10 +13,13 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Class Data
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
 {
     const CONFIG_CODE = 'mygento_kkm';
+    const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
 
     /** @var string */
     protected $_code = 'mygento_kkm';
@@ -42,6 +45,23 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      */
     private $orderRepository;
 
+    /**
+     * Data constructor.
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param \Mygento\Base\Model\Logger\LoggerFactory $loggerFactory
+     * @param \Mygento\Base\Model\Logger\HandlerFactory $handlerFactory
+     * @param \Magento\Framework\Encryption\Encryptor $encryptor
+     * @param \Magento\Framework\HTTP\Client\Curl $curl
+     * @param \Magento\Catalog\Model\ProductRepository $productRepository
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory
+     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \Magento\Framework\Url $urlHelper
+     * @param \Magento\Framework\Notification\NotifierInterface $notifier
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Mygento\Base\Model\Logger\LoggerFactory $loggerFactory,
@@ -56,7 +76,14 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
         \Magento\Framework\Url $urlHelper,
         \Magento\Framework\Notification\NotifierInterface $notifier
     ) {
-        parent::__construct($context, $loggerFactory, $handlerFactory, $encryptor, $curl, $productRepository);
+        parent::__construct(
+            $context,
+            $loggerFactory,
+            $handlerFactory,
+            $encryptor,
+            $curl,
+            $productRepository
+        );
 
         $this->orderInvoiceFactory  = $orderInvoiceFactory;
         $this->creditmemoRepository = $creditmemoRepository;
@@ -102,6 +129,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function alert($message, array $context = [])
     {
@@ -112,6 +141,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function critical($message, array $context = [])
     {
@@ -122,6 +153,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function debug($message, array $context = [])
     {
@@ -132,6 +165,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function emergency($message, array $context = [])
     {
@@ -142,6 +177,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function error($message, array $context = [])
     {
@@ -152,6 +189,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function info($message, array $context = [])
     {
@@ -163,6 +202,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      * @param string $message
      * @param array $context
      * @param mixed $level
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function log($level, $message, array $context = [])
     {
@@ -173,6 +214,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function notice($message, array $context = [])
     {
@@ -183,6 +226,8 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      *
      * @param string $message
      * @param array $context
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function warning($message, array $context = [])
     {
@@ -253,7 +298,7 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
         try {
             $order = $entity->getOrder();
             $order->addStatusToHistory(
-                \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                self::ORDER_KKM_FAILED_STATUS,
                 $fullMessage
             );
             $this->orderRepository->save($order);

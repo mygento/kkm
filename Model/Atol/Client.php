@@ -133,7 +133,8 @@ class Client
         $this->kkmHelper->debug('Request : ' . $request);
 
         try {
-            $url = $debugData['url'] = $this->getBaseUrl() . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
+            $url  = $this->getBaseUrl() . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
+            $debugData['url'] = $url;
             $this->kkmHelper->debug('URL: ' . $url);
 
             $responseRaw = $this->sendPostRequest($url, $request);
@@ -168,7 +169,8 @@ class Client
         $this->kkmHelper->debug('Request : ' . $request);
 
         try {
-            $url = $debugData['url'] = $this->getBaseUrl() . $groupCode . '/' . self::SELL_URL_APPNX;
+            $url = $this->getBaseUrl() . $groupCode . '/' . self::SELL_URL_APPNX;
+            $debugData['url'] = $url;
             $this->kkmHelper->debug('URL: ' . $url);
 
             $responseRaw = $this->sendPostRequest($url, $request);

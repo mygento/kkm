@@ -14,6 +14,12 @@ use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Mygento\Kkm\Model\Atol\Response;
 
+/**
+ * Class Transaction
+ * @package Mygento\Kkm\Helper
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Transaction
 {
     const ENTITY_KEY        = 'entity';

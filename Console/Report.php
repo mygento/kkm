@@ -17,6 +17,12 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class Report
+ * @package Mygento\Kkm\Console
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Report extends Command
 {
     const ARGUMENT             = 'period';
@@ -59,7 +65,7 @@ class Report extends Command
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
-     * @return int|null
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {

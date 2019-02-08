@@ -10,6 +10,12 @@ namespace Mygento\Kkm\Block\Adminhtml\System\Config;
 
 class GetLogs extends \Magento\Config\Block\System\Config\Form\Field
 {
+    /**
+     * @param \Magento\Framework\Data\Form\Element\AbstractElement $element
+     * @return string
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     protected function _renderValue(\Magento\Framework\Data\Form\Element\AbstractElement $element)
     {
         $urlDownload = $this->_urlBuilder->getUrl('kkm/logs/download');

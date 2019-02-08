@@ -54,6 +54,9 @@ class Statistics extends \Magento\Framework\Model\AbstractModel
 
     /**
      * @param \Magento\Sales\Api\Data\TransactionInterface $transaction
+     * The param is left to provide uniformity with other add* methods
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function addDone(TransactionInterface $transaction)
     {

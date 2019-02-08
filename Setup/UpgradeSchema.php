@@ -11,6 +11,7 @@ namespace Mygento\Kkm\Setup;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UpgradeSchemaInterface;
+use Mygento\Kkm\Helper\Data as KkmHelper;
 
 /**
  * Class UpgradeSchema
@@ -119,7 +120,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             'label'
             ],
             [
-            ['status' => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS, 'label' => 'KKM Failed'],
+            ['status' => KkmHelper::ORDER_KKM_FAILED_STATUS, 'label' => 'KKM Failed'],
             ]
         );
 
@@ -132,17 +133,17 @@ class UpgradeSchema implements UpgradeSchemaInterface
             ],
             [
             [
-                'status'     => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                'status'     => KkmHelper::ORDER_KKM_FAILED_STATUS,
                 'state'      => 'processing',
                 'is_default' => 0
             ],
             [
-                'status'     => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                'status'     => KkmHelper::ORDER_KKM_FAILED_STATUS,
                 'state'      => 'complete',
                 'is_default' => 0
             ],
             [
-                'status'     => \Mygento\Kkm\Model\AbstractModel::ORDER_KKM_FAILED_STATUS,
+                'status'     => KkmHelper::ORDER_KKM_FAILED_STATUS,
                 'state'      => 'closed',
                 'is_default' => 0
             ]

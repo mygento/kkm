@@ -48,6 +48,13 @@ class ExtraSalesViewToolbarButtons
         $this->transactionHelper = $transactionHelper;
     }
 
+    /**
+     * @param \Magento\Backend\Block\Widget\Button\Toolbar\Interceptor $subject
+     * @param \Magento\Framework\View\Element\AbstractBlock $context
+     * @param \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function beforePushButtons(
         \Magento\Backend\Block\Widget\Button\Toolbar\Interceptor $subject,
         \Magento\Framework\View\Element\AbstractBlock $context,
@@ -65,7 +72,9 @@ class ExtraSalesViewToolbarButtons
             $this->kkmHelper->getConfig('general/payment_methods')
         );
 
-        if (!in_array($paymentMethod, $paymentMethods) || $entity->getOrderCurrencyCode() != 'RUB') {
+        if (!in_array($paymentMethod, $paymentMethods)
+            || $entity->getOrderCurrencyCode() != 'RUB'
+        ) {
             return;
         }
 
@@ -105,7 +114,7 @@ class ExtraSalesViewToolbarButtons
     /**
      * Check is current page appropriate for "resend to kkm" button
      *
-     * @param \Magento\Sales\Block\Adminhtml\Order\Invoice\View | \Magento\Sales\Block\Adminhtml\Order\Creditmemo\View $block
+     * @param \Magento\Framework\View\Element\AbstractBlock $block
      * @return boolean
      */
     protected function isProperPageForKkmButtons($block)

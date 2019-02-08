@@ -15,6 +15,12 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
+/**
+ * Class Vendor
+ * @package Mygento\Kkm\Model\Atol
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Vendor
 {
     const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
@@ -210,6 +216,9 @@ class Vendor
      * @param \Magento\Sales\Model\EntityInterface $salesEntity Order|Invoice|Creditmemo
      * @throws \Exception
      * @return \Mygento\Kkm\Model\Atol\Request
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function buildRequest(EntityInterface $salesEntity): Request
     {
@@ -217,11 +226,11 @@ class Vendor
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
 
-        $shipping_tax   = $this->kkmHelper->getConfig('general/shipping_tax');
-        $tax_value      = $this->kkmHelper->getConfig('general/tax_options');
-        $attribute_code = '';
+        $shippingTax   = $this->kkmHelper->getConfig('general/shipping_tax');
+        $taxValue      = $this->kkmHelper->getConfig('general/tax_options');
+        $attributeCode = '';
         if (!$this->kkmHelper->getConfig('general/tax_all')) {
-            $attribute_code = $this->kkmHelper->getConfig('general/product_tax_attr');
+            $attributeCode = $this->kkmHelper->getConfig('general/product_tax_attr');
         }
 
         if (!$this->kkmHelper->getConfig('general/default_shipping_name')) {
@@ -232,9 +241,9 @@ class Vendor
 
         $recalculatedReceiptData = $this->kkmDiscount->getRecalculated(
             $salesEntity,
-            $tax_value,
-            $attribute_code,
-            $shipping_tax
+            $taxValue,
+            $attributeCode,
+            $shippingTax
         );
 
         $items = [];
@@ -333,9 +342,8 @@ class Vendor
      */
     public function generateExternalId(EntityInterface $entity, $postfix = '')
     {
-        $postfix = '_ololo';
-
-        return $entity->getEntityType() . '_' . $entity->getIncrementId() . ($postfix ? "_{$postfix}" : '');
+        $postfix = $postfix ? "_{$postfix}" : '';
+        return $entity->getEntityType() . '_' . $entity->getIncrementId() . $postfix;
     }
 
     /**

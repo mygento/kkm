@@ -62,7 +62,7 @@ class Response
                 __('Response from Atol is not valid. Response: %1', (string)$jsonRaw)
             );
         }
-
+        // phpcs:disable
         $this->uuid = $json->uuid ?? null;
         $this->error = $json->error ?? null;
         $this->payload = $json->payload ?? null;
@@ -73,6 +73,7 @@ class Response
         $this->deviceCode = $json->device_code ?? null;
         $this->callbackUrl = $json->callback_url ?? null;
         $this->jsonResponse = json_encode($json);
+        // phpcs:enable
 
         if (!$this->uuid) {
             throw new \Exception(

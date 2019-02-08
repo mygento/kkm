@@ -49,8 +49,8 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
     protected function _construct()
     {
         $this->_init(
-            'Mygento\Kkm\Model\Log',
-            'Mygento\Kkm\Model\ResourceModel\Log'
+            \Mygento\Kkm\Model\Log::class,
+            \Mygento\Kkm\Model\ResourceModel\Log::class
         );
     }
 }

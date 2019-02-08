@@ -20,6 +20,6 @@ class Log extends \Magento\Framework\Model\AbstractModel
      */
     protected function _construct()
     {
-        $this->_init('Mygento\Kkm\Model\ResourceModel\Log');
+        $this->_init(\Mygento\Kkm\Model\ResourceModel\Log::class);
     }
 }
