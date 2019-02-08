@@ -9,7 +9,7 @@
         "atol"
     ],
     "require": {
-        "php": "^7.1.0",
+        "php": "^7.0.0",
         "mygento/base": "^2.2.14"
     },
     "require-dev": {
