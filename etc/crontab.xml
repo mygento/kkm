@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="kkm_statuses" instance="Mygento\Kkm\Crontab\Update" method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
+        <job name="kkm_report" instance="Mygento\Kkm\Crontab\Report" method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
+    </group>
+</config>

@@ -1,9 +1,11 @@
 <?php
+
 /**
  * @author Mygento Team
- * @copyright See COPYING.txt for license details.
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Setup;
 
 use Magento\Framework\Setup\InstallSchemaInterface;
@@ -18,7 +20,9 @@ class InstallSchema implements InstallSchemaInterface
     /**
      * @param SchemaSetupInterface $setup
      * @param ModuleContextInterface $context
+     *
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {
@@ -26,84 +30,17 @@ class InstallSchema implements InstallSchemaInterface
 
         $installer->startSetup();
 
-        /**
-         * Create table 'mygento_kkm_status'
-         */
-        $table = $installer->getConnection()
-            ->newTable($installer->getTable('mygento_kkm_status'))
-            ->addColumn(
-                'id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_INTEGER,
-                null,
-                ['identity'       => true, 'auto_increment' => true, 'unsigned'       => true,
-                'nullable'       => false, 'primary'        => true],
-                'ID'
-            )
-            ->addColumn(
-                'uuid',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Universally Unique Identifier'
-            )
-            ->addColumn(
-                'type',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Type Of Operation'
-            )
-            ->addColumn(
-                'increment_id',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Increment Id'
-            )
-            ->addColumn(
-                'operation',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                [
-                'nullable' => false
-                ],
-                'Operation'
-            )
-            ->addColumn(
-                'vendor',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                255,
-                ['unsigned' => true],
-                'Vendor code'
-            )
-            ->addColumn(
-                'response',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                null,
-                [
-                'nullable' => false,
-                'length'   => 255
-                ],
-                'Response'
-            )
-            ->addColumn(
-                'status',
-                \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
-                null,
-                [
-                'nullable' => false,
-                'length'   => 255
-                ],
-                'Status'
-            )
-            ->setComment('Mygento Kkm Status');
-        $installer->getConnection()->createTable($table);
+        $installer->getConnection()->addColumn(
+            $installer->getTable('sales_payment_transaction'),
+            'kkm_status',
+            [
+                'type' => \Magento\Framework\DB\Ddl\Table::TYPE_TEXT,
+                'nullable' => true,
+                'length' => '16',
+                'comment' => 'Status. For KKM transactions',
+                'after' => 'is_closed'
+            ]
+        );
 
         $installer->endSetup();
     }

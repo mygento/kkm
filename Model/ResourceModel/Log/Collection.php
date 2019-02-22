@@ -1,9 +1,11 @@
 <?php
+
 /**
  * @author Mygento Team
- * @copyright See COPYING.txt for license details.
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Model\ResourceModel\Log;
 
 /**
@@ -47,8 +49,8 @@ class Collection extends \Magento\Framework\Model\ResourceModel\Db\Collection\Ab
     protected function _construct()
     {
         $this->_init(
-            'Mygento\Kkm\Model\Log',
-            'Mygento\Kkm\Model\ResourceModel\Log'
+            \Mygento\Kkm\Model\Log::class,
+            \Mygento\Kkm\Model\ResourceModel\Log::class
         );
     }
 }

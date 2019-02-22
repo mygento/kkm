@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="sendSellToAtol" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
+                <item name="sendSellRefundToAtol" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
+                <item name="updateStatusAtol" xsi:type="object">Mygento\Kkm\Console\UpdateStatus</item>
+                <item name="showReport" xsi:type="object">Mygento\Kkm\Console\Report</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

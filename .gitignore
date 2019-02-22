@@ -4,3 +4,4 @@
 /composer.lock
 .DS_Store
 /nbproject/
+.php_cs.cache

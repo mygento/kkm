@@ -1,9 +1,11 @@
 <?php
+
 /**
- * @author Mygento
- * @copyright See COPYING.txt for license details.
- * @package Mygento_Base
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
  */
+
 namespace Mygento\Kkm\Model\Source;
 
 use Magento\Catalog\Model\ResourceModel\Product\Attribute\Collection;
@@ -38,9 +40,9 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
 
         $attrAll = $coll->load()->getItems();
 
-        $_options = [];
+        $options = [];
 
-        $_options[] = [
+        $options[] = [
             'label' => __('No usage'),
             'value' => 0
         ];
@@ -49,10 +51,10 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
         foreach ($attrAll as $attr) {
             $label = $attr->getStoreLabel() ? $attr->getStoreLabel() : $attr->getFrontendLabel();
             if ('' != $label) {
-                $_options[] = ['label' => $label, 'value' => $attr->getAttributeCode()];
+                $options[] = ['label' => $label, 'value' => $attr->getAttributeCode()];
             }
         }
-        return $_options;
+        return $options;
     }
 
     /**

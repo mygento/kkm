@@ -7,10 +7,10 @@
  */
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="sales_order_invoice_save_after">
-        <observer name="Mygento_Kkm_SendCheque" instance="Mygento\Kkm\Observer\SendCheque" />
+    <event name="sales_order_invoice_save_commit_after">
+        <observer name="Mygento_Kkm_SendCheque" instance="Mygento\Kkm\Observer\Send" />
     </event>    
-    <event name="sales_order_creditmemo_save_after">
-        <observer name="Mygento_Kkm_CancelCheque" instance="Mygento\Kkm\Observer\CancelCheque" />
+    <event name="sales_order_creditmemo_save_commit_after">
+        <observer name="Mygento_Kkm_CancelCheque" instance="Mygento\Kkm\Observer\Send" />
     </event>
 </config>
