@@ -64,7 +64,7 @@ class Item implements \JsonSerializable
      * @param string $name
      * @return Item
      */
-    public function setName(string $name): Item
+    public function setName(string $name): self
     {
         $this->name = $name;
 
@@ -80,10 +80,10 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float $price
+     * @param float|string $price
      * @return Item
      */
-    public function setPrice($price): Item
+    public function setPrice($price): self
     {
         $this->price = (float)$price;
 
@@ -99,10 +99,10 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float $quantity
+     * @param float|string $quantity
      * @return Item
      */
-    public function setQuantity($quantity): Item
+    public function setQuantity($quantity): self
     {
         $this->quantity = (float)$quantity;
 
@@ -118,10 +118,10 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float $sum
+     * @param float|string $sum
      * @return Item
      */
-    public function setSum($sum): Item
+    public function setSum($sum): self
     {
         $this->sum = (float)$sum;
 
@@ -141,31 +141,13 @@ class Item implements \JsonSerializable
      * @throws \Exception
      * @return Item
      */
-    public function setTax(string $tax): Item
+    public function setTax(string $tax): self
     {
         if (!in_array($tax, Tax::getAllTaxes(), true)) {
             throw new \Exception("Incorrect tax {$tax} for Item {$this->getName()}");
         }
 
         $this->tax = $tax;
-        /*        switch ($tax) {
-                    case (self::TAX_VAT110):
-                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 10 / 110);
-                        break;
-                    case (self::TAX_VAT118):
-                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 18 / 118);
-                        break;
-                    case (self::TAX_VAT10):
-                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 0.1);
-                        break;
-                    case (self::TAX_VAT18):
-                        $this->setTaxSum($this->getPrice() * $this->getQuantity() * 0.18);
-                        break;
-                    case (self::TAX_VAT0):
-                    case (self::TAX_NONE):
-                    default:
-                        $this->setTaxSum(0);
-                }*/
 
         return $this;
     }
@@ -179,10 +161,10 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float $taxSum
+     * @param float|string $taxSum
      * @return Item
      */
-    public function setTaxSum($taxSum): Item
+    public function setTaxSum($taxSum): self
     {
         $this->taxSum = round($taxSum, 2);
 
@@ -201,7 +183,7 @@ class Item implements \JsonSerializable
      * @param string $paymentMethod
      * @return Item
      */
-    public function setPaymentMethod($paymentMethod): Item
+    public function setPaymentMethod($paymentMethod): self
     {
         $this->paymentMethod = $paymentMethod;
 
@@ -220,7 +202,7 @@ class Item implements \JsonSerializable
      * @param string $paymentObject
      * @return Item
      */
-    public function setPaymentObject($paymentObject): Item
+    public function setPaymentObject($paymentObject): self
     {
         $this->paymentObject = $paymentObject;
 

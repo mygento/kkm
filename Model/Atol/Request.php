@@ -52,7 +52,7 @@ abstract class Request implements \JsonSerializable
      * @param string $sno
      * @return Request
      */
-    public function setSno(string $sno): Request
+    public function setSno(string $sno): self
     {
         $this->sno = $sno;
 
@@ -71,7 +71,7 @@ abstract class Request implements \JsonSerializable
      * @param string $email
      * @return Request
      */
-    public function setEmail(string $email): Request
+    public function setEmail(string $email): self
     {
         $this->email = $email;
 
@@ -90,7 +90,7 @@ abstract class Request implements \JsonSerializable
      * @param string $phone
      * @return Request
      */
-    public function setPhone(string $phone): Request
+    public function setPhone(string $phone): self
     {
         $this->phone = $phone;
 
@@ -109,7 +109,7 @@ abstract class Request implements \JsonSerializable
      * @param Item[] $items
      * @return Request
      */
-    public function setItems(array $items): Request
+    public function setItems(array $items): self
     {
         foreach ($items as $element) {
             $this->addItem($element);
@@ -130,16 +130,17 @@ abstract class Request implements \JsonSerializable
      * @param array $payments
      * @return Request
      */
-    public function setPayments(array $payments): Request
+    public function setPayments(array $payments): self
     {
         $this->payments = $payments;
 
         return $this;
     }
 
-    /**Invoke this method AFTER addItem() method
-     * @return float
+    /**
+     * Invoke this method AFTER addItem() method
      * @throws \Exception
+     * @return float
      */
     public function getTotal(): float
     {
@@ -164,7 +165,7 @@ abstract class Request implements \JsonSerializable
      * @param string $externalId
      * @return Request
      */
-    public function setExternalId($externalId): Request
+    public function setExternalId($externalId): self
     {
         $this->externalId = $externalId;
 
@@ -183,7 +184,7 @@ abstract class Request implements \JsonSerializable
      * @param string $inn
      * @return Request
      */
-    public function setInn($inn): Request
+    public function setInn($inn): self
     {
         $this->inn = $inn;
 
@@ -202,7 +203,7 @@ abstract class Request implements \JsonSerializable
      * @param string $paymentAddress
      * @return Request
      */
-    public function setPaymentAddress($paymentAddress): Request
+    public function setPaymentAddress($paymentAddress): self
     {
         $this->paymentAddress = $paymentAddress;
 
@@ -221,7 +222,7 @@ abstract class Request implements \JsonSerializable
      * @param string $callbackUrl
      * @return Request
      */
-    public function setCallbackUrl($callbackUrl): Request
+    public function setCallbackUrl($callbackUrl): self
     {
         $this->callbackUrl = $callbackUrl;
 
@@ -240,7 +241,7 @@ abstract class Request implements \JsonSerializable
      * @param string $companyEmail
      * @return Request
      */
-    public function setCompanyEmail($companyEmail): Request
+    public function setCompanyEmail($companyEmail): self
     {
         $this->companyEmail = $companyEmail;
 
@@ -248,9 +249,9 @@ abstract class Request implements \JsonSerializable
     }
     /**
      * @param Item $item
-     * @return $this
+     * @return self
      */
-    public function addItem(Item $item): Request
+    public function addItem(Item $item): self
     {
         $this->items[] = $item;
         $this->addTotal($item->getSum());
@@ -270,7 +271,7 @@ abstract class Request implements \JsonSerializable
      * @param float $sum
      * @param mixed $payment
      */
-//    public function setTotal($sum): Request
+//    public function setTotal($sum): self
 //    {
 //        $this->total = $sum;
 //
@@ -281,7 +282,7 @@ abstract class Request implements \JsonSerializable
      * @param array $payment
      * @return $this
      */
-    public function addPayment($payment): Request
+    public function addPayment($payment): self
     {
         $this->payments[] = $payment;
 
