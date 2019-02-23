@@ -8,6 +8,8 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Mygento\Kkm\Api\ResponseInterface;
+use Mygento\Kkm\Api\RequestInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Model\Source\ApiVersion;
 
@@ -98,9 +100,9 @@ class Client
     /**
      * @param string $uuid
      * @throws \Exception
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @return ResponseInterface
      */
-    public function receiveStatus(string $uuid): Response
+    public function receiveStatus(string $uuid): ResponseInterface
     {
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
@@ -118,11 +120,11 @@ class Client
     }
 
     /**
-     * @param \JsonSerializable|array $request
+     * @param RequestInterface $request
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @return ResponseInterface
      */
-    public function sendRefund($request): Response
+    public function sendRefund($request): ResponseInterface
     {
         $debugData = [];
         $this->kkmHelper->info('START Sending creditmemo');
@@ -154,11 +156,11 @@ class Client
     }
 
     /**
-     * @param \JsonSerializable|array $request
+     * @param RequestInterface $request
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @return ResponseInterface
      */
-    public function sendSell($request): Response
+    public function sendSell($request): ResponseInterface
     {
         $debugData = [];
         $this->kkmHelper->info('START Sending invoice');

@@ -8,7 +8,9 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-class Response
+use Mygento\Kkm\Api\ResponseInterface;
+
+class Response implements ResponseInterface
 {
     const STATUS_DONE = 'done';
     const STATUS_FAIL = 'fail';
@@ -83,7 +85,7 @@ class Response
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getUuid()
     {
@@ -99,7 +101,7 @@ class Response
     }
 
     /**
-     * @return null|string
+     * @inheritdoc
      */
     public function getErrorMessage()
     {
@@ -115,6 +117,9 @@ class Response
         return $message;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getMessage()
     {
         $message = 'Status: ';
@@ -159,7 +164,7 @@ class Response
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getStatus()
     {
@@ -175,7 +180,7 @@ class Response
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTimestamp()
     {
@@ -223,23 +228,32 @@ class Response
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function isDone()
     {
         return $this->getStatus() === self::STATUS_DONE;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isFailed()
     {
         return $this->getStatus() === self::STATUS_FAIL;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isWait()
     {
         return $this->getStatus() === self::STATUS_WAIT;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function __toString()
     {
         return $this->getJsonResponse();

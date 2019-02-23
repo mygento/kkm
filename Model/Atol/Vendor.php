@@ -10,10 +10,10 @@ namespace Mygento\Kkm\Model\Atol;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
-use Magento\Sales\Api\Data\CreditmemoInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
+use Mygento\Kkm\Api\RequestInterface;
+use Mygento\Kkm\Api\ResponseInterface;
 
 /**
  * Class Vendor
@@ -21,7 +21,7 @@ use Mygento\Kkm\Exception\CreateDocumentFailedException;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Vendor
+class Vendor implements \Mygento\Kkm\Api\VendorInterface
 {
     const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
     const ALREADY_SENT_FLAG           = 'kkm_already_sent_to_atol';
@@ -74,12 +74,10 @@ class Vendor
     }
 
     /**
-     * Send invoice to Vendor
-     *
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @inheritdoc
+     * @throws \Exception
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function sendSell($invoice)
     {
@@ -96,11 +94,11 @@ class Vendor
     }
 
     /**
-     * Send creditmemo to Vendor
+     * @inheritdoc
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
+     * @throws \Exception
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function sendRefund($creditmemo)
     {
@@ -117,13 +115,10 @@ class Vendor
     }
 
     /**
-     * Send cheque (sell or refund) to Atol
-     *
-     * @param InvoiceInterface|CreditmemoInterface $entity
+     * @inheritdoc
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @return \Mygento\Kkm\Model\Atol\Response
      */
     public function send($entity)
     {
@@ -146,7 +141,14 @@ class Vendor
     }
 
     /**
-     * @param string $uuid It is Transaction Id on Magento side
+     * @inheritdoc
+     */
+    public function processQueueMessage(RequestInterface $request) {
+
+    }
+
+    /**
+     * @inheritdoc
      * @throws \Exception
      */
     public function updateStatus($uuid)
@@ -179,7 +181,7 @@ class Vendor
     }
 
     /** Save callback from Atol and return related entity (Invoice or Creditmemo)
-     * @param \Mygento\Kkm\Model\Atol\Response $response $response
+     * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
      * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
@@ -213,14 +215,13 @@ class Vendor
     }
 
     /**
-     * @param \Magento\Sales\Model\EntityInterface $salesEntity Order|Invoice|Creditmemo
+     * @inheritdoc
      * @throws \Exception
-     * @return \Mygento\Kkm\Model\Atol\Request
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function buildRequest(EntityInterface $salesEntity): Request
+    public function buildRequest(EntityInterface $salesEntity): RequestInterface
     {
         $request = $this->requestFactory->create();
 
@@ -347,11 +348,9 @@ class Vendor
     }
 
     /**
-     * @param InvoiceInterface|CreditmemoInterface $entity
-     * @param \Mygento\Kkm\Model\Atol\Response $response
-     * @param null|mixed $txnId
+     * @inheritdoc
      */
-    public function addCommentToOrder($entity, Response $response, $txnId = null)
+    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null)
     {
         $order = $entity->getOrder();
 
@@ -382,7 +381,7 @@ class Vendor
     }
 
     /**
-     * @param Response $response
+     * @param ResponseInterface $response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      */
     private function validateResponse($response)

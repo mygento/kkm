@@ -18,6 +18,7 @@ class RequestForVersion3 extends Request
 
     /**
      * @return array
+     * @throws \Exception
      */
     public function jsonSerialize(): array
     {

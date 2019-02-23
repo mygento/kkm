@@ -10,8 +10,10 @@ namespace Mygento\Kkm\Model\Atol;
 
 class RequestForVersion4 extends Request
 {
+
     /**
      * @return array
+     * @throws \Exception
      */
     public function jsonSerialize(): array
     {

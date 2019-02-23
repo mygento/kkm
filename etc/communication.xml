@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Mygento Team
+ * @copyright See COPYING.txt for license details.
+ * @package Mygento_Kkm
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
+    <topic name="mygento.kkm.message" request="Mygento\Kkm\Api\RequestInterface">
+        <handler name="mygento.kkm.message.handler" type="Mygento\Kkm\Model\Atol\Vendor" method="processQueueMessage"/>
+    </topic>
+</config>

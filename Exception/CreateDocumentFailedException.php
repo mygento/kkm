@@ -8,17 +8,18 @@
 
 namespace Mygento\Kkm\Exception;
 
+use Mygento\Kkm\Api\ResponseInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
 class CreateDocumentFailedException extends \Exception
 {
     private $debugData = [];
     /**
-     * @var \Mygento\Kkm\Model\Atol\Response
+     * @var ResponseInterface
      */
     private $response;
 
-    public function __construct($message, Response $response = null, $debugData = [])
+    public function __construct($message, ResponseInterface $response = null, $debugData = [])
     {
         $this->debugData = $debugData;
         $this->response  = $response;
@@ -26,7 +27,7 @@ class CreateDocumentFailedException extends \Exception
     }
 
     /**
-     * @return null|Response
+     * @return null|ResponseInterface
      */
     public function getResponse()
     {

@@ -12,6 +12,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Creditmemo;
 use Magento\Sales\Model\Order\Invoice;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Api\ResponseInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
 /**
@@ -78,11 +79,11 @@ class Transaction
 
     /**
      * @param \Magento\Sales\Model\Order\Invoice $invoice
-     * @param \Mygento\Kkm\Model\Atol\Response $response
+     * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveSellTransaction(Invoice $invoice, Response $response)
+    public function saveSellTransaction(Invoice $invoice, ResponseInterface $response)
     {
         $this->kkmHelper->info(
             __(
@@ -98,11 +99,11 @@ class Transaction
 
     /**
      * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
-     * @param \Mygento\Kkm\Model\Atol\Response $response
+     * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveRefundTransaction(Creditmemo $creditmemo, Response $response)
+    public function saveRefundTransaction(Creditmemo $creditmemo, ResponseInterface $response)
     {
         $this->kkmHelper->info(
             __(
@@ -118,12 +119,12 @@ class Transaction
 
     /**
      * @param \Magento\Sales\Api\Data\EntityInterface $entity
-     * @param \Mygento\Kkm\Model\Atol\Response $response
+     * @param ResponseInterface $response
      * @param mixed $type
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    protected function saveTransaction($entity, Response $response, $type)
+    protected function saveTransaction($entity, ResponseInterface $response, $type)
     {
         $txnId       = $response->getUuid();
         $order       = $entity->getOrder();

@@ -9,14 +9,13 @@
 namespace Mygento\Kkm\Helper;
 
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class Data
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
+class Data extends \Mygento\Base\Helper\Data
 {
     const CONFIG_CODE = 'mygento_kkm';
     const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
@@ -45,30 +44,10 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
      */
     private $orderRepository;
 
-    /**
-     * Data constructor.
-     * @param \Magento\Framework\App\Helper\Context $context
-     * @param \Mygento\Base\Model\Logger\LoggerFactory $loggerFactory
-     * @param \Mygento\Base\Model\Logger\HandlerFactory $handlerFactory
-     * @param \Magento\Framework\Encryption\Encryptor $encryptor
-     * @param \Magento\Framework\HTTP\Client\Curl $curl
-     * @param \Magento\Catalog\Model\ProductRepository $productRepository
-     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
-     * @param \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory
-     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
-     * @param \Magento\Framework\Message\ManagerInterface $messageManager
-     * @param \Magento\Framework\Url $urlHelper
-     * @param \Magento\Framework\Notification\NotifierInterface $notifier
-     *
-     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
-     */
     public function __construct(
+        \Mygento\Base\Model\LogManager $logManager,
         \Magento\Framework\App\Helper\Context $context,
-        \Mygento\Base\Model\Logger\LoggerFactory $loggerFactory,
-        \Mygento\Base\Model\Logger\HandlerFactory $handlerFactory,
         \Magento\Framework\Encryption\Encryptor $encryptor,
-        \Magento\Framework\HTTP\Client\Curl $curl,
-        \Magento\Catalog\Model\ProductRepository $productRepository,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
         \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
@@ -77,12 +56,9 @@ class Data extends \Mygento\Base\Helper\Data implements LoggerInterface
         \Magento\Framework\Notification\NotifierInterface $notifier
     ) {
         parent::__construct(
-            $context,
-            $loggerFactory,
-            $handlerFactory,
+            $logManager,
             $encryptor,
-            $curl,
-            $productRepository
+            $context
         );
 
         $this->orderInvoiceFactory  = $orderInvoiceFactory;
