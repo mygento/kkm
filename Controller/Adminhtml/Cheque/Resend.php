@@ -16,7 +16,7 @@ class Resend extends \Magento\Backend\App\Action
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
     /**
@@ -30,7 +30,7 @@ class Resend extends \Magento\Backend\App\Action
 
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Magento\Backend\App\Action\Context $context,
         \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
@@ -62,6 +62,8 @@ class Resend extends \Magento\Backend\App\Action
                     $comment = 'Refund was sent to KKM. Status: %1';
                     break;
             }
+
+            //FIXME: чо за бред, выпилить метод send() и юзать отдельные спец методы
             $response = $this->vendor->send($entity);
             $this->getMessageManager()->addSuccessMessage(__($comment, $response->getStatus()));
         } catch (NoSuchEntityException $exc) {

@@ -13,7 +13,7 @@ class Update
     /** @var \Mygento\Kkm\Helper\Data */
     private $kkmHelper;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
     /**
@@ -24,7 +24,7 @@ class Update
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor
+        \Mygento\Kkm\Model\VendorInterface $vendor
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->vendor = $vendor;

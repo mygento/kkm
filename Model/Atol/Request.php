@@ -8,24 +8,28 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-use Mygento\Kkm\Api\RequestInterface;
+use Mygento\Kkm\Api\Data\ItemInterface;
+use Mygento\Kkm\Api\Data\RequestInterface;
 
 abstract class Request implements \JsonSerializable, RequestInterface
 {
     const PAYMENT_TYPE_BASIC = 1;
     const PAYMENT_TYPE_AVANS = 2;
 
-    protected $sno = '';
-    protected $externalId = '';
-    protected $email = '';
-    protected $companyEmail = '';
-    protected $phone = '';
-    protected $items = [];
-    protected $payments = [];
-    protected $total = 0.0;
-    protected $inn = '';
+    protected $sno            = '';
+    protected $externalId     = '';
+    protected $email          = '';
+    protected $companyEmail   = '';
+    protected $phone          = '';
+    protected $items          = [];
+    protected $payments       = [];
+    protected $total          = 0.0;
+    protected $inn            = '';
     protected $paymentAddress = '';
-    protected $callbackUrl = '';
+    protected $callbackUrl    = '';
+    protected $operationType  = 0;
+    protected $salesEntityId  = null;
+    protected $retryCount     = null;
     /**
      * @var \Magento\Framework\Stdlib\DateTime\Timezone|string
      */
@@ -241,7 +245,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritdoc
      */
-    public function addItem(Item $item): RequestInterface
+    public function addItem(ItemInterface $item): RequestInterface
     {
         $this->items[] = $item;
         $this->addTotal($item->getSum());
@@ -267,8 +271,83 @@ abstract class Request implements \JsonSerializable, RequestInterface
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getTimestamp()
     {
         return $this->date->date()->format('d-m-Y H:i:s');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setTotal(float $total): RequestInterface
+    {
+        $this->total = $total;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setTimestamp(string $timestamp): RequestInterface
+    {
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setOperationType(int $type): RequestInterface
+    {
+        $this->operationType = $type;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getOperationType(): int
+    {
+        return $this->operationType;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setSalesEntityId($id): RequestInterface
+    {
+        $this->salesEntityId = (int)$id;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSalesEntityId(): int
+    {
+        return $this->salesEntityId;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRetryCount($count): RequestInterface
+    {
+        $this->retryCount = $count;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRetryCount()
+    {
+        return $this->retryCount;
     }
 }

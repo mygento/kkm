@@ -21,7 +21,7 @@ class Data extends \Mygento\Base\Helper\Data
     const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
 
     /** @var string */
-    protected $_code = 'mygento_kkm';
+    protected $code = 'mygento_kkm';
 
     /** @var \Magento\Sales\Model\Order\InvoiceFactory */
     private $orderInvoiceFactory;
@@ -101,142 +101,14 @@ class Data extends \Mygento\Base\Helper\Data
             );
     }
 
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function alert($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::ALERT);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function critical($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::CRITICAL);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function debug($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::DEBUG);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function emergency($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::EMERGENCY);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function error($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::ERROR);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function info($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::INFO);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     * @param mixed $level
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function log($level, $message, array $context = [])
-    {
-        $this->writeLog($message, $level);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function notice($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::NOTICE);
-    }
-
-    /**
-     *
-     * @param string $message
-     * @param array $context
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function warning($message, array $context = [])
-    {
-        $this->writeLog($message, \Monolog\Logger::WARNING);
-    }
-
-    /**
-     *
-     * @param string|array $message
-     * @param string $level
-     */
-    protected function writeLog($message, $level = \Monolog\Logger::DEBUG)
-    {
-        if (!parent::getConfig($this->getDebugConfigPath())) {
-            return false;
-        }
-
-        if ($level < $this->getConfig('general/debug_level')) {
-            return false;
-        }
-
-        if (is_array($message)) {
-            // @codingStandardsIgnoreStart
-            $message = print_r($message, true);
-            // @codingStandardsIgnoreEnd
-        }
-
-        $this->_logger->log($level, $message);
-    }
-
     public function isTestMode()
     {
         return $this->getConfig('atol/test_mode');
+    }
+
+    public function isMessageQueueEnabled()
+    {
+        return $this->getConfig('atol/async_enabled');
     }
 
     /** Makes different notifications if cheque was not successfully sent to KKM
@@ -257,8 +129,7 @@ class Data extends \Mygento\Base\Helper\Data
 
         $this->error($fullMessage);
         if ($exception instanceof CreateDocumentFailedException) {
-            $this->error('Params:');
-            $this->error($exception->getDebugData());
+            $this->error('Params:', $exception->getDebugData());
             $this->error('Response: ' . $exception->getResponse());
             $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
         }

@@ -27,7 +27,7 @@ class UpdateStatus extends Command
      */
     protected $appState;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
     /**
@@ -36,7 +36,7 @@ class UpdateStatus extends Command
     private $transactionHelper;
 
     public function __construct(
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
         \Magento\Framework\App\State $state
     ) {

@@ -15,7 +15,7 @@ class CheckStatus extends \Magento\Backend\App\Action
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
 
@@ -28,7 +28,7 @@ class CheckStatus extends \Magento\Backend\App\Action
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor
+        \Mygento\Kkm\Model\VendorInterface $vendor
     ) {
         parent::__construct($context);
 

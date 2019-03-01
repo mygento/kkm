@@ -6,7 +6,7 @@
  * @package Mygento_Kkm
  */
 
-namespace Mygento\Kkm\Api;
+namespace Mygento\Kkm\Api\Data;
 
 interface ResponseInterface
 {

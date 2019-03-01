@@ -21,14 +21,14 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     private $kkmHelper;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
 
     public function __construct(
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Magento\Framework\App\Action\Context $context
     ) {
         parent::__construct($context);

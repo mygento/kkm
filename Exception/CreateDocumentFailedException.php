@@ -8,8 +8,7 @@
 
 namespace Mygento\Kkm\Exception;
 
-use Mygento\Kkm\Api\ResponseInterface;
-use Mygento\Kkm\Model\Atol\Response;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 
 class CreateDocumentFailedException extends \Exception
 {

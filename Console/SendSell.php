@@ -27,7 +27,7 @@ class SendSell extends Command
      */
     protected $appState;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
     /**
@@ -36,7 +36,7 @@ class SendSell extends Command
     private $invoiceFactory;
 
     public function __construct(
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Magento\Framework\App\State $state,
         \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory
     ) {

@@ -9,10 +9,10 @@
 namespace Mygento\Kkm\Helper;
 
 use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Sales\Model\Order\Invoice;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
-use Mygento\Kkm\Api\ResponseInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
 /**
@@ -78,12 +78,12 @@ class Transaction
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveSellTransaction(Invoice $invoice, ResponseInterface $response)
+    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response)
     {
         $this->kkmHelper->info(
             __(
@@ -98,12 +98,12 @@ class Transaction
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     * @param  \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveRefundTransaction(Creditmemo $creditmemo, ResponseInterface $response)
+    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response)
     {
         $this->kkmHelper->info(
             __(
@@ -209,10 +209,10 @@ class Transaction
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Creditmemo $creditmemo
+     * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @return \Magento\Sales\Api\Data\TransactionInterface[]
      */
-    public function getTransactionsByCreditmemo(Creditmemo $creditmemo)
+    public function getTransactionsByCreditmemo(CreditmemoInterface $creditmemo)
     {
         return $this->getTransactionsByEntity($creditmemo);
     }
@@ -265,7 +265,7 @@ class Transaction
     /**
      * @param \Magento\Sales\Api\Data\TransactionInterface $transaction
      * @throws \Exception
-     * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
+     * @return CreditmemoInterface|InvoiceInterface
      */
     public function getEntityByTransaction(TransactionInterface $transaction)
     {

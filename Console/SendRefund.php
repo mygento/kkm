@@ -27,7 +27,7 @@ class SendRefund extends Command
      */
     protected $appState;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
     /**
@@ -40,7 +40,7 @@ class SendRefund extends Command
     private $creditmemoResource;
 
     public function __construct(
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Magento\Framework\App\State $state,
         \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo,
         \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource

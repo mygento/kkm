@@ -8,7 +8,7 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-use Mygento\Kkm\Api\ResponseInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 
 class Response implements ResponseInterface
 {

@@ -11,23 +11,23 @@ namespace Mygento\Kkm\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Mygento\Kkm\Model\Atol\Vendor;
+use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 
 class Send implements ObserverInterface
 {
     /** @var \Mygento\Kkm\Helper\Data */
     private $kkmHelper;
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
 
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor
+        \Mygento\Kkm\Model\VendorInterface $vendor
     ) {
         $this->kkmHelper = $kkmHelper;
-        $this->vendor = $vendor;
+        $this->vendor    = $vendor;
     }
 
     /**
@@ -38,27 +38,38 @@ class Send implements ObserverInterface
      */
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        $entity = $observer->getEvent()->getInvoice()
+            ?? $observer->getEvent()->getCreditmemo();
+
+        if (!$this->canProceed($entity)) {
+            return;
+        }
+
+        $this->kkmHelper->info("Auto send {$entity->getEntityType()} to Atol");
+
+        //Set Flag, in order to avoid loop
+        $entity->setData(Vendor::ALREADY_SENT_FLAG, 1);
+
+        $this->proceed($entity);
+    }
+
+    /**
+     * @param InvoiceInterface|CreditmemoInterface $entity
+     */
+    private function proceed($entity)
+    {
         try {
-            $entity = $observer->getEvent()->getInvoice()
-                ?? $observer->getEvent()->getCreditmemo();
-
-            if (!$this->canProceed($entity)) {
-                return;
-            }
-
-            $this->kkmHelper->info("Auto send {$entity->getEntityType()} to Atol");
-
-            //Set Flag, in order to avoid loop
-            $entity->setData(Vendor::ALREADY_SENT_FLAG, 1);
-
             //Send
-            $response = $this->vendor->send($entity);
+            $response = $this->send($entity);
 
             $comment = 'Cheque was sent to KKM. Status: %1';
             $this->kkmHelper->getMessageManager()->addSuccessMessage(
                 __($comment, $response->getStatus())
             );
             $this->kkmHelper->info(__($comment, $response->getStatus()));
+        } catch (VendorBadServerAnswerException $e) {
+            $this->kkmHelper->critical($e->getMessage());
+            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
         } catch (\Exception $exc) {
             $this->kkmHelper->getMessageManager()->addErrorMessage(
                 __(
@@ -74,7 +85,6 @@ class Send implements ObserverInterface
     /** Check Invoice|Creditmemo, Kkm setting, Currency etc before sending
      *
      * @param InvoiceInterface|CreditmemoInterface $entity
-     * @throws \Magento\Framework\Exception\LocalizedException
      * @return bool
      */
     protected function canProceed($entity)
@@ -119,5 +129,22 @@ class Send implements ObserverInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param InvoiceInterface|CreditmemoInterface $entity
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
+     * @throws \Exception
+     */
+    private function send($entity)
+    {
+        if ($entity instanceof InvoiceInterface) {
+            return $this->vendor->sendSell($entity);
+        }
+        if ($entity instanceof CreditmemoInterface) {
+            return $this->vendor->sendRefund($entity);
+        }
+
+        throw new \Exception('Unknown entity to send. ' . get_class($entity));
     }
 }

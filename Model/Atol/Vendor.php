@@ -8,12 +8,11 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
-use Mygento\Kkm\Api\RequestInterface;
-use Mygento\Kkm\Api\ResponseInterface;
+use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 
 /**
  * Class Vendor
@@ -21,7 +20,7 @@ use Mygento\Kkm\Api\ResponseInterface;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Vendor implements \Mygento\Kkm\Api\VendorInterface
+class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
     const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
     const ALREADY_SENT_FLAG           = 'kkm_already_sent_to_atol';
@@ -54,6 +53,10 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
      * @var \Magento\Backend\Model\UrlInterface
      */
     private $urlBuilder;
+    /**
+     * @var \Mygento\Kkm\Helper\Request
+     */
+    private $requestHelper;
 
     public function __construct(
         \Magento\Backend\Model\UrlInterface $urlBuilder,
@@ -62,7 +65,8 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
         \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory,
         \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory,
         \Mygento\Kkm\Model\Atol\Client $apiClient,
-        \Mygento\Kkm\Helper\Transaction $transactionHelper
+        \Mygento\Kkm\Helper\Transaction $transactionHelper,
+        \Mygento\Kkm\Helper\Request $requestHelper
     ) {
         $this->kkmHelper         = $kkmHelper;
         $this->kkmDiscount       = $kkmDiscount;
@@ -71,6 +75,7 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
         $this->apiClient         = $apiClient;
         $this->transactionHelper = $transactionHelper;
         $this->urlBuilder        = $urlBuilder;
+        $this->requestHelper     = $requestHelper;
     }
 
     /**
@@ -82,6 +87,16 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
     public function sendSell($invoice)
     {
         $request = $this->buildRequest($invoice);
+
+        return $this->sendSellRequest($request, $invoice);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function sendSellRequest($request, $invoice = null)
+    {
+        $invoice = $invoice ?? $this->requestHelper->getEntityByRequest($request);
 
         $response = $this->apiClient->sendSell($request);
 
@@ -95,7 +110,6 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
 
     /**
      * @inheritdoc
-     * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @throws \Exception
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -103,6 +117,16 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
     public function sendRefund($creditmemo)
     {
         $request = $this->buildRequest($creditmemo);
+
+        return $this->sendRefundRequest($request, $creditmemo);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function sendRefundRequest($request, $creditmemo = null)
+    {
+        $creditmemo = $creditmemo ?? $this->requestHelper->getEntityByRequest($request);
 
         $response = $this->apiClient->sendRefund($request);
 
@@ -116,40 +140,33 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
 
     /**
      * @inheritdoc
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function send($entity)
+    public function processQueueMessage(RequestInterface $request)
     {
-        if (!$entity->getId()) {
-            throw new NoSuchEntityException(__('Attempt to send empty entity.'));
-        }
+//        $this->kkmHelper->critical('ololo done');
+//        $this->kkmHelper->error('ololo done');
+//        return;
 
-        $type = $entity->getEntityType();
 
-        switch ($type) {
-            case 'invoice':
-                $response = $this->sendSell($entity);
-                break;
-            case 'creditmemo':
-                $response = $this->sendRefund($entity);
-                break;
-        }
+//        throw new \Exception('Всё хорошо! :) ' . json_encode($request));
 
-        return $response;
-    }
 
-    /**
-     * @inheritdoc
-     */
-    public function processQueueMessage(RequestInterface $request) {
+        file_put_contents(
+            __DIR__ . '/request_w_rot_mne_nogi.log',
+            json_encode($request) . "\n"
+        );
+
+        echo 'Message received with data: ' . $request->getEmail(
+            ) . '. Id: ' . $request->getExternalId() . PHP_EOL;
 
     }
 
     /**
      * @inheritdoc
-     * @throws \Exception
+     * @param $uuid
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function updateStatus($uuid)
     {
@@ -160,7 +177,7 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
 
             throw new \Exception("Transaction not found. Uuid: {$uuid}");
         }
-        $entity   = $this->transactionHelper->getEntityByTransaction($transaction);
+        $entity = $this->transactionHelper->getEntityByTransaction($transaction);
 
         //TODO: Validate response
         $response = $this->apiClient->receiveStatus($uuid);
@@ -221,9 +238,17 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function buildRequest(EntityInterface $salesEntity): RequestInterface
+    public function buildRequest($salesEntity): RequestInterface
     {
         $request = $this->requestFactory->create();
+        switch ($salesEntity->getEntityType()) {
+            case 'invoice':
+                $request->setOperationType(RequestInterface::SELL_OPERATION_TYPE);
+                break;
+            case 'creditmemo':
+                $request->setOperationType(RequestInterface::REFUND_OPERATION_TYPE);
+                break;
+        }
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
 
@@ -257,10 +282,10 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
             $this->validateItemArray($itemData);
 
             //How to handle GiftCards - see Atol API documentation
-            $paymentMethod = $this->isGiftCard($salesEntity, $itemData['name'])
+            $paymentMethod = true //$this->isGiftCard($salesEntity, $itemData['name'])
                 ? Item::PAYMENT_METHOD_ADVANCE
                 : Item::PAYMENT_METHOD_FULL_PAYMENT;
-            $paymentObject = $this->isGiftCard($salesEntity, $itemData['name'])
+            $paymentObject = true // $this->isGiftCard($salesEntity, $itemData['name'])
                 ? Item::PAYMENT_OBJECT_PAYMENT
                 : Item::PAYMENT_OBJECT_BASIC;
 
@@ -280,6 +305,7 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
 
         $request
             ->setExternalId($this->generateExternalId($salesEntity))
+            ->setSalesEntityId($salesEntity->getEntityId())
             ->setEmail($order->getCustomerEmail())
             ->setPhone($telephone)
             ->setCompanyEmail($this->kkmHelper->getStoreEmail())
@@ -344,6 +370,7 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
     public function generateExternalId(EntityInterface $entity, $postfix = '')
     {
         $postfix = $postfix ? "_{$postfix}" : '';
+
         return $entity->getEntityType() . '_' . $entity->getIncrementId() . $postfix;
     }
 
@@ -363,12 +390,12 @@ class Vendor implements \Mygento\Kkm\Api\VendorInterface
 
         if ($txnId) {
             $href =
-            $this->urlBuilder->getUrl(
-                'sales/transactions/view',
-                [
-                    'txn_id' => $txnId
-                ]
-            );
+                $this->urlBuilder->getUrl(
+                    'sales/transactions/view',
+                    [
+                        'txn_id' => $txnId,
+                    ]
+                );
 
             $message .= " <a href='{$href}'>Transaction id: {$txnId}</a>";
         }
