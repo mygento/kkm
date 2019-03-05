@@ -6,13 +6,7 @@
  * @package Mygento_Kkm
  */
 -->
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
-    <topic name="mygento.kkm.message.sell" request="Mygento\Kkm\Api\Data\RequestInterface">
-        <handler name="mygento.kkm.message.sell.handler" type="Mygento\Kkm\Model\Queue\Consumer" method="sendSellRequest"/>
-    </topic>
-
-    <topic name="mygento.kkm.message.refund" request="Mygento\Kkm\Api\Data\RequestInterface">
-        <handler name="mygento.kkm.message.refund.handler" type="Mygento\Kkm\Model\Queue\Consumer" method="sendRefundRequest"/>
-    </topic>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
+    <topic name="mygento.kkm.message.sell" request="Mygento\Kkm\Api\Data\RequestInterface"/>
+    <topic name="mygento.kkm.message.refund" request="Mygento\Kkm\Api\Data\RequestInterface"/>
 </config>

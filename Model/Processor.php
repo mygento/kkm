@@ -45,6 +45,7 @@ class Processor
      * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      */
     public function proceedSell(InvoiceInterface $invoice, $sync = false)
     {
@@ -67,6 +68,7 @@ class Processor
      * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      */
     public function proceedRefund(CreditmemoInterface $creditmemo, $sync = false)
     {

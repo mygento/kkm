@@ -44,13 +44,35 @@ class Consumer
     }
 
     /**
+     * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
+     */
+    public function sendSellMergedRequest($mergedRequest)
+    {
+        $requests = $mergedRequest->getRequests();
+        $this->helper->debug(count($requests) . ' SellRequests received to process.');
+        foreach ($requests as $request) {
+            $this->sendSellRequest($request);
+        }
+    }
+
+    /**
+     * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
+     */
+    public function sendRefundMergedRequest($mergedRequest)
+    {
+        $requests = $mergedRequest->getRequests();
+        $this->helper->debug(count($requests) . ' RefundRequests received to process.');
+
+        foreach ($requests as $request) {
+            $this->sendRefundRequest($request);
+        }
+    }
+
+    /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      */
     public function sendSellRequest($request)
     {
-
-        return 1;
-
         $this->updateRetries($request);
         try {
 
@@ -65,19 +87,8 @@ class Consumer
             $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
         } catch (\Exception $e) {
 
-            $this->helper->error($e->getMessage());
-            $this->helper->error($e->getTraceAsString());
-
-//            try {
-//                $this->helper->error($e->getMessage());
-//                $entity = $this->requestHelper->getEntityByRequest($request);
-//                $this->helper->processKkmChequeRegistrationError($entity, $e);
-//            } catch (\Exception $e) {
-//                $this->helper->error($e->getMessage());
-//                $this->helper->error($e->getTraceAsString());
-//
-//            }
-
+            $entity = $this->requestHelper->getEntityByRequest($request);
+            $this->helper->processKkmChequeRegistrationError($entity, $e);
 
         }
     }

@@ -53,7 +53,7 @@ class Merger implements MergerInterface
 
             /** @var MergedRequestInterface $mergedRequest */
             $mergedRequest = $this->mergedRequestFactory->create();
-            $mergedRequest->setMessages($messages);
+            $mergedRequest->setRequests($messages);
 
             /** @var MergedMessageInterface $mergedRequest */
             $mergedMessage = $this->mergedMessageFactory->create(
