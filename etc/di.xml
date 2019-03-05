@@ -27,4 +27,30 @@
         </arguments>
     </type>
 
+    <!--Transaction Attempt entity and grid-->
+    <preference for="Mygento\Kkm\Api\TransactionAttemptRepositoryInterface" type="Mygento\Kkm\Model\TransactionAttemptRepository"/>
+    <preference for="Mygento\Kkm\Api\Data\TransactionAttemptInterface" type="Mygento\Kkm\Model\TransactionAttempt"/>
+    <preference for="Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <type name="Magento\Framework\Model\Entity\RepositoryFactory">
+        <arguments>
+            <argument name="entities" xsi:type="array">
+                <item name="Mygento\Kkm\Api\Data\TransactionAttemptInterface" xsi:type="string">Mygento\Kkm\Api\TransactionAttemptRepositoryInterface</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="kkm_transaction_attempt_listing_data_source" xsi:type="string">Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mygento_kkm_transaction_attempt</argument>
+            <argument name="eventPrefix" xsi:type="string">kkm_transaction_attempt_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">transaction_attempt_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">Mygento\Kkm\Model\ResourceModel\TransactionAttempt</argument>
+        </arguments>
+    </type>
 </config>

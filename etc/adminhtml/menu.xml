@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Mygento_Kkm::root" title="Kkm" translate="title" module="Mygento_Kkm" sortOrder="90" parent="Magento_Backend::stores" resource="Mygento_Kkm::root"/>
+        <add id="Mygento_Kkm::transaction_attempt" title="Transaction Attempt" translate="title" module="Mygento_Kkm" sortOrder="90" parent="Mygento_Kkm::root" action="kkm/transaction_attempt" resource="Mygento_Kkm::transaction_attempt"/>
+    </menu>
+</config>

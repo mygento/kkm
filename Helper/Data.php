@@ -117,32 +117,35 @@ class Data extends \Mygento\Base\Helper\Data
      */
     public function processKkmChequeRegistrationError($entity, \Exception $exception = null)
     {
-        $entityType = ucfirst($entity->getEntityType());
-
-        $fullMessage = $exception->getMessage() . ' ';
-        $fullMessage .= "{$entityType}: {$entity->getIncrementId()}. ";
-        $fullMessage .= "Order: {$entity->getOrder()->getIncrementId()}";
-
-        $uuid = $exception->getResponse()
-            ? $exception->getResponse()->getUuid()
-            : null;
-
-        $this->error($fullMessage);
-        if ($exception instanceof CreateDocumentFailedException) {
-            $this->error('Params:', $exception->getDebugData());
-            $this->error('Response: ' . $exception->getResponse());
-            $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
-        }
-
-        //Show Admin Messages
-        if ($this->getConfig('general/admin_notifications')) {
-            $this->adminNotifier->addMajor(
-                __('KKM Cheque sending error. Order: %1', $entity->getOrder()->getIncrementId()),
-                $fullMessage
-            );
-        }
-
         try {
+            $entityType = ucfirst($entity->getEntityType());
+
+            $fullMessage = $exception->getMessage() . ' ';
+            $fullMessage .= "{$entityType}: {$entity->getIncrementId()}. ";
+            $fullMessage .= "Order: {$entity->getOrder()->getIncrementId()}";
+
+            $uuid = method_exists($exception, 'getResponse')
+                ? $exception->getResponse()->getUuid()
+                : null;
+
+            $this->error($fullMessage);
+            if ($exception instanceof CreateDocumentFailedException) {
+                $this->error('Params:', $exception->getDebugData());
+                $this->error('Response: ' . $exception->getResponse());
+                $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
+            }
+
+            //Show Admin Messages
+            if ($this->getConfig('general/admin_notifications')) {
+                $this->adminNotifier->addMajor(
+                    __(
+                        'KKM Cheque sending error. Order: %1',
+                        $entity->getOrder()->getIncrementId()
+                    ),
+                    $fullMessage
+                );
+            }
+
             $order = $entity->getOrder();
             $order->addStatusToHistory(
                 self::ORDER_KKM_FAILED_STATUS,

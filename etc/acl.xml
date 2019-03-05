@@ -11,6 +11,9 @@
     <acl>
         <resources>
             <resource id="Magento_Backend::admin">
+                <resource id="Mygento_Kkm::root" title="Kkm" translate="title">
+                    <resource id="Mygento_Kkm::transaction_attempt" title="Mygento Kkm - Transaction Attempt" translate="title"/>
+                </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
                         <resource id="Magento_Config::config">

@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">kkm_transaction_attempt_listing.kkm_transaction_attempt_listing_data_source</item>
+        </item>
+    </argument>
+    <settings>
+        <buttons/>
+        <spinner>kkm_transaction_attempt_columns</spinner>
+        <deps>
+            <dep>kkm_transaction_attempt_listing.kkm_transaction_attempt_listing_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="kkm_transaction_attempt_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">id</param>
+            </storageConfig>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>Mygento_Kkm::transaction_attempt</aclResource>
+        <dataProvider class="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider" name="kkm_transaction_attempt_listing_data_source">
+            <settings>
+                <requestFieldName>id</requestFieldName>
+                <primaryFieldName>id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>1</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filterSearch name="fulltext"/>
+        <filters name="listing_filters">
+            <settings>
+                <templates>
+                    <filters>
+                        <select>
+                            <param name="template" xsi:type="string">ui/grid/filters/elements/ui-select</param>
+                            <param name="component" xsi:type="string">Magento_Ui/js/form/element/ui-select</param>
+                        </select>
+                    </filters>
+                </templates>
+            </settings>
+        </filters>
+        <paging name="listing_paging"/>
+    </listingToolbar>
+    <columns name="kkm_transaction_attempt_columns">
+        <column name="id">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>text</dataType>
+                <label translate="true">Id</label>
+                <sorting>asc</sorting>
+            </settings>
+        </column>
+        <column name="order_id">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Order Id</label>
+            </settings>
+        </column>
+        <column name="operation">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Operation</label>
+            </settings>
+        </column>
+        <column name="sales_entity_id">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Sales Entity Id</label>
+            </settings>
+        </column>
+        <column name="status">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Status</label>
+            </settings>
+        </column>
+        <column name="message">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Message</label>
+            </settings>
+        </column>
+        <column name="number_of_trials">
+            <settings>
+                <filter>textRange</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Number Of Trials</label>
+            </settings>
+        </column>
+        <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date" component="Magento_Ui/js/grid/columns/date">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <editor>
+                    <editorType>date</editorType>
+                </editor>
+                <label translate="true">Created At</label>
+            </settings>
+        </column>
+        <column name="updated_at" class="Magento\Ui\Component\Listing\Columns\Date" component="Magento_Ui/js/grid/columns/date">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <editor>
+                    <editorType>date</editorType>
+                </editor>
+                <label translate="true">Updated At</label>
+            </settings>
+        </column>
+    </columns>
+</listing>
