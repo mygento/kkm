@@ -41,6 +41,7 @@ class Request
     /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      * @return CreditmemoInterface|InvoiceInterface|OrderInterface
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getEntityByRequest($request)
     {

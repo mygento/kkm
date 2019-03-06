@@ -22,9 +22,6 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
  */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
-    const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
-    const ALREADY_SENT_FLAG           = 'kkm_already_sent_to_atol';
-
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -57,16 +54,26 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @var \Mygento\Kkm\Helper\Request
      */
     private $requestHelper;
+    /**
+     * @var \Mygento\Kkm\Helper\TransactionAttempt
+     */
+    private $attemptHelper;
+    /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     */
+    private $productRepository;
 
     public function __construct(
-        \Magento\Backend\Model\UrlInterface $urlBuilder,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Base\Helper\Discount $kkmDiscount,
+        \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Mygento\Kkm\Helper\Transaction $transactionHelper,
+        \Mygento\Kkm\Helper\Request $requestHelper,
+        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory,
         \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory,
         \Mygento\Kkm\Model\Atol\Client $apiClient,
-        \Mygento\Kkm\Helper\Transaction $transactionHelper,
-        \Mygento\Kkm\Helper\Request $requestHelper
+        \Magento\Backend\Model\UrlInterface $urlBuilder,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
     ) {
         $this->kkmHelper         = $kkmHelper;
         $this->kkmDiscount       = $kkmDiscount;
@@ -76,6 +83,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $this->transactionHelper = $transactionHelper;
         $this->urlBuilder        = $urlBuilder;
         $this->requestHelper     = $requestHelper;
+        $this->attemptHelper     = $attemptHelper;
+        $this->productRepository = $productRepository;
     }
 
     /**
@@ -83,12 +92,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws \Exception
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @deprecated
      */
     public function sendSell($invoice)
     {
         $request = $this->buildRequest($invoice);
 
-        return $this->sendSellRequest($request, $invoice);
+        return $this->sendRequest($request, [$this->apiClient, 'sendSell'], $invoice);
     }
 
     /**
@@ -96,16 +106,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function sendSellRequest($request, $invoice = null)
     {
-        $invoice = $invoice ?? $this->requestHelper->getEntityByRequest($request);
-
-        $response = $this->apiClient->sendSell($request);
-
-        $txn = $this->transactionHelper->saveSellTransaction($invoice, $response);
-        $this->addCommentToOrder($invoice, $response, $txn->getId() ?? null);
-
-        $this->validateResponse($response);
-
-        return $response;
+        return $this->sendRequest($request, [$this->apiClient, 'sendSell'], $invoice);
     }
 
     /**
@@ -113,6 +114,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws \Exception
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @deprecated
      */
     public function sendRefund($creditmemo)
     {
@@ -126,39 +128,41 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function sendRefundRequest($request, $creditmemo = null)
     {
-        $creditmemo = $creditmemo ?? $this->requestHelper->getEntityByRequest($request);
+        return $this->sendRequest($request, [$this->apiClient, 'sendRefund'], $creditmemo);
+    }
 
-        $response = $this->apiClient->sendRefund($request);
+    private function sendRequest($request, $callback, $entity = null)
+    {
+        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
 
-        $txn = $this->transactionHelper->saveRefundTransaction($creditmemo, $response);
-        $this->addCommentToOrder($creditmemo, $response, $txn->getId());
+        //Register sending Attempt
+        $attempt = $this->attemptHelper->registerAttempt(
+            $request,
+            $entity->getIncrementId(),
+            $entity->getOrderId()
+        );
 
+        try {
+            //Make Request to Vendor's API
+            $response = \call_user_func($callback, $request);
+
+            //Save transaction data
+            $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
+            $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
+
+            //Mark attempt as Sent
+            $this->attemptHelper->finishAttempt($attempt);
+        } catch (\Exception $e) {
+            //Mark attempt as Error
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        }
+
+        //Check response. Here attempt is successfully done.
         $this->validateResponse($response);
 
         return $response;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function processQueueMessage(RequestInterface $request)
-    {
-//        $this->kkmHelper->critical('ololo done');
-//        $this->kkmHelper->error('ololo done');
-//        return;
-
-
-//        throw new \Exception('Всё хорошо! :) ' . json_encode($request));
-
-
-        file_put_contents(
-            __DIR__ . '/request_w_rot_mne_nogi.log',
-            json_encode($request) . "\n"
-        );
-
-        echo 'Message received with data: ' . $request->getEmail(
-            ) . '. Id: ' . $request->getExternalId() . PHP_EOL;
-
     }
 
     /**
@@ -282,10 +286,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $this->validateItemArray($itemData);
 
             //How to handle GiftCards - see Atol API documentation
-            $paymentMethod = true //$this->isGiftCard($salesEntity, $itemData['name'])
+            $paymentMethod = $this->isGiftCard($salesEntity, $itemData['name'])
                 ? Item::PAYMENT_METHOD_ADVANCE
                 : Item::PAYMENT_METHOD_FULL_PAYMENT;
-            $paymentObject = true // $this->isGiftCard($salesEntity, $itemData['name'])
+            $paymentObject = $this->isGiftCard($salesEntity, $itemData['name'])
                 ? Item::PAYMENT_OBJECT_PAYMENT
                 : Item::PAYMENT_OBJECT_BASIC;
 
@@ -344,9 +348,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     {
         $items = $salesEntity->getAllVisibleItems() ?? $salesEntity->getAllItems();
 
+        if (!defined('ProductType::TYPE_GIFTCARD')) {
+            return false;
+        }
+
         foreach ($items as $item) {
             $productType = $item->getProductType()
-                ?? $this->kkmHelper->getProduct($item->getProductId())->getTypeId();
+                ?? $this->productRepository->getById($item->getProductId())->getTypeId();
 
             $giftCardType = ProductType::TYPE_GIFTCARD;
             if (strpos($item->getName(), $itemName) !== false && $productType == $giftCardType) {

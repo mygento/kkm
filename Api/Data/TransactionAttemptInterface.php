@@ -4,15 +4,17 @@ namespace Mygento\Kkm\Api\Data;
 
 interface TransactionAttemptInterface
 {
-    const ID = 'id';
-    const ORDER_ID = 'order_id';
-    const OPERATION = 'operation';
-    const SALES_ENTITY_ID = 'sales_entity_id';
-    const STATUS = 'status';
-    const MESSAGE = 'message';
-    const NUMBER_OF_TRIALS = 'number_of_trials';
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
+    const ID                        = 'id';
+    const OPERATION                 = 'operation';
+    const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
+    const STATUS                    = 'status';
+    const MESSAGE                   = 'message';
+    const NUMBER_OF_TRIALS          = 'number_of_trials';
+    const UPDATED_AT                = 'updated_at';
+
+    const STATUS_NEW = 1;
+    const STATUS_SENT = 2;
+    const STATUS_ERROR = 3;
 
     /**
      * Get id
@@ -57,14 +59,14 @@ interface TransactionAttemptInterface
      * Get sales entity id
      * @return int|null
      */
-    public function getSalesEntityId();
+    public function getSalesEntityIncrementId();
 
     /**
-     * Set sales entity id
+     * Set sales entity increment id
      * @param int $salesEntityId
      * @return $this
      */
-    public function setSalesEntityId($salesEntityId);
+    public function setSalesEntityIncrementId($salesEntityId);
 
     /**
      * Get status

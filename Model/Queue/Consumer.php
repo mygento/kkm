@@ -70,13 +70,13 @@ class Consumer
 
     /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function sendSellRequest($request)
     {
         $this->updateRetries($request);
-        try {
 
-            throw new \Exception('123');
+        try {
 
             $this->vendor->sendSellRequest($request);
 
@@ -85,6 +85,7 @@ class Consumer
             $this->helper->critical($e->getMessage());
 
             $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
+
         } catch (\Exception $e) {
 
             $entity = $this->requestHelper->getEntityByRequest($request);
@@ -104,7 +105,6 @@ class Consumer
 
             $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
         } catch (\Exception $e) {
-            $this->helper->error($e->getMessage());
 
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->helper->processKkmChequeRegistrationError($entity, $e);

@@ -108,7 +108,7 @@ class Data extends \Mygento\Base\Helper\Data
 
     public function isMessageQueueEnabled()
     {
-        return $this->getConfig('atol/async_enabled');
+        return (bool)$this->getConfig('general/async_enabled');
     }
 
     /** Makes different notifications if cheque was not successfully sent to KKM
@@ -124,9 +124,10 @@ class Data extends \Mygento\Base\Helper\Data
             $fullMessage .= "{$entityType}: {$entity->getIncrementId()}. ";
             $fullMessage .= "Order: {$entity->getOrder()->getIncrementId()}";
 
-            $uuid = method_exists($exception, 'getResponse')
-                ? $exception->getResponse()->getUuid()
-                : null;
+            $uuid =
+                method_exists($exception, 'getResponse') && $exception->getResponse()
+                    ? $exception->getResponse()->getUuid()
+                    : null;
 
             $this->error($fullMessage);
             if ($exception instanceof CreateDocumentFailedException) {

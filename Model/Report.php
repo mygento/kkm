@@ -106,6 +106,7 @@ class Report
     private function collectStatistics($searchCriteria)
     {
         $transactions = $this->transactionRepo->getList($searchCriteria);
+        /** @var $statistics \Mygento\Kkm\Model\Statistics */
         $statistics = $this->statisticsFactory->create();
 
         foreach ($transactions->getItems() as $item) {

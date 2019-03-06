@@ -77,7 +77,7 @@
                 <label translate="true">Operation</label>
             </settings>
         </column>
-        <column name="sales_entity_id">
+        <column name="sales_entity_increment_id">
             <settings>
                 <filter>textRange</filter>
                 <dataType>text</dataType>

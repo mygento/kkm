@@ -52,11 +52,13 @@ class Processor
         $request = $this->vendor->buildRequest($invoice);
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
+            $this->helper->debug('Queue is disabled. Sending request directly: ', $request->jsonSerialize());
             $this->vendor->sendSellRequest($request);
 
             return true;
         }
 
+        $this->helper->debug('Publish request: ', $request->jsonSerialize());
         $this->publisher->publish(self::TOPIC_NAME_SELL, $request);
 
         return true;
@@ -75,11 +77,13 @@ class Processor
         $request = $this->vendor->buildRequest($creditmemo);
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
+            $this->helper->debug('Queue is disabled. Sending request directly: ', $request->jsonSerialize());
             $this->vendor->sendRefundRequest($request);
 
             return true;
         }
 
+        $this->helper->debug('Publish request: ', $request->jsonSerialize());
         $this->publisher->publish(self::TOPIC_NAME_REFUND, $request);
 
         return true;

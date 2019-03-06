@@ -4,6 +4,7 @@ namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Data\Collection;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -26,18 +27,18 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
      * @param \Mygento\Kkm\Model\ResourceModel\TransactionAttempt $resource
      * @param \Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory $collectionFactory
      * @param \Mygento\Kkm\Api\Data\TransactionAttemptInterfaceFactory $entityFactory
-     * @param \Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterfaceFactory $searchResultsFactory
+     * @param \Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterfaceFactory $searchResFactory
      */
     public function __construct(
         ResourceModel\TransactionAttempt $resource,
         ResourceModel\TransactionAttempt\CollectionFactory $collectionFactory,
         \Mygento\Kkm\Api\Data\TransactionAttemptInterfaceFactory $entityFactory,
-        \Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterfaceFactory $searchResultsFactory
+        \Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterfaceFactory $searchResFactory
     ) {
         $this->resource = $resource;
         $this->collectionFactory = $collectionFactory;
         $this->entityFactory = $entityFactory;
-        $this->searchResultsFactory = $searchResultsFactory;
+        $this->searchResultsFactory = $searchResFactory;
     }
 
     /**
@@ -55,6 +56,26 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             );
         }
         return $entity;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getByEntityId($operation, $entityIncrementId)
+    {
+        /** @var ResourceModel\TransactionAttempt\Collection $collection */
+        $collection = $this->collectionFactory->create();
+        $collection
+            ->addFieldToFilter(
+                TransactionAttemptInterface::OPERATION,
+                ['eq' => $operation]
+            )
+            ->addFieldToFilter(
+                TransactionAttemptInterface::SALES_ENTITY_INCREMENT_ID,
+                ['eq' => $entityIncrementId]
+            );
+
+        return $collection->getFirstItem();
     }
 
     /**

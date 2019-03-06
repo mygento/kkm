@@ -9,12 +9,19 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Model\AbstractModel;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Helper\Transaction;
 
-class TransactionAttempt extends AbstractModel implements \Mygento\Kkm\Api\Data\TransactionAttemptInterface
+/**
+ * Class TransactionAttempt should implement TransactionInterface to
+ * provide opportunity to count TransactionAttempt in Kkm statistics and Reports.
+ * @package Mygento\Kkm\Model
+ */
+class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface, TransactionInterface
 {
-    const STATUS_NEW = 1;
-    const STATUS_SENT = 2;
-    const STATUS_ERROR = 3;
+    const NONE_UUID = 'none';
 
     /**
      * @return void
@@ -82,22 +89,22 @@ class TransactionAttempt extends AbstractModel implements \Mygento\Kkm\Api\Data\
     }
 
     /**
-     * Get sales entity id
+     * Get sales entity increment id
      * @return int|null
      */
-    public function getSalesEntityId()
+    public function getSalesEntityIncrementId()
     {
-        return $this->getData(self::SALES_ENTITY_ID);
+        return $this->getData(self::SALES_ENTITY_INCREMENT_ID);
     }
 
     /**
-     * Set sales entity id
+     * Set sales entity increment id
      * @param int $salesEntityId
      * @return $this
      */
-    public function setSalesEntityId($salesEntityId)
+    public function setSalesEntityIncrementId($salesEntityId)
     {
-        return $this->setData(self::SALES_ENTITY_ID, $salesEntityId);
+        return $this->setData(self::SALES_ENTITY_INCREMENT_ID, $salesEntityId);
     }
 
     /**
@@ -194,4 +201,158 @@ class TransactionAttempt extends AbstractModel implements \Mygento\Kkm\Api\Data\
     {
         return $this->setData(self::UPDATED_AT, $updatedAt);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTransactionId()
+    {
+        return 0;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTransactionId($id)
+    {
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getParentId()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPaymentId()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTxnId()
+    {
+        return self::NONE_UUID;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getParentTxnId()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTxnType()
+    {
+        return $this->getOperation();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getIsClosed()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAdditionalInformation()
+    {
+        if ($this->getData('additional_information')) {
+            return $this->getData('additional_information');
+        }
+
+        $additional[Transaction::INCREMENT_ID_KEY] = $this->getSalesEntityIncrementId();
+        $additional[Transaction::ERROR_MESSAGE_KEY] = $this->getMessage();
+
+        $this->setData('additional_information', [TransactionEntity::RAW_DETAILS => $additional]);
+
+        return $this->getData('additional_information');
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getChildTransactions()
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setParentId($id)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setPaymentId($id)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTxnId($id)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setParentTxnId($id)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTxnType($txnType)
+    {
+        $this->setData(self::OPERATION, $txnType);
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setIsClosed($isClosed)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAdditionalInformation($key, $value)
+    {
+        $this->setData('additional_information', [$key => $value]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getExtensionAttributes()
+    {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setExtensionAttributes(\Magento\Sales\Api\Data\TransactionExtensionInterface $extensionAttributes)
+    {
+    }
+
+
 }

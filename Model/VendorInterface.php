@@ -20,6 +20,9 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
  */
 interface VendorInterface
 {
+    const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
+    const ALREADY_SENT_FLAG           = 'kkm_already_sent_to_atol';
+
     /**
      * Send request to Vendor
      *
@@ -58,12 +61,6 @@ interface VendorInterface
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendRefund($creditmemo);
-
-    /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
-     * @return void
-     */
-    public function processQueueMessage(RequestInterface $request);
 
     /**
      * @param string $uuid It is Transaction Id on Magento side

@@ -21,6 +21,13 @@ interface TransactionAttemptRepositoryInterface
     public function getById($entityId);
 
     /**
+     * Retrieve TransactionAttempt
+     * @param int $operation
+     * @param string $entityIncrementId
+     */
+    public function getByEntityId($operation, $entityIncrementId);
+
+    /**
      * Retrieve TransactionAttempt entities matching the specified criteria
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
      * @throws \Magento\Framework\Exception\LocalizedException
