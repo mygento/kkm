@@ -16,31 +16,31 @@ class Resend extends \Magento\Backend\App\Action
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
-     */
-    private $vendor;
-    /**
      * @var \Magento\Sales\Model\Order\InvoiceFactory
      */
-    private $invoiceFactory;
+    private $invoiceRepository;
     /**
      * @var \Magento\Sales\Api\CreditmemoRepositoryInterface
      */
     private $creditmemoRepository;
+    /**
+     * @var \Mygento\Kkm\Model\Processor
+     */
+    private $processor;
 
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Model\VendorInterface $vendor,
+        \Mygento\Kkm\Model\Processor $processor,
         \Magento\Backend\App\Action\Context $context,
-        \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
+        \Magento\Sales\Model\Order\InvoiceRepository $invoiceRepository,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
     ) {
         parent::__construct($context);
 
         $this->kkmHelper            = $kkmHelper;
-        $this->vendor               = $vendor;
-        $this->invoiceFactory       = $invoiceFactory;
+        $this->invoiceRepository    = $invoiceRepository;
         $this->creditmemoRepository = $creditmemoRepository;
+        $this->processor = $processor;
     }
 
     public function execute()
@@ -53,19 +53,19 @@ class Resend extends \Magento\Backend\App\Action
 
             switch ($entityType) {
                 case 'invoice':
-                    $entity = $this->invoiceFactory->create()->load($id);
+                    $entity = $this->invoiceRepository->get($id);
+                    $this->processor->proceedSell($entity);
                     $comment = 'Cheque was sent to KKM. Status: %1';
                     break;
 
                 case 'creditmemo':
                     $entity = $this->creditmemoRepository->get($id);
+                    $this->processor->proceedRefund($entity);
                     $comment = 'Refund was sent to KKM. Status: %1';
                     break;
             }
 
-            //FIXME: чо за бред, выпилить метод send() и юзать отдельные спец методы
-            $response = $this->vendor->send($entity);
-            $this->getMessageManager()->addSuccessMessage(__($comment, $response->getStatus()));
+            $this->getMessageManager()->addSuccessMessage(__($comment));
         } catch (NoSuchEntityException $exc) {
             $this->getMessageManager()->addErrorMessage(
                 __(ucfirst($entityType)) . " {$id} " . __('not found')
@@ -91,8 +91,10 @@ class Resend extends \Magento\Backend\App\Action
         $id         = $this->getRequest()->getParam('id');
 
         if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
-            $this->kkmHelper->error('Invalid url. No id or invalid entity type. Params: ');
-            $this->kkmHelper->error($this->getRequest()->getParams());
+            $this->kkmHelper->error(
+                'Invalid url. No id or invalid entity type.Params:',
+                $this->getRequest()->getParams()
+            );
 
             throw new ValidatorException(__('Invalid request. Check logs.'));
         }

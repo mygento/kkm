@@ -19,7 +19,7 @@ use Mygento\Kkm\Helper\Transaction;
  * provide opportunity to count TransactionAttempt in Kkm statistics and Reports.
  * @package Mygento\Kkm\Model
  */
-class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface, TransactionInterface
+class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface
 {
     const NONE_UUID = 'none';
 
@@ -124,6 +124,21 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     public function setStatus($status)
     {
         return $this->setData(self::STATUS, $status);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getStatusLabel()
+    {
+        switch ($this->getStatus()){
+            case self::STATUS_NEW:
+                return self::STATUS_NEW_LABEL;
+            case self::STATUS_SENT:
+                return self::STATUS_SENT_LABEL;
+            case self::STATUS_ERROR:
+                return self::STATUS_ERROR_LABEL;
+        }
     }
 
     /**
@@ -265,10 +280,11 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     /**
      * @inheritDoc
      */
-    public function getAdditionalInformation()
+    public function getAdditionalInformation($key)
     {
-        if ($this->getData('additional_information')) {
-            return $this->getData('additional_information');
+        $additionalInfo = $this->getData('additional_information');
+        if ($additionalInfo && isset($additionalInfo[$key])) {
+            return $additionalInfo[$key];
         }
 
         $additional[Transaction::INCREMENT_ID_KEY] = $this->getSalesEntityIncrementId();
@@ -276,7 +292,7 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
 
         $this->setData('additional_information', [TransactionEntity::RAW_DETAILS => $additional]);
 
-        return $this->getData('additional_information');
+        return $this->getData('additional_information')[$key] ?? null;
     }
 
     /**

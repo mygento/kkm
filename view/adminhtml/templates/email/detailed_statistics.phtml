@@ -50,13 +50,15 @@ $notSent = array_merge($statistics->getFails(), $statistics->getUnknowns(), $sta
                     <?php
                         $additional  = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
                         $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
-                        $message     = $additional[Transaction::ERROR_MESSAGE_KEY]
-                            ?? $additional[Transaction::RAW_RESPONSE_KEY];
-                        $message     = wordwrap($message, 50);
+                        $message     = isset($additional[Transaction::ERROR_MESSAGE_KEY])
+                            ? $additional[Transaction::ERROR_MESSAGE_KEY]
+                            : $additional[Transaction::RAW_RESPONSE_KEY];
+
+                        $message = wordwrap($message, 50);
                         ?>
                     <tr>
                         <td style="padding: 0 15px 0 0;"><?php echo $item->getCreatedAt(); ?></td>
-                        <td style="padding: 0 15px;"><?php echo $item->getKkmStatus(); ?></td>
+                        <td style="padding: 0 15px;"><?php echo ($item->getKkmStatus() ?? $item->getStatusLabel()); ?></td>
                         <td style="padding: 0 0 0 15px;"><?php echo $item->getTxnId(); ?></td>
                         <td style="padding: 0 0 0 15px;"><?php echo $item->getTxnType(); ?></td>
                         <td style="padding: 0 0 0 15px;"><?php echo $incrementId; ?></td>

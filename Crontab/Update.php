@@ -54,7 +54,7 @@ class Update
             $i++;
         }
 
-        $this->kkmHelper->debug($result);
+        $this->kkmHelper->debug('', $result);
         $this->kkmHelper->info("{$i} transactions updated");
         $this->kkmHelper->info('KKM Update statuses Cron END');
     }

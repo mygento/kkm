@@ -89,38 +89,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
     /**
      * @inheritdoc
-     * @throws \Exception
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @deprecated
-     */
-    public function sendSell($invoice)
-    {
-        $request = $this->buildRequest($invoice);
-
-        return $this->sendRequest($request, [$this->apiClient, 'sendSell'], $invoice);
-    }
-
-    /**
-     * @inheritdoc
      */
     public function sendSellRequest($request, $invoice = null)
     {
         return $this->sendRequest($request, [$this->apiClient, 'sendSell'], $invoice);
-    }
-
-    /**
-     * @inheritdoc
-     * @throws \Exception
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @deprecated
-     */
-    public function sendRefund($creditmemo)
-    {
-        $request = $this->buildRequest($creditmemo);
-
-        return $this->sendRefundRequest($request, $creditmemo);
     }
 
     /**

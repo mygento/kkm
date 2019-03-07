@@ -68,8 +68,10 @@ class CheckStatus extends \Magento\Backend\App\Action
         $uuid = $this->getRequest()->getParam('uuid');
 
         if (!$uuid) {
-            $this->kkmHelper->error('Invalid url. No uuid. Params: ');
-            $this->kkmHelper->error($this->getRequest()->getParams());
+            $this->kkmHelper->error(
+                'Invalid url. No uuid. Params:',
+                $this->getRequest()->getParams()
+            );
 
             throw new ValidatorException(__('Invalid request. Check logs.'));
         }

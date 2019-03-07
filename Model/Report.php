@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Helper\Transaction;
 use Mygento\Kkm\Model\Atol\Response;
 
@@ -30,9 +31,14 @@ class Report
      * @var \Mygento\Kkm\Model\StatisticsFactory
      */
     private $statisticsFactory;
+    /**
+     * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
+     */
+    private $attemptRepository;
 
     public function __construct(
         StatisticsFactory $statisticsFactory,
+        TransactionAttemptRepositoryInterface $attemptRepository,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Stdlib\DateTime\Timezone $timezone
@@ -41,6 +47,7 @@ class Report
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->timezone = $timezone;
         $this->statisticsFactory = $statisticsFactory;
+        $this->attemptRepository = $attemptRepository;
     }
 
     /**
@@ -102,14 +109,18 @@ class Report
     /**
      * @param $searchCriteria
      * @return \Mygento\Kkm\Model\Statistics
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function collectStatistics($searchCriteria)
     {
-        $transactions = $this->transactionRepo->getList($searchCriteria);
+        $transactions        = $this->transactionRepo->getList($searchCriteria);
+        $transactionAttempts = $this->attemptRepository->getList($searchCriteria);
+
         /** @var $statistics \Mygento\Kkm\Model\Statistics */
         $statistics = $this->statisticsFactory->create();
 
-        foreach ($transactions->getItems() as $item) {
+        $items = array_merge($transactions->getItems(), $transactionAttempts->getItems());
+        foreach ($items as $item) {
             $info   = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $status = $item->getKkmStatus()
                 ?? ($info[Transaction::STATUS_KEY] ?? 'unknown');

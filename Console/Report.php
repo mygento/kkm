@@ -116,24 +116,28 @@ class Report extends Command
         );
 
         /**
-         * @var \Magento\Sales\Api\Data\TransactionInterface[]
+         * @var $notDone \Mygento\Kkm\Api\Data\TransactionAttemptInterface[]
          */
         $notDone = array_merge(
             $statistics->getFails(),
             $statistics->getUnknowns(),
             $statistics->getWaits()
         );
+
         foreach ($notDone as $item) {
             $additional  = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
-            $message     = $additional[Transaction::ERROR_MESSAGE_KEY]
-                ?? $additional[Transaction::RAW_RESPONSE_KEY];
+
+            $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
+                ? $additional[Transaction::ERROR_MESSAGE_KEY]
+                : $additional[Transaction::RAW_RESPONSE_KEY];
+
             $message = wordwrap($message, 50);
 
             $detailedStat->addRow(
                 [
                     $item->getCreatedAt(),
-                    $item->getKkmStatus(),
+                    $item->getKkmStatus() ?? $item->getStatusLabel(),
                     $item->getTxnId(),
                     $item->getTxnType(),
                     $incrementId,

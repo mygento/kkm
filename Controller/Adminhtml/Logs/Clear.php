@@ -42,7 +42,7 @@ class Clear extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-        $file = 'mygento_kkm.log';
+        $file = \Mygento\Kkm\Helper\Data::CONFIG_CODE . '.log';
 
         $filepath = $this->directoryList->getPath(DirectoryList::VAR_DIR)
             . DIRECTORY_SEPARATOR . DirectoryList::LOG

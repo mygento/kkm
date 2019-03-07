@@ -48,22 +48,8 @@ interface VendorInterface
     public function sendRefundRequest($request, $creditmemo = null);
 
     /**
-     * Send invoice to Vendor
-     *
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
-     * @return \Mygento\Kkm\Api\Data\ResponseInterface
-     */
-    public function sendSell($invoice);
-
-    /**
-     * Send creditmemo to Vendor
-     * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
-     * @return \Mygento\Kkm\Api\Data\ResponseInterface
-     */
-    public function sendRefund($creditmemo);
-
-    /**
      * @param string $uuid It is Transaction Id on Magento side
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      */

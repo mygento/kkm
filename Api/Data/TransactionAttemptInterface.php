@@ -2,7 +2,9 @@
 
 namespace Mygento\Kkm\Api\Data;
 
-interface TransactionAttemptInterface
+use Magento\Sales\Api\Data\TransactionInterface;
+
+interface TransactionAttemptInterface extends TransactionInterface
 {
     const ID                        = 'id';
     const OPERATION                 = 'operation';
@@ -13,8 +15,11 @@ interface TransactionAttemptInterface
     const UPDATED_AT                = 'updated_at';
 
     const STATUS_NEW = 1;
+    const STATUS_NEW_LABEL = 'New Attempt';
     const STATUS_SENT = 2;
+    const STATUS_SENT_LABEL = 'Sent Attempt';
     const STATUS_ERROR = 3;
+    const STATUS_ERROR_LABEL = 'Error Attempt';
 
     /**
      * Get id
@@ -73,6 +78,12 @@ interface TransactionAttemptInterface
      * @return int|null
      */
     public function getStatus();
+
+    /**
+     * Get status label
+     * @return string
+     */
+    public function getStatusLabel();
 
     /**
      * Set status

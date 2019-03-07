@@ -77,13 +77,13 @@ class Processor
         $request = $this->vendor->buildRequest($creditmemo);
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
-            $this->helper->debug('Queue is disabled. Sending request directly: ', $request->jsonSerialize());
+            $this->helper->debug('Sending request directly:', $request->jsonSerialize());
             $this->vendor->sendRefundRequest($request);
 
             return true;
         }
 
-        $this->helper->debug('Publish request: ', $request->jsonSerialize());
+        $this->helper->debug('Publish request to queue:', $request->jsonSerialize());
         $this->publisher->publish(self::TOPIC_NAME_REFUND, $request);
 
         return true;
