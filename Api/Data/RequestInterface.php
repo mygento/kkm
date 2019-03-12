@@ -58,12 +58,12 @@ interface RequestInterface
     public function setItems(array $items): self;
 
     /**
-     * @return string[]
+     * @return \Mygento\Kkm\Api\Data\PaymentInterface[]
      */
     public function getPayments(): array;
 
     /**
-     * @param array $payments
+     * @param \Mygento\Kkm\Api\Data\PaymentInterface[] $payments
      * @return RequestInterface
      */
     public function setPayments(array $payments): self;
@@ -142,7 +142,7 @@ interface RequestInterface
     public function addTotal($sum);
 
     /**
-     * @param array $payment
+     * @param \Mygento\Kkm\Api\Data\PaymentInterface $payment
      * @return $this
      */
     public function addPayment($payment): self;

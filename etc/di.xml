@@ -15,6 +15,7 @@
 
     <preference for="Mygento\Kkm\Api\Data\RequestInterface" type="Mygento\Kkm\Model\Atol\RequestForVersion4"/>
     <preference for="Mygento\Kkm\Api\Data\ItemInterface" type="Mygento\Kkm\Model\Atol\Item"/>
+    <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
     <preference for="Mygento\Kkm\Model\VendorInterface" type="Mygento\Kkm\Model\Atol\Vendor"/>
     <!--Queue-->
     <preference for="Mygento\Kkm\Api\Queue\MergedRequestInterface" type="Mygento\Kkm\Model\Queue\MergedRequest"/>

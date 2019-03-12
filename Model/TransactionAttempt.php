@@ -280,7 +280,7 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     /**
      * @inheritDoc
      */
-    public function getAdditionalInformation($key)
+    public function getAdditionalInformation($key = null)
     {
         $additionalInfo = $this->getData('additional_information');
         if ($additionalInfo && isset($additionalInfo[$key])) {

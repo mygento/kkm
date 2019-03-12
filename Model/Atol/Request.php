@@ -13,8 +13,6 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 
 abstract class Request implements \JsonSerializable, RequestInterface
 {
-    const PAYMENT_TYPE_BASIC = 1;
-    const PAYMENT_TYPE_AVANS = 2;
 
     protected $sno            = '';
     protected $externalId     = '';

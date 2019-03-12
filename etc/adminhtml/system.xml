@@ -140,7 +140,7 @@
 
                 <field id="async_enabled" translate="label comment" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Async processing</label>
-                    <comment>Through queue (Magento Queue Framework</comment>
+                    <comment>Through queue (Magento Queue Framework)</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="update_cron" translate="label" type="select" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1">

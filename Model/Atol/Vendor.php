@@ -10,6 +10,7 @@ namespace Mygento\Kkm\Model\Atol;
 
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Model\EntityInterface;
+use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
@@ -62,6 +63,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @var \Magento\Catalog\Api\ProductRepositoryInterface
      */
     private $productRepository;
+    /**
+     * @var PaymentFactory
+     */
+    private $paymentFactory;
 
     public function __construct(
         \Mygento\Base\Helper\Discount $kkmDiscount,
@@ -71,6 +76,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory,
         \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory,
+        \Mygento\Kkm\Model\Atol\PaymentFactory $paymentFactory,
         \Mygento\Kkm\Model\Atol\Client $apiClient,
         \Magento\Backend\Model\UrlInterface $urlBuilder,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
@@ -85,6 +91,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $this->requestHelper     = $requestHelper;
         $this->attemptHelper     = $attemptHelper;
         $this->productRepository = $productRepository;
+        $this->paymentFactory    = $paymentFactory;
     }
 
     /**
@@ -295,10 +302,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         if ($salesEntity->getGrandTotal() > 0.00) {
             $request
                 ->addPayment(
-                    [
-                        'type' => Request::PAYMENT_TYPE_BASIC,
-                        'sum'  => round($salesEntity->getGrandTotal(), 2),
-                    ]
+                    $this->paymentFactory->create()
+                        ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
+                        ->setSum(round($salesEntity->getGrandTotal(), 2))
                 );
         }
 
@@ -306,10 +312,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         if ($this->isGiftCardApplied($salesEntity)) {
             $request
                 ->addPayment(
-                    [
-                        'type' => Request::PAYMENT_TYPE_AVANS,
-                        'sum'  => round($salesEntity->getGiftCardsAmount(), 2),
-                    ]
+                    $this->paymentFactory->create()
+                        ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
+                        ->setSum(round($salesEntity->getGiftCardsAmount(), 2))
                 );
         }
 
