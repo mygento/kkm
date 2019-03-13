@@ -129,12 +129,12 @@ class Data extends \Mygento\Base\Helper\Data
                     ? $exception->getResponse()->getUuid()
                     : null;
 
-            $this->error($fullMessage);
             if ($exception instanceof CreateDocumentFailedException) {
                 $this->error('Params:', $exception->getDebugData());
                 $this->error('Response: ' . $exception->getResponse());
                 $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
             }
+            $this->error($fullMessage);
 
             //Show Admin Messages
             if ($this->getConfig('general/admin_notifications')) {

@@ -65,7 +65,7 @@ class Send implements ObserverInterface
             //Send
             $this->send($entity);
 
-            $comment = 'Cheque was sent to KKM. Status see in Payment Transactions.';
+            $comment = 'Cheque was placed for sending to KKM.';
             $this->kkmHelper->info(__($comment));
         } catch (\Exception $exc) {
             $this->kkmHelper->getMessageManager()->addErrorMessage(

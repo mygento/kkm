@@ -236,7 +236,7 @@ class Transaction
 
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
-        //Order has several creditmemos
+        //Order has several creditmemos or invoices
         foreach ($transactions->getItems() as $index => $item) {
             $data = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             if ($data[self::INCREMENT_ID_KEY] !== $entity->getIncrementId()) {

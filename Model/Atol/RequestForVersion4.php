@@ -21,7 +21,7 @@ class RequestForVersion4 extends Request
             'email' => $this->getEmail(),
         ];
         $company = [
-            'email'           => $this->getEmail(),
+            'email'           => $this->getCompanyEmail(),
             'sno'             => $this->getSno(),
             'inn'             => $this->getInn(),
             'payment_address' => $this->getPaymentAddress(),

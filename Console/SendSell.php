@@ -9,6 +9,9 @@
 namespace Mygento\Kkm\Console;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Mygento\Kkm\Model\Atol\Response;
+use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Helper\Transaction;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -34,9 +37,14 @@ class SendSell extends Command
      * @var \Mygento\Kkm\Model\Processor
      */
     private $processor;
+    /**
+     * @var \Mygento\Kkm\Helper\Transaction
+     */
+    private $transactionHelper;
 
     public function __construct(
         \Mygento\Kkm\Model\Processor $processor,
+        \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Framework\App\State $state,
         \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory
     ) {
@@ -45,6 +53,7 @@ class SendSell extends Command
         $this->appState = $state;
         $this->processor = $processor;
         $this->invoiceFactory = $invoiceFactory;
+        $this->transactionHelper = $transactionHelper;
     }
 
     /**
@@ -69,18 +78,29 @@ class SendSell extends Command
         //Oтправка
         $output->writeln("<comment>1. Sending invoice {$incrementId} ...</comment>");
 
-        $response = $this->processor->proceedSell($invoice, true);
+        $this->processor->proceedSell($invoice, true);
 
-        if ($response->isFailed() || $response->getError()) {
-            $output->writeln("<error>Status: {$response->getStatus()}</error>");
-            $output->writeln("<error>Uuid: {$response->getUuid()}</error>");
-            $output->writeln("<error>Text: {$response->getErrorMessage()}</error>");
+        $transactions = $this->transactionHelper->getTransactionsByInvoice($invoice);
 
-            return \Magento\Framework\Console\Cli::RETURN_FAILURE;
+        foreach ($transactions as $transaction) {
+            $status     = $transaction->getKkmStatus();
+            $additional = $transaction->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+
+            $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
+                ? $additional[Transaction::ERROR_MESSAGE_KEY]
+                : $additional[Transaction::RAW_RESPONSE_KEY];
+
+            if ($status != Response::STATUS_DONE || $status != Response::STATUS_WAIT) {
+                $output->writeln("<error>Status: {$status}</error>");
+                $output->writeln("<error>Uuid: {$transaction->getTxnId()}</error>");
+                $output->writeln("<error>Text: {$message}</error>");
+
+                return \Magento\Framework\Console\Cli::RETURN_FAILURE;
+            }
+
+            $output->writeln("<info>Status: {$status}</info>");
+            $output->writeln("<info>Uuid: {$transaction->getTxnId()}</info>");
         }
-
-        $output->writeln("<info>Status: {$response->getStatus()}</info>");
-        $output->writeln("<info>Uuid: {$response->getUuid()}</info>");
 
         return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
     }
