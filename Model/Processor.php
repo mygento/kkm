@@ -8,8 +8,8 @@
 
 namespace Mygento\Kkm\Model;
 
-use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
 
 class Processor
 {
@@ -42,10 +42,10 @@ class Processor
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param bool $sync
-     * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return bool
      */
     public function proceedSell(InvoiceInterface $invoice, $sync = false)
     {
@@ -67,10 +67,10 @@ class Processor
     /**
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @param bool $sync
-     * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return bool
      */
     public function proceedRefund(CreditmemoInterface $creditmemo, $sync = false)
     {

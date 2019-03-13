@@ -8,7 +8,6 @@
 
 namespace Mygento\Kkm\Model\Queue;
 
-use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Model\Processor;
 
@@ -77,20 +76,14 @@ class Consumer
         $this->updateRetries($request);
 
         try {
-
             $this->vendor->sendSellRequest($request);
-
         } catch (VendorBadServerAnswerException $e) {
-
             $this->helper->critical($e->getMessage());
 
             $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
-
         } catch (\Exception $e) {
-
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->helper->processKkmChequeRegistrationError($entity, $e);
-
         }
     }
 
@@ -100,12 +93,10 @@ class Consumer
         try {
             $this->vendor->sendRefundRequest($request);
         } catch (VendorBadServerAnswerException $e) {
-
             $this->helper->critical($e->getMessage());
 
             $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
         } catch (\Exception $e) {
-
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->helper->processKkmChequeRegistrationError($entity, $e);
         }

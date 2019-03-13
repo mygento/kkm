@@ -35,6 +35,12 @@ class UpdateStatus extends Command
      */
     private $transactionHelper;
 
+    /**
+     * UpdateStatus constructor.
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+     * @param \Magento\Framework\App\State $state
+     */
     public function __construct(
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
@@ -73,6 +79,13 @@ class UpdateStatus extends Command
         return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
     }
 
+    /**
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param string $uuid
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return int
+     */
     private function updateOne($output, $uuid)
     {
         //Обновление статуса
@@ -92,6 +105,9 @@ class UpdateStatus extends Command
         return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
     }
 
+    /**
+     * Configure the command
+     */
     protected function configure()
     {
         $this->setName(self::COMMAND);

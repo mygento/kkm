@@ -8,15 +8,8 @@
 
 namespace Mygento\Kkm\Helper;
 
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\CreditmemoInterface;
-use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Mygento\Kkm\Api\Data\RequestInterface;
-use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
-use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
-use Mygento\Kkm\Model\Atol\Response;
 
 /**
  * Class Transaction
@@ -72,8 +65,7 @@ class TransactionAttempt
             ->setOperation($request->getOperationType())
             ->setOrderId($orderId)
             ->setSalesEntityIncrementId($entityIncrementId)
-            ->setNumberOfTrials(is_null($trials) ? 0 : $trials + 1)
-            ;
+            ->setNumberOfTrials(is_null($trials) ? 0 : $trials + 1);
 
         return $this->attemptRepository->save($attempt);
     }
@@ -87,15 +79,12 @@ class TransactionAttempt
         return $this->attemptRepository->save($attempt);
     }
 
-    public function failAttempt(TransactionAttemptInterface $attempt,$message = ''){
+    public function failAttempt(TransactionAttemptInterface $attempt, $message = '')
+    {
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_ERROR)
-            ->setMessage($message)
-        ;
+            ->setMessage($message);
 
         return $this->attemptRepository->save($attempt);
     }
-
-
-
 }

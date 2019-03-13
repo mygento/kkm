@@ -12,12 +12,21 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
 
 class CreateDocumentFailedException extends \Exception
 {
+    /**
+     * @var array
+     */
     private $debugData = [];
     /**
      * @var ResponseInterface
      */
     private $response;
 
+    /**
+     * CreateDocumentFailedException constructor.
+     * @param string $message
+     * @param ResponseInterface|null $response
+     * @param array $debugData
+     */
     public function __construct($message, ResponseInterface $response = null, $debugData = [])
     {
         $this->debugData = $debugData;

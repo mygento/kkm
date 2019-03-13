@@ -11,9 +11,9 @@ namespace Mygento\Kkm\Model\Atol;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
-use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
 /**
  * Class Vendor

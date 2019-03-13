@@ -28,10 +28,10 @@ interface VendorInterface
      *
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      * @param \Magento\Sales\Api\Data\InvoiceInterface|null $invoice
-     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendSellRequest($request, $invoice = null);
 
@@ -40,18 +40,18 @@ interface VendorInterface
      *
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      * @param \Magento\Sales\Api\Data\CreditmemoInterface|null $creditmemo
-     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendRefundRequest($request, $creditmemo = null);
 
     /**
      * @param string $uuid It is Transaction Id on Magento side
-     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function updateStatus($uuid);
 

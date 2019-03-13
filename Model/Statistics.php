@@ -24,8 +24,17 @@ class Statistics extends \Magento\Framework\Model\AbstractModel
      * @var TransactionInterface[]
      */
     protected $wait      = [];
+    /**
+     * @var int
+     */
     protected $doneCount = 0;
+    /**
+     * @var string with datetime
+     */
     protected $fromDate;
+    /**
+     * @var string with datetime
+     */
     protected $toDate;
 
     /**
@@ -149,11 +158,17 @@ class Statistics extends \Magento\Framework\Model\AbstractModel
         return $this->doneCount;
     }
 
+    /**
+     * @return string
+     */
     public function getFromDate()
     {
         return $this->fromDate;
     }
 
+    /**
+     * @return string
+     */
     public function getToDate()
     {
         return $this->toDate;

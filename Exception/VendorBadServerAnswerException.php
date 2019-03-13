@@ -8,7 +8,6 @@
 
 namespace Mygento\Kkm\Exception;
 
-
 class VendorBadServerAnswerException extends \Exception
 {
 }

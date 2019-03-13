@@ -13,7 +13,7 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 
 abstract class Request implements \JsonSerializable, RequestInterface
 {
-
+    // phpcs:disable
     protected $sno            = '';
     protected $externalId     = '';
     protected $email          = '';
@@ -28,6 +28,8 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $operationType  = 0;
     protected $salesEntityId  = null;
     protected $retryCount     = null;
+    // phpcs:enable
+
     /**
      * @var \Magento\Framework\Stdlib\DateTime\Timezone|string
      */

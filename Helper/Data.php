@@ -44,6 +44,18 @@ class Data extends \Mygento\Base\Helper\Data
      */
     private $orderRepository;
 
+    /**
+     * Data constructor.
+     * @param \Mygento\Base\Model\LogManager $logManager
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param \Magento\Framework\Encryption\Encryptor $encryptor
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Magento\Sales\Model\Order\InvoiceFactory $orderInvoiceFactory
+     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \Magento\Framework\Url $urlHelper
+     * @param \Magento\Framework\Notification\NotifierInterface $notifier
+     */
     public function __construct(
         \Mygento\Base\Model\LogManager $logManager,
         \Magento\Framework\App\Helper\Context $context,
@@ -77,21 +89,36 @@ class Data extends \Mygento\Base\Helper\Data
         return $this->messageManager;
     }
 
+    /**
+     * @param string $param
+     * @return string
+     */
     public function getConfig($param)
     {
         return parent::getConfig($this->getCode() . '/' . $param);
     }
 
+    /**
+     * @return string|null
+     */
     public function getStoreEmail()
     {
         return parent::getConfig('trans_email/ident_general/email');
     }
 
-    public function getFrontendUrl($routePath, $routeParams)
+    /**
+     * @param string|null $routePath
+     * @param array|null $routeParams
+     * @return string
+     */
+    private function getFrontendUrl($routePath, $routeParams)
     {
         return $this->urlHelper->getUrl($routePath, $routeParams);
     }
 
+    /**
+     * @return string
+     */
     public function getCallbackUrl()
     {
         return $this->getConfig('atol/callback_url')
@@ -101,17 +128,24 @@ class Data extends \Mygento\Base\Helper\Data
             );
     }
 
+    /**
+     * @return bool
+     */
     public function isTestMode()
     {
-        return $this->getConfig('atol/test_mode');
+        return (bool)$this->getConfig('atol/test_mode');
     }
 
+    /**
+     * @return bool
+     */
     public function isMessageQueueEnabled()
     {
         return (bool)$this->getConfig('general/async_enabled');
     }
 
-    /** Makes different notifications if cheque was not successfully sent to KKM
+    /**
+     * Makes different notifications if cheque was not successfully sent to KKM
      * @param \Magento\Sales\Api\Data\EntityInterface $entity
      * @param \Exception|null $exception
      */

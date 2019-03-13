@@ -8,8 +8,8 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Model\Source\ApiVersion;
@@ -103,9 +103,9 @@ class Client
 
     /**
      * @param string $uuid
-     * @return ResponseInterface
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Exception
+     * @return ResponseInterface
      */
     public function receiveStatus(string $uuid): ResponseInterface
     {
@@ -126,9 +126,9 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @return ResponseInterface
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return ResponseInterface
      */
     public function sendRefund($request): ResponseInterface
     {
@@ -164,9 +164,9 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @return ResponseInterface
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return ResponseInterface
      */
     public function sendSell($request): ResponseInterface
     {
@@ -225,8 +225,8 @@ class Client
     /**
      * @param $url
      * @param array|string $params - use $params as a string in case of JSON POST request.
-     * @return string
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return string
      */
     protected function sendPostRequest($url, $params = []): string
     {
@@ -285,8 +285,8 @@ class Client
     }
 
     /**
-     * @return string
      * @throws \Exception
+     * @return string
      */
     private function getGroupCode()
     {

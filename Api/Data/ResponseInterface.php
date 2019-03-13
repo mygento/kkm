@@ -50,5 +50,8 @@ interface ResponseInterface
      */
     public function isWait();
 
+    /**
+     * @return string
+     */
     public function __toString();
 }

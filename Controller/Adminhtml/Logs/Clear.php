@@ -25,6 +25,12 @@ class Clear extends \Magento\Backend\App\Action
      */
     private $ioFile;
 
+    /**
+     * Clear constructor.
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param DirectoryList $directoryList
+     * @param \Magento\Framework\Filesystem\Io\File $ioFile
+     */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,

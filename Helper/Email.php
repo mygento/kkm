@@ -6,12 +6,14 @@
  * @package Mygento_Kkm
  */
 
+/* phpcs:ignoreFile */
+
 namespace Mygento\Kkm\Helper;
 
 /**
  * @SuppressWarnings(PHPMD.ShortVariable)
  * @SuppressWarnings(PHPMD.CamelCasePropertyName)
- */
+  */
 class Email
 {
     private $template;
@@ -34,6 +36,12 @@ class Email
      */
     private $storeManager;
 
+    /**
+     * Email constructor.
+     * @param \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation
+     * @param \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     */
     public function __construct(
         \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
         \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,

@@ -130,10 +130,10 @@ class Send implements ObserverInterface
 
     /**
      * @param InvoiceInterface|CreditmemoInterface $entity
-     * @return bool
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return bool
      */
     private function send($entity)
     {

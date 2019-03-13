@@ -6,7 +6,6 @@
  * @package Mygento_Kkm
  */
 
-
 namespace Mygento\Kkm\Controller\Adminhtml\TransactionAttempt;
 
 class Index extends \Mygento\Kkm\Controller\Adminhtml\TransactionAttempt

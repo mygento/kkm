@@ -25,6 +25,13 @@ class Callback extends \Magento\Framework\App\Action\Action
      */
     private $vendor;
 
+    /**
+     * Callback constructor.
+     * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Magento\Framework\App\Action\Context $context
+     */
     public function __construct(
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper,
@@ -37,6 +44,9 @@ class Callback extends \Magento\Framework\App\Action\Action
         $this->vendor          = $vendor;
     }
 
+    /**
+     * Execute
+     */
     public function execute()
     {
         // @codingStandardsIgnoreStart

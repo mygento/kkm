@@ -20,10 +20,10 @@ class CheckStatus extends \Magento\Backend\App\Action
     private $vendor;
 
     /**
-     * Constructor
-     *
+     * CheckStatus constructor.
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Mygento\Kkm\Helper\Data $helper
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
@@ -36,6 +36,9 @@ class CheckStatus extends \Magento\Backend\App\Action
         $this->vendor    = $vendor;
     }
 
+    /**
+     * Execute
+     */
     public function execute()
     {
         try {

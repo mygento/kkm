@@ -8,9 +8,9 @@
 
 namespace Mygento\Kkm\Helper;
 
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Model\Atol\Response;

@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": "^7.0.0",
-        "mygento/module-base": "^2.3"
+        "mygento/module-base": "v2.3.x-dev"
     },
     "require-dev": {
         "mygento/coding-standard": "2.*"

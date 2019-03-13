@@ -21,6 +21,12 @@ class Update
      */
     private $transactionHelper;
 
+    /**
+     * Update constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,

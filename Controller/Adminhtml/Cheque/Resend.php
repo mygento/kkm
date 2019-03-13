@@ -28,6 +28,14 @@ class Resend extends \Magento\Backend\App\Action
      */
     private $processor;
 
+    /**
+     * Resend constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Model\Processor $processor
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param \Magento\Sales\Model\Order\InvoiceRepository $invoiceRepository
+     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Processor $processor,
@@ -43,6 +51,9 @@ class Resend extends \Magento\Backend\App\Action
         $this->processor            = $processor;
     }
 
+    /**
+     * Execute
+     */
     public function execute()
     {
         try {

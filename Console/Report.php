@@ -50,6 +50,11 @@ class Report extends Command
      */
     private $output;
 
+    /**
+     * Report constructor.
+     * @param \Mygento\Kkm\Model\Report $report
+     * @param \Magento\Framework\App\State $state
+     */
     public function __construct(
         \Mygento\Kkm\Model\Report $report,
         \Magento\Framework\App\State $state
@@ -152,6 +157,9 @@ class Report extends Command
             ->render();
     }
 
+    /**
+     * Configure the command
+     */
     protected function configure()
     {
         $this->setName(self::COMMAND);

@@ -25,6 +25,12 @@ class Download extends \Magento\Backend\App\Action
      */
     private $fileFactory;
 
+    /**
+     * Download constructor.
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param DirectoryList $directoryList
+     * @param \Magento\Framework\App\Response\Http\FileFactory $fileFactory
+     */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,

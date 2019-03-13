@@ -108,8 +108,8 @@ class Report
 
     /**
      * @param $searchCriteria
-     * @return \Mygento\Kkm\Model\Statistics
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Mygento\Kkm\Model\Statistics
      */
     private function collectStatistics($searchCriteria)
     {

@@ -20,6 +20,7 @@ class Item implements \JsonSerializable, ItemInterface
     const PAYMENT_OBJECT_PAYMENT = 'payment'; //Аванс, Бонус, Подарочная карта
     const PAYMENT_OBJECT_ANOTHER = 'another';
 
+    // phpcs:disable
     private $name          = '';
     private $price         = 1.0;
     private $quantity      = 1;
@@ -28,6 +29,7 @@ class Item implements \JsonSerializable, ItemInterface
     private $taxSum        = 0.0;
     private $paymentMethod = '';
     private $paymentObject = '';
+    // phpcs:enable
 
     /**
      * @return array

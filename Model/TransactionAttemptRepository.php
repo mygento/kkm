@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Api\SortOrder;
@@ -52,7 +58,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
         $this->resource->load($entity, $entityId);
         if (!$entity->getId()) {
             throw new \Magento\Framework\Exception\NoSuchEntityException(
-            __('Kkm Transaction Attempt with id "%1" does not exist.', $entityId)
+                __('Kkm Transaction Attempt with id "%1" does not exist.', $entityId)
             );
         }
         return $entity;
@@ -89,7 +95,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             $this->resource->save($entity);
         } catch (\Exception $exception) {
             throw new \Magento\Framework\Exception\CouldNotSaveException(
-            __($exception->getMessage())
+                __($exception->getMessage())
             );
         }
         return $entity;
@@ -106,7 +112,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             $this->resource->delete($entity);
         } catch (\Exception $exception) {
             throw new \Magento\Framework\Exception\CouldNotDeleteException(
-            __($exception->getMessage())
+                __($exception->getMessage())
             );
         }
         return true;

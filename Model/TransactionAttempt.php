@@ -9,9 +9,9 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Helper\Transaction;
 
 /**
@@ -131,7 +131,7 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
      */
     public function getStatusLabel()
     {
-        switch ($this->getStatus()){
+        switch ($this->getStatus()) {
             case self::STATUS_NEW:
                 return self::STATUS_NEW_LABEL;
             case self::STATUS_SENT:
@@ -369,6 +369,4 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     public function setExtensionAttributes(\Magento\Sales\Api\Data\TransactionExtensionInterface $extensionAttributes)
     {
     }
-
-
 }

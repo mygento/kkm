@@ -26,7 +26,6 @@ class Payment implements \JsonSerializable, PaymentInterface
         ];
     }
 
-
     /**
      * @inheritDoc
      */
