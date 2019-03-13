@@ -40,7 +40,7 @@ class Resend extends \Magento\Backend\App\Action
         $this->kkmHelper            = $kkmHelper;
         $this->invoiceRepository    = $invoiceRepository;
         $this->creditmemoRepository = $creditmemoRepository;
-        $this->processor = $processor;
+        $this->processor            = $processor;
     }
 
     public function execute()
@@ -55,13 +55,13 @@ class Resend extends \Magento\Backend\App\Action
                 case 'invoice':
                     $entity = $this->invoiceRepository->get($id);
                     $this->processor->proceedSell($entity);
-                    $comment = 'Cheque was sent to KKM. Status: %1';
+                    $comment = 'Cheque was sent to KKM.';
                     break;
 
                 case 'creditmemo':
                     $entity = $this->creditmemoRepository->get($id);
                     $this->processor->proceedRefund($entity);
-                    $comment = 'Refund was sent to KKM. Status: %1';
+                    $comment = 'Refund was sent to KKM.';
                     break;
             }
 

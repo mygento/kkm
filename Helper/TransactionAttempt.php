@@ -80,7 +80,9 @@ class TransactionAttempt
 
     public function finishAttempt(TransactionAttemptInterface $attempt)
     {
-        $attempt->setStatus(TransactionAttemptInterface::STATUS_SENT);
+        $attempt
+            ->setStatus(TransactionAttemptInterface::STATUS_SENT)
+            ->setMessage('');
 
         return $this->attemptRepository->save($attempt);
     }

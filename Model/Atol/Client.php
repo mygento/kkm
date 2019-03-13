@@ -19,6 +19,9 @@ class Client
     const REQUEST_URL = 'https://online.atol.ru/possystem/v%u/';
     const REQUEST_TEST_URL = 'https://testonline.atol.ru/possystem/v%u/';
 
+    //see Atol Documentation
+    const ALLOWED_HTTP_STATUSES = [200, 400, 401];
+
     const GET_TOKEN_URL_APPNX   = 'getToken';
     const SELL_URL_APPNX        = 'sell';
     const SELL_REFUND_URL_APPNX = 'sell_refund';
@@ -237,9 +240,10 @@ class Client
             throw new VendorBadServerAnswerException('No response from Atol. ' . $url);
         }
 
-        if ($curl->getStatus() != 200) {
+        if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
             throw new VendorBadServerAnswerException(
                 'Bad response from Atol. Status: ' . $curl->getStatus()
+                . ($response ? '. Response: ' . (string)$response : '')
             );
         }
 
@@ -266,9 +270,10 @@ class Client
             throw new VendorBadServerAnswerException('No response from Atol.');
         }
 
-        if ($curl->getStatus() != 200) {
+        if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
             throw new VendorBadServerAnswerException(
                 'Bad response from Atol. Status: ' . $curl->getStatus()
+                . ($response ? '. Response: ' . (string)$response : '')
             );
         }
 
