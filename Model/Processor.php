@@ -29,6 +29,12 @@ class Processor
      */
     private $publisher;
 
+    /**
+     * Processor constructor.
+     * @param VendorInterface $vendor
+     * @param \Mygento\Kkm\Helper\Data $helper
+     * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
+     */
     public function __construct(
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $helper,

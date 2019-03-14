@@ -19,7 +19,7 @@ class MergedRequest implements MergedRequestInterface
     private $requests;
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getRequests()
     {
@@ -27,7 +27,7 @@ class MergedRequest implements MergedRequestInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function setRequests(array $value)
     {

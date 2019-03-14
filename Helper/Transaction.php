@@ -59,6 +59,16 @@ class Transaction
      */
     private $invoiceFactory;
 
+    /**
+     * Transaction constructor.
+     * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo
+     * @param \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource
+     * @param \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory
+     * @param Data $kkmHelper
+     */
     public function __construct(
         \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
@@ -173,6 +183,12 @@ class Transaction
         return $this->transactionRepo->save($transaction);
     }
 
+    /**
+     * @param int $transactionId
+     * @param int $paymentId
+     * @param int $orderId
+     * @return bool
+     */
     public function isTransactionExists($transactionId, $paymentId, $orderId)
     {
         return $transactionId && $this->transactionRepo->getByTransactionId(
@@ -182,6 +198,13 @@ class Transaction
         );
     }
 
+    /**
+     * @param int $transactionId
+     * @param int $paymentId
+     * @param int $orderId
+     * @param array $transData
+     * @return mixed
+     */
     protected function updateTransactionData($transactionId, $paymentId, $orderId, $transData)
     {
         $this->kkmHelper->info('update transaction: ' . $transactionId);
@@ -218,7 +241,7 @@ class Transaction
     }
 
     /**
-     * @param $entity
+     * @param CreditmemoInterface|InvoiceInterface $entity
      * @return \Magento\Sales\Api\Data\TransactionInterface[]
      */
     public function getTransactionsByEntity($entity)
@@ -288,8 +311,9 @@ class Transaction
         }
     }
 
-    /** Returns UUID if invoice or creditmemo has uncompleted kkm transactions
-     * @param \Magento\Sales\Model\EntityInterface $entity Invoice|Creditmemo
+    /**
+     * Returns UUID if invoice or creditmemo has uncompleted kkm transactions
+     * @param CreditmemoInterface|InvoiceInterface $entity Invoice|Creditmemo
      * @return null|string uuid
      */
     public function getWaitUuid($entity)

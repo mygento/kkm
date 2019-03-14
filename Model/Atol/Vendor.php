@@ -9,6 +9,8 @@
 namespace Mygento\Kkm\Model\Atol;
 
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
+use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -68,6 +70,21 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private $paymentFactory;
 
+    /**
+     * Vendor constructor.
+     * @param \Mygento\Base\Helper\Discount $kkmDiscount
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
+     * @param \Mygento\Kkm\Helper\Request $requestHelper
+     * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
+     * @param RequestFactory $requestFactory
+     * @param ItemFactory $itemFactory
+     * @param PaymentFactory $paymentFactory
+     * @param Client $apiClient
+     * @param \Magento\Backend\Model\UrlInterface $urlBuilder
+     * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
         \Mygento\Base\Helper\Discount $kkmDiscount,
         \Mygento\Kkm\Helper\Data $kkmHelper,
@@ -110,6 +127,15 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return $this->sendRequest($request, [$this->apiClient, 'sendRefund'], $creditmemo);
     }
 
+    /**
+     * @param RequestInterface $request
+     * @param callable $callback
+     * @param InvoiceInterface|CreditmemoInterface $entity
+     * @throws CreateDocumentFailedException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return ResponseInterface
+     */
     private function sendRequest($request, $callback, $entity = null)
     {
         $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
@@ -123,7 +149,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         try {
             //Make Request to Vendor's API
-            $response = \call_user_func($callback, $request);
+            $response = call_user_func($callback, $request);
 
             //Save transaction data
             $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
@@ -146,7 +172,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
     /**
      * @inheritdoc
-     * @param $uuid
+     * @param string $uuid
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
@@ -180,7 +206,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return $response;
     }
 
-    /** Save callback from Atol and return related entity (Invoice or Creditmemo)
+    /**
+     * Save callback from Atol and return related entity (Invoice or Creditmemo)
      * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
@@ -321,6 +348,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return $request;
     }
 
+    /**
+     * Check does the item works as gift card. For Magento Commerce only
+     * @param InvoiceInterface|CreditmemoInterface $salesEntity
+     * @param string $itemName
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return bool
+     */
     private function isGiftCard($salesEntity, $itemName)
     {
         $items = $salesEntity->getAllVisibleItems() ?? $salesEntity->getAllItems();
@@ -342,13 +376,17 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return false;
     }
 
+    /**
+     * @param InvoiceInterface|CreditmemoInterface $entity
+     * @return bool
+     */
     private function isGiftCardApplied($entity)
     {
         return $entity->getGiftCardsAmount() + $entity->getCustomerBalanceAmount() > 0.00;
     }
 
     /**
-     * @param \Magento\Sales\Model\EntityInterface $sellEntity Order|Invoice|Creditmemo
+     * @param \Magento\Sales\Model\EntityInterface $entity Order|Invoice|Creditmemo
      * @param string $postfix
      * @return string
      */

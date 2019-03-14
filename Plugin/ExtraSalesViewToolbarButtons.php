@@ -30,9 +30,9 @@ class ExtraSalesViewToolbarButtons
     private $transactionHelper;
 
     /**
-     * Constructor
-     *
+     * ExtraSalesViewToolbarButtons constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
      * @param \Magento\Framework\AuthorizationInterface $authorization
      * @param \Magento\Backend\Model\UrlInterface $urlBuilder
      */
@@ -127,6 +127,10 @@ class ExtraSalesViewToolbarButtons
         );
     }
 
+    /**
+     * @param array $transactions
+     * @return bool
+     */
     protected function canBeShownResendButton($transactions)
     {
         //Есть ли хоть одна Done || Wait - то нельзя отправить снова
@@ -143,6 +147,10 @@ class ExtraSalesViewToolbarButtons
         return $resendAllowed;
     }
 
+    /**
+     * @param array $transactions
+     * @return bool
+     */
     protected function canBeShownCheckStatusButton($transactions)
     {
         //Есть ли есть Done || нет Wait - то нельзя спросить статус

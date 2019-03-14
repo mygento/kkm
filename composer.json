@@ -10,7 +10,8 @@
     ],
     "require": {
         "php": "^7.0.0",
-        "mygento/module-base": "v2.3.x-dev"
+        "mygento/module-base": "v2.3.x-dev",
+        "magento/framework-message-queue": "100.3.*"
     },
     "require-dev": {
         "mygento/coding-standard": "2.*"

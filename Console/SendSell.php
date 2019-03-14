@@ -18,6 +18,11 @@ use Symfony\Component\Console\Input\InputInterface;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class SendSell
+ * @package Mygento\Kkm\Console
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class SendSell extends Command
 {
     const ARGUMENT_ENTITY_ID = 'id';

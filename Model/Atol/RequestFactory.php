@@ -48,6 +48,11 @@ class RequestFactory
         $this->kkmHelper = $kkmHelper;
     }
 
+    /**
+     * Create class instance
+     *
+     * @return \Mygento\Kkm\Api\Data\RequestInterface
+     */
     public function create()
     {
         $version = $this->kkmHelper->getConfig('atol/api_version');

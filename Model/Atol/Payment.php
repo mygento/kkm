@@ -12,8 +12,10 @@ use Mygento\Kkm\Api\Data\PaymentInterface;
 
 class Payment implements \JsonSerializable, PaymentInterface
 {
+    // phpcs:disable
     private $type = 0;
     private $sum  = 0.00;
+    // phpcs:enable
 
     /**
      * @inheritDoc

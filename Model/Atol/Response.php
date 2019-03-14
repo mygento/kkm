@@ -16,36 +16,18 @@ class Response implements ResponseInterface
     const STATUS_FAIL = 'fail';
     const STATUS_WAIT = 'wait';
 
-    /**
-     * @var string
-     */
+    // phpcs:disable
     private $uuid;
     private $error;
-    /**
-     * @var string
-     */
     private $status;
     private $payload;
-    /**
-     * @var string
-     */
     private $timestamp;
-    /**
-     * @var string
-     */
     private $groupCode;
-    /**
-     * @var string
-     */
     private $daemonCode;
-    /**
-     * @var string
-     */
     private $deviceCode;
-    /**
-     * @var string
-     */
     private $callbackUrl;
+    // phpcs:enable
+
     /**
      * @var string json with raw ATOL response
      */

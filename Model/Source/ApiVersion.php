@@ -27,6 +27,9 @@ class ApiVersion implements \Magento\Framework\Option\ArrayInterface
         ];
     }
 
+    /**
+     * @return array
+     */
     public static function getAllVersions()
     {
         return [self::API_VERSION_4];

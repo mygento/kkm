@@ -41,7 +41,7 @@ class Merger implements MergerInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function merge(array $messageList)
     {

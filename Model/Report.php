@@ -36,6 +36,14 @@ class Report
      */
     private $attemptRepository;
 
+    /**
+     * Report constructor.
+     * @param StatisticsFactory $statisticsFactory
+     * @param TransactionAttemptRepositoryInterface $attemptRepository
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Framework\Stdlib\DateTime\Timezone $timezone
+     */
     public function __construct(
         StatisticsFactory $statisticsFactory,
         TransactionAttemptRepositoryInterface $attemptRepository,
@@ -87,8 +95,8 @@ class Report
     }
 
     /**
-     * @param $from
-     * @param null $to
+     * @param string $from
+     * @param string|null $to
      * @return \Mygento\Kkm\Model\Statistics
      */
     public function getStatisticsByPeriod($from, $to = null)
@@ -107,7 +115,7 @@ class Report
     }
 
     /**
-     * @param $searchCriteria
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Mygento\Kkm\Model\Statistics
      */

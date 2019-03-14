@@ -28,6 +28,12 @@ class Request
      */
     private $orderRepository;
 
+    /**
+     * Request constructor.
+     * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     */
     public function __construct(
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,

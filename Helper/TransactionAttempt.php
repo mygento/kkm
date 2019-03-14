@@ -25,10 +25,6 @@ class TransactionAttempt
      */
     private $kkmHelper;
     /**
-     * @var \Mygento\Kkm\Api\Data\TransactionAttemptInterfaceFactory
-     */
-    private $attemptFactory;
-    /**
      * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
      */
     private $attemptRepository;
@@ -37,27 +33,35 @@ class TransactionAttempt
      */
     private $searchCriteriaBuilder;
 
+    /**
+     * TransactionAttempt constructor.
+     * @param Data $kkmHelper
+     * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Api\Data\TransactionAttemptInterfaceFactory $attemptFactory,
         \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->kkmHelper = $kkmHelper;
-        $this->attemptFactory = $attemptFactory;
         $this->attemptRepository = $attemptRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
+    /**
+     * Create new attempt based on request
+     * @param RequestInterface $request
+     * @param string|int $entityIncrementId
+     * @param string|int $orderId
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
     public function registerAttempt(RequestInterface $request, $entityIncrementId, $orderId)
     {
-        //TODO: Exists attempt check it?
         $attempt = $this->attemptRepository
             ->getByEntityId($request->getOperationType(), $request->getSalesEntityId());
 
-        if (!$attempt->getId()) {
-            $attempt = $this->attemptFactory->create();
-        }
         $trials  = $attempt->getNumberOfTrials();
 
         $attempt
@@ -65,11 +69,17 @@ class TransactionAttempt
             ->setOperation($request->getOperationType())
             ->setOrderId($orderId)
             ->setSalesEntityIncrementId($entityIncrementId)
-            ->setNumberOfTrials(is_null($trials) ? 0 : $trials + 1);
+            ->setNumberOfTrials($trials === null ? 0 : $trials + 1);
 
         return $this->attemptRepository->save($attempt);
     }
 
+    /**
+     * Mark attempt as Finish
+     * @param TransactionAttemptInterface $attempt
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
     public function finishAttempt(TransactionAttemptInterface $attempt)
     {
         $attempt
@@ -79,6 +89,13 @@ class TransactionAttempt
         return $this->attemptRepository->save($attempt);
     }
 
+    /**
+     * Mark attempt as Failed
+     * @param TransactionAttemptInterface $attempt
+     * @param string $message
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
     public function failAttempt(TransactionAttemptInterface $attempt, $message = '')
     {
         $attempt

@@ -25,6 +25,7 @@ class Send implements ObserverInterface
     /**
      * Send constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Model\Processor $processor
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
@@ -79,8 +80,8 @@ class Send implements ObserverInterface
         }
     }
 
-    /** Check Invoice|Creditmemo, Kkm setting, Currency etc before sending
-     *
+    /**
+     * Check Invoice|Creditmemo, Kkm setting, Currency etc before sending
      * @param InvoiceInterface|CreditmemoInterface $entity
      * @return bool
      */

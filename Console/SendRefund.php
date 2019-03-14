@@ -18,6 +18,11 @@ use Symfony\Component\Console\Input\InputInterface;
 
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Class SendRefund
+ * @package Mygento\Kkm\Console
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class SendRefund extends Command
 {
     const ARGUMENT_ENTITY_ID = 'id';

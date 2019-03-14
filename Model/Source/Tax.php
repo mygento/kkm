@@ -52,6 +52,9 @@ class Tax implements \Magento\Framework\Option\ArrayInterface
         ];
     }
 
+    /**
+     * @return array
+     */
     public static function getAllTaxes()
     {
         return [

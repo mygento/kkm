@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\Queue;
 
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Model\Processor;
 
@@ -30,6 +31,13 @@ class Consumer
      */
     private $requestHelper;
 
+    /**
+     * Consumer constructor.
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Helper\Data $helper
+     * @param \Mygento\Kkm\Helper\Request $requestHelper
+     * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
+     */
     public function __construct(
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $helper,
@@ -87,6 +95,10 @@ class Consumer
         }
     }
 
+    /**
+     * @param RequestInterface $request
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function sendRefundRequest($request)
     {
         $this->updateRetries($request);

@@ -22,6 +22,10 @@ class UpdateOrderStatuses implements DataPatchInterface
      */
     private $moduleDataSetup;
 
+    /**
+     * UpdateOrderStatuses constructor.
+     * @param \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
+     */
     public function __construct(
         \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
     ) {
@@ -29,7 +33,7 @@ class UpdateOrderStatuses implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -66,7 +70,7 @@ class UpdateOrderStatuses implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public static function getDependencies()
     {
@@ -74,7 +78,7 @@ class UpdateOrderStatuses implements DataPatchInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function getAliases()
     {

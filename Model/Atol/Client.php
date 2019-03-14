@@ -27,6 +27,9 @@ class Client
     const SELL_REFUND_URL_APPNX = 'sell_refund';
     const REPORT_URL_APPNX      = 'report';
 
+    /**
+     * @var int
+     */
     protected $apiVersion = ApiVersion::API_VERSION_4;
 
     /**
@@ -48,6 +51,12 @@ class Client
      */
     private $responseFactory;
 
+    /**
+     * Client constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param ResponseFactory $responseFactory
+     * @param \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
@@ -200,6 +209,10 @@ class Client
         return $response;
     }
 
+    /**
+     * Returns Atol Url depends on is test mode on/off
+     * @return string
+     */
     protected function getBaseUrl()
     {
         $url = $this->kkmHelper->isTestMode()
@@ -223,7 +236,7 @@ class Client
     }
 
     /**
-     * @param $url
+     * @param string $url
      * @param array|string $params - use $params as a string in case of JSON POST request.
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
@@ -255,7 +268,7 @@ class Client
     }
 
     /**
-     * @param $url
+     * @param string $url
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
