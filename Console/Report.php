@@ -135,9 +135,9 @@ class Report extends Command
 
             $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
                 ? $additional[Transaction::ERROR_MESSAGE_KEY]
-                : $additional[Transaction::RAW_RESPONSE_KEY];
+                : ($additional[Transaction::RAW_RESPONSE_KEY] ?? '');
 
-            $message = wordwrap($message, 50);
+            $message = wordwrap($message, 30);
 
             $detailedStat->addRow(
                 [

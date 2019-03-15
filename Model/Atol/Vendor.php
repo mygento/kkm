@@ -116,7 +116,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function sendSellRequest($request, $invoice = null)
     {
-        return $this->sendRequest($request, [$this->apiClient, 'sendSell'], $invoice);
+        return $this->sendRequest($request, 'sendSell', $invoice);
     }
 
     /**
@@ -124,7 +124,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function sendRefundRequest($request, $creditmemo = null)
     {
-        return $this->sendRequest($request, [$this->apiClient, 'sendRefund'], $creditmemo);
+        return $this->sendRequest($request, 'sendRefund', $creditmemo);
     }
 
     /**
@@ -149,7 +149,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         try {
             //Make Request to Vendor's API
-            $response = call_user_func($callback, $request);
+            $response = $this->apiClient->$callback($request);
 
             //Save transaction data
             $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
