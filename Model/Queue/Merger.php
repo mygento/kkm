@@ -19,6 +19,7 @@ class Merger implements MergerInterface
      * @var \Magento\Framework\MessageQueue\MergedMessageInterfaceFactory
      */
     private $mergedMessageFactory;
+
     /**
      * @var \Mygento\Kkm\Api\Queue\MergedRequestInterfaceFactory
      */
@@ -48,7 +49,7 @@ class Merger implements MergerInterface
         $result = [];
 
         foreach ($messageList as $topicName => $topicMessages) {
-            $messages   = array_values($topicMessages);
+            $messages = array_values($topicMessages);
             $messageIds = array_keys($topicMessages);
 
             /** @var MergedRequestInterface $mergedRequest */
@@ -58,7 +59,7 @@ class Merger implements MergerInterface
             /** @var MergedMessageInterface $mergedRequest */
             $mergedMessage = $this->mergedMessageFactory->create(
                 [
-                    'mergedMessage'       => $mergedRequest,
+                    'mergedMessage' => $mergedRequest,
                     'originalMessagesIds' => $messageIds,
                 ]
             );

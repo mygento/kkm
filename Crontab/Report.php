@@ -20,10 +20,12 @@ class Report
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
+
     /**
      * @var \Mygento\Kkm\Model\Report
      */
     private $report;
+
     /**
      * @var \Mygento\Kkm\Helper\Email
      */
@@ -77,7 +79,7 @@ class Report
 
         $fields = [
             'subject' => self::EMAIL_SUBJECT,
-            'statistics' => $statistics
+            'statistics' => $statistics,
         ];
 
         try {

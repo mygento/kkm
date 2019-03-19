@@ -4,7 +4,7 @@ use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Mygento\Kkm\Helper\Transaction;
 
 /**
-* @var \Mygento\Kkm\Model\Statistics
+ * @var \Mygento\Kkm\Model\Statistics
  */
 $statistics = $this->getStatistics();
 $notSent = array_merge($statistics->getFails(), $statistics->getUnknowns(), $statistics->getWaits());
@@ -48,9 +48,9 @@ $notSent = array_merge($statistics->getFails(), $statistics->getUnknowns(), $sta
                     </tr>
                     <?php foreach ($notSent as $item): ?>
                     <?php
-                        $additional  = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+                        $additional = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
                         $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
-                        $message     = isset($additional[Transaction::ERROR_MESSAGE_KEY])
+                        $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
                             ? $additional[Transaction::ERROR_MESSAGE_KEY]
                             : $additional[Transaction::RAW_RESPONSE_KEY];
 

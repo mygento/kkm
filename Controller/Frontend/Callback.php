@@ -16,32 +16,42 @@ class Callback extends \Magento\Framework\App\Action\Action
      * @var \Mygento\Kkm\Model\Atol\ResponseFactory
      */
     private $responseFactory;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
+
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
 
     /**
+     * @var \Mygento\Kkm\Helper\Error\Proxy
+     */
+    private $errorHelper;
+
+    /**
      * Callback constructor.
      * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Magento\Framework\App\Action\Context $context
      */
     public function __construct(
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Magento\Framework\App\Action\Context $context
     ) {
         parent::__construct($context);
         $this->responseFactory = $responseFactory;
-        $this->kkmHelper       = $kkmHelper;
-        $this->vendor          = $vendor;
+        $this->kkmHelper = $kkmHelper;
+        $this->vendor = $vendor;
+        $this->errorHelper = $errorHelper;
     }
 
     /**
@@ -50,7 +60,7 @@ class Callback extends \Magento\Framework\App\Action\Action
     public function execute()
     {
         // @codingStandardsIgnoreStart
-        $json   = file_get_contents('php://input');
+        $json = file_get_contents('php://input');
         // @codingStandardsIgnoreStop
         $entity = null;
 
@@ -67,7 +77,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                     $response->getUuid()
                 )
             );
-            $this->kkmHelper->debug(__('Callback received: %1', (string)$response));
+            $this->kkmHelper->debug(__('Callback received: %1', (string) $response));
 
             //Sometimes callback is received when transaction is not saved yet. In order to avoid this
             sleep(3);
@@ -84,7 +94,7 @@ class Callback extends \Magento\Framework\App\Action\Action
             $this->kkmHelper->debug("Callback RAW: {$json}");
 
             if ($entity && $entity->getId()) {
-                $this->kkmHelper->processKkmChequeRegistrationError($entity, $exc);
+                $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
             }
 
             $result->setContents($exc->getMessage());

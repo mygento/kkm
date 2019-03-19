@@ -19,10 +19,12 @@ class Request
      * @var \Magento\Sales\Api\CreditmemoRepositoryInterface
      */
     private $creditmemoRepository;
+
     /**
      * @var \Magento\Sales\Api\InvoiceRepositoryInterface
      */
     private $invoiceRepository;
+
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface
      */
@@ -40,8 +42,8 @@ class Request
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     ) {
         $this->creditmemoRepository = $creditmemoRepository;
-        $this->invoiceRepository    = $invoiceRepository;
-        $this->orderRepository      = $orderRepository;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->orderRepository = $orderRepository;
     }
 
     /**

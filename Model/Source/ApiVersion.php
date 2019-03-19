@@ -23,7 +23,7 @@ class ApiVersion implements \Magento\Framework\Option\ArrayInterface
             [
                 'value' => self::API_VERSION_4,
                 'label' => __('Версия 4'),
-            ]
+            ],
         ];
     }
 

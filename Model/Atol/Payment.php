@@ -14,7 +14,9 @@ class Payment implements \JsonSerializable, PaymentInterface
 {
     // phpcs:disable
     private $type = 0;
-    private $sum  = 0.00;
+
+    private $sum = 0.00;
+
     // phpcs:enable
 
     /**
@@ -24,7 +26,7 @@ class Payment implements \JsonSerializable, PaymentInterface
     {
         return [
             'type' => $this->getType(),
-            'sum' => $this->getSum()
+            'sum' => $this->getSum(),
         ];
     }
 

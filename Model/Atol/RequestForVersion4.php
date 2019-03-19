@@ -10,7 +10,6 @@ namespace Mygento\Kkm\Model\Atol;
 
 class RequestForVersion4 extends Request
 {
-
     /**
      * @throws \Exception
      * @return array
@@ -21,25 +20,25 @@ class RequestForVersion4 extends Request
             'email' => $this->getEmail(),
         ];
         $company = [
-            'email'           => $this->getCompanyEmail(),
-            'sno'             => $this->getSno(),
-            'inn'             => $this->getInn(),
+            'email' => $this->getCompanyEmail(),
+            'sno' => $this->getSno(),
+            'inn' => $this->getInn(),
             'payment_address' => $this->getPaymentAddress(),
         ];
 
         return [
             'external_id' => $this->getExternalId(),
-            'receipt'     => [
-                'client'   => $client,
-                'company'  => $company,
-                'items'    => $this->getItems(),
+            'receipt' => [
+                'client' => $client,
+                'company' => $company,
+                'items' => $this->getItems(),
                 'payments' => $this->getPayments(),
-                'total'    => $this->getTotal(),
+                'total' => $this->getTotal(),
             ],
-            'service'     => [
+            'service' => [
                 'callback_url' => $this->getCallbackUrl(),
             ],
-            'timestamp'   => $this->getTimestamp(),
+            'timestamp' => $this->getTimestamp(),
         ];
     }
 }

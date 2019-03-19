@@ -25,26 +25,28 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Report extends Command
 {
-    const ARGUMENT             = 'period';
+    const ARGUMENT = 'period';
     const ARGUMENT_DESCRIPTION = 'Period. Possible values: '
     . self::TODAY_PERIOD . ', '
     . self::YESTERDAY_PERIOD . ', '
     . self::WEEK_PERIOD;
-    const COMMAND              = 'mygento:atol:report';
-    const COMMAND_DESCRIPTION  = 'Show report of kkm transaction for period.';
+    const COMMAND = 'mygento:atol:report';
+    const COMMAND_DESCRIPTION = 'Show report of kkm transaction for period.';
 
-    const WEEK_PERIOD      = 'week';
+    const WEEK_PERIOD = 'week';
     const YESTERDAY_PERIOD = 'yesterday';
-    const TODAY_PERIOD     = 'today';
+    const TODAY_PERIOD = 'today';
 
     /**
      * @var \Magento\Framework\App\State
      */
     protected $appState;
+
     /**
      * @var \Mygento\Kkm\Model\Report
      */
     private $report;
+
     /**
      * @var \Symfony\Component\Console\Output\OutputInterface
      */
@@ -62,7 +64,7 @@ class Report extends Command
         parent::__construct();
 
         $this->appState = $state;
-        $this->report   = $report;
+        $this->report = $report;
     }
 
     /**
@@ -97,6 +99,28 @@ class Report extends Command
     }
 
     /**
+     * Configure the command
+     */
+    protected function configure()
+    {
+        $this->setName(self::COMMAND);
+        $this->setDescription(self::COMMAND_DESCRIPTION);
+        $this->addArgument(
+            self::ARGUMENT,
+            InputArgument::OPTIONAL,
+            self::ARGUMENT_DESCRIPTION
+        );
+        $this->setHelp(
+            <<<HELP
+This command shows report of transactions.
+      <comment>%command.full_name% yesterday</comment>
+Today by default.
+HELP
+        );
+        parent::configure();
+    }
+
+    /**
      * @param \Mygento\Kkm\Model\Statistics $statistics
      */
     private function parseStatistics(\Mygento\Kkm\Model\Statistics $statistics)
@@ -121,7 +145,7 @@ class Report extends Command
         );
 
         /**
-         * @var $notDone \Mygento\Kkm\Api\Data\TransactionAttemptInterface[]
+         * @var \Mygento\Kkm\Api\Data\TransactionAttemptInterface[]
          */
         $notDone = array_merge(
             $statistics->getFails(),
@@ -130,7 +154,7 @@ class Report extends Command
         );
 
         foreach ($notDone as $item) {
-            $additional  = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+            $additional = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
 
             $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
@@ -155,27 +179,5 @@ class Report extends Command
         $commonStat->render();
         $detailedStat
             ->render();
-    }
-
-    /**
-     * Configure the command
-     */
-    protected function configure()
-    {
-        $this->setName(self::COMMAND);
-        $this->setDescription(self::COMMAND_DESCRIPTION);
-        $this->addArgument(
-            self::ARGUMENT,
-            InputArgument::OPTIONAL,
-            self::ARGUMENT_DESCRIPTION
-        );
-        $this->setHelp(
-            <<<HELP
-This command shows report of transactions.
-      <comment>%command.full_name% yesterday</comment>
-Today by default.
-HELP
-        );
-        parent::configure();
     }
 }

@@ -18,40 +18,52 @@ class Consumer
      * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
+
     /**
      * @var \Magento\Framework\MessageQueue\PublisherInterface
      */
     private $publisher;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $helper;
+
     /**
      * @var \Mygento\Kkm\Helper\Request
      */
     private $requestHelper;
 
     /**
+     * @var \Mygento\Kkm\Helper\Error\Proxy
+     */
+    private $errorHelper;
+
+    /**
      * Consumer constructor.
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
+     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
     public function __construct(
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $helper,
+        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Magento\Framework\MessageQueue\PublisherInterface $publisher
     ) {
-        $this->vendor        = $vendor;
-        $this->publisher     = $publisher;
-        $this->helper        = $helper;
+        $this->vendor = $vendor;
+        $this->publisher = $publisher;
+        $this->helper = $helper;
         $this->requestHelper = $requestHelper;
+        $this->errorHelper = $errorHelper;
     }
 
     /**
      * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function sendSellMergedRequest($mergedRequest)
     {
@@ -64,6 +76,7 @@ class Consumer
 
     /**
      * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function sendRefundMergedRequest($mergedRequest)
     {
@@ -91,7 +104,7 @@ class Consumer
             $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
         } catch (\Exception $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
-            $this->helper->processKkmChequeRegistrationError($entity, $e);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
@@ -102,6 +115,7 @@ class Consumer
     public function sendRefundRequest($request)
     {
         $this->updateRetries($request);
+
         try {
             $this->vendor->sendRefundRequest($request);
         } catch (VendorBadServerAnswerException $e) {
@@ -110,7 +124,7 @@ class Consumer
             $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
         } catch (\Exception $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
-            $this->helper->processKkmChequeRegistrationError($entity, $e);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 

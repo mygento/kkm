@@ -24,14 +24,6 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     const NONE_UUID = 'none';
 
     /**
-     * @return void
-     */
-    protected function _construct()
-    {
-        $this->_init(\Mygento\Kkm\Model\ResourceModel\TransactionAttempt::class);
-    }
-
-    /**
      * Get id
      * @return int|null
      */
@@ -368,5 +360,13 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
      */
     public function setExtensionAttributes(\Magento\Sales\Api\Data\TransactionExtensionInterface $extensionAttributes)
     {
+    }
+
+    /**
+     * @return void
+     */
+    protected function _construct()
+    {
+        $this->_init(\Mygento\Kkm\Model\ResourceModel\TransactionAttempt::class);
     }
 }

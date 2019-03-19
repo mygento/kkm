@@ -22,10 +22,10 @@ class Client
     //see Atol Documentation
     const ALLOWED_HTTP_STATUSES = [200, 400, 401];
 
-    const GET_TOKEN_URL_APPNX   = 'getToken';
-    const SELL_URL_APPNX        = 'sell';
+    const GET_TOKEN_URL_APPNX = 'getToken';
+    const SELL_URL_APPNX = 'sell';
     const SELL_REFUND_URL_APPNX = 'sell_refund';
-    const REPORT_URL_APPNX      = 'report';
+    const REPORT_URL_APPNX = 'report';
 
     /**
      * @var int
@@ -46,6 +46,7 @@ class Client
      * @var string
      */
     private $token;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\ResponseFactory
      */
@@ -62,8 +63,8 @@ class Client
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
     ) {
-        $this->kkmHelper         = $kkmHelper;
-        $this->responseFactory   = $responseFactory;
+        $this->kkmHelper = $kkmHelper;
+        $this->responseFactory = $responseFactory;
         $this->curlClientFactory = $curlFactory;
     }
 
@@ -76,14 +77,14 @@ class Client
         if ($this->token) {
             return $this->token;
         }
-        $helper   = $this->kkmHelper;
-        $login    = $helper->getConfig('atol/login');
+        $helper = $this->kkmHelper;
+        $login = $helper->getConfig('atol/login');
         $password = $helper->decrypt($helper->getConfig('atol/password'));
 
         $dataBody = json_encode(
             [
                 'login' => $login,
-                'pass'  => $password,
+                'pass' => $password,
             ]
         );
 
@@ -121,11 +122,11 @@ class Client
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
         $groupCode = $this->getGroupCode();
-        $url       = $this->getBaseUrl() . $groupCode . '/' . self::REPORT_URL_APPNX . '/' . $uuid;
+        $url = $this->getBaseUrl() . $groupCode . '/' . self::REPORT_URL_APPNX . '/' . $uuid;
         $this->kkmHelper->debug('URL: ' . $url);
 
         $responseRaw = $this->sendGetRequest($url);
-        $response    = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
+        $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
         $this->kkmHelper->info('New status: ' . $response->getStatus());
         $this->kkmHelper->debug('Response: ' . $response);
@@ -149,7 +150,7 @@ class Client
 
         try {
             $groupCode = $this->getGroupCode();
-            $url  = $this->getBaseUrl() . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
+            $url = $this->getBaseUrl() . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
             $debugData['url'] = $url;
             $this->kkmHelper->debug('URL: ' . $url);
 
@@ -210,19 +211,6 @@ class Client
     }
 
     /**
-     * Returns Atol Url depends on is test mode on/off
-     * @return string
-     */
-    protected function getBaseUrl()
-    {
-        $url = $this->kkmHelper->isTestMode()
-            ? self::REQUEST_TEST_URL
-            : self::REQUEST_URL;
-
-        return sprintf($url, $this->getApiVersion());
-    }
-
-    /**
      * @return int
      */
     public function getApiVersion()
@@ -233,6 +221,19 @@ class Client
             : ApiVersion::API_VERSION_4;
 
         return $this->apiVersion;
+    }
+
+    /**
+     * Returns Atol Url depends on is test mode on/off
+     * @return string
+     */
+    protected function getBaseUrl()
+    {
+        $url = $this->kkmHelper->isTestMode()
+            ? self::REQUEST_TEST_URL
+            : self::REQUEST_URL;
+
+        return sprintf($url, $this->getApiVersion());
     }
 
     /**
@@ -256,7 +257,7 @@ class Client
         if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
             throw new VendorBadServerAnswerException(
                 'Bad response from Atol. Status: ' . $curl->getStatus()
-                . ($response ? '. Response: ' . (string)$response : '')
+                . ($response ? '. Response: ' . (string) $response : '')
             );
         }
 
@@ -286,7 +287,7 @@ class Client
         if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
             throw new VendorBadServerAnswerException(
                 'Bad response from Atol. Status: ' . $curl->getStatus()
-                . ($response ? '. Response: ' . (string)$response : '')
+                . ($response ? '. Response: ' . (string) $response : '')
             );
         }
 

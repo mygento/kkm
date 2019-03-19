@@ -14,20 +14,19 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 /**
  * Class Transaction
  * @package Mygento\Kkm\Helper
- *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TransactionAttempt
 {
-
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
+
     /**
      * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
      */
     private $attemptRepository;
+
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
@@ -52,8 +51,8 @@ class TransactionAttempt
     /**
      * Create new attempt based on request
      * @param RequestInterface $request
-     * @param string|int $entityIncrementId
-     * @param string|int $orderId
+     * @param int|string $entityIncrementId
+     * @param int|string $orderId
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
@@ -62,7 +61,7 @@ class TransactionAttempt
         $attempt = $this->attemptRepository
             ->getByEntityId($request->getOperationType(), $request->getSalesEntityId());
 
-        $trials  = $attempt->getNumberOfTrials();
+        $trials = $attempt->getNumberOfTrials();
 
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)

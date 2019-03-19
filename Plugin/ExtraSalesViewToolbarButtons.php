@@ -12,18 +12,18 @@ use Mygento\Kkm\Model\Atol\Response;
 
 class ExtraSalesViewToolbarButtons
 {
-
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
 
     /**
      * Role Authorizations Service
-     * @var \Magento\Framework\AuthorizationInterface $authorization
+     * @var \Magento\Framework\AuthorizationInterface
      */
     protected $authorization;
 
     /** @var \Magento\Backend\Model\UrlInterface */
     protected $urlBuilder;
+
     /**
      * @var \Mygento\Kkm\Helper\Transaction
      */
@@ -42,9 +42,9 @@ class ExtraSalesViewToolbarButtons
         \Magento\Framework\AuthorizationInterface $authorization,
         \Magento\Backend\Model\UrlInterface $urlBuilder
     ) {
-        $this->kkmHelper         = $kkmHelper;
-        $this->authorization     = $authorization;
-        $this->urlBuilder        = $urlBuilder;
+        $this->kkmHelper = $kkmHelper;
+        $this->authorization = $authorization;
+        $this->urlBuilder = $urlBuilder;
         $this->transactionHelper = $transactionHelper;
     }
 
@@ -64,9 +64,9 @@ class ExtraSalesViewToolbarButtons
             return;
         }
 
-        $entity         = $context->getInvoice() ?: $context->getCreditmemo();
-        $order          = $entity->getOrder();
-        $paymentMethod  = $order->getPayment()->getMethod();
+        $entity = $context->getInvoice() ?: $context->getCreditmemo();
+        $order = $entity->getOrder();
+        $paymentMethod = $order->getPayment()->getMethod();
         $paymentMethods = explode(
             ',',
             $this->kkmHelper->getConfig('general/payment_methods')
@@ -81,30 +81,30 @@ class ExtraSalesViewToolbarButtons
         $transactions = $this->transactionHelper->getTransactionsByEntity($entity);
 
         if ($this->canBeShownResendButton($transactions)) {
-            $url  = $this->urlBuilder->getUrl(
+            $url = $this->urlBuilder->getUrl(
                 'kkm/cheque/resend',
                 [
-                'entity' => $entity->getEntityType(),
-                'id'     => $entity->getId()
+                    'entity' => $entity->getEntityType(),
+                    'id' => $entity->getId(),
                 ]
             );
             $data = [
-                'label'   => __('Send to KKM'),
-                'class'   => '',
+                'label' => __('Send to KKM'),
+                'class' => '',
                 'onclick' => 'setLocation(\'' . $url . '\')',
             ];
 
             $buttonList->add('resend_to_kkm', $data);
         } elseif ($this->canBeShownCheckStatusButton($transactions)) {
-            $url  = $this->urlBuilder->getUrl(
+            $url = $this->urlBuilder->getUrl(
                 'kkm/cheque/checkStatus',
                 [
                     'uuid' => $this->transactionHelper->getWaitUuid($entity),
                 ]
             );
             $data = [
-                'label'   => __('Check status in KKM'),
-                'class'   => '',
+                'label' => __('Check status in KKM'),
+                'class' => '',
                 'onclick' => 'setLocation(\'' . $url . '\')',
             ];
             $buttonList->add('check_status_in_kkm', $data);
@@ -115,7 +115,7 @@ class ExtraSalesViewToolbarButtons
      * Check is current page appropriate for "resend to kkm" button
      *
      * @param \Magento\Framework\View\Element\AbstractBlock $block
-     * @return boolean
+     * @return bool
      */
     protected function isProperPageForKkmButtons($block)
     {
@@ -142,9 +142,7 @@ class ExtraSalesViewToolbarButtons
         }
 
         //Check ACL
-        $resendAllowed = $this->authorization->isAllowed('Mygento_Kkm::cheque_resend');
-
-        return $resendAllowed;
+        return $this->authorization->isAllowed('Mygento_Kkm::cheque_resend');
     }
 
     /**

@@ -12,13 +12,13 @@ use Magento\Sales\Api\Data\TransactionInterface;
 
 interface TransactionAttemptInterface extends TransactionInterface
 {
-    const ID                        = 'id';
-    const OPERATION                 = 'operation';
+    const ID = 'id';
+    const OPERATION = 'operation';
     const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
-    const STATUS                    = 'status';
-    const MESSAGE                   = 'message';
-    const NUMBER_OF_TRIALS          = 'number_of_trials';
-    const UPDATED_AT                = 'updated_at';
+    const STATUS = 'status';
+    const MESSAGE = 'message';
+    const NUMBER_OF_TRIALS = 'number_of_trials';
+    const UPDATED_AT = 'updated_at';
 
     const STATUS_NEW = 1;
     const STATUS_NEW_LABEL = 'New Attempt';

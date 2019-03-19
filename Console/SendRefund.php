@@ -15,7 +15,6 @@ use Mygento\Kkm\Model\Atol\Response;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -34,18 +33,22 @@ class SendRefund extends Command
      * @var \Magento\Framework\App\State
      */
     protected $appState;
+
     /**
      * @var \Magento\Sales\Model\Order\CreditmemoRepository
      */
     private $creditmemoRepo;
+
     /**
      * @var \Magento\Sales\Model\ResourceModel\Order\Creditmemo
      */
     private $creditmemoResource;
+
     /**
      * @var \Mygento\Kkm\Model\Processor
      */
     private $processor;
+
     /**
      * @var \Mygento\Kkm\Helper\Transaction
      */
@@ -68,7 +71,7 @@ class SendRefund extends Command
     ) {
         parent::__construct();
 
-        $this->appState       = $state;
+        $this->appState = $state;
         $this->creditmemoRepo = $creditmemoRepo;
         $this->creditmemoResource = $creditmemoResource;
         $this->processor = $processor;
@@ -104,7 +107,7 @@ class SendRefund extends Command
         $transactions = $this->transactionHelper->getTransactionsByCreditmemo($creditmemo);
 
         foreach ($transactions as $transaction) {
-            $status     = $transaction->getKkmStatus();
+            $status = $transaction->getKkmStatus();
             $additional = $transaction->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
 
             $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])

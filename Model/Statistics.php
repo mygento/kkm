@@ -15,23 +15,28 @@ class Statistics extends \Magento\Framework\Model\AbstractModel
     /**
      * @var TransactionInterface[]
      */
-    protected $fails     = [];
+    protected $fails = [];
+
     /**
      * @var TransactionInterface[]
      */
-    protected $unknown   = [];
+    protected $unknown = [];
+
     /**
      * @var TransactionInterface[]
      */
-    protected $wait      = [];
+    protected $wait = [];
+
     /**
      * @var int
      */
     protected $doneCount = 0;
+
     /**
      * @var string with datetime
      */
     protected $fromDate;
+
     /**
      * @var string with datetime
      */
@@ -62,8 +67,8 @@ class Statistics extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
+     * The param $transaction is left to provide uniformity with other add* methods
      * @param \Magento\Sales\Api\Data\TransactionInterface $transaction
-     * The param is left to provide uniformity with other add* methods
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */

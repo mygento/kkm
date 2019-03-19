@@ -23,37 +23,43 @@ use Mygento\Kkm\Model\Atol\Response;
  */
 class Transaction
 {
-    const ENTITY_KEY        = 'entity';
-    const INCREMENT_ID_KEY  = 'increment_id';
-    const UUID_KEY          = 'uuid';
-    const STATUS_KEY        = 'status';
+    const ENTITY_KEY = 'entity';
+    const INCREMENT_ID_KEY = 'increment_id';
+    const UUID_KEY = 'uuid';
+    const STATUS_KEY = 'status';
     const ERROR_MESSAGE_KEY = 'error';
-    const RAW_RESPONSE_KEY  = 'raw_response';
+    const RAW_RESPONSE_KEY = 'raw_response';
 
     /**
      * @var \Magento\Sales\Api\TransactionRepositoryInterface
      */
     protected $transactionRepo;
+
     /**
      * @var \Magento\Sales\Model\Order\Payment\TransactionFactory
      */
     protected $transactionFactory;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
+
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
+
     /**
      * @var \Magento\Sales\Model\Order\CreditmemoRepository
      */
     private $creditmemoRepo;
+
     /**
      * @var \Magento\Sales\Model\ResourceModel\Order\Creditmemo
      */
     private $creditmemoResource;
+
     /**
      * @var \Magento\Sales\Model\Order\InvoiceFactory
      */
@@ -78,13 +84,13 @@ class Transaction
         \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
-        $this->transactionRepo       = $transactionRepo;
-        $this->transactionFactory    = $transactionFactory;
-        $this->kkmHelper             = $kkmHelper;
+        $this->transactionRepo = $transactionRepo;
+        $this->transactionFactory = $transactionFactory;
+        $this->kkmHelper = $kkmHelper;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->creditmemoRepo        = $creditmemoRepo;
-        $this->creditmemoResource    = $creditmemoResource;
-        $this->invoiceFactory        = $invoiceFactory;
+        $this->creditmemoRepo = $creditmemoRepo;
+        $this->creditmemoResource = $creditmemoResource;
+        $this->invoiceFactory = $invoiceFactory;
     }
 
     /**
@@ -108,7 +114,7 @@ class Transaction
     }
 
     /**
-     * @param  \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
+     * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
@@ -128,62 +134,6 @@ class Transaction
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\EntityInterface $entity
-     * @param ResponseInterface $response
-     * @param mixed $type
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Magento\Sales\Api\Data\TransactionInterface
-     */
-    protected function saveTransaction($entity, ResponseInterface $response, $type)
-    {
-        $txnId       = $response->getUuid();
-        $order       = $entity->getOrder();
-        $payment     = $entity->getOrder()->getPayment();
-        $isClosed    = ($response->isDone() || $response->isFailed()) ? 1 : 0;
-        $rawResponse = json_encode(json_decode((string)$response), JSON_UNESCAPED_UNICODE);
-        $additional  = [
-            self::ENTITY_KEY        => $entity->getEntityType(),
-            self::INCREMENT_ID_KEY  => $entity->getIncrementId(),
-            self::UUID_KEY          => $txnId,
-            self::STATUS_KEY        => $response->getStatus(),
-            self::ERROR_MESSAGE_KEY => $response->getErrorMessage(),
-            self::RAW_RESPONSE_KEY  => $rawResponse,
-        ];
-        $additional  = array_merge($additional, (array)$response->getPayload());
-
-        //Update
-        if ($this->isTransactionExists($txnId, $payment->getId(), $order->getId())) {
-            $transaction = $this->updateTransactionData(
-                $txnId,
-                $payment->getId(),
-                $order->getId(),
-                $additional
-            );
-            $transaction
-                ->setIsClosed($isClosed)
-                ->setKkmStatus($response->getStatus());
-
-            return $this->transactionRepo->save($transaction);
-        }
-
-        //Create
-        $transaction = $this->transactionFactory->create()
-            ->setPayment($payment)
-            ->setOrder($order)
-            ->setFailSafe(true)
-            ->setTxnType($type)
-            ->setIsClosed($isClosed)
-            ->setTxnId($txnId)
-            ->setKkmStatus($response->getStatus())
-            ->setAdditionalInformation(
-                TransactionEntity::RAW_DETAILS,
-                $additional
-            );
-
-        return $this->transactionRepo->save($transaction);
-    }
-
-    /**
      * @param int $transactionId
      * @param int $paymentId
      * @param int $orderId
@@ -196,30 +146,6 @@ class Transaction
             $paymentId,
             $orderId
         );
-    }
-
-    /**
-     * @param int $transactionId
-     * @param int $paymentId
-     * @param int $orderId
-     * @param array $transData
-     * @return mixed
-     */
-    protected function updateTransactionData($transactionId, $paymentId, $orderId, $transData)
-    {
-        $this->kkmHelper->info('update transaction: ' . $transactionId);
-        $transaction = $this->transactionRepo->getByTransactionId(
-            $transactionId,
-            $paymentId,
-            $orderId
-        );
-
-        $transaction->setAdditionalInformation(
-            TransactionEntity::RAW_DETAILS,
-            $transData
-        );
-
-        return $transaction;
     }
 
     /**
@@ -314,7 +240,7 @@ class Transaction
     /**
      * Returns UUID if invoice or creditmemo has uncompleted kkm transactions
      * @param CreditmemoInterface|InvoiceInterface $entity Invoice|Creditmemo
-     * @return null|string uuid
+     * @return string|null uuid
      */
     public function getWaitUuid($entity)
     {
@@ -340,5 +266,85 @@ class Transaction
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
         return $transactions->getColumnValues('txn_id');
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\EntityInterface $entity
+     * @param ResponseInterface $response
+     * @param mixed $type
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
+     */
+    protected function saveTransaction($entity, ResponseInterface $response, $type)
+    {
+        $txnId = $response->getUuid();
+        $order = $entity->getOrder();
+        $payment = $entity->getOrder()->getPayment();
+        $isClosed = ($response->isDone() || $response->isFailed()) ? 1 : 0;
+        $rawResponse = json_encode(json_decode((string) $response), JSON_UNESCAPED_UNICODE);
+        $additional = [
+            self::ENTITY_KEY => $entity->getEntityType(),
+            self::INCREMENT_ID_KEY => $entity->getIncrementId(),
+            self::UUID_KEY => $txnId,
+            self::STATUS_KEY => $response->getStatus(),
+            self::ERROR_MESSAGE_KEY => $response->getErrorMessage(),
+            self::RAW_RESPONSE_KEY => $rawResponse,
+        ];
+        $additional = array_merge($additional, (array) $response->getPayload());
+
+        //Update
+        if ($this->isTransactionExists($txnId, $payment->getId(), $order->getId())) {
+            $transaction = $this->updateTransactionData(
+                $txnId,
+                $payment->getId(),
+                $order->getId(),
+                $additional
+            );
+            $transaction
+                ->setIsClosed($isClosed)
+                ->setKkmStatus($response->getStatus());
+
+            return $this->transactionRepo->save($transaction);
+        }
+
+        //Create
+        $transaction = $this->transactionFactory->create()
+            ->setPayment($payment)
+            ->setOrder($order)
+            ->setFailSafe(true)
+            ->setTxnType($type)
+            ->setIsClosed($isClosed)
+            ->setTxnId($txnId)
+            ->setKkmStatus($response->getStatus())
+            ->setAdditionalInformation(
+                TransactionEntity::RAW_DETAILS,
+                $additional
+            );
+
+        return $this->transactionRepo->save($transaction);
+    }
+
+    /**
+     * @param int $transactionId
+     * @param int $paymentId
+     * @param int $orderId
+     * @param array $transData
+     * @return mixed
+     */
+    protected function updateTransactionData($transactionId, $paymentId, $orderId, $transData)
+    {
+        $this->kkmHelper->info('update transaction: ' . $transactionId);
+        $transaction = $this->transactionRepo->getByTransactionId(
+            $transactionId,
+            $paymentId,
+            $orderId
+        );
+
+        $transaction->setAdditionalInformation(
+            TransactionEntity::RAW_DETAILS,
+            $transData
+        );
+
+        return $transaction;
     }
 }

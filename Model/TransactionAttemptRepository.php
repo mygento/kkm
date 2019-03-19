@@ -61,6 +61,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
                 __('Kkm Transaction Attempt with id "%1" does not exist.', $entityId)
             );
         }
+
         return $entity;
     }
 
@@ -98,6 +99,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
                 __($exception->getMessage())
             );
         }
+
         return $entity;
     }
 
@@ -115,6 +117,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
                 __($exception->getMessage())
             );
         }
+
         return true;
     }
 
@@ -170,6 +173,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
         $searchResults->setSearchCriteria($criteria);
         $searchResults->setItems($collection->getItems());
         $searchResults->setTotalCount($collection->getSize());
+
         return $searchResults;
     }
 }

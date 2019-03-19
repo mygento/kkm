@@ -13,10 +13,15 @@ interface ResponseInterface
     /**
      * @return string
      */
+    public function __toString();
+
+    /**
+     * @return string
+     */
     public function getUuid();
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorMessage();
 
@@ -49,9 +54,4 @@ interface ResponseInterface
      * @return bool
      */
     public function isWait();
-
-    /**
-     * @return string
-     */
-    public function __toString();
 }

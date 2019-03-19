@@ -23,10 +23,12 @@ class RequestFactory
      * @deprecated
      */
     private $request3Factory;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\RequestForVersion4Factory
      */
     private $request4Factory;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */

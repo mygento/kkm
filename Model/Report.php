@@ -19,18 +19,22 @@ class Report
      * @var \Magento\Sales\Api\TransactionRepositoryInterface
      */
     private $transactionRepo;
+
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
+
     /**
      * @var \Magento\Framework\Stdlib\DateTime\Timezone
      */
     private $timezone;
+
     /**
      * @var \Mygento\Kkm\Model\StatisticsFactory
      */
     private $statisticsFactory;
+
     /**
      * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
      */
@@ -121,7 +125,7 @@ class Report
      */
     private function collectStatistics($searchCriteria)
     {
-        $transactions        = $this->transactionRepo->getList($searchCriteria);
+        $transactions = $this->transactionRepo->getList($searchCriteria);
         $transactionAttempts = $this->attemptRepository->getList($searchCriteria);
 
         /** @var $statistics \Mygento\Kkm\Model\Statistics */
@@ -129,7 +133,7 @@ class Report
 
         $items = array_merge($transactions->getItems(), $transactionAttempts->getItems());
         foreach ($items as $item) {
-            $info   = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+            $info = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $status = $item->getKkmStatus()
                 ?? ($info[Transaction::STATUS_KEY] ?? 'unknown');
 

@@ -9,7 +9,7 @@
 namespace Mygento\Kkm\Setup\Patch\Data;
 
 use Magento\Framework\Setup\Patch\DataPatchInterface;
-use Mygento\Kkm\Helper\Data as KkmHelper;
+use Mygento\Kkm\Helper\Error as KkmHelper;
 
 /**
  * Class UpdateOrderStatuses
@@ -46,18 +46,18 @@ class UpdateOrderStatuses implements DataPatchInterface
         //Bind status to state
         $states = [
             [
-                'status'     => KkmHelper::ORDER_KKM_FAILED_STATUS,
-                'state'      => 'processing',
+                'status' => KkmHelper::ORDER_KKM_FAILED_STATUS,
+                'state' => 'processing',
                 'is_default' => 0,
             ],
             [
-                'status'     => KkmHelper::ORDER_KKM_FAILED_STATUS,
-                'state'      => 'complete',
+                'status' => KkmHelper::ORDER_KKM_FAILED_STATUS,
+                'state' => 'complete',
                 'is_default' => 0,
             ],
             [
-                'status'     => KkmHelper::ORDER_KKM_FAILED_STATUS,
-                'state'      => 'closed',
+                'status' => KkmHelper::ORDER_KKM_FAILED_STATUS,
+                'state' => 'closed',
                 'is_default' => 0,
             ],
         ];

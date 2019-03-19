@@ -21,7 +21,7 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
 interface VendorInterface
 {
     const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
-    const ALREADY_SENT_FLAG           = 'kkm_already_sent_to_atol';
+    const ALREADY_SENT_FLAG = 'kkm_already_sent_to_atol';
 
     /**
      * Send request to Vendor
@@ -62,9 +62,9 @@ interface VendorInterface
     public function buildRequest($salesEntity): RequestInterface;
 
     /**
-     * @param InvoiceInterface|CreditmemoInterface $entity
+     * @param CreditmemoInterface|InvoiceInterface $entity
      * @param \Mygento\Kkm\Api\Data\ResponseInterface $response
-     * @param null|mixed $txnId
+     * @param mixed|null $txnId
      */
     public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null);
 }

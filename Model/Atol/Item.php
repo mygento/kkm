@@ -14,21 +14,29 @@ use Mygento\Kkm\Model\Source\Tax;
 class Item implements \JsonSerializable, ItemInterface
 {
     const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
-    const PAYMENT_METHOD_ADVANCE      = 'advance';
+    const PAYMENT_METHOD_ADVANCE = 'advance';
 
-    const PAYMENT_OBJECT_BASIC   = 'commodity';
+    const PAYMENT_OBJECT_BASIC = 'commodity';
     const PAYMENT_OBJECT_PAYMENT = 'payment'; //Аванс, Бонус, Подарочная карта
     const PAYMENT_OBJECT_ANOTHER = 'another';
 
     // phpcs:disable
-    private $name          = '';
-    private $price         = 1.0;
-    private $quantity      = 1;
-    private $sum           = 0.0;
-    private $tax           = '';
-    private $taxSum        = 0.0;
+    private $name = '';
+
+    private $price = 1.0;
+
+    private $quantity = 1;
+
+    private $sum = 0.0;
+
+    private $tax = '';
+
+    private $taxSum = 0.0;
+
     private $paymentMethod = '';
+
     private $paymentObject = '';
+
     // phpcs:enable
 
     /**
@@ -37,14 +45,14 @@ class Item implements \JsonSerializable, ItemInterface
     public function jsonSerialize(): array
     {
         $item = [
-            'name'           => $this->getName(),
-            'price'          => $this->getPrice(),
-            'quantity'       => $this->getQuantity(),
-            'sum'            => $this->getSum(),
+            'name' => $this->getName(),
+            'price' => $this->getPrice(),
+            'quantity' => $this->getQuantity(),
+            'sum' => $this->getSum(),
             'payment_method' => $this->getPaymentMethod(),
             'payment_object' => $this->getPaymentObject(),
-            'vat'            => [
-                'type' => $this->getTax(),//for API v4
+            'vat' => [
+                'type' => $this->getTax(), //for API v4
             ],
         ];
 
@@ -86,7 +94,7 @@ class Item implements \JsonSerializable, ItemInterface
      */
     public function setPrice($price)
     {
-        $this->price = (float)$price;
+        $this->price = (float) $price;
 
         return $this;
     }
@@ -104,7 +112,7 @@ class Item implements \JsonSerializable, ItemInterface
      */
     public function setQuantity($quantity)
     {
-        $this->quantity = (float)$quantity;
+        $this->quantity = (float) $quantity;
 
         return $this;
     }
@@ -122,7 +130,7 @@ class Item implements \JsonSerializable, ItemInterface
      */
     public function setSum($sum)
     {
-        $this->sum = (float)$sum;
+        $this->sum = (float) $sum;
 
         return $this;
     }

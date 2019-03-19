@@ -29,46 +29,62 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
+
     /**
      * @var \Mygento\Base\Helper\Discount
      */
     private $kkmDiscount;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\RequestFactory
      */
     private $requestFactory;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\ItemFactory
      */
     private $itemFactory;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\Client
      */
     private $apiClient;
+
     /**
      * @var \Mygento\Kkm\Helper\Transaction
      */
     private $transactionHelper;
+
     /**
      * @var \Magento\Backend\Model\UrlInterface
      */
     private $urlBuilder;
+
     /**
      * @var \Mygento\Kkm\Helper\Request
      */
     private $requestHelper;
+
     /**
      * @var \Mygento\Kkm\Helper\TransactionAttempt
      */
     private $attemptHelper;
+
     /**
      * @var \Magento\Catalog\Api\ProductRepositoryInterface
      */
     private $productRepository;
+
     /**
      * @var PaymentFactory
      */
     private $paymentFactory;
+
+    /**
+     * To get Frontend URL in backend scope
+     * @var \Magento\Framework\Url
+     */
+    private $urlHelper;
 
     /**
      * Vendor constructor.
@@ -77,12 +93,14 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
-     * @param RequestFactory $requestFactory
-     * @param ItemFactory $itemFactory
-     * @param PaymentFactory $paymentFactory
-     * @param Client $apiClient
+     * @param \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory
+     * @param \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory
+     * @param \Mygento\Kkm\Model\Atol\PaymentFactory $paymentFactory
+     * @param \Mygento\Kkm\Model\Atol\Client $apiClient
+     * @param \Magento\Framework\Url $urlHelper
      * @param \Magento\Backend\Model\UrlInterface $urlBuilder
      * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+     *
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -95,20 +113,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory,
         \Mygento\Kkm\Model\Atol\PaymentFactory $paymentFactory,
         \Mygento\Kkm\Model\Atol\Client $apiClient,
+        \Magento\Framework\Url $urlHelper,
         \Magento\Backend\Model\UrlInterface $urlBuilder,
         \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
     ) {
-        $this->kkmHelper         = $kkmHelper;
-        $this->kkmDiscount       = $kkmDiscount;
-        $this->requestFactory    = $requestFactory;
-        $this->itemFactory       = $itemFactory;
-        $this->apiClient         = $apiClient;
+        $this->kkmHelper = $kkmHelper;
+        $this->kkmDiscount = $kkmDiscount;
+        $this->requestFactory = $requestFactory;
+        $this->itemFactory = $itemFactory;
+        $this->apiClient = $apiClient;
         $this->transactionHelper = $transactionHelper;
-        $this->urlBuilder        = $urlBuilder;
-        $this->requestHelper     = $requestHelper;
-        $this->attemptHelper     = $attemptHelper;
+        $this->urlBuilder = $urlBuilder;
+        $this->requestHelper = $requestHelper;
+        $this->attemptHelper = $attemptHelper;
         $this->productRepository = $productRepository;
-        $this->paymentFactory    = $paymentFactory;
+        $this->paymentFactory = $paymentFactory;
+        $this->urlHelper = $urlHelper;
     }
 
     /**
@@ -125,49 +145,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     public function sendRefundRequest($request, $creditmemo = null)
     {
         return $this->sendRequest($request, 'sendRefund', $creditmemo);
-    }
-
-    /**
-     * @param RequestInterface $request
-     * @param callable $callback
-     * @param InvoiceInterface|CreditmemoInterface $entity
-     * @throws CreateDocumentFailedException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @return ResponseInterface
-     */
-    private function sendRequest($request, $callback, $entity = null)
-    {
-        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
-
-        //Register sending Attempt
-        $attempt = $this->attemptHelper->registerAttempt(
-            $request,
-            $entity->getIncrementId(),
-            $entity->getOrderId()
-        );
-
-        try {
-            //Make Request to Vendor's API
-            $response = $this->apiClient->$callback($request);
-
-            //Save transaction data
-            $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
-            $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
-
-            //Mark attempt as Sent
-            $this->attemptHelper->finishAttempt($attempt);
-        } catch (\Exception $e) {
-            //Mark attempt as Error
-            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
-
-            throw $e;
-        }
-
-        //Check response. Here attempt is successfully done.
-        $this->validateResponse($response);
-
-        return $response;
     }
 
     /**
@@ -195,7 +172,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             case 'invoice':
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
                 break;
-
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
                 break;
@@ -222,6 +198,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         if (!$transaction->getId()) {
             $this->kkmHelper->error("Transaction not found. Uuid: {$response->getUuid()}");
+
             throw new \Exception("Transaction not found. Uuid: {$response->getUuid()}");
         }
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
@@ -230,7 +207,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             case 'invoice':
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
                 break;
-
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
                 break;
@@ -262,8 +238,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
 
-        $shippingTax   = $this->kkmHelper->getConfig('general/shipping_tax');
-        $taxValue      = $this->kkmHelper->getConfig('general/tax_options');
+        $shippingTax = $this->kkmHelper->getConfig('general/shipping_tax');
+        $taxValue = $this->kkmHelper->getConfig('general/tax_options');
         $attributeCode = '';
         if (!$this->kkmHelper->getConfig('general/tax_all')) {
             $attributeCode = $this->kkmHelper->getConfig('general/product_tax_attr');
@@ -322,7 +298,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address'))
             ->setSno($this->kkmHelper->getConfig('atol/sno'))
             ->setInn($this->kkmHelper->getConfig('atol/inn'))
-            ->setCallbackUrl($this->kkmHelper->getCallbackUrl())
+            ->setCallbackUrl($this->getCallbackUrl())
             ->setItems($items);
 
         //Basic payment
@@ -349,43 +325,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
-     * Check does the item works as gift card. For Magento Commerce only
-     * @param InvoiceInterface|CreditmemoInterface $salesEntity
-     * @param string $itemName
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @return bool
-     */
-    private function isGiftCard($salesEntity, $itemName)
-    {
-        $items = $salesEntity->getAllVisibleItems() ?? $salesEntity->getAllItems();
-
-        if (!defined('ProductType::TYPE_GIFTCARD')) {
-            return false;
-        }
-
-        foreach ($items as $item) {
-            $productType = $item->getProductType()
-                ?? $this->productRepository->getById($item->getProductId())->getTypeId();
-
-            $giftCardType = ProductType::TYPE_GIFTCARD;
-            if (strpos($item->getName(), $itemName) !== false && $productType == $giftCardType) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * @param InvoiceInterface|CreditmemoInterface $entity
-     * @return bool
-     */
-    private function isGiftCardApplied($entity)
-    {
-        return $entity->getGiftCardsAmount() + $entity->getCustomerBalanceAmount() > 0.00;
-    }
-
-    /**
      * @param \Magento\Sales\Model\EntityInterface $entity Order|Invoice|Creditmemo
      * @param string $postfix
      * @return string
@@ -395,6 +334,15 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $postfix = $postfix ? "_{$postfix}" : '';
 
         return $entity->getEntityType() . '_' . $entity->getIncrementId() . $postfix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCallbackUrl()
+    {
+        return $this->kkmHelper->getConfig('atol/callback_url')
+            ?? $this->urlHelper->getUrl('kkm/frontend/callback', ['_secure' => true]);
     }
 
     /**
@@ -428,6 +376,86 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $order->addStatusHistoryComment($comment);
         $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
         $order->save();
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @param callable $callback
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @throws CreateDocumentFailedException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return ResponseInterface
+     */
+    private function sendRequest($request, $callback, $entity = null)
+    {
+        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
+
+        //Register sending Attempt
+        $attempt = $this->attemptHelper->registerAttempt(
+            $request,
+            $entity->getIncrementId(),
+            $entity->getOrderId()
+        );
+
+        try {
+            //Make Request to Vendor's API
+            $response = $this->apiClient->{$callback}($request);
+
+            //Save transaction data
+            $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
+            $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
+
+            //Mark attempt as Sent
+            $this->attemptHelper->finishAttempt($attempt);
+        } catch (\Exception $e) {
+            //Mark attempt as Error
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        }
+
+        //Check response. Here attempt is successfully done.
+        $this->validateResponse($response);
+
+        return $response;
+    }
+
+    /**
+     * Check does the item works as gift card. For Magento Commerce only
+     * @param CreditmemoInterface|InvoiceInterface $salesEntity
+     * @param string $itemName
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return bool
+     */
+    private function isGiftCard($salesEntity, $itemName)
+    {
+        $items = $salesEntity->getAllVisibleItems() ?? $salesEntity->getAllItems();
+
+        if (!defined('ProductType::TYPE_GIFTCARD')) {
+            return false;
+        }
+
+        foreach ($items as $item) {
+            $productType = $item->getProductType()
+                ?? $this->productRepository->getById($item->getProductId())->getTypeId();
+
+            $giftCardType = ProductType::TYPE_GIFTCARD;
+            if (strpos($item->getName(), $itemName) !== false && $productType == $giftCardType) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    private function isGiftCardApplied($entity)
+    {
+        return $entity->getGiftCardsAmount() + $entity->getCustomerBalanceAmount() > 0.00;
     }
 
     /**

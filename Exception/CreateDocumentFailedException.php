@@ -16,6 +16,7 @@ class CreateDocumentFailedException extends \Exception
      * @var array
      */
     private $debugData = [];
+
     /**
      * @var ResponseInterface
      */
@@ -30,12 +31,12 @@ class CreateDocumentFailedException extends \Exception
     public function __construct($message, ResponseInterface $response = null, $debugData = [])
     {
         $this->debugData = $debugData;
-        $this->response  = $response;
+        $this->response = $response;
         parent::__construct($message, 0, null);
     }
 
     /**
-     * @return null|ResponseInterface
+     * @return ResponseInterface|null
      */
     public function getResponse()
     {

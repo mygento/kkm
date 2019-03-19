@@ -13,17 +13,19 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 
 class Processor
 {
-    const TOPIC_NAME_SELL   = 'mygento.kkm.message.sell';
+    const TOPIC_NAME_SELL = 'mygento.kkm.message.sell';
     const TOPIC_NAME_REFUND = 'mygento.kkm.message.refund';
 
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $helper;
+
     /**
      * @var \Magento\Framework\MessageQueue\PublisherInterface
      */
@@ -40,8 +42,8 @@ class Processor
         \Mygento\Kkm\Helper\Data $helper,
         \Magento\Framework\MessageQueue\PublisherInterface $publisher
     ) {
-        $this->vendor    = $vendor;
-        $this->helper    = $helper;
+        $this->vendor = $vendor;
+        $this->helper = $helper;
         $this->publisher = $publisher;
     }
 

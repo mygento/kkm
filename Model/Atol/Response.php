@@ -18,14 +18,23 @@ class Response implements ResponseInterface
 
     // phpcs:disable
     private $uuid;
+
     private $error;
+
     private $status;
+
     private $payload;
+
     private $timestamp;
+
     private $groupCode;
+
     private $daemonCode;
+
     private $deviceCode;
+
     private $callbackUrl;
+
     // phpcs:enable
 
     /**
@@ -43,7 +52,7 @@ class Response implements ResponseInterface
         $json = json_decode($jsonRaw);
         if (!$json) {
             throw new \Exception(
-                __('Response from Atol is not valid. Response: %1', (string)$jsonRaw)
+                __('Response from Atol is not valid. Response: %1', (string) $jsonRaw)
             );
         }
         // phpcs:disable
@@ -61,9 +70,17 @@ class Response implements ResponseInterface
 
         if (!$this->uuid) {
             throw new \Exception(
-                __('Receipt is not registered. Response: %1', (string)$jsonRaw)
+                __('Receipt is not registered. Response: %1', (string) $jsonRaw)
             );
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function __toString()
+    {
+        return $this->getJsonResponse();
     }
 
     /**
@@ -75,7 +92,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return null|object
+     * @return object|null
      */
     public function getError()
     {
@@ -114,7 +131,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorId()
     {
@@ -122,7 +139,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorText()
     {
@@ -130,7 +147,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorCode()
     {
@@ -138,7 +155,7 @@ class Response implements ResponseInterface
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorType()
     {
@@ -231,13 +248,5 @@ class Response implements ResponseInterface
     public function isWait()
     {
         return $this->getStatus() === self::STATUS_WAIT;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function __toString()
-    {
-        return $this->getJsonResponse();
     }
 }

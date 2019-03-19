@@ -20,6 +20,7 @@ class Clear extends \Magento\Backend\App\Action
      * @var \Magento\Framework\App\Filesystem\DirectoryList
      */
     private $directoryList;
+
     /**
      * @var \Magento\Framework\Filesystem\Io\File
      */
@@ -37,7 +38,7 @@ class Clear extends \Magento\Backend\App\Action
         \Magento\Framework\Filesystem\Io\File $ioFile
     ) {
         $this->directoryList = $directoryList;
-        $this->ioFile        = $ioFile;
+        $this->ioFile = $ioFile;
 
         parent::__construct($context);
     }

@@ -10,7 +10,7 @@ namespace Mygento\Kkm\Api\Data;
 
 interface RequestInterface
 {
-    const SELL_OPERATION_TYPE   = 1;
+    const SELL_OPERATION_TYPE = 1;
     const REFUND_OPERATION_TYPE = 2;
 
     /**
@@ -20,7 +20,7 @@ interface RequestInterface
 
     /**
      * @param string $sno
-     * @return RequestInterface
+     * @return $this
      */
     public function setSno(string $sno): self;
 
@@ -31,7 +31,7 @@ interface RequestInterface
 
     /**
      * @param string $email
-     * @return RequestInterface
+     * @return $this
      */
     public function setEmail(string $email): self;
 
@@ -42,7 +42,7 @@ interface RequestInterface
 
     /**
      * @param string $phone
-     * @return RequestInterface
+     * @return $this
      */
     public function setPhone(string $phone): self;
 
@@ -53,7 +53,7 @@ interface RequestInterface
 
     /**
      * @param ItemInterface[] $items
-     * @return RequestInterface
+     * @return $this
      */
     public function setItems(array $items): self;
 
@@ -64,7 +64,7 @@ interface RequestInterface
 
     /**
      * @param \Mygento\Kkm\Api\Data\PaymentInterface[] $payments
-     * @return RequestInterface
+     * @return $this
      */
     public function setPayments(array $payments): self;
 
@@ -81,7 +81,7 @@ interface RequestInterface
 
     /**
      * @param string $externalId
-     * @return RequestInterface
+     * @return $this
      */
     public function setExternalId($externalId): self;
 
@@ -92,7 +92,7 @@ interface RequestInterface
 
     /**
      * @param string $inn
-     * @return RequestInterface
+     * @return $this
      */
     public function setInn($inn): self;
 
@@ -103,7 +103,7 @@ interface RequestInterface
 
     /**
      * @param string $paymentAddress
-     * @return RequestInterface
+     * @return $this
      */
     public function setPaymentAddress($paymentAddress): self;
 
@@ -114,7 +114,7 @@ interface RequestInterface
 
     /**
      * @param string $callbackUrl
-     * @return RequestInterface
+     * @return $this
      */
     public function setCallbackUrl($callbackUrl): self;
 
@@ -125,13 +125,13 @@ interface RequestInterface
 
     /**
      * @param string $companyEmail
-     * @return RequestInterface
+     * @return $this
      */
     public function setCompanyEmail($companyEmail): self;
 
     /**
      * @param ItemInterface $item
-     * @return RequestInterface
+     * @return $this
      */
     public function addItem(ItemInterface $item): self;
 
@@ -152,26 +152,26 @@ interface RequestInterface
      */
     public function getTimestamp();
 
-    /** Aux methods to use this entity in Magento Queue Framework (MQF)   **/
+    /** Aux methods to use this entity in Magento Queue Framework (MQF)   */
 
     /**
      * Method only for inner using in Magento Queue Framework
      * @param float $total
-     * @return RequestInterface
+     * @return $this
      */
     public function setTotal(float $total): self;
 
     /**
      * Method only for inner using in Magento Queue Framework
      * @param string $timestamp
-     * @return RequestInterface
+     * @return $this
      */
     public function setTimestamp(string $timestamp): self;
 
     /**
      * Specify the operation type (sell|refund)
      * @param int $type
-     * @return RequestInterface
+     * @return $this
      */
     public function setOperationType(int $type): self;
 
@@ -183,8 +183,8 @@ interface RequestInterface
 
     /**
      * Set id of basic entity (Invoice|Creditmemo|Order)
-     * @param string|int $id
-     * @return RequestInterface
+     * @param int|string $id
+     * @return $this
      */
     public function setSalesEntityId($id): self;
 
@@ -195,9 +195,8 @@ interface RequestInterface
     public function getSalesEntityId(): int;
 
     /**
-     *
      * @param int $count
-     * @return RequestInterface
+     * @return $this
      */
     public function setRetryCount($count): self;
 

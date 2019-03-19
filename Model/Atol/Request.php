@@ -14,20 +14,34 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 abstract class Request implements \JsonSerializable, RequestInterface
 {
     // phpcs:disable
-    protected $sno            = '';
-    protected $externalId     = '';
-    protected $email          = '';
-    protected $companyEmail   = '';
-    protected $phone          = '';
-    protected $items          = [];
-    protected $payments       = [];
-    protected $total          = 0.0;
-    protected $inn            = '';
+    protected $sno = '';
+
+    protected $externalId = '';
+
+    protected $email = '';
+
+    protected $companyEmail = '';
+
+    protected $phone = '';
+
+    protected $items = [];
+
+    protected $payments = [];
+
+    protected $total = 0.0;
+
+    protected $inn = '';
+
     protected $paymentAddress = '';
-    protected $callbackUrl    = '';
-    protected $operationType  = 0;
-    protected $salesEntityId  = null;
-    protected $retryCount     = null;
+
+    protected $callbackUrl = '';
+
+    protected $operationType = 0;
+
+    protected $salesEntityId = null;
+
+    protected $retryCount = null;
+
     // phpcs:enable
 
     /**
@@ -320,7 +334,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
      */
     public function setSalesEntityId($id): RequestInterface
     {
-        $this->salesEntityId = (int)$id;
+        $this->salesEntityId = (int) $id;
 
         return $this;
     }
