@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/mygento/kkm.svg?branch=master)](https://travis-ci.org/mygento/kkm)
+[![Build Status](https://travis-ci.com/mygento/kkm.svg?branch=v2.3)](https://travis-ci.com/mygento/kkm)
+[![Latest Stable Version](https://poser.pugx.org/mygento/module-kkm/v/stable)](https://packagist.org/packages/mygento/module-kkm)
+[![Total Downloads](https://poser.pugx.org/mygento/module-kkm/downloads)](https://packagist.org/packages/mygento/module-kkm)
 
 # Модуль интеграции фискальных кассовых аппаратов для 54 ФЗ для Magento 1/2
 
