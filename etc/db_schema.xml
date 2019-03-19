@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="mygento_kkm_transaction_attempt" resource="default" engine="innodb" comment="Table for kkm transaction attempts">
+        <column xsi:type="int" name="id" nullable="false" identity="true" unsigned="true" padding="10" comment="Attempt ID"/>
+        <column xsi:type="int" name="order_id" nullable="false" identity="false" unsigned="true" padding="10" comment="Order id"/>
+        <column xsi:type="smallint" name="operation" nullable="false" identity="false" unsigned="false" padding="10" comment="Operation type. Sell or Refund."/>
+        <column xsi:type="varchar" name="sales_entity_increment_id" nullable="false" length="50" comment="Invoice or Creditmemo id"/>
+        <column xsi:type="smallint" name="status" nullable="false" identity="false" unsigned="false" padding="10" comment="Status"/>
+        <column xsi:type="varchar" name="message" nullable="true" length="255" comment="Message"/>
+        <column xsi:type="smallint" name="number_of_trials" nullable="true" identity="false" unsigned="false" padding="10" comment="Count of attempts to make KKM transaction"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Create time"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Modify time"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="id"/>
+        </constraint>
+        <index referenceId="IX_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+        <index referenceId="IX_ORDER_ID" indexType="btree">
+            <column name="order_id"/>
+        </index>
+        <constraint xsi:type="unique" referenceId="IX_SALES_ENTITY_U">
+            <column name="operation"/>
+            <column name="sales_entity_increment_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="FK_ATTMPT_ORDER_ID_SAL_ORDER_ENT_ID" table="mygento_kkm_transaction_attempt" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
+    </table>
+
+    <!--Add column to Payment Transaction table-->
+    <table name="sales_payment_transaction">
+        <column xsi:type="varchar" length="16" name="kkm_status" comment="Kkm status"/>
+    </table>
+</schema>

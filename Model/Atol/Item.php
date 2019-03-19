@@ -8,25 +8,36 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Model\Source\Tax;
 
-class Item implements \JsonSerializable
+class Item implements \JsonSerializable, ItemInterface
 {
     const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
-    const PAYMENT_METHOD_ADVANCE      = 'advance';
+    const PAYMENT_METHOD_ADVANCE = 'advance';
 
-    const PAYMENT_OBJECT_BASIC   = 'commodity';
+    const PAYMENT_OBJECT_BASIC = 'commodity';
     const PAYMENT_OBJECT_PAYMENT = 'payment'; //Аванс, Бонус, Подарочная карта
     const PAYMENT_OBJECT_ANOTHER = 'another';
 
-    private $name          = '';
-    private $price         = 1.0;
-    private $quantity      = 1;
-    private $sum           = 0.0;
-    private $tax           = '';
-    private $taxSum        = 0.0;
+    // phpcs:disable
+    private $name = '';
+
+    private $price = 1.0;
+
+    private $quantity = 1;
+
+    private $sum = 0.0;
+
+    private $tax = '';
+
+    private $taxSum = 0.0;
+
     private $paymentMethod = '';
+
     private $paymentObject = '';
+
+    // phpcs:enable
 
     /**
      * @return array
@@ -34,14 +45,14 @@ class Item implements \JsonSerializable
     public function jsonSerialize(): array
     {
         $item = [
-            'name'           => $this->getName(),
-            'price'          => $this->getPrice(),
-            'quantity'       => $this->getQuantity(),
-            'sum'            => $this->getSum(),
+            'name' => $this->getName(),
+            'price' => $this->getPrice(),
+            'quantity' => $this->getQuantity(),
+            'sum' => $this->getSum(),
             'payment_method' => $this->getPaymentMethod(),
             'payment_object' => $this->getPaymentObject(),
-            'vat'            => [
-                'type' => $this->getTax(),//for API v4
+            'vat' => [
+                'type' => $this->getTax(), //for API v4
             ],
         ];
 
@@ -53,7 +64,7 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getName(): string
     {
@@ -61,10 +72,9 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param string $name
-     * @return Item
+     * @inheritdoc
      */
-    public function setName(string $name): self
+    public function setName(string $name)
     {
         $this->name = $name;
 
@@ -72,7 +82,7 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @return float
+     * @inheritdoc
      */
     public function getPrice(): float
     {
@@ -80,18 +90,17 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float|string $price
-     * @return Item
+     * @inheritdoc
      */
-    public function setPrice($price): self
+    public function setPrice($price)
     {
-        $this->price = (float)$price;
+        $this->price = (float) $price;
 
         return $this;
     }
 
     /**
-     * @return float
+     * @inheritdoc
      */
     public function getQuantity(): float
     {
@@ -99,18 +108,17 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float|string $quantity
-     * @return Item
+     * @inheritdoc
      */
-    public function setQuantity($quantity): self
+    public function setQuantity($quantity)
     {
-        $this->quantity = (float)$quantity;
+        $this->quantity = (float) $quantity;
 
         return $this;
     }
 
     /**
-     * @return float
+     * @inheritdoc
      */
     public function getSum(): float
     {
@@ -118,18 +126,17 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float|string $sum
-     * @return Item
+     * @inheritdoc
      */
-    public function setSum($sum): self
+    public function setSum($sum)
     {
-        $this->sum = (float)$sum;
+        $this->sum = (float) $sum;
 
         return $this;
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTax(): string
     {
@@ -137,11 +144,10 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param string $tax
+     * @inheritdoc
      * @throws \Exception
-     * @return Item
      */
-    public function setTax(string $tax): self
+    public function setTax(string $tax)
     {
         if (!in_array($tax, Tax::getAllTaxes(), true)) {
             throw new \Exception("Incorrect tax {$tax} for Item {$this->getName()}");
@@ -153,7 +159,7 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @return float
+     * @inheritdoc
      */
     public function getTaxSum(): float
     {
@@ -161,10 +167,9 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param float|string $taxSum
-     * @return Item
+     * @inheritdoc
      */
-    public function setTaxSum($taxSum): self
+    public function setTaxSum($taxSum)
     {
         $this->taxSum = round($taxSum, 2);
 
@@ -172,7 +177,7 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getPaymentMethod()
     {
@@ -180,10 +185,9 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param string $paymentMethod
-     * @return Item
+     * @inheritdoc
      */
-    public function setPaymentMethod($paymentMethod): self
+    public function setPaymentMethod($paymentMethod)
     {
         $this->paymentMethod = $paymentMethod;
 
@@ -191,7 +195,7 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getPaymentObject()
     {
@@ -199,10 +203,9 @@ class Item implements \JsonSerializable
     }
 
     /**
-     * @param string $paymentObject
-     * @return Item
+     * @inheritdoc
      */
-    public function setPaymentObject($paymentObject): self
+    public function setPaymentObject($paymentObject)
     {
         $this->paymentObject = $paymentObject;
 

@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Helper\Transaction;
 use Mygento\Kkm\Model\Atol\Response;
 
@@ -18,21 +19,38 @@ class Report
      * @var \Magento\Sales\Api\TransactionRepositoryInterface
      */
     private $transactionRepo;
+
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
      */
     private $searchCriteriaBuilder;
+
     /**
      * @var \Magento\Framework\Stdlib\DateTime\Timezone
      */
     private $timezone;
+
     /**
      * @var \Mygento\Kkm\Model\StatisticsFactory
      */
     private $statisticsFactory;
 
+    /**
+     * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
+     */
+    private $attemptRepository;
+
+    /**
+     * Report constructor.
+     * @param StatisticsFactory $statisticsFactory
+     * @param TransactionAttemptRepositoryInterface $attemptRepository
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Framework\Stdlib\DateTime\Timezone $timezone
+     */
     public function __construct(
         StatisticsFactory $statisticsFactory,
+        TransactionAttemptRepositoryInterface $attemptRepository,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Stdlib\DateTime\Timezone $timezone
@@ -41,6 +59,7 @@ class Report
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->timezone = $timezone;
         $this->statisticsFactory = $statisticsFactory;
+        $this->attemptRepository = $attemptRepository;
     }
 
     /**
@@ -80,8 +99,8 @@ class Report
     }
 
     /**
-     * @param $from
-     * @param null $to
+     * @param string $from
+     * @param string|null $to
      * @return \Mygento\Kkm\Model\Statistics
      */
     public function getStatisticsByPeriod($from, $to = null)
@@ -100,16 +119,21 @@ class Report
     }
 
     /**
-     * @param $searchCriteria
+     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Mygento\Kkm\Model\Statistics
      */
     private function collectStatistics($searchCriteria)
     {
         $transactions = $this->transactionRepo->getList($searchCriteria);
+        $transactionAttempts = $this->attemptRepository->getList($searchCriteria);
+
+        /** @var $statistics \Mygento\Kkm\Model\Statistics */
         $statistics = $this->statisticsFactory->create();
 
-        foreach ($transactions->getItems() as $item) {
-            $info   = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+        $items = array_merge($transactions->getItems(), $transactionAttempts->getItems());
+        foreach ($items as $item) {
+            $info = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $status = $item->getKkmStatus()
                 ?? ($info[Transaction::STATUS_KEY] ?? 'unknown');
 

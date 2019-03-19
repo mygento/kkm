@@ -11,4 +11,5 @@
     <type name="Magento\Backend\Block\Widget\Button\Toolbar">
         <plugin name="Mygento_Kkm::ExtraSalesViewToolbarButtons" type="Mygento\Kkm\Plugin\ExtraSalesViewToolbarButtons" />
     </type>
+
 </config>

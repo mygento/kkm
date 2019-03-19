@@ -12,19 +12,27 @@ class Update
 {
     /** @var \Mygento\Kkm\Helper\Data */
     private $kkmHelper;
+
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
+
     /**
      * @var \Mygento\Kkm\Helper\Transaction\Proxy
      */
     private $transactionHelper;
 
+    /**
+     * Update constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor
+        \Mygento\Kkm\Model\VendorInterface $vendor
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->vendor = $vendor;
@@ -46,7 +54,7 @@ class Update
         $uuids = $this->transactionHelper->getAllWaitUuids();
 
         $result = [];
-        $i      = 0;
+        $i = 0;
         foreach ($uuids as $uuid) {
             $response = $this->vendor->updateStatus($uuid);
 
@@ -54,7 +62,7 @@ class Update
             $i++;
         }
 
-        $this->kkmHelper->debug($result);
+        $this->kkmHelper->debug('Update result: ', $result);
         $this->kkmHelper->info("{$i} transactions updated");
         $this->kkmHelper->info('KKM Update statuses Cron END');
     }

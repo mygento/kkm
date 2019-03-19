@@ -21,9 +21,8 @@
             </report>
             <general>
                 <enabled>0</enabled>
-                <debug>1</debug>
-                <debug_level>2</debug_level>
                 <tax_all>1</tax_all>
+                <async_enabled>1</async_enabled>
                 <tax_options>vat0</tax_options>
                 <shipping_tax>vat0</shipping_tax>
                 <default_shipping_name>1</default_shipping_name>

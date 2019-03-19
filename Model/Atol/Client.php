@@ -8,7 +8,10 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
+use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Model\Source\ApiVersion;
 
 class Client
@@ -16,11 +19,17 @@ class Client
     const REQUEST_URL = 'https://online.atol.ru/possystem/v%u/';
     const REQUEST_TEST_URL = 'https://testonline.atol.ru/possystem/v%u/';
 
-    const GET_TOKEN_URL_APPNX   = 'getToken';
-    const SELL_URL_APPNX        = 'sell';
-    const SELL_REFUND_URL_APPNX = 'sell_refund';
-    const REPORT_URL_APPNX      = 'report';
+    //see Atol Documentation
+    const ALLOWED_HTTP_STATUSES = [200, 400, 401];
 
+    const GET_TOKEN_URL_APPNX = 'getToken';
+    const SELL_URL_APPNX = 'sell';
+    const SELL_REFUND_URL_APPNX = 'sell_refund';
+    const REPORT_URL_APPNX = 'report';
+
+    /**
+     * @var int
+     */
     protected $apiVersion = ApiVersion::API_VERSION_4;
 
     /**
@@ -37,18 +46,25 @@ class Client
      * @var string
      */
     private $token;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\ResponseFactory
      */
     private $responseFactory;
 
+    /**
+     * Client constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param ResponseFactory $responseFactory
+     * @param \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
     ) {
-        $this->kkmHelper         = $kkmHelper;
-        $this->responseFactory   = $responseFactory;
+        $this->kkmHelper = $kkmHelper;
+        $this->responseFactory = $responseFactory;
         $this->curlClientFactory = $curlFactory;
     }
 
@@ -61,14 +77,14 @@ class Client
         if ($this->token) {
             return $this->token;
         }
-        $helper   = $this->kkmHelper;
-        $login    = $helper->getConfig('atol/login');
+        $helper = $this->kkmHelper;
+        $login = $helper->getConfig('atol/login');
         $password = $helper->decrypt($helper->getConfig('atol/password'));
 
         $dataBody = json_encode(
             [
                 'login' => $login,
-                'pass'  => $password,
+                'pass' => $password,
             ]
         );
 
@@ -97,19 +113,20 @@ class Client
 
     /**
      * @param string $uuid
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Exception
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @return ResponseInterface
      */
-    public function receiveStatus(string $uuid): Response
+    public function receiveStatus(string $uuid): ResponseInterface
     {
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
-        $groupCode = $this->kkmHelper->getConfig('atol/group_code');
-        $url       = $this->getBaseUrl() . $groupCode . '/' . self::REPORT_URL_APPNX . '/' . $uuid;
+        $groupCode = $this->getGroupCode();
+        $url = $this->getBaseUrl() . $groupCode . '/' . self::REPORT_URL_APPNX . '/' . $uuid;
         $this->kkmHelper->debug('URL: ' . $url);
 
         $responseRaw = $this->sendGetRequest($url);
-        $response    = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
+        $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
         $this->kkmHelper->info('New status: ' . $response->getStatus());
         $this->kkmHelper->debug('Response: ' . $response);
@@ -118,22 +135,22 @@ class Client
     }
 
     /**
-     * @param \JsonSerializable|array $request
+     * @param RequestInterface $request
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return ResponseInterface
      */
-    public function sendRefund($request): Response
+    public function sendRefund($request): ResponseInterface
     {
         $debugData = [];
         $this->kkmHelper->info('START Sending creditmemo');
+        $this->kkmHelper->debug('Request', $request->jsonSerialize());
 
-        $groupCode = $this->kkmHelper->getConfig('atol/group_code');
         $request = $debugData['request'] = json_encode($request);
 
-        $this->kkmHelper->debug('Request : ' . $request);
-
         try {
-            $url  = $this->getBaseUrl() . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
+            $groupCode = $this->getGroupCode();
+            $url = $this->getBaseUrl() . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
             $debugData['url'] = $url;
             $this->kkmHelper->debug('URL: ' . $url);
 
@@ -141,7 +158,9 @@ class Client
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
             $this->kkmHelper->info(__('Creditmemo is sent. Uuid: %1', $response->getUuid()));
-            $this->kkmHelper->debug('Response: ' . $response);
+            $this->kkmHelper->debug('Response:', [$response]);
+        } catch (VendorBadServerAnswerException $exc) {
+            throw $exc;
         } catch (\Exception $exc) {
             throw new CreateDocumentFailedException(
                 $exc->getMessage(),
@@ -154,21 +173,21 @@ class Client
     }
 
     /**
-     * @param \JsonSerializable|array $request
+     * @param RequestInterface $request
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return ResponseInterface
      */
-    public function sendSell($request): Response
+    public function sendSell($request): ResponseInterface
     {
         $debugData = [];
         $this->kkmHelper->info('START Sending invoice');
+        $this->kkmHelper->debug('Request:', $request->jsonSerialize());
 
-        $groupCode = $this->kkmHelper->getConfig('atol/group_code');
         $request = $debugData['request'] = json_encode($request);
 
-        $this->kkmHelper->debug('Request : ' . $request);
-
         try {
+            $groupCode = $this->getGroupCode();
             $url = $this->getBaseUrl() . $groupCode . '/' . self::SELL_URL_APPNX;
             $debugData['url'] = $url;
             $this->kkmHelper->debug('URL: ' . $url);
@@ -177,9 +196,10 @@ class Client
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
             $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getUuid()));
-            $this->kkmHelper->debug('Response: ' . $response);
+            $this->kkmHelper->debug('Response:', [$response]);
+        } catch (VendorBadServerAnswerException $exc) {
+            throw $exc;
         } catch (\Exception $exc) {
-            $this->kkmHelper->error($exc->getMessage());
             throw new CreateDocumentFailedException(
                 $exc->getMessage(),
                 $response ?? null,
@@ -188,15 +208,6 @@ class Client
         }
 
         return $response;
-    }
-
-    protected function getBaseUrl()
-    {
-        $url = $this->kkmHelper->isTestMode()
-            ? self::REQUEST_TEST_URL
-            : self::REQUEST_URL;
-
-        return sprintf($url, $this->getApiVersion());
     }
 
     /**
@@ -213,34 +224,93 @@ class Client
     }
 
     /**
-     * @param $url
+     * Returns Atol Url depends on is test mode on/off
+     * @return string
+     */
+    protected function getBaseUrl()
+    {
+        $url = $this->kkmHelper->isTestMode()
+            ? self::REQUEST_TEST_URL
+            : self::REQUEST_URL;
+
+        return sprintf($url, $this->getApiVersion());
+    }
+
+    /**
+     * @param string $url
      * @param array|string $params - use $params as a string in case of JSON POST request.
-     * @throws \Exception
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
     protected function sendPostRequest($url, $params = []): string
     {
-        $curl = $this->curlClientFactory->create();
-        $curl->addHeader('Content-Type', 'application/json; charset=utf-8');
-        $curl->addHeader('Token', $this->getToken());
-        $curl->post($url, $params);
-        $response = $curl->getBody();
+        try {
+            $curl = $this->curlClientFactory->create();
+            $curl->addHeader('Content-Type', 'application/json; charset=utf-8');
+            $curl->addHeader('Token', $this->getToken());
+            $curl->post($url, $params);
+            $response = $curl->getBody();
+        } catch (\Exception $e) {
+            throw new VendorBadServerAnswerException('No response from Atol. ' . $url);
+        }
+
+        if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
+            throw new VendorBadServerAnswerException(
+                'Bad response from Atol. Status: ' . $curl->getStatus()
+                . ($response ? '. Response: ' . (string) $response : '')
+            );
+        }
+
+        if (!$curl->getBody()) {
+            throw new VendorBadServerAnswerException('Empty response from Atol.');
+        }
 
         return $response;
     }
 
     /**
-     * @param $url
-     * @throws \Exception
+     * @param string $url
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
     protected function sendGetRequest($url): string
     {
-        $curl = $this->curlClientFactory->create();
-        $curl->addHeader('Token', $this->getToken());
-        $curl->get($url);
-        $response = $curl->getBody();
+        try {
+            $curl = $this->curlClientFactory->create();
+            $curl->addHeader('Token', $this->getToken());
+            $curl->get($url);
+            $response = $curl->getBody();
+        } catch (\Exception $e) {
+            throw new VendorBadServerAnswerException('No response from Atol.');
+        }
+
+        if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
+            throw new VendorBadServerAnswerException(
+                'Bad response from Atol. Status: ' . $curl->getStatus()
+                . ($response ? '. Response: ' . (string) $response : '')
+            );
+        }
+
+        if (!$curl->getBody()) {
+            throw new VendorBadServerAnswerException('Empty response from Atol.');
+        }
 
         return $response;
+    }
+
+    /**
+     * @throws \Exception
+     * @return string
+     */
+    private function getGroupCode()
+    {
+        $groupCode = $this->kkmHelper->getConfig('atol/group_code');
+        if (!$groupCode) {
+            throw new \Exception(
+                'No groupCode. Please set up the module properly.'
+            );
+        }
+
+        return $groupCode;
     }
 }

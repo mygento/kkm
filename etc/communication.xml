@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Mygento Team
+ * @copyright See COPYING.txt for license details.
+ * @package Mygento_Kkm
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Communication/etc/communication.xsd">
+    <topic name="mygento.kkm.message.sell" request="Mygento\Kkm\Api\Data\RequestInterface"/>
+    <topic name="mygento.kkm.message.refund" request="Mygento\Kkm\Api\Data\RequestInterface"/>
+</config>

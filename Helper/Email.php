@@ -14,36 +14,55 @@ namespace Mygento\Kkm\Helper;
  */
 class Email
 {
+    // phpcs:disable
     private $template;
+
     private $area;
 
     private $fields;
-    private $sender    = [];
+
+    private $sender = [];
+
     private $recipient = [];
+
+    // phpcs:enable
 
     /**
      * @var \Magento\Framework\Translate\Inline\StateInterface
      */
     private $inlineTranslation;
+
     /**
      * @var \Magento\Framework\Mail\Template\TransportBuilder
      */
     private $transportBuilder;
+
     /**
      * @var \Magento\Store\Model\StoreManagerInterface
      */
     private $storeManager;
 
+    /**
+     * Email constructor.
+     * @param \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation
+     * @param \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     */
     public function __construct(
         \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
         \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
         \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->inlineTranslation = $inlineTranslation;
-        $this->transportBuilder  = $transportBuilder;
-        $this->storeManager      = $storeManager;
+        $this->transportBuilder = $transportBuilder;
+        $this->storeManager = $storeManager;
     }
 
+    /**
+     * @param string $email
+     * @param string $name
+     * @return $this
+     */
     public function setSender($email, $name)
     {
         $this->sender['email'] = $email;
@@ -52,6 +71,10 @@ class Email
         return $this;
     }
 
+    /**
+     * @param string $email
+     * @return $this
+     */
     public function setRecipient($email)
     {
         $this->recipient['email'] = $email;
@@ -59,6 +82,10 @@ class Email
         return $this;
     }
 
+    /**
+     * @param array $fields
+     * @return $this
+     */
     public function setFields($fields)
     {
         $this->fields = $fields;
@@ -66,6 +93,10 @@ class Email
         return $this;
     }
 
+    /**
+     * @param string $template
+     * @return $this
+     */
     public function setTemplate($template)
     {
         $this->template = $template;
@@ -73,6 +104,11 @@ class Email
         return $this;
     }
 
+    /**
+     * Set area (email template belongs to) see constants in \Magento\Framework\App\Area
+     * @param string $area
+     * @return $this
+     */
     public function setArea($area)
     {
         $this->area = $area;
@@ -96,7 +132,7 @@ class Email
             ->setTemplateIdentifier($this->template)
             ->setTemplateOptions(
                 [
-                    'area'  => $this->area,
+                    'area' => $this->area,
                     'store' => $this->storeManager->getStore()->getId(),
                 ]
             )

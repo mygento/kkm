@@ -44,7 +44,7 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
 
         $options[] = [
             'label' => __('No usage'),
-            'value' => 0
+            'value' => 0,
         ];
 
         // Loop over all attributes
@@ -54,6 +54,7 @@ class Attributes implements \Magento\Framework\Option\ArrayInterface
                 $options[] = ['label' => $label, 'value' => $attr->getAttributeCode()];
             }
         }
+
         return $options;
     }
 

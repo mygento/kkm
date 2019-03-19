@@ -8,42 +8,35 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-class Response
+use Mygento\Kkm\Api\Data\ResponseInterface;
+
+class Response implements ResponseInterface
 {
     const STATUS_DONE = 'done';
     const STATUS_FAIL = 'fail';
     const STATUS_WAIT = 'wait';
 
-    /**
-     * @var string
-     */
+    // phpcs:disable
     private $uuid;
+
     private $error;
-    /**
-     * @var string
-     */
+
     private $status;
+
     private $payload;
-    /**
-     * @var string
-     */
+
     private $timestamp;
-    /**
-     * @var string
-     */
+
     private $groupCode;
-    /**
-     * @var string
-     */
+
     private $daemonCode;
-    /**
-     * @var string
-     */
+
     private $deviceCode;
-    /**
-     * @var string
-     */
+
     private $callbackUrl;
+
+    // phpcs:enable
+
     /**
      * @var string json with raw ATOL response
      */
@@ -59,7 +52,7 @@ class Response
         $json = json_decode($jsonRaw);
         if (!$json) {
             throw new \Exception(
-                __('Response from Atol is not valid. Response: %1', (string)$jsonRaw)
+                __('Response from Atol is not valid. Response: %1', (string) $jsonRaw)
             );
         }
         // phpcs:disable
@@ -77,13 +70,21 @@ class Response
 
         if (!$this->uuid) {
             throw new \Exception(
-                __('Receipt is not registered. Response: %1', (string)$jsonRaw)
+                __('Receipt is not registered. Response: %1', (string) $jsonRaw)
             );
         }
     }
 
     /**
-     * @return string
+     * @inheritdoc
+     */
+    public function __toString()
+    {
+        return $this->getJsonResponse();
+    }
+
+    /**
+     * @inheritdoc
      */
     public function getUuid()
     {
@@ -91,7 +92,7 @@ class Response
     }
 
     /**
-     * @return null|object
+     * @return object|null
      */
     public function getError()
     {
@@ -99,7 +100,7 @@ class Response
     }
 
     /**
-     * @return null|string
+     * @inheritdoc
      */
     public function getErrorMessage()
     {
@@ -115,6 +116,9 @@ class Response
         return $message;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getMessage()
     {
         $message = 'Status: ';
@@ -127,7 +131,7 @@ class Response
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorId()
     {
@@ -135,7 +139,7 @@ class Response
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorText()
     {
@@ -143,7 +147,7 @@ class Response
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorCode()
     {
@@ -151,7 +155,7 @@ class Response
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getErrorType()
     {
@@ -159,7 +163,7 @@ class Response
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getStatus()
     {
@@ -175,7 +179,7 @@ class Response
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getTimestamp()
     {
@@ -223,25 +227,26 @@ class Response
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function isDone()
     {
         return $this->getStatus() === self::STATUS_DONE;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isFailed()
     {
         return $this->getStatus() === self::STATUS_FAIL;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isWait()
     {
         return $this->getStatus() === self::STATUS_WAIT;
-    }
-
-    public function __toString()
-    {
-        return $this->getJsonResponse();
     }
 }

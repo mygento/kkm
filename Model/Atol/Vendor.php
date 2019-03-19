@@ -8,11 +8,13 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\EntityInterface;
+use Mygento\Kkm\Api\Data\PaymentInterface;
+use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
 /**
@@ -21,133 +23,136 @@ use Mygento\Kkm\Exception\CreateDocumentFailedException;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Vendor
+class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
-    const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
-    const ALREADY_SENT_FLAG           = 'kkm_already_sent_to_atol';
-
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
+
     /**
      * @var \Mygento\Base\Helper\Discount
      */
     private $kkmDiscount;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\RequestFactory
      */
     private $requestFactory;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\ItemFactory
      */
     private $itemFactory;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\Client
      */
     private $apiClient;
+
     /**
      * @var \Mygento\Kkm\Helper\Transaction
      */
     private $transactionHelper;
+
     /**
      * @var \Magento\Backend\Model\UrlInterface
      */
     private $urlBuilder;
 
+    /**
+     * @var \Mygento\Kkm\Helper\Request
+     */
+    private $requestHelper;
+
+    /**
+     * @var \Mygento\Kkm\Helper\TransactionAttempt
+     */
+    private $attemptHelper;
+
+    /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     */
+    private $productRepository;
+
+    /**
+     * @var PaymentFactory
+     */
+    private $paymentFactory;
+
+    /**
+     * To get Frontend URL in backend scope
+     * @var \Magento\Framework\Url
+     */
+    private $urlHelper;
+
+    /**
+     * Vendor constructor.
+     * @param \Mygento\Base\Helper\Discount $kkmDiscount
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
+     * @param \Mygento\Kkm\Helper\Request $requestHelper
+     * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
+     * @param \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory
+     * @param \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory
+     * @param \Mygento\Kkm\Model\Atol\PaymentFactory $paymentFactory
+     * @param \Mygento\Kkm\Model\Atol\Client $apiClient
+     * @param \Magento\Framework\Url $urlHelper
+     * @param \Magento\Backend\Model\UrlInterface $urlBuilder
+     * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
+     */
     public function __construct(
-        \Magento\Backend\Model\UrlInterface $urlBuilder,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Base\Helper\Discount $kkmDiscount,
+        \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Mygento\Kkm\Helper\Transaction $transactionHelper,
+        \Mygento\Kkm\Helper\Request $requestHelper,
+        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory,
         \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory,
+        \Mygento\Kkm\Model\Atol\PaymentFactory $paymentFactory,
         \Mygento\Kkm\Model\Atol\Client $apiClient,
-        \Mygento\Kkm\Helper\Transaction $transactionHelper
+        \Magento\Framework\Url $urlHelper,
+        \Magento\Backend\Model\UrlInterface $urlBuilder,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
     ) {
-        $this->kkmHelper         = $kkmHelper;
-        $this->kkmDiscount       = $kkmDiscount;
-        $this->requestFactory    = $requestFactory;
-        $this->itemFactory       = $itemFactory;
-        $this->apiClient         = $apiClient;
+        $this->kkmHelper = $kkmHelper;
+        $this->kkmDiscount = $kkmDiscount;
+        $this->requestFactory = $requestFactory;
+        $this->itemFactory = $itemFactory;
+        $this->apiClient = $apiClient;
         $this->transactionHelper = $transactionHelper;
-        $this->urlBuilder        = $urlBuilder;
+        $this->urlBuilder = $urlBuilder;
+        $this->requestHelper = $requestHelper;
+        $this->attemptHelper = $attemptHelper;
+        $this->productRepository = $productRepository;
+        $this->paymentFactory = $paymentFactory;
+        $this->urlHelper = $urlHelper;
     }
 
     /**
-     * Send invoice to Vendor
-     *
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @inheritdoc
      */
-    public function sendSell($invoice)
+    public function sendSellRequest($request, $invoice = null)
     {
-        $request = $this->buildRequest($invoice);
-
-        $response = $this->apiClient->sendSell($request);
-
-        $txn = $this->transactionHelper->saveSellTransaction($invoice, $response);
-        $this->addCommentToOrder($invoice, $response, $txn->getId() ?? null);
-
-        $this->validateResponse($response);
-
-        return $response;
+        return $this->sendRequest($request, 'sendSell', $invoice);
     }
 
     /**
-     * Send creditmemo to Vendor
-     * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Mygento\Kkm\Model\Atol\Response
+     * @inheritDoc
      */
-    public function sendRefund($creditmemo)
+    public function sendRefundRequest($request, $creditmemo = null)
     {
-        $request = $this->buildRequest($creditmemo);
-
-        $response = $this->apiClient->sendRefund($request);
-
-        $txn = $this->transactionHelper->saveRefundTransaction($creditmemo, $response);
-        $this->addCommentToOrder($creditmemo, $response, $txn->getId());
-
-        $this->validateResponse($response);
-
-        return $response;
+        return $this->sendRequest($request, 'sendRefund', $creditmemo);
     }
 
     /**
-     * Send cheque (sell or refund) to Atol
-     *
-     * @param InvoiceInterface|CreditmemoInterface $entity
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @inheritdoc
+     * @param string $uuid
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @return \Mygento\Kkm\Model\Atol\Response
-     */
-    public function send($entity)
-    {
-        if (!$entity->getId()) {
-            throw new NoSuchEntityException(__('Attempt to send empty entity.'));
-        }
-
-        $type = $entity->getEntityType();
-
-        switch ($type) {
-            case 'invoice':
-                $response = $this->sendSell($entity);
-                break;
-            case 'creditmemo':
-                $response = $this->sendRefund($entity);
-                break;
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param string $uuid It is Transaction Id on Magento side
-     * @throws \Exception
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function updateStatus($uuid)
     {
@@ -158,7 +163,7 @@ class Vendor
 
             throw new \Exception("Transaction not found. Uuid: {$uuid}");
         }
-        $entity   = $this->transactionHelper->getEntityByTransaction($transaction);
+        $entity = $this->transactionHelper->getEntityByTransaction($transaction);
 
         //TODO: Validate response
         $response = $this->apiClient->receiveStatus($uuid);
@@ -167,7 +172,6 @@ class Vendor
             case 'invoice':
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
                 break;
-
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
                 break;
@@ -178,8 +182,9 @@ class Vendor
         return $response;
     }
 
-    /** Save callback from Atol and return related entity (Invoice or Creditmemo)
-     * @param \Mygento\Kkm\Model\Atol\Response $response $response
+    /**
+     * Save callback from Atol and return related entity (Invoice or Creditmemo)
+     * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
      * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
@@ -193,6 +198,7 @@ class Vendor
 
         if (!$transaction->getId()) {
             $this->kkmHelper->error("Transaction not found. Uuid: {$response->getUuid()}");
+
             throw new \Exception("Transaction not found. Uuid: {$response->getUuid()}");
         }
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
@@ -201,7 +207,6 @@ class Vendor
             case 'invoice':
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
                 break;
-
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
                 break;
@@ -213,21 +218,28 @@ class Vendor
     }
 
     /**
-     * @param \Magento\Sales\Model\EntityInterface $salesEntity Order|Invoice|Creditmemo
+     * @inheritdoc
      * @throws \Exception
-     * @return \Mygento\Kkm\Model\Atol\Request
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function buildRequest(EntityInterface $salesEntity): Request
+    public function buildRequest($salesEntity): RequestInterface
     {
         $request = $this->requestFactory->create();
+        switch ($salesEntity->getEntityType()) {
+            case 'invoice':
+                $request->setOperationType(RequestInterface::SELL_OPERATION_TYPE);
+                break;
+            case 'creditmemo':
+                $request->setOperationType(RequestInterface::REFUND_OPERATION_TYPE);
+                break;
+        }
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
 
-        $shippingTax   = $this->kkmHelper->getConfig('general/shipping_tax');
-        $taxValue      = $this->kkmHelper->getConfig('general/tax_options');
+        $shippingTax = $this->kkmHelper->getConfig('general/shipping_tax');
+        $taxValue = $this->kkmHelper->getConfig('general/tax_options');
         $attributeCode = '';
         if (!$this->kkmHelper->getConfig('general/tax_all')) {
             $attributeCode = $this->kkmHelper->getConfig('general/product_tax_attr');
@@ -279,23 +291,23 @@ class Vendor
 
         $request
             ->setExternalId($this->generateExternalId($salesEntity))
+            ->setSalesEntityId($salesEntity->getEntityId())
             ->setEmail($order->getCustomerEmail())
             ->setPhone($telephone)
             ->setCompanyEmail($this->kkmHelper->getStoreEmail())
             ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address'))
             ->setSno($this->kkmHelper->getConfig('atol/sno'))
             ->setInn($this->kkmHelper->getConfig('atol/inn'))
-            ->setCallbackUrl($this->kkmHelper->getCallbackUrl())
+            ->setCallbackUrl($this->getCallbackUrl())
             ->setItems($items);
 
         //Basic payment
         if ($salesEntity->getGrandTotal() > 0.00) {
             $request
                 ->addPayment(
-                    [
-                        'type' => Request::PAYMENT_TYPE_BASIC,
-                        'sum'  => round($salesEntity->getGrandTotal(), 2),
-                    ]
+                    $this->paymentFactory->create()
+                        ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
+                        ->setSum(round($salesEntity->getGrandTotal(), 2))
                 );
         }
 
@@ -303,55 +315,40 @@ class Vendor
         if ($this->isGiftCardApplied($salesEntity)) {
             $request
                 ->addPayment(
-                    [
-                        'type' => Request::PAYMENT_TYPE_AVANS,
-                        'sum'  => round($salesEntity->getGiftCardsAmount(), 2),
-                    ]
+                    $this->paymentFactory->create()
+                        ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
+                        ->setSum(round($salesEntity->getGiftCardsAmount(), 2))
                 );
         }
 
         return $request;
     }
 
-    private function isGiftCard($salesEntity, $itemName)
-    {
-        $items = $salesEntity->getAllVisibleItems() ?? $salesEntity->getAllItems();
-
-        foreach ($items as $item) {
-            $productType = $item->getProductType()
-                ?? $this->kkmHelper->getProduct($item->getProductId())->getTypeId();
-
-            $giftCardType = ProductType::TYPE_GIFTCARD;
-            if (strpos($item->getName(), $itemName) !== false && $productType == $giftCardType) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function isGiftCardApplied($entity)
-    {
-        return $entity->getGiftCardsAmount() + $entity->getCustomerBalanceAmount() > 0.00;
-    }
-
     /**
-     * @param \Magento\Sales\Model\EntityInterface $sellEntity Order|Invoice|Creditmemo
+     * @param \Magento\Sales\Model\EntityInterface $entity Order|Invoice|Creditmemo
      * @param string $postfix
      * @return string
      */
     public function generateExternalId(EntityInterface $entity, $postfix = '')
     {
         $postfix = $postfix ? "_{$postfix}" : '';
+
         return $entity->getEntityType() . '_' . $entity->getIncrementId() . $postfix;
     }
 
     /**
-     * @param InvoiceInterface|CreditmemoInterface $entity
-     * @param \Mygento\Kkm\Model\Atol\Response $response
-     * @param null|mixed $txnId
+     * @return string
      */
-    public function addCommentToOrder($entity, Response $response, $txnId = null)
+    public function getCallbackUrl()
+    {
+        return $this->kkmHelper->getConfig('atol/callback_url')
+            ?? $this->urlHelper->getUrl('kkm/frontend/callback', ['_secure' => true]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null)
     {
         $order = $entity->getOrder();
 
@@ -364,12 +361,12 @@ class Vendor
 
         if ($txnId) {
             $href =
-            $this->urlBuilder->getUrl(
-                'sales/transactions/view',
-                [
-                    'txn_id' => $txnId
-                ]
-            );
+                $this->urlBuilder->getUrl(
+                    'sales/transactions/view',
+                    [
+                        'txn_id' => $txnId,
+                    ]
+                );
 
             $message .= " <a href='{$href}'>Transaction id: {$txnId}</a>";
         }
@@ -382,7 +379,87 @@ class Vendor
     }
 
     /**
-     * @param Response $response
+     * @param RequestInterface $request
+     * @param callable $callback
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @throws CreateDocumentFailedException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return ResponseInterface
+     */
+    private function sendRequest($request, $callback, $entity = null)
+    {
+        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
+
+        //Register sending Attempt
+        $attempt = $this->attemptHelper->registerAttempt(
+            $request,
+            $entity->getIncrementId(),
+            $entity->getOrderId()
+        );
+
+        try {
+            //Make Request to Vendor's API
+            $response = $this->apiClient->{$callback}($request);
+
+            //Save transaction data
+            $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
+            $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
+
+            //Mark attempt as Sent
+            $this->attemptHelper->finishAttempt($attempt);
+        } catch (\Exception $e) {
+            //Mark attempt as Error
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        }
+
+        //Check response. Here attempt is successfully done.
+        $this->validateResponse($response);
+
+        return $response;
+    }
+
+    /**
+     * Check does the item works as gift card. For Magento Commerce only
+     * @param CreditmemoInterface|InvoiceInterface $salesEntity
+     * @param string $itemName
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return bool
+     */
+    private function isGiftCard($salesEntity, $itemName)
+    {
+        $items = $salesEntity->getAllVisibleItems() ?? $salesEntity->getAllItems();
+
+        if (!defined('ProductType::TYPE_GIFTCARD')) {
+            return false;
+        }
+
+        foreach ($items as $item) {
+            $productType = $item->getProductType()
+                ?? $this->productRepository->getById($item->getProductId())->getTypeId();
+
+            $giftCardType = ProductType::TYPE_GIFTCARD;
+            if (strpos($item->getName(), $itemName) !== false && $productType == $giftCardType) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    private function isGiftCardApplied($entity)
+    {
+        return $entity->getGiftCardsAmount() + $entity->getCustomerBalanceAmount() > 0.00;
+    }
+
+    /**
+     * @param ResponseInterface $response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      */
     private function validateResponse($response)

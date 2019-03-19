@@ -23,10 +23,12 @@ class RequestFactory
      * @deprecated
      */
     private $request3Factory;
+
     /**
      * @var \Mygento\Kkm\Model\Atol\RequestForVersion4Factory
      */
     private $request4Factory;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -48,6 +50,11 @@ class RequestFactory
         $this->kkmHelper = $kkmHelper;
     }
 
+    /**
+     * Create class instance
+     *
+     * @return \Mygento\Kkm\Api\Data\RequestInterface
+     */
     public function create()
     {
         $version = $this->kkmHelper->getConfig('atol/api_version');

@@ -138,24 +138,18 @@
                     <!--</comment>-->
                 <!--</field>-->
 
-                <field id="update_cron" translate="label" type="select" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Update by cron</label>
+                <field id="async_enabled" translate="label comment" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Async processing</label>
+                    <comment>Through queue (Magento Queue Framework)</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="debug" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Debug</label>
+                <field id="update_cron" translate="label" type="select" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Update by cron</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
                 <field id="admin_notifications" translate="label" type="select" sortOrder="195" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Show notifications in Dashboard</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
-                <field id="debug_level" translate="label" type="select" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Debug level</label>
-                    <source_model>Mygento\Kkm\Model\Source\Severity</source_model>
-                    <depends>
-                        <field id="*/*/debug">1</field>
-                    </depends>
                 </field>
                 <field id="getlog" translate="label" type="text" sortOrder="210" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Logs</label>

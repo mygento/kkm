@@ -21,13 +21,11 @@ class GetLogs extends \Magento\Config\Block\System\Config\Form\Field
         $urlDownload = $this->_urlBuilder->getUrl('kkm/logs/download');
         $urlClear = $this->_urlBuilder->getUrl('kkm/logs/clear');
 
-        $button = <<<HTML
+        return <<<HTML
             <td class="value">
                 <p><a href="{$urlDownload}">Download link</a></p>
                 <p><a href="{$urlClear}">Clear logs links</a></p>
             </td>
 HTML;
-
-        return $button;
     }
 }

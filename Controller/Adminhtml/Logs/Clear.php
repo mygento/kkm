@@ -20,18 +20,25 @@ class Clear extends \Magento\Backend\App\Action
      * @var \Magento\Framework\App\Filesystem\DirectoryList
      */
     private $directoryList;
+
     /**
      * @var \Magento\Framework\Filesystem\Io\File
      */
     private $ioFile;
 
+    /**
+     * Clear constructor.
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param DirectoryList $directoryList
+     * @param \Magento\Framework\Filesystem\Io\File $ioFile
+     */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
         \Magento\Framework\Filesystem\Io\File $ioFile
     ) {
         $this->directoryList = $directoryList;
-        $this->ioFile        = $ioFile;
+        $this->ioFile = $ioFile;
 
         parent::__construct($context);
     }
@@ -42,7 +49,7 @@ class Clear extends \Magento\Backend\App\Action
      */
     public function execute()
     {
-        $file = 'mygento_kkm.log';
+        $file = \Mygento\Kkm\Helper\Data::CONFIG_CODE . '.log';
 
         $filepath = $this->directoryList->getPath(DirectoryList::VAR_DIR)
             . DIRECTORY_SEPARATOR . DirectoryList::LOG

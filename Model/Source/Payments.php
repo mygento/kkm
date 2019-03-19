@@ -13,7 +13,6 @@ namespace Mygento\Kkm\Model\Source;
  */
 class Payments implements \Magento\Framework\Data\OptionSourceInterface
 {
-
     /** @var array */
     protected $options;
 
@@ -42,6 +41,7 @@ class Payments implements \Magento\Framework\Data\OptionSourceInterface
             //Do not use flag "withGroups" because some methods are absent
             $this->options = $this->paymentHelper->getPaymentMethodList(true, true, false);
         }
+
         return $this->options;
     }
 }

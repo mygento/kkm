@@ -23,19 +23,19 @@ class Severity implements \Magento\Framework\Option\ArrayInterface
         return [
             [
                 'value' => \Monolog\Logger::CRITICAL,
-                'label' => ('CRITICAL')
+                'label' => ('CRITICAL'),
             ],
             [
                 'value' => \Monolog\Logger::ERROR,
-                'label' => ('ERROR')
+                'label' => ('ERROR'),
             ],
             [
                 'value' => \Monolog\Logger::WARNING,
-                'label' => ('WARN')
+                'label' => ('WARN'),
             ],
             [
                 'value' => \Monolog\Logger::DEBUG,
-                'label' => ('DEBUG')
+                'label' => ('DEBUG'),
             ],
         ];
     }

@@ -14,28 +14,32 @@ class CheckStatus extends \Magento\Backend\App\Action
 {
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
+
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
 
     /**
-     * Constructor
-     *
+     * CheckStatus constructor.
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Mygento\Kkm\Helper\Data $helper
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
      */
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor
+        \Mygento\Kkm\Model\VendorInterface $vendor
     ) {
         parent::__construct($context);
 
         $this->kkmHelper = $helper;
-        $this->vendor    = $vendor;
+        $this->vendor = $vendor;
     }
 
+    /**
+     * Execute
+     */
     public function execute()
     {
         try {
@@ -68,8 +72,10 @@ class CheckStatus extends \Magento\Backend\App\Action
         $uuid = $this->getRequest()->getParam('uuid');
 
         if (!$uuid) {
-            $this->kkmHelper->error('Invalid url. No uuid. Params: ');
-            $this->kkmHelper->error($this->getRequest()->getParams());
+            $this->kkmHelper->error(
+                'Invalid url. No uuid. Params:',
+                $this->getRequest()->getParams()
+            );
 
             throw new ValidatorException(__('Invalid request. Check logs.'));
         }

@@ -10,9 +10,9 @@ namespace Mygento\Kkm\Model\Source;
 
 class Period implements \Magento\Framework\Option\ArrayInterface
 {
-    const WEEKLY_NAME    = 'week';
+    const WEEKLY_NAME = 'week';
     const YESTERDAY_NAME = 'yesterday';
-    const TODAY_NAME     = 'today';
+    const TODAY_NAME = 'today';
 
     /**
      * Get options

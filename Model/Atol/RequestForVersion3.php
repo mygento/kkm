@@ -15,30 +15,30 @@ namespace Mygento\Kkm\Model\Atol;
  */
 class RequestForVersion3 extends Request
 {
-
     /**
+     * @throws \Exception
      * @return array
      */
     public function jsonSerialize(): array
     {
         return [
             'external_id' => $this->getExternalId(),
-            'receipt'     => [
+            'receipt' => [
                 'attributes' => [
                     'email' => $this->getEmail(),
                     'phone' => $this->getPhone(),
-                    'sno'   => $this->getSno(),
+                    'sno' => $this->getSno(),
                 ],
-                'items'      => $this->getItems(),
-                'payments'   => $this->getPayments(),
-                'total'      => $this->getTotal(),
+                'items' => $this->getItems(),
+                'payments' => $this->getPayments(),
+                'total' => $this->getTotal(),
             ],
-            'service'     => [
-                'callback_url'    => $this->getCallbackUrl(),
-                'inn'             => $this->getInn(),
+            'service' => [
+                'callback_url' => $this->getCallbackUrl(),
+                'inn' => $this->getInn(),
                 'payment_address' => $this->getPaymentAddress(),
             ],
-            'timestamp'   => $this->getTimestamp(),
+            'timestamp' => $this->getTimestamp(),
         ];
     }
 }

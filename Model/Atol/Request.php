@@ -8,32 +8,51 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-abstract class Request implements \JsonSerializable
-{
-    const PAYMENT_TYPE_BASIC = 1;
-    const PAYMENT_TYPE_AVANS = 2;
+use Mygento\Kkm\Api\Data\ItemInterface;
+use Mygento\Kkm\Api\Data\RequestInterface;
 
+abstract class Request implements \JsonSerializable, RequestInterface
+{
+    // phpcs:disable
     protected $sno = '';
+
     protected $externalId = '';
+
     protected $email = '';
+
     protected $companyEmail = '';
+
     protected $phone = '';
+
     protected $items = [];
+
     protected $payments = [];
+
     protected $total = 0.0;
+
     protected $inn = '';
+
     protected $paymentAddress = '';
+
     protected $callbackUrl = '';
+
+    protected $operationType = 0;
+
+    protected $salesEntityId = null;
+
+    protected $retryCount = null;
+
+    // phpcs:enable
+
     /**
      * @var \Magento\Framework\Stdlib\DateTime\Timezone|string
      */
     protected $date = '';
 
     /**
-     * @return array
+     * Request constructor.
+     * @param \Magento\Framework\Stdlib\DateTime\Timezone $date
      */
-    abstract public function jsonSerialize(): array;
-
     public function __construct(
         \Magento\Framework\Stdlib\DateTime\Timezone $date
     ) {
@@ -41,7 +60,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getSno(): string
     {
@@ -49,10 +68,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $sno
-     * @return Request
+     * @inheritdoc
      */
-    public function setSno(string $sno): self
+    public function setSno(string $sno): RequestInterface
     {
         $this->sno = $sno;
 
@@ -60,7 +78,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getEmail(): string
     {
@@ -68,10 +86,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $email
-     * @return Request
+     * @inheritdoc
      */
-    public function setEmail(string $email): self
+    public function setEmail(string $email): RequestInterface
     {
         $this->email = $email;
 
@@ -79,7 +96,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getPhone(): string
     {
@@ -87,10 +104,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $phone
-     * @return Request
+     * @inheritdoc
      */
-    public function setPhone(string $phone): self
+    public function setPhone(string $phone): RequestInterface
     {
         $this->phone = $phone;
 
@@ -98,7 +114,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function getItems(): array
     {
@@ -106,10 +122,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param Item[] $items
-     * @return Request
+     * @inheritdoc
      */
-    public function setItems(array $items): self
+    public function setItems(array $items): RequestInterface
     {
         foreach ($items as $element) {
             $this->addItem($element);
@@ -119,7 +134,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @inheritdoc
      */
     public function getPayments(): array
     {
@@ -127,10 +142,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param array $payments
-     * @return Request
+     * @inheritdoc
      */
-    public function setPayments(array $payments): self
+    public function setPayments(array $payments): RequestInterface
     {
         $this->payments = $payments;
 
@@ -138,9 +152,8 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * Invoke this method AFTER addItem() method
+     * @inheritdoc
      * @throws \Exception
-     * @return float
      */
     public function getTotal(): float
     {
@@ -154,7 +167,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getExternalId()
     {
@@ -162,10 +175,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $externalId
-     * @return Request
+     * @inheritdoc
      */
-    public function setExternalId($externalId): self
+    public function setExternalId($externalId): RequestInterface
     {
         $this->externalId = $externalId;
 
@@ -173,7 +185,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getInn()
     {
@@ -181,10 +193,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $inn
-     * @return Request
+     * @inheritdoc
      */
-    public function setInn($inn): self
+    public function setInn($inn): RequestInterface
     {
         $this->inn = $inn;
 
@@ -192,7 +203,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getPaymentAddress()
     {
@@ -200,10 +211,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $paymentAddress
-     * @return Request
+     * @inheritdoc
      */
-    public function setPaymentAddress($paymentAddress): self
+    public function setPaymentAddress($paymentAddress): RequestInterface
     {
         $this->paymentAddress = $paymentAddress;
 
@@ -211,7 +221,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getCallbackUrl()
     {
@@ -219,10 +229,9 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $callbackUrl
-     * @return Request
+     * @inheritdoc
      */
-    public function setCallbackUrl($callbackUrl): self
+    public function setCallbackUrl($callbackUrl): RequestInterface
     {
         $this->callbackUrl = $callbackUrl;
 
@@ -230,7 +239,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @return string
+     * @inheritdoc
      */
     public function getCompanyEmail()
     {
@@ -238,20 +247,19 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param string $companyEmail
-     * @return Request
+     * @inheritdoc
      */
-    public function setCompanyEmail($companyEmail): self
+    public function setCompanyEmail($companyEmail): RequestInterface
     {
         $this->companyEmail = $companyEmail;
 
         return $this;
     }
+
     /**
-     * @param Item $item
-     * @return self
+     * @inheritdoc
      */
-    public function addItem(Item $item): self
+    public function addItem(ItemInterface $item): RequestInterface
     {
         $this->items[] = $item;
         $this->addTotal($item->getSum());
@@ -260,7 +268,7 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param float $sum
+     * @inheritdoc
      */
     public function addTotal($sum)
     {
@@ -268,29 +276,92 @@ abstract class Request implements \JsonSerializable
     }
 
     /**
-     * @param float $sum
-     * @param mixed $payment
+     * @inheritdoc
      */
-//    public function setTotal($sum): self
-//    {
-//        $this->total = $sum;
-//
-//        return $this;
-//    }
-
-    /**
-     * @param array $payment
-     * @return $this
-     */
-    public function addPayment($payment): self
+    public function addPayment($payment): RequestInterface
     {
         $this->payments[] = $payment;
 
         return $this;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getTimestamp()
     {
         return $this->date->date()->format('d-m-Y H:i:s');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setTotal(float $total): RequestInterface
+    {
+        $this->total = $total;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setTimestamp(string $timestamp): RequestInterface
+    {
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setOperationType(int $type): RequestInterface
+    {
+        $this->operationType = $type;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getOperationType(): int
+    {
+        return $this->operationType;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setSalesEntityId($id): RequestInterface
+    {
+        $this->salesEntityId = (int) $id;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getSalesEntityId(): int
+    {
+        return $this->salesEntityId;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setRetryCount($count): RequestInterface
+    {
+        $this->retryCount = $count;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRetryCount()
+    {
+        return $this->retryCount;
     }
 }

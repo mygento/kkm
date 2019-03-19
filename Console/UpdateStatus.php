@@ -26,24 +26,32 @@ class UpdateStatus extends Command
      * @var \Magento\Framework\App\State
      */
     protected $appState;
+
     /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
+     * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
+
     /**
      * @var \Mygento\Kkm\Helper\Transaction\Proxy
      */
     private $transactionHelper;
 
+    /**
+     * UpdateStatus constructor.
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+     * @param \Magento\Framework\App\State $state
+     */
     public function __construct(
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
         \Magento\Framework\App\State $state
     ) {
         parent::__construct();
 
-        $this->appState          = $state;
-        $this->vendor            = $vendor;
+        $this->appState = $state;
+        $this->vendor = $vendor;
         $this->transactionHelper = $transactionHelper;
     }
 
@@ -65,7 +73,7 @@ class UpdateStatus extends Command
 
         $i = 1;
         foreach ($uuids as $uuid) {
-            $output->writeln("<comment>$i Updating {$uuid} ...</comment>");
+            $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
             $this->updateOne($output, $uuid);
             $i++;
         }
@@ -73,25 +81,9 @@ class UpdateStatus extends Command
         return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
     }
 
-    private function updateOne($output, $uuid)
-    {
-        //Обновление статуса
-        $response = $this->vendor->updateStatus($uuid);
-
-        if ($response->isFailed() || $response->getError()) {
-            $output->writeln("<error>Status: {$response->getStatus()}</error>");
-            $output->writeln("<error>Uuid: {$response->getUuid()}</error>");
-            $output->writeln("<error>Text: {$response->getErrorMessage()}</error>");
-
-            return \Magento\Framework\Console\Cli::RETURN_FAILURE;
-        }
-
-        $output->writeln("<info>Status: {$response->getStatus()}</info>");
-        $output->writeln("<info>Uuid: {$response->getUuid()}</info>");
-
-        return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
-    }
-
+    /**
+     * Configure the command
+     */
     protected function configure()
     {
         $this->setName(self::COMMAND);
@@ -112,5 +104,31 @@ HELP
             . self::RUN_ALL_PARAM
         );
         parent::configure();
+    }
+
+    /**
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @param string $uuid
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return int
+     */
+    private function updateOne($output, $uuid)
+    {
+        //Обновление статуса
+        $response = $this->vendor->updateStatus($uuid);
+
+        if ($response->isFailed() || $response->getError()) {
+            $output->writeln("<error>Status: {$response->getStatus()}</error>");
+            $output->writeln("<error>Uuid: {$response->getUuid()}</error>");
+            $output->writeln("<error>Text: {$response->getErrorMessage()}</error>");
+
+            return \Magento\Framework\Console\Cli::RETURN_FAILURE;
+        }
+
+        $output->writeln("<info>Status: {$response->getStatus()}</info>");
+        $output->writeln("<info>Uuid: {$response->getUuid()}</info>");
+
+        return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
     }
 }

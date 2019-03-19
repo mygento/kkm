@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * @author Mygento Team
+ * @copyright See COPYING.txt for license details.
+ * @package Mygento_Kkm
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
+    <consumer name="mygento.kkm.sell" queue="mygento_kkm_message_sell_queue" connection="db"
+              consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
+              handler="Mygento\Kkm\Model\Queue\Consumer::sendSellMergedRequest"/>
+
+    <consumer name="mygento.kkm.refund" queue="mygento_kkm_message_refund_queue" connection="db"
+              consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
+              handler="Mygento\Kkm\Model\Queue\Consumer::sendRefundMergedRequest"/>
+</config>

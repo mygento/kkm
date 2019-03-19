@@ -15,55 +15,78 @@ class Resend extends \Magento\Backend\App\Action
 {
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
-    /**
-     * @var \Mygento\Kkm\Model\Atol\Vendor
-     */
-    private $vendor;
+
     /**
      * @var \Magento\Sales\Model\Order\InvoiceFactory
      */
-    private $invoiceFactory;
+    private $invoiceRepository;
+
     /**
      * @var \Magento\Sales\Api\CreditmemoRepositoryInterface
      */
     private $creditmemoRepository;
 
+    /**
+     * @var \Mygento\Kkm\Model\Processor
+     */
+    private $processor;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Error\Proxy
+     */
+    private $errorHelper;
+
+    /**
+     * Resend constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Model\Processor $processor
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
+     * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Model\Atol\Vendor $vendor,
+        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Model\Processor $processor,
         \Magento\Backend\App\Action\Context $context,
-        \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
-        \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
+        \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
+        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
     ) {
         parent::__construct($context);
 
-        $this->kkmHelper            = $kkmHelper;
-        $this->vendor               = $vendor;
-        $this->invoiceFactory       = $invoiceFactory;
+        $this->kkmHelper = $kkmHelper;
+        $this->invoiceRepository = $invoiceRepository;
         $this->creditmemoRepository = $creditmemoRepository;
+        $this->processor = $processor;
+        $this->errorHelper = $errorHelper;
     }
 
+    /**
+     * Execute
+     */
     public function execute()
     {
         try {
             $this->validateRequest();
 
             $entityType = strtolower($this->_request->getParam('entity'));
-            $id         = $this->getRequest()->getParam('id');
+            $id = $this->getRequest()->getParam('id');
 
             switch ($entityType) {
                 case 'invoice':
-                    $entity = $this->invoiceFactory->create()->load($id);
-                    $comment = 'Cheque was sent to KKM. Status: %1';
+                    $entity = $this->invoiceRepository->get($id);
+                    $this->processor->proceedSell($entity);
+                    $comment = 'Cheque was sent to KKM.';
                     break;
-
                 case 'creditmemo':
                     $entity = $this->creditmemoRepository->get($id);
-                    $comment = 'Refund was sent to KKM. Status: %1';
+                    $this->processor->proceedRefund($entity);
+                    $comment = 'Refund was sent to KKM.';
                     break;
             }
-            $response = $this->vendor->send($entity);
-            $this->getMessageManager()->addSuccessMessage(__($comment, $response->getStatus()));
+
+            $this->getMessageManager()->addSuccessMessage(__($comment));
         } catch (NoSuchEntityException $exc) {
             $this->getMessageManager()->addErrorMessage(
                 __(ucfirst($entityType)) . " {$id} " . __('not found')
@@ -72,7 +95,7 @@ class Resend extends \Magento\Backend\App\Action
         } catch (\Exception $exc) {
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error('Resend failed. Reason: ' . $exc->getMessage());
-            $this->kkmHelper->processKkmChequeRegistrationError($entity, $exc);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
         } finally {
             return $this->resultRedirectFactory->create()->setUrl(
                 $this->_redirect->getRefererUrl()
@@ -86,11 +109,13 @@ class Resend extends \Magento\Backend\App\Action
     protected function validateRequest()
     {
         $entityType = $this->getRequest()->getParam('entity');
-        $id         = $this->getRequest()->getParam('id');
+        $id = $this->getRequest()->getParam('id');
 
         if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
-            $this->kkmHelper->error('Invalid url. No id or invalid entity type. Params: ');
-            $this->kkmHelper->error($this->getRequest()->getParams());
+            $this->kkmHelper->error(
+                'Invalid url. No id or invalid entity type.Params:',
+                $this->getRequest()->getParams()
+            );
 
             throw new ValidatorException(__('Invalid request. Check logs.'));
         }

@@ -20,15 +20,23 @@ class Report
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
+
     /**
      * @var \Mygento\Kkm\Model\Report
      */
     private $report;
+
     /**
      * @var \Mygento\Kkm\Helper\Email
      */
     private $emailHelper;
 
+    /**
+     * Report constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Model\Report $report
+     * @param \Mygento\Kkm\Helper\Email $emailHelper
+     */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Report $report,
@@ -39,6 +47,10 @@ class Report
         $this->emailHelper = $emailHelper;
     }
 
+    /**
+     * Execute
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
     public function execute()
     {
         if (!$this->kkmHelper->getConfig('report/enabled')) {
@@ -67,7 +79,7 @@ class Report
 
         $fields = [
             'subject' => self::EMAIL_SUBJECT,
-            'statistics' => $statistics
+            'statistics' => $statistics,
         ];
 
         try {
