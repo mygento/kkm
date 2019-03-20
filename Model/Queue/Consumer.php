@@ -94,13 +94,12 @@ class Consumer
      */
     public function sendSellRequest($request)
     {
-        $this->updateRetries($request);
-
         try {
             $this->vendor->sendSellRequest($request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 
+            $request->setIgnoreTrialsNum(false);
             $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
         } catch (\Exception $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
@@ -114,35 +113,16 @@ class Consumer
      */
     public function sendRefundRequest($request)
     {
-        $this->updateRetries($request);
-
         try {
             $this->vendor->sendRefundRequest($request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 
+            $request->setIgnoreTrialsNum(false);
             $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
         } catch (\Exception $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
-    }
-
-    /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
-     * @return \Mygento\Kkm\Api\Data\RequestInterface
-     */
-    private function updateRetries($request)
-    {
-        if ($request->getRetryCount() === null) {
-            $request->setRetryCount(0);
-
-            return $request;
-        }
-        $request->setRetryCount(
-            $request->getRetryCount() + 1
-        );
-
-        return $request;
     }
 }

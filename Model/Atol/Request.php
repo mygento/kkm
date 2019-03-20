@@ -11,6 +11,11 @@ namespace Mygento\Kkm\Model\Atol;
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 
+/**
+ * Class Request
+ * @package Mygento\Kkm\Model\Atol
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 abstract class Request implements \JsonSerializable, RequestInterface
 {
     // phpcs:disable
@@ -50,6 +55,11 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $date = '';
 
     /**
+     * @var bool
+     */
+    protected $ignoreTrialsNum = false;
+
+    /**
      * Request constructor.
      * @param \Magento\Framework\Stdlib\DateTime\Timezone $date
      */
@@ -57,6 +67,17 @@ abstract class Request implements \JsonSerializable, RequestInterface
         \Magento\Framework\Stdlib\DateTime\Timezone $date
     ) {
         $this->date = $date;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function __toArray()
+    {
+        $array = $this->jsonSerialize();
+        $array['ignore_trials'] = $this->ignoreTrialsNum;
+
+        return $array;
     }
 
     /**
@@ -363,5 +384,23 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function getRetryCount()
     {
         return $this->retryCount;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isIgnoreTrialsNum()
+    {
+        return (bool) $this->ignoreTrialsNum;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setIgnoreTrialsNum($ignore)
+    {
+        $this->ignoreTrialsNum = (bool) $ignore;
+
+        return $this;
     }
 }

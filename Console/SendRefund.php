@@ -102,7 +102,7 @@ class SendRefund extends Command
         //Oтправка
         $output->writeln("<comment>1. Sending creditmemo {$incrementId} ...</comment>");
 
-        $this->processor->proceedRefund($creditmemo, true);
+        $this->processor->proceedRefund($creditmemo, true, true);
 
         $transactions = $this->transactionHelper->getTransactionsByCreditmemo($creditmemo);
 

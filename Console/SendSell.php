@@ -92,7 +92,7 @@ class SendSell extends Command
         //Oтправка
         $output->writeln("<comment>1. Sending invoice {$incrementId} ...</comment>");
 
-        $this->processor->proceedSell($invoice, true);
+        $this->processor->proceedSell($invoice, true, true);
 
         $transactions = $this->transactionHelper->getTransactionsByInvoice($invoice);
 

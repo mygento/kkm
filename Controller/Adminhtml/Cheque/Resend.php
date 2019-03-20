@@ -76,15 +76,19 @@ class Resend extends \Magento\Backend\App\Action
             switch ($entityType) {
                 case 'invoice':
                     $entity = $this->invoiceRepository->get($id);
-                    $this->processor->proceedSell($entity);
-                    $comment = 'Cheque was sent to KKM.';
+                    $this->processor->proceedSell($entity, false, true);
+                    $comment = 'Cheque ';
                     break;
                 case 'creditmemo':
                     $entity = $this->creditmemoRepository->get($id);
-                    $this->processor->proceedRefund($entity);
-                    $comment = 'Refund was sent to KKM.';
+                    $this->processor->proceedRefund($entity, false, true);
+                    $comment = 'Refund ';
                     break;
             }
+
+            $comment .= $this->kkmHelper->isMessageQueueEnabled()
+                ? 'was placed to queue for further sending.'
+                : 'was sent to KKM.';
 
             $this->getMessageManager()->addSuccessMessage(__($comment));
         } catch (NoSuchEntityException $exc) {

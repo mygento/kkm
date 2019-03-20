@@ -385,10 +385,20 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @return ResponseInterface
+     * @return ResponseInterface|null
      */
     private function sendRequest($request, $callback, $entity = null)
     {
+        $trials = $this->attemptHelper->getTrials($request);
+        $maxTrials = $this->kkmHelper->getMaxTrials();
+
+        //Don't send if trials number exceeded
+        if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {
+            $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
+
+            return null;
+        }
+
         $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
 
         //Register sending Attempt

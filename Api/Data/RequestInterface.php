@@ -14,6 +14,11 @@ interface RequestInterface
     const REFUND_OPERATION_TYPE = 2;
 
     /**
+     * @return mixed
+     */
+    public function __toArray();
+
+    /**
      * @return string
      */
     public function getSno(): string;
@@ -131,7 +136,7 @@ interface RequestInterface
 
     /**
      * @param ItemInterface $item
-     * @return $this
+     * @return RequestInterface
      */
     public function addItem(ItemInterface $item): self;
 
@@ -195,13 +200,13 @@ interface RequestInterface
     public function getSalesEntityId(): int;
 
     /**
-     * @param int $count
-     * @return $this
+     * @return bool
      */
-    public function setRetryCount($count): self;
+    public function isIgnoreTrialsNum();
 
     /**
-     * @return int|null
+     * @param bool $ignore
+     * @return $this
      */
-    public function getRetryCount();
+    public function setIgnoreTrialsNum($ignore);
 }

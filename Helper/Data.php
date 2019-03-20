@@ -50,4 +50,12 @@ class Data extends \Mygento\Base\Helper\Data
     {
         return (bool) $this->getConfig('general/async_enabled');
     }
+
+    /**
+     * @return int
+     */
+    public function getMaxTrials()
+    {
+        return (int) $this->getConfig('general/max_trials');
+    }
 }

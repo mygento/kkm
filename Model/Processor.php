@@ -8,9 +8,6 @@
 
 namespace Mygento\Kkm\Model;
 
-use Magento\Sales\Api\Data\CreditmemoInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
-
 class Processor
 {
     const TOPIC_NAME_SELL = 'mygento.kkm.message.sell';
@@ -50,23 +47,25 @@ class Processor
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param bool $sync
+     * @param bool $ignoreTrials
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return bool
      */
-    public function proceedSell(InvoiceInterface $invoice, $sync = false)
+    public function proceedSell($invoice, $sync = false, $ignoreTrials = false)
     {
         $request = $this->vendor->buildRequest($invoice);
+        $request->setIgnoreTrialsNum($ignoreTrials);
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
-            $this->helper->debug('Queue is disabled. Sending request directly: ', $request->jsonSerialize());
+            $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendSellRequest($request);
 
             return true;
         }
 
-        $this->helper->debug('Publish request: ', $request->jsonSerialize());
+        $this->helper->debug('Publish request: ', $request->__toArray());
         $this->publisher->publish(self::TOPIC_NAME_SELL, $request);
 
         return true;
@@ -75,23 +74,25 @@ class Processor
     /**
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @param bool $sync
+     * @param bool $ignoreTrials
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return bool
      */
-    public function proceedRefund(CreditmemoInterface $creditmemo, $sync = false)
+    public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false)
     {
         $request = $this->vendor->buildRequest($creditmemo);
+        $request->setIgnoreTrialsNum($ignoreTrials);
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
-            $this->helper->debug('Sending request directly:', $request->jsonSerialize());
+            $this->helper->debug('Sending request without Queue:', $request->__toArray());
             $this->vendor->sendRefundRequest($request);
 
             return true;
         }
 
-        $this->helper->debug('Publish request to queue:', $request->jsonSerialize());
+        $this->helper->debug('Publish request to queue:', $request->__toArray());
         $this->publisher->publish(self::TOPIC_NAME_REFUND, $request);
 
         return true;

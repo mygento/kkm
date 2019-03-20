@@ -1,0 +1,62 @@
+Mygento:
+  Kkm:
+    TransactionAttempt:
+      gui: false
+      comment: 'Table for kkm transaction attempts'
+      columns:
+        id:
+          type: int
+          pk: true
+          identity: true
+          unsigned: true
+          comment: 'Attempt ID'
+        order_id:
+          type: int
+          nullable: false
+          unsigned: true
+          comment: 'Order id'
+        operation:
+          type: smallint
+          nullable: false
+          comment: 'Operation type. Sell or Refund.'
+          length: 10
+        sales_entity_increment_id:
+          type: varchar
+          length: 50
+          nullable: false
+          comment: 'Invoice or Creditmemo increment id'
+        status:
+          type: smallint
+        message:
+          type: text
+          nullable: true
+        number_of_trials:
+          type: smallint
+          nullable: true
+          comment: 'Count of attempts to make KKM transaction'
+        created_at:
+          type: timestamp
+          nullable: false
+          default: 'CURRENT_TIMESTAMP'
+          comment: 'Create time'
+          on_update: false
+        updated_at:
+          type: timestamp
+          nullable: false
+          default: 'CURRENT_TIMESTAMP'
+          comment: 'Modify time'
+          on_update: true
+      indexes:
+        IX_STATUS:
+          columns: ['status']
+        IX_ORDER_ID:
+          columns: ['order_id']
+        IX_SALES_ENTITY_U:
+          type: 'unique'
+          columns: ['operation', 'sales_entity_increment_id']
+      fk:
+        FK_ATTMPT_ORDER_ID_SAL_ORDER_ENT_ID:
+          column: 'order_id'
+          referenceTable: 'sales_order'
+          referenceColumn: 'entity_id'
+          indexName: 'IX_ORDER_ID'
