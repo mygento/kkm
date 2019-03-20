@@ -144,7 +144,7 @@ class Client
     {
         $debugData = [];
         $this->kkmHelper->info('START Sending creditmemo');
-        $this->kkmHelper->debug('Request', $request->jsonSerialize());
+        $this->kkmHelper->debug('Request', $request->__toArray());
 
         $request = $debugData['request'] = json_encode($request);
 
@@ -182,7 +182,7 @@ class Client
     {
         $debugData = [];
         $this->kkmHelper->info('START Sending invoice');
-        $this->kkmHelper->debug('Request:', $request->jsonSerialize());
+        $this->kkmHelper->debug('Request:', $request->__toArray());
 
         $request = $debugData['request'] = json_encode($request);
 

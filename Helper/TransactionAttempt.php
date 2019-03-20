@@ -49,6 +49,19 @@ class TransactionAttempt
     }
 
     /**
+     * Returns trials number of sending this request
+     * @param RequestInterface $request
+     * @return int|null
+     */
+    public function getTrials(RequestInterface $request)
+    {
+        $attempt = $this->attemptRepository
+            ->getByEntityId($request->getOperationType(), $request->getSalesEntityId());
+
+        return $attempt->getNumberOfTrials();
+    }
+
+    /**
      * Create new attempt based on request
      * @param RequestInterface $request
      * @param int|string $entityIncrementId

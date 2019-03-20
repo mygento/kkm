@@ -30,6 +30,7 @@ interface TransactionAttemptRepositoryInterface
      * Retrieve TransactionAttempt
      * @param int $operation
      * @param string $entityIncrementId
+     * @return \Mygento\Kkm\Api\Data\TransactionAttemptInterface
      */
     public function getByEntityId($operation, $entityIncrementId);
 
