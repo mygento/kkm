@@ -147,7 +147,7 @@ class Item implements \JsonSerializable, ItemInterface
      * @inheritdoc
      * @throws \Exception
      */
-    public function setTax(string $tax)
+    public function setTax($tax)
     {
         if (!in_array($tax, Tax::getAllTaxes(), true)) {
             throw new \Exception("Incorrect tax {$tax} for Item {$this->getName()}");

@@ -285,8 +285,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 ->setPaymentObject($paymentObject);
         }
 
-        $telephone = $order->getShippingAddress()
-            ? $order->getShippingAddress()->getTelephone()
+        $telephone = $order->getBillingAddress()
+            ? (string) $order->getBillingAddress()->getTelephone()
             : '';
 
         $request
@@ -385,6 +385,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws CreateDocumentFailedException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Throwable
      * @return ResponseInterface|null
      */
     private function sendRequest($request, $callback, $entity = null)
@@ -413,12 +414,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $response = $this->apiClient->{$callback}($request);
 
             //Save transaction data
-            $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
+            $txn = $this->transactionHelper->registerTransaction($entity, $response);
             $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
 
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             //Mark attempt as Error
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
 

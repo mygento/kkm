@@ -89,7 +89,7 @@ class Callback extends \Magento\Framework\App\Action\Action
                 ->sendResponse();
 
             $result->setContents($entity->getIncrementId());
-        } catch (\Exception $exc) {
+        } catch (\Throwable $exc) {
             $this->kkmHelper->error($exc->getMessage());
             $this->kkmHelper->debug("Callback RAW: {$json}");
 

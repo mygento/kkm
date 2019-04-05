@@ -13,6 +13,9 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Model\VendorInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Send implements ObserverInterface
 {
     /** @var \Mygento\Kkm\Helper\Data */
@@ -142,6 +145,12 @@ class Send implements ObserverInterface
             );
 
             $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
+        } catch (\Throwable $thr) {
+            $this->messageManager->addErrorMessage(
+                __('Cheque has not been successfully registered on KKM vendor side. See log.')
+            );
+            $this->kkmHelper->error('Resend failed. Reason: ' . $thr->getMessage());
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $thr);
         }
     }
 

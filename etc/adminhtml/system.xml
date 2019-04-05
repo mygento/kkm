@@ -15,7 +15,7 @@
             <class>separator-top</class>
             <label>Kkm Integration</label>
             <tab>mygento</tab>
-            <resource>Mygento_Base::config</resource>
+            <resource>Mygento_Kkm::config</resource>
             <group id="atol" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Atol Settings</label>
                 <field id="login" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">

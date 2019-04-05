@@ -64,7 +64,7 @@ class Clear extends \Magento\Backend\App\Action
             $this->getMessageManager()->addSuccessMessage(
                 __('Logs have been cleared')
             );
-        } catch (\Exception $exc) {
+        } catch (\Throwable $exc) {
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
         }
 

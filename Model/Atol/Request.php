@@ -109,7 +109,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritdoc
      */
-    public function setEmail(string $email): RequestInterface
+    public function setEmail($email): RequestInterface
     {
         $this->email = $email;
 
@@ -127,7 +127,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritdoc
      */
-    public function setPhone(string $phone): RequestInterface
+    public function setPhone($phone): RequestInterface
     {
         $this->phone = $phone;
 

@@ -35,10 +35,10 @@ interface RequestInterface
     public function getEmail(): string;
 
     /**
-     * @param string $email
+     * @param string|null $email
      * @return $this
      */
-    public function setEmail(string $email): self;
+    public function setEmail($email): self;
 
     /**
      * @return string
@@ -46,10 +46,10 @@ interface RequestInterface
     public function getPhone(): string;
 
     /**
-     * @param string $phone
+     * @param string|null $phone
      * @return $this
      */
-    public function setPhone(string $phone): self;
+    public function setPhone($phone): self;
 
     /**
      * @return \Mygento\Kkm\Api\Data\ItemInterface[]
