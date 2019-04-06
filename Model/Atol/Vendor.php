@@ -342,7 +342,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     public function getCallbackUrl()
     {
         return $this->kkmHelper->getConfig('atol/callback_url')
-            ?? $this->urlHelper->getUrl('kkm/frontend/callback', ['_secure' => true]);
+            ?? $this->urlHelper->getUrl('kkm/frontend/callback', [
+                '_secure' => true,
+                '_nosid' => true,
+            ]);
     }
 
     /**

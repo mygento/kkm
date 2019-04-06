@@ -74,6 +74,7 @@ class Error
                 $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
             }
             $this->baseHelper->error($fullMessage);
+            $this->baseHelper->debug($exception->getTraceAsString());
 
             //Show Admin Messages
             if ($this->baseHelper->getConfig('general/admin_notifications')) {
