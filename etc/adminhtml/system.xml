@@ -150,6 +150,12 @@
                     <label>Update by cron</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="update_cron_expr" translate="label" type="text" sortOrder="193" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Update frequency</label>
+                    <depends>
+                        <field id="*/*/update_cron">1</field>
+                    </depends>
+                </field>
                 <field id="admin_notifications" translate="label" type="select" sortOrder="195" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Show notifications in Dashboard</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -199,6 +205,14 @@
                         <field id="*/*/enabled">1</field>
                     </depends>
                 </field>
+                <field id="cron_expr_to_send" translate="label" type="text"  sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Frequency (Cron expression)</label>
+                    <comment><![CDATA[Используйте Cron формат (н-р "7 0 * * *" раз в сутки в 00:07)]]></comment>
+                    <depends>
+                        <field id="*/*/enabled">1</field>
+                    </depends>
+                </field>
+
             </group>
         </section>
     </system>

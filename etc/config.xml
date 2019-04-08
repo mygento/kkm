@@ -18,6 +18,7 @@
                 <template>mygento_kkm_report_template</template>
                 <sender_email>no-reply@example.com</sender_email>
                 <period>yesterday</period>
+                <cron_expr_to_send>7 0 * * *</cron_expr_to_send>
             </report>
             <general>
                 <enabled>0</enabled>
@@ -29,6 +30,7 @@
                 <max_trials>10</max_trials>
                 <auto_send_after_invoice>1</auto_send_after_invoice>
                 <auto_send_after_cancel>1</auto_send_after_cancel>
+                <update_cron_expr>* * * * *</update_cron_expr>
             </general>
         </mygento_kkm>
     </default>
