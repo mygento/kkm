@@ -22,7 +22,7 @@ class Data extends \Mygento\Base\Helper\Data
      * @param string $param
      * @return string
      */
-    public function getConfig($param)
+    public function getConfig($param, $scopeCode = NULL)
     {
         return parent::getConfig($this->getCode() . '/' . $param);
     }
