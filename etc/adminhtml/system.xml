@@ -185,7 +185,7 @@
                 </field>
                 <field id="email" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Email</label>
-                    <validate>validate-email</validate>
+                    <validate>validate-emails</validate>
                     <comment>You can specify several emails separated by comma</comment>
                     <depends>
                         <field id="*/*/enabled">1</field>
@@ -193,6 +193,7 @@
                 </field>
                 <field id="sender_email" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Sender email</label>
+                    <validate>validate-email</validate>
                     <depends>
                         <field id="*/*/enabled">1</field>
                     </depends>
