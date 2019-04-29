@@ -20,11 +20,12 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string $param
+     * @param string|null $scopeCode
      * @return string
      */
-    public function getConfig($param, $scopeCode = NULL)
+    public function getConfig($param, $scopeCode = null)
     {
-        return parent::getConfig($this->getCode() . '/' . $param);
+        return parent::getConfig($this->getCode() . '/' . $param, $scopeCode);
     }
 
     /**

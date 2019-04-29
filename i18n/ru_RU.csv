@@ -1,0 +1,53 @@
+Kkm transaction status was updated. Status: %1,Статус ККМ транзакции был обновлен. Статус: %1
+Can not check status of the transaction.,Невозможно проверить статус транзакции.
+Invalid request. Check logs.,Некорректный запрос. Проверьте логи.
+Something went wrong. See log.,Что-то полшло не так. Проверьте логи.
+Logs have been cleared,Логи очищены
+Callback received. Status: %1. Uuid: %2,Получен колбек. Статус: %1. Uuid: %2
+Callback received: %1,Callback received: %1
+KKM Cheque sending error. Order: %1,Ошибка отправки чека. Заказ: %1
+"Response from Atol does not contain valid token value. Response: ","Корректный токен получен не был. Response: "
+Creditmemo is sent. Uuid: %1,Возврат отправлен. Uuid: %1
+Invoice is sent. Uuid: %1,Заказ отправлен. Uuid: %1
+Response from Atol is not valid. Response: %1,Ответ от АТОЛ невалидный. Response: %1
+Receipt is not registered. Response: %1,Чек не был зарегистрирован. Response: %1
+[ATOL] Cheque was sent. %1,[ATOL] Чек отправлен. %1
+Item %1 has undefined tax.,Item %1 has undefined tax.
+Can not send data to Atol. Reason: %1,Невозможно отправить данные в АТОЛ. Reason: %1
+Weekly (This week),Еженедельный (Текущая неделя)
+Daily (Yesterday),Ежедневный (Вчера)
+Daily (Today),Ежедневный (Сегодня)
+Without VAT,Без НДС
+Cheque has not been successfully registered on KKM vendor side. Reason: %1,Чек не был зарегистрирован ККМ вендором. Причина: %1
+Cheque has not been successfully registered on KKM vendor side. See log.,Чек не был зарегистрирован ККМ вендором. См.логи.
+Send to KKM,Отправить в ККМ
+Check status in KKM,Проверить ККМ статус
+Kkm Integration,Kkm Интеграция
+Atol Settings,Настройки Atol
+Atol Group Code,Код группы
+INN,ИНН
+Payment Address,Платежный адрес
+SNO,СНО
+API Version,Версия API
+Test mode,Тестовый режим
+Tax all,Налог для всех
+Tax options,Значение налога
+Attribute for product tax,Атрибут продукта с налогом
+List of payment methods,Список разрешенных платежных методов
+Auto send after invoice,Автоматическая отправка счета
+Auto send after refund,Автоматическая отправка возврата
+Shipping tax code,Налог на доставку
+Use default shipping name,Имя доставки по умолчанию
+Custom shipping name,Имя доставки
+Async processing,Асинхронная отправка
+Through queue (Magento Queue Framework),Через механизм очередей (Magento Queue Framework)
+Max trials to resend,Макс кол-во попыток отправки
+Update by cron,Обновлять статусы по CRON
+Update frequency,Частота обновления
+Show notifications in Dashboard,Показывать уведомления в панели управления
+Report Settings,Настройки отчетов
+Email template,Шаблон письма
+"You can specify several emails separated by comma","Несколько адресов, разделенных запятой"
+Sender email,Email отправителя
+Period,Период
+Frequency (Cron expression),Частота (CRON)

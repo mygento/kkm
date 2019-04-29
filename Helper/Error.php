@@ -52,9 +52,9 @@ class Error
     /**
      * Makes different notifications if cheque was not successfully sent to KKM
      * @param \Magento\Sales\Api\Data\EntityInterface $entity
-     * @param \Exception|null $exception
+     * @param \Throwable|null $exception
      */
-    public function processKkmChequeRegistrationError($entity, \Exception $exception = null)
+    public function processKkmChequeRegistrationError($entity, \Throwable $exception = null)
     {
         try {
             $entityType = ucfirst($entity->getEntityType());
@@ -74,6 +74,7 @@ class Error
                 $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
             }
             $this->baseHelper->error($fullMessage);
+            $this->baseHelper->debug($exception->getTraceAsString());
 
             //Show Admin Messages
             if ($this->baseHelper->getConfig('general/admin_notifications')) {
@@ -92,7 +93,7 @@ class Error
                 $fullMessage
             );
             $this->orderRepository->save($order);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->baseHelper->error($e->getMessage());
         }
     }

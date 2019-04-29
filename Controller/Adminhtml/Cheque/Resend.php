@@ -13,6 +13,11 @@ use Magento\Framework\Exception\ValidatorException;
 
 class Resend extends \Magento\Backend\App\Action
 {
+    /**
+     * @see _isAllowed()
+     */
+    const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
+
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
 
@@ -100,6 +105,10 @@ class Resend extends \Magento\Backend\App\Action
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error('Resend failed. Reason: ' . $exc->getMessage());
             $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
+        } catch (\Throwable $thr) {
+            $this->getMessageManager()->addErrorMessage(__('Something went wrong. See log.'));
+            $this->kkmHelper->error('Resend failed. Reason: ' . $thr->getMessage());
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $thr);
         } finally {
             return $this->resultRedirectFactory->create()->setUrl(
                 $this->_redirect->getRefererUrl()

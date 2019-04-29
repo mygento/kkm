@@ -77,7 +77,7 @@ class Email
      */
     public function setRecipient($email)
     {
-        $this->recipient['email'] = $email;
+        $this->recipient = explode(',', $email);
 
         return $this;
     }

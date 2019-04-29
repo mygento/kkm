@@ -52,7 +52,7 @@ $notSent = array_merge($statistics->getFails(), $statistics->getUnknowns(), $sta
                         $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
                         $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
                             ? $additional[Transaction::ERROR_MESSAGE_KEY]
-                            : $additional[Transaction::RAW_RESPONSE_KEY];
+                            : ($additional[Transaction::RAW_RESPONSE_KEY] ?? '');
 
                         $message = wordwrap($message, 50);
                         ?>

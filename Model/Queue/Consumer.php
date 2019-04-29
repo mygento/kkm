@@ -101,7 +101,7 @@ class Consumer
 
             $request->setIgnoreTrialsNum(false);
             $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
@@ -120,7 +120,7 @@ class Consumer
 
             $request->setIgnoreTrialsNum(false);
             $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }

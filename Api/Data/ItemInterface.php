@@ -63,7 +63,7 @@ interface ItemInterface
      * @param string $tax
      * @return $this
      */
-    public function setTax(string $tax);
+    public function setTax($tax);
 
     /**
      * @return float

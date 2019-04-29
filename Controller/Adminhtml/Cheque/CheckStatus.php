@@ -12,6 +12,11 @@ use Magento\Framework\Exception\ValidatorException;
 
 class CheckStatus extends \Magento\Backend\App\Action
 {
+    /**
+     * @see _isAllowed()
+     */
+    const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_checkstatus';
+
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
 

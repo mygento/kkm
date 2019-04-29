@@ -94,6 +94,21 @@ class Transaction
     }
 
     /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param ResponseInterface $response
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
+     */
+    public function registerTransaction($entity, ResponseInterface $response)
+    {
+        if ($entity instanceof InvoiceInterface) {
+            return $this->saveSellTransaction($entity, $response);
+        }
+
+        return $this->saveRefundTransaction($entity, $response);
+    }
+
+    /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param ResponseInterface $response
      * @throws \Magento\Framework\Exception\LocalizedException

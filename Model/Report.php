@@ -101,6 +101,7 @@ class Report
     /**
      * @param string $from
      * @param string|null $to
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Mygento\Kkm\Model\Statistics
      */
     public function getStatisticsByPeriod($from, $to = null)
@@ -110,8 +111,7 @@ class Report
         }
 
         $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('created_at', $from, 'gteq')
-            ->create();
+            ->addFilter('created_at', $from, 'gteq');
 
         return $this->collectStatistics($searchCriteria)
             ->setFromDate($from)
@@ -119,14 +119,20 @@ class Report
     }
 
     /**
-     * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Mygento\Kkm\Model\Statistics
      */
-    private function collectStatistics($searchCriteria)
+    private function collectStatistics($searchCriteriaBuilder)
     {
-        $transactions = $this->transactionRepo->getList($searchCriteria);
-        $transactionAttempts = $this->attemptRepository->getList($searchCriteria);
+        $transactions = $this->transactionRepo->getList(
+            $searchCriteriaBuilder
+                ->addFilter('kkm_status', null, 'neq')
+                ->create()
+        );
+        $transactionAttempts = $this->attemptRepository->getList(
+            $searchCriteriaBuilder->create()
+        );
 
         /** @var $statistics \Mygento\Kkm\Model\Statistics */
         $statistics = $this->statisticsFactory->create();

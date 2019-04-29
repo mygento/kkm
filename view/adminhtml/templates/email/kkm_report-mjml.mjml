@@ -1,0 +1,95 @@
+<mjml>
+  <mj-body>
+
+    <mj-section background-color="#f0f0f0">
+      <mj-column>
+        <mj-text align="center"  font-style="italic"
+              font-size="28px"
+              color="#626262">
+          Статистика
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    
+
+    <mj-section>
+      <mj-column>
+        <mj-text font-size="20px" color="#F45E43" font-family="helvetica">От: </mj-text>
+      </mj-column>
+      <mj-column>
+        <mj-text font-size="20px" color="#F45E43" font-family="helvetica">До:</mj-text>
+      </mj-column>
+
+      <mj-divider border-color="#F45E43"></mj-divider>
+    </mj-section>
+
+      <mj-section background-color="#f0f0f0">
+        <mj-table>
+          <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+            <th style="padding: 0 15px 0 0;">#</th>
+            <th style="padding: 0 15px;">Статус</th>
+            <th style="padding: 0 0 0 15px;">Количество</th>
+          </tr>
+          <tr>
+            <td style="padding: 0 15px 0 0;">1</td>
+            <td style="padding: 0 15px;">Неотправленных чеков</td>
+            <td style="padding: 0 0 0 15px;">3</td>
+          </tr>
+          <tr>
+            <td style="padding: 0 15px 0 0;">2</td>
+            <td style="padding: 0 15px;">Чеков в ожидании</td>
+            <td style="padding: 0 0 0 15px;">4</td>
+          </tr>
+          <tr>
+            <td style="padding: 0 15px 0 0;">3</td>
+            <td style="padding: 0 15px;">Успешно отправленных</td>
+            <td style="padding: 0 0 0 15px;">7</td>
+          </tr>
+        </mj-table>
+      </mj-section>
+    
+    <mj-section>
+          <mj-divider border-color="#F45E43"></mj-divider>
+    </mj-section>
+    
+    <mj-section background-color="#f0f0f0">
+      <mj-column>
+        <mj-text align="center"  font-style="italic"
+              font-size="24px"
+              color="#626262">
+          Детали
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    
+      <mj-section background-color="#f0f0f0">
+        <mj-table>
+          <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;">
+            <th style="padding: 0 15px 0 0;">Дата</th>
+            <th style="padding: 0 15px;">UUID</th>
+            <th style="padding: 0 0 0 15px;">Операция</th>
+            <th style="padding: 0 0 0 15px;">IncrementId</th>
+            <th style="padding: 0 0 0 15px;">Сообщение</th>
+          </tr>
+          <tr>
+            <td style="padding: 0 15px 0 0;">1</td>
+            <td style="padding: 0 15px;">Неотправленных чеков</td>
+            <td style="padding: 0 0 0 15px;">3</td>
+            <td style="padding: 0 0 0 15px;">3</td>
+            <td style="padding: 0 0 0 15px;">3</td>
+          </tr>
+        </mj-table>
+      </mj-section>
+    
+    
+    <mj-section>
+      <mj-column>
+
+       <mj-divider border-width="4px" border-style="dashed" border-color="lightgrey" />
+        <mj-image width="100" src="https://mygento.ru/img/mygento.svg"></mj-image>
+ 
+
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

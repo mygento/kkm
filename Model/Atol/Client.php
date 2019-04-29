@@ -161,7 +161,7 @@ class Client
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (VendorBadServerAnswerException $exc) {
             throw $exc;
-        } catch (\Exception $exc) {
+        } catch (\Throwable $exc) {
             throw new CreateDocumentFailedException(
                 $exc->getMessage(),
                 $response ?? null,

@@ -72,7 +72,9 @@ class TransactionAttempt
     public function registerAttempt(RequestInterface $request, $entityIncrementId, $orderId)
     {
         $attempt = $this->attemptRepository
-            ->getByEntityId($request->getOperationType(), $request->getSalesEntityId());
+            ->getByEntityId($request->getOperationType(), $entityIncrementId);
+
+        $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
 
         $trials = $attempt->getNumberOfTrials();
 
