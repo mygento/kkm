@@ -29,6 +29,36 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
+     * @throws \Exception
+     * @return string
+     */
+    public function getAtolLogin()
+    {
+        $login = $this->getConfig('atol/login');
+
+        if ($login == false) {
+            throw new \Exception('No login specified.');
+        }
+
+        return (string) $login;
+    }
+
+    /**
+     * @throws \Exception
+     * @return string
+     */
+    public function getAtolPassword()
+    {
+        $passwd = $this->getConfig('atol/password');
+
+        if ($passwd == false) {
+            throw new \Exception('No password specified.');
+        }
+
+        return (string) $passwd;
+    }
+
+    /**
      * @return string|null
      */
     public function getStoreEmail()

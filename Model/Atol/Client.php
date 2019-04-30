@@ -78,8 +78,8 @@ class Client
             return $this->token;
         }
         $helper = $this->kkmHelper;
-        $login = $helper->getConfig('atol/login');
-        $password = $helper->decrypt($helper->getConfig('atol/password'));
+        $login = $helper->getAtolLogin();
+        $password = $helper->decrypt($helper->getAtolPassword());
 
         $dataBody = json_encode(
             [
