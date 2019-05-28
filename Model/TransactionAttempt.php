@@ -259,7 +259,9 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
      */
     public function getTxnType()
     {
-        return $this->getOperation();
+        $operation = $this->getOperation();
+
+        return self::OPERATION_LABEL[$operation] ?? $operation;
     }
 
     /**

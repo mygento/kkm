@@ -14,6 +14,10 @@ interface TransactionAttemptInterface extends TransactionInterface
 {
     const ID = 'id';
     const OPERATION = 'operation';
+    const OPERATION_LABEL = [
+        1 => 'Payment',
+        2 => 'Refund',
+    ];
     const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
     const STATUS = 'status';
     const MESSAGE = 'message';

@@ -84,7 +84,7 @@
                 </field>
                 <field id="product_tax_attr" translate="label" type="select" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Attribute for product tax</label>
-                    <source_model>Mygento\Kkm\Model\Source\Attributes</source_model>
+                    <source_model>Mygento\Base\Model\Source\Attributes</source_model>
                     <can_be_empty>0</can_be_empty>
                     <depends>
                         <field id="*/*/tax_all">0</field>
