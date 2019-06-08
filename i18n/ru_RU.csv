@@ -51,3 +51,5 @@ Email template,Шаблон письма
 Sender email,Email отправителя
 Period,Период
 Frequency (Cron expression),Частота (CRON)
+"Individual Entrepreneur","Индивидуальный предприниматель"
+"Organization","Организация"
