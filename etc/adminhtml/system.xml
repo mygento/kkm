@@ -194,6 +194,9 @@
                 <field id="default_jur_type" translate="label" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Default Company Type</label>
                     <source_model>Mygento\Kkm\Model\Source\JurType</source_model>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
                 </field>
 
                 <field id="jur_inn_attribute" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
