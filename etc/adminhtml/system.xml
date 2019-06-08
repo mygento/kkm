@@ -8,9 +8,6 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <tab id="mygento" translate="label" sortOrder="10">
-            <label>Mygento Extensions</label>
-        </tab>
         <section id="mygento_kkm" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>Kkm Integration</label>
@@ -125,7 +122,7 @@
                     <label>Custom shipping name</label>
                     <comment>
                         <![CDATA[Custom shipping name]]>
-                    </comment> 
+                    </comment>
                     <depends>
                         <field id="*/*/default_shipping_name">0</field>
                     </depends>
