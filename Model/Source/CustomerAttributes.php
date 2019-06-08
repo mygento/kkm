@@ -45,7 +45,7 @@ class CustomerAttributes implements OptionSourceInterface
         }
         asort($attributes);
 
-        return array_map(
+        $optionArray = array_map(
             function ($attributeCode, $label) {
                 return [
                     'value' => $attributeCode,
@@ -55,5 +55,12 @@ class CustomerAttributes implements OptionSourceInterface
             array_keys($attributes),
             $attributes
         );
+
+        array_unshift($optionArray, [
+            'label' => __('No usage'),
+            'value' => 0,
+        ]);
+
+        return $optionArray;
     }
 }

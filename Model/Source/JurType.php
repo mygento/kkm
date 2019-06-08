@@ -22,7 +22,7 @@ class JurType implements OptionSourceInterfaceAlias
 
     public function toOptionArray()
     {
-        return array_map(
+        $optionArray = array_map(
             function ($value, $label) {
                 return [
                     'value' => $value,
@@ -32,5 +32,12 @@ class JurType implements OptionSourceInterfaceAlias
             array_keys(self::OPTIONS),
             self::OPTIONS
         );
+
+        array_unshift($optionArray, [
+            'label' => __('No usage'),
+            'value' => 0,
+        ]);
+
+        return $optionArray;
     }
 }

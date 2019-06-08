@@ -45,9 +45,7 @@ class JurType extends Select
     {
         if (!$this->getOptions()) {
             foreach ($this->source->toOptionArray() as $type) {
-                if (isset($type['label']) &&
-                    $type['label']
-                ) {
+                if (isset($type['label']) && $type['label'] && $type['value']) {
                     $this->addOption($type['value'], $type['label']);
                 }
             }
