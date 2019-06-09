@@ -43,7 +43,7 @@ class Transaction
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
-    private $kkmHelper;
+    protected $kkmHelper;
 
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
