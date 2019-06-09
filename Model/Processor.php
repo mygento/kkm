@@ -18,17 +18,17 @@ class Processor implements ProcessorInterface
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
      */
-    private $vendor;
+    protected $vendor;
 
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
-    private $helper;
+    protected $helper;
 
     /**
      * @var \Magento\Framework\MessageQueue\PublisherInterface
      */
-    private $publisher;
+    protected $publisher;
 
     /**
      * Processor constructor.
