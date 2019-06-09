@@ -418,7 +418,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $response = $this->apiClient->{$callback}($request);
 
             //Save transaction data
-            $txn = $this->transactionHelper->registerTransaction($entity, $response);
+            $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
 
             //Mark attempt as Sent

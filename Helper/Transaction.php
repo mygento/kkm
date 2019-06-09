@@ -12,6 +12,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
@@ -96,25 +97,27 @@ class Transaction
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @param ResponseInterface $response
+     * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function registerTransaction($entity, ResponseInterface $response)
+    public function registerTransaction($entity, ResponseInterface $response, RequestInterface $request)
     {
         if ($entity instanceof InvoiceInterface) {
-            return $this->saveSellTransaction($entity, $response);
+            return $this->saveSellTransaction($entity, $response, $request);
         }
 
-        return $this->saveRefundTransaction($entity, $response);
+        return $this->saveRefundTransaction($entity, $response, $request);
     }
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param ResponseInterface $response
+     * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response)
+    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response, RequestInterface $request)
     {
         $this->kkmHelper->info(
             __(
@@ -131,10 +134,11 @@ class Transaction
     /**
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @param ResponseInterface $response
+     * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response)
+    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response, RequestInterface $request)
     {
         $this->kkmHelper->info(
             __(
