@@ -12,6 +12,7 @@ use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\EntityInterface;
+use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
@@ -224,7 +225,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function buildRequest($salesEntity): RequestInterface
+    public function buildRequest($salesEntity, $paymentMethod = null, $shippingPaymentObject = null, array $receiptData = []): RequestInterface
     {
         $request = $this->requestFactory->create();
         switch ($salesEntity->getEntityType()) {
@@ -251,7 +252,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             );
         }
 
-        $recalculatedReceiptData = $this->kkmDiscount->getRecalculated(
+        $recalculatedReceiptData = $receiptData ?: $this->kkmDiscount->getRecalculated(
             $salesEntity,
             $taxValue,
             $attributeCode,
@@ -259,28 +260,28 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         );
 
         $items = [];
-        foreach ($recalculatedReceiptData['items'] as $key => $itemData) {
+        foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
             //For orders without Shipping (Virtual products)
-            if ($key == 'shipping' && $itemData['name'] === null) {
+            if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
                 continue;
             }
 
             $this->validateItemArray($itemData);
 
             //How to handle GiftCards - see Atol API documentation
-            $paymentMethod = $this->isGiftCard($salesEntity, $itemData['name'])
+            $paymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_METHOD_ADVANCE
-                : Item::PAYMENT_METHOD_FULL_PAYMENT;
-            $paymentObject = $this->isGiftCard($salesEntity, $itemData['name'])
+                : ($paymentMethod ?: Item::PAYMENT_METHOD_FULL_PAYMENT);
+            $paymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_OBJECT_PAYMENT
-                : Item::PAYMENT_OBJECT_BASIC;
+                : ($key == Discount::SHIPPING && $shippingPaymentObject ? $shippingPaymentObject : Item::PAYMENT_OBJECT_BASIC);
 
             $items[] = $this->itemFactory->create()
-                ->setName($itemData['name'])
-                ->setPrice($itemData['price'])
-                ->setSum($itemData['sum'])
-                ->setQuantity($itemData['quantity'] ?? 1)
-                ->setTax($itemData['tax'])
+                ->setName($itemData[Discount::NAME])
+                ->setPrice($itemData[Discount::PRICE])
+                ->setSum($itemData[Discount::SUM])
+                ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
+                ->setTax($itemData[Discount::TAX])
                 ->setPaymentMethod($paymentMethod)
                 ->setPaymentObject($paymentObject);
         }
