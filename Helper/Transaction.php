@@ -101,7 +101,7 @@ class Transaction
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function registerTransaction($entity, ResponseInterface $response, RequestInterface $request)
+    public function registerTransaction($entity, ResponseInterface $response, RequestInterface $request = null)
     {
         if ($entity instanceof InvoiceInterface) {
             return $this->saveSellTransaction($entity, $response, $request);
@@ -117,7 +117,7 @@ class Transaction
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response, RequestInterface $request)
+    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response, RequestInterface $request = null)
     {
         $this->kkmHelper->info(
             __(
@@ -138,7 +138,7 @@ class Transaction
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response, RequestInterface $request)
+    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response, RequestInterface $request = null)
     {
         $this->kkmHelper->info(
             __(
