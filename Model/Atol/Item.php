@@ -14,6 +14,7 @@ use Mygento\Kkm\Model\Source\Tax;
 class Item implements \JsonSerializable, ItemInterface
 {
     const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
+    const PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment';
     const PAYMENT_METHOD_ADVANCE = 'advance';
 
     const PAYMENT_OBJECT_BASIC = 'commodity';
