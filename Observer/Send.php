@@ -87,6 +87,7 @@ class Send implements ObserverInterface
             || !$this->kkmHelper->getConfig('general/auto_send_after_invoice')
             || $entity->getOrderCurrencyCode() != 'RUB'
             || $entity->getData(VendorInterface::ALREADY_SENT_FLAG)
+            || ($entity->getOrder() ? $entity->getOrder()->getData(VendorInterface::ALREADY_SENT_FLAG) : false)
         ) {
             return false;
         }
