@@ -20,7 +20,7 @@ class Client
     const REQUEST_TEST_URL = 'https://testonline.atol.ru/possystem/v%u/';
 
     //see Atol Documentation
-    const ALLOWED_HTTP_STATUSES = [200, 400, 401];
+    const ALLOWED_HTTP_STATUSES = [100, 200, 400, 401];
 
     const GET_TOKEN_URL_APPNX = 'getToken';
     const SELL_URL_APPNX = 'sell';
