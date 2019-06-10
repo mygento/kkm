@@ -282,6 +282,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 ->setSum($itemData[Discount::SUM])
                 ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
                 ->setTax($itemData[Discount::TAX])
+                ->setTaxSum($itemData[Discount::TAX_SUM] ?? null)
                 ->setPaymentMethod($paymentMethod)
                 ->setPaymentObject($paymentObject);
         }
