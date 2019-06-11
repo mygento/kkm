@@ -290,8 +290,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
                 ->setTax($itemData[Discount::TAX])
                 ->setTaxSum($itemData[self::TAX_SUM] ?? null)
-                ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION])
-                ->setCountryCode($itemData[self::COUNTRY_CODE])
+                ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? null)
+                ->setCountryCode($itemData[self::COUNTRY_CODE] ?? null)
                 ->setPaymentMethod($paymentMethod)
                 ->setPaymentObject($paymentObject);
 
