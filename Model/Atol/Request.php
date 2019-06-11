@@ -25,6 +25,10 @@ abstract class Request implements \JsonSerializable, RequestInterface
 
     protected $email = '';
 
+    protected $clientName = '';
+
+    protected $clientInn = '';
+
     protected $companyEmail = '';
 
     protected $phone = '';
@@ -112,6 +116,42 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setEmail($email): RequestInterface
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getClientName(): string
+    {
+        return $this->clientName;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setClientName($clientName): RequestInterface
+    {
+        $this->clientName = $clientName;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getClientInn(): string
+    {
+        return $this->clientInn;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setClientInn($clientInn): RequestInterface
+    {
+        $this->clientInn = $clientInn;
 
         return $this;
     }

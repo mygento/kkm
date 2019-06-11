@@ -19,6 +19,15 @@ class RequestForVersion4 extends Request
         $client = [
             'email' => $this->getEmail(),
         ];
+
+        if ($this->getClientName()) {
+            $client['name'] = $this->getClientName();
+        }
+
+        if ($this->getClientInn()) {
+            $client['inn'] = $this->getClientInn();
+        }
+
         $company = [
             'email' => $this->getCompanyEmail(),
             'sno' => $this->getSno(),
