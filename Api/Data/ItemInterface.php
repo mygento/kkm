@@ -97,4 +97,26 @@ interface ItemInterface
      * @return $this
      */
     public function setPaymentObject($paymentObject);
+
+    /**
+     * @return string
+     */
+    public function getCountryCode();
+
+    /**
+     * @param string $countryCode
+     * @return $this
+     */
+    public function setCountryCode($countryCode);
+
+    /**
+     * @return string
+     */
+    public function getCustomsDeclaration();
+
+    /**
+     * @param string $customsDeclaration
+     * @return $this
+     */
+    public function setCustomsDeclaration($customsDeclaration);
 }

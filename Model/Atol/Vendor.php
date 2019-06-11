@@ -13,6 +13,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Base\Helper\Discount;
+use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
@@ -26,6 +27,10 @@ use Mygento\Kkm\Exception\CreateDocumentFailedException;
  */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
+    const TAX_SUM = 'tax_sum';
+    const CUSTOM_DECLARATION = 'custom_declaration';
+    const COUNTRY_CODE = 'country_code';
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -276,15 +281,21 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 ? Item::PAYMENT_OBJECT_PAYMENT
                 : ($key == Discount::SHIPPING && $shippingPaymentObject ? $shippingPaymentObject : Item::PAYMENT_OBJECT_BASIC);
 
-            $items[] = $this->itemFactory->create()
+            /** @var ItemInterface $item */
+            $item = $this->itemFactory->create();
+            $item
                 ->setName($itemData[Discount::NAME])
                 ->setPrice($itemData[Discount::PRICE])
                 ->setSum($itemData[Discount::SUM])
                 ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
                 ->setTax($itemData[Discount::TAX])
-                ->setTaxSum($itemData[Discount::TAX_SUM] ?? null)
+                ->setTaxSum($itemData[self::TAX_SUM] ?? null)
+                ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION])
+                ->setCountryCode($itemData[self::COUNTRY_CODE])
                 ->setPaymentMethod($paymentMethod)
                 ->setPaymentObject($paymentObject);
+
+            $items[] = $item;
         }
 
         $telephone = $order->getBillingAddress()
