@@ -238,8 +238,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $paymentMethod = null,
         $shippingPaymentObject = null,
         array $receiptData = [],
-        $clientName = null,
-        $clientInn = null
+        $clientName = '',
+        $clientInn = ''
     ): RequestInterface {
         /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
@@ -301,9 +301,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 ->setTax($itemData[Discount::TAX])
                 ->setPaymentMethod($paymentMethod)
                 ->setPaymentObject($paymentObject)
-                ->setTaxSum($itemData[self::TAX_SUM] ?? null)
-                ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? null)
-                ->setCountryCode($itemData[self::COUNTRY_CODE] ?? null);
+                ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
+                ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
+                ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
 
             $items[] = $item;
         }

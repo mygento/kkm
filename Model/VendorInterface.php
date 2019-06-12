@@ -69,8 +69,8 @@ interface VendorInterface
         $paymentMethod = null,
         $shippingPaymentObject = null,
         array $receiptData = [],
-        $clientName = null,
-        $clientInn = null
+        $clientName = '',
+        $clientInn = ''
     ): RequestInterface;
 
     /**
