@@ -60,9 +60,18 @@ interface VendorInterface
      * @param string $paymentMethod
      * @param string $shippingPaymentObject
      * @param array $receiptData
+     * @param string $clientName
+     * @param string $clientInn
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
-    public function buildRequest($salesEntity, $paymentMethod = null, $shippingPaymentObject = null, array $receiptData = []): RequestInterface;
+    public function buildRequest(
+        $salesEntity,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = null,
+        $clientInn = null
+    ): RequestInterface;
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity

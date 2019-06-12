@@ -27,6 +27,9 @@ use Mygento\Kkm\Exception\CreateDocumentFailedException;
  */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
+    const CLIENT_NAME = 'client_name';
+    const CLIENT_INN = 'client_inn';
+
     const TAX_SUM = 'tax_sum';
     const CUSTOM_DECLARATION = 'custom_declaration';
     const COUNTRY_CODE = 'country_code';
@@ -230,8 +233,15 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function buildRequest($salesEntity, $paymentMethod = null, $shippingPaymentObject = null, array $receiptData = []): RequestInterface
-    {
+    public function buildRequest(
+        $salesEntity,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = null,
+        $clientInn = null
+    ): RequestInterface {
+        /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
         switch ($salesEntity->getEntityType()) {
             case 'invoice':
@@ -306,6 +316,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setExternalId($this->generateExternalId($salesEntity))
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setEmail($order->getCustomerEmail())
+            ->setClientName($clientName)
+            ->setClientInn($clientInn)
             ->setPhone($telephone)
             ->setCompanyEmail($this->kkmHelper->getStoreEmail())
             ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address'))
