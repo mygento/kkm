@@ -65,6 +65,8 @@ class ExtraSalesViewToolbarButtons
         }
 
         $entity = $context->getInvoice() ?: $context->getCreditmemo();
+
+        // Не проверять по методу оплаты. Достаточно проверки по транзакциям.
 //        $order = $entity->getOrder();
 //        $paymentMethod = $order->getPayment()->getMethod();
 //        $paymentMethods = explode(
