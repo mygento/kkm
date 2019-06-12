@@ -65,18 +65,18 @@ class ExtraSalesViewToolbarButtons
         }
 
         $entity = $context->getInvoice() ?: $context->getCreditmemo();
-        $order = $entity->getOrder();
-        $paymentMethod = $order->getPayment()->getMethod();
-        $paymentMethods = explode(
-            ',',
-            $this->kkmHelper->getConfig('general/payment_methods')
-        );
-
-        if (!in_array($paymentMethod, $paymentMethods)
-            || $entity->getOrderCurrencyCode() != 'RUB'
-        ) {
-            return;
-        }
+//        $order = $entity->getOrder();
+//        $paymentMethod = $order->getPayment()->getMethod();
+//        $paymentMethods = explode(
+//            ',',
+//            $this->kkmHelper->getConfig('general/payment_methods')
+//        );
+//
+//        if (!in_array($paymentMethod, $paymentMethods)
+//            || $entity->getOrderCurrencyCode() != 'RUB'
+//        ) {
+//            return;
+//        }
 
         $transactions = $this->transactionHelper->getTransactionsByEntity($entity);
 
