@@ -11,6 +11,7 @@ namespace Mygento\Kkm\Helper;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
@@ -191,18 +192,24 @@ class Transaction
      */
     public function getTransactionsByEntity($entity)
     {
+        /** @var Order $order */
         $order = $entity->getOrder();
-        $type = $entity->getEntityType();
-        $txnType = $type === 'invoice'
-            ? \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL
-            : \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND;
+        $this->searchCriteriaBuilder->addFilter('order_id', $order->getId());
 
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('order_id', $order->getId())
-            ->addFilter('txn_type', $txnType)
-            ->create();
+        if ($entity->getEntityType() === 'invoice') {
+            $this->searchCriteriaBuilder->addFilter(
+                'txn_type',
+                [
+                    \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_PREPAYMENT,
+                    \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL,
+                ],
+                'in'
+            );
+        } else {
+            $this->searchCriteriaBuilder->addFilter('txn_type', \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND);
+        }
 
-        $transactions = $this->transactionRepo->getList($searchCriteria);
+        $transactions = $this->transactionRepo->getList($this->searchCriteriaBuilder->create());
 
         //Order has several creditmemos or invoices
         foreach ($transactions->getItems() as $index => $item) {
