@@ -92,25 +92,27 @@ class Send implements ObserverInterface
             return false;
         }
 
-        $order = $entity->getOrder();
-        $paymentMethod = $order->getPayment()->getMethod();
-        $origData = $entity->getOrigData();
-        $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods');
-        $paymentMethods = explode(',', $paymentMethods);
+        if (!$entity->getData(VendorInterface::SKIP_PAYMENT_METHOD_VALIDATION)) {
+            $order = $entity->getOrder();
+            $paymentMethod = $order->getPayment()->getMethod();
+            $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods');
+            $paymentMethods = explode(',', $paymentMethods);
 
-        if (!in_array($paymentMethod, $paymentMethods)) {
-            $this->kkmHelper->debug(
-                __(
-                    'Skipped autosend %1 %2. Reason: Payment method %3 is not allowed',
-                    $entity->getEntityType(),
-                    $entity->getIncrementId(),
-                    $paymentMethod
-                )
-            );
+            if (!in_array($paymentMethod, $paymentMethods)) {
+                $this->kkmHelper->debug(
+                    __(
+                        'Skipped autosend %1 %2. Reason: Payment method %3 is not allowed',
+                        $entity->getEntityType(),
+                        $entity->getIncrementId(),
+                        $paymentMethod
+                    )
+                );
 
-            return false;
+                return false;
+            }
         }
 
+        $origData = $entity->getOrigData();
         if ($origData && isset($origData['increment_id'])) {
             $this->kkmHelper->debug(
                 __(

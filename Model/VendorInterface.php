@@ -22,6 +22,7 @@ interface VendorInterface
 {
     const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
     const ALREADY_SENT_FLAG = 'kkm_already_sent_to_atol';
+    const SKIP_PAYMENT_METHOD_VALIDATION = 'kkm_skip_payment_method_validation';
 
     /**
      * Send request to Vendor
