@@ -14,9 +14,11 @@ use Mygento\Kkm\Model\Source\Tax;
 class Item implements \JsonSerializable, ItemInterface
 {
     const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
+    const PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment';
     const PAYMENT_METHOD_ADVANCE = 'advance';
 
     const PAYMENT_OBJECT_BASIC = 'commodity';
+    const PAYMENT_OBJECT_SERVICE = 'service';
     const PAYMENT_OBJECT_PAYMENT = 'payment'; //Аванс, Бонус, Подарочная карта
     const PAYMENT_OBJECT_ANOTHER = 'another';
 
@@ -36,6 +38,10 @@ class Item implements \JsonSerializable, ItemInterface
     private $paymentMethod = '';
 
     private $paymentObject = '';
+
+    private $countryCode = '';
+
+    private $customsDeclaration = '';
 
     // phpcs:enable
 
@@ -58,6 +64,16 @@ class Item implements \JsonSerializable, ItemInterface
 
         if ($this->getTaxSum()) {
             $item['vat']['sum'] = $this->getTaxSum();//for API v4
+        }
+
+        if ($this->getCountryCode()) {
+            // TODO: Тег 1230 в документации АТОЛ Онлайн отсутствует. Уточнить код параметра.
+            $item['country_code'] = $this->getCountryCode();//for API v4
+        }
+
+        if ($this->getCustomsDeclaration()) {
+            // TODO: Тег 1231 в документации АТОЛ Онлайн отсутствует. Уточнить код параметра.
+            $item['customs_declaration'] = $this->getCustomsDeclaration();//for API v4
         }
 
         return $item;
@@ -208,6 +224,44 @@ class Item implements \JsonSerializable, ItemInterface
     public function setPaymentObject($paymentObject)
     {
         $this->paymentObject = $paymentObject;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountryCode()
+    {
+        return $this->countryCode;
+    }
+
+    /**
+     * @param string $countryCode
+     * @return $this
+     */
+    public function setCountryCode($countryCode)
+    {
+        $this->countryCode = $countryCode;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCustomsDeclaration()
+    {
+        return $this->customsDeclaration;
+    }
+
+    /**
+     * @param string $customsDeclaration
+     * @return $this
+     */
+    public function setCustomsDeclaration($customsDeclaration)
+    {
+        $this->customsDeclaration = $customsDeclaration;
 
         return $this;
     }

@@ -13,6 +13,8 @@
         </arguments>
     </type>
 
+    <preference for="Mygento\Kkm\Api\ProcessorInterface" type="Mygento\Kkm\Model\Processor"/>
+
     <preference for="Mygento\Kkm\Api\Data\RequestInterface" type="Mygento\Kkm\Model\Atol\RequestForVersion4"/>
     <preference for="Mygento\Kkm\Api\Data\ItemInterface" type="Mygento\Kkm\Model\Atol\Item"/>
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>

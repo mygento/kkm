@@ -22,6 +22,7 @@ interface VendorInterface
 {
     const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
     const ALREADY_SENT_FLAG = 'kkm_already_sent_to_atol';
+    const SKIP_PAYMENT_METHOD_VALIDATION = 'kkm_skip_payment_method_validation';
 
     /**
      * Send request to Vendor
@@ -57,9 +58,21 @@ interface VendorInterface
 
     /**
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param string $paymentMethod
+     * @param string $shippingPaymentObject
+     * @param array $receiptData
+     * @param string $clientName
+     * @param string $clientInn
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
-    public function buildRequest($salesEntity): RequestInterface;
+    public function buildRequest(
+        $salesEntity,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = '',
+        $clientInn = ''
+    ): RequestInterface;
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity

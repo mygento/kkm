@@ -65,18 +65,20 @@ class ExtraSalesViewToolbarButtons
         }
 
         $entity = $context->getInvoice() ?: $context->getCreditmemo();
-        $order = $entity->getOrder();
-        $paymentMethod = $order->getPayment()->getMethod();
-        $paymentMethods = explode(
-            ',',
-            $this->kkmHelper->getConfig('general/payment_methods')
-        );
 
-        if (!in_array($paymentMethod, $paymentMethods)
-            || $entity->getOrderCurrencyCode() != 'RUB'
-        ) {
-            return;
-        }
+        // Не проверять по методу оплаты. Достаточно проверки по транзакциям.
+//        $order = $entity->getOrder();
+//        $paymentMethod = $order->getPayment()->getMethod();
+//        $paymentMethods = explode(
+//            ',',
+//            $this->kkmHelper->getConfig('general/payment_methods')
+//        );
+//
+//        if (!in_array($paymentMethod, $paymentMethods)
+//            || $entity->getOrderCurrencyCode() != 'RUB'
+//        ) {
+//            return;
+//        }
 
         $transactions = $this->transactionHelper->getTransactionsByEntity($entity);
 
@@ -155,9 +157,10 @@ class ExtraSalesViewToolbarButtons
         $isWait = false;
         foreach ($transactions as $transaction) {
             $status = $transaction->getKkmStatus();
-            if ($status === Response::STATUS_DONE) {
-                return false;
-            }
+            // может быть завршенная транзакция по предоплате
+//            if ($status === Response::STATUS_DONE) {
+//                return false;
+//            }
             if ($status === Response::STATUS_WAIT) {
                 $isWait = true;
             }

@@ -11,7 +11,9 @@ namespace Mygento\Kkm\Helper;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
@@ -43,7 +45,7 @@ class Transaction
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
-    private $kkmHelper;
+    protected $kkmHelper;
 
     /**
      * @var \Magento\Framework\Api\SearchCriteriaBuilder
@@ -96,25 +98,27 @@ class Transaction
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @param ResponseInterface $response
+     * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function registerTransaction($entity, ResponseInterface $response)
+    public function registerTransaction($entity, ResponseInterface $response, RequestInterface $request = null)
     {
         if ($entity instanceof InvoiceInterface) {
-            return $this->saveSellTransaction($entity, $response);
+            return $this->saveSellTransaction($entity, $response, $request);
         }
 
-        return $this->saveRefundTransaction($entity, $response);
+        return $this->saveRefundTransaction($entity, $response, $request);
     }
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param ResponseInterface $response
+     * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response)
+    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response, RequestInterface $request = null)
     {
         $this->kkmHelper->info(
             __(
@@ -131,10 +135,11 @@ class Transaction
     /**
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @param ResponseInterface $response
+     * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response)
+    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response, RequestInterface $request = null)
     {
         $this->kkmHelper->info(
             __(
@@ -187,18 +192,24 @@ class Transaction
      */
     public function getTransactionsByEntity($entity)
     {
+        /** @var Order $order */
         $order = $entity->getOrder();
-        $type = $entity->getEntityType();
-        $txnType = $type === 'invoice'
-            ? \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL
-            : \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND;
+        $this->searchCriteriaBuilder->addFilter('order_id', $order->getId());
 
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('order_id', $order->getId())
-            ->addFilter('txn_type', $txnType)
-            ->create();
+        if ($entity->getEntityType() === 'invoice') {
+            $this->searchCriteriaBuilder->addFilter(
+                'txn_type',
+                [
+                    \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_PREPAYMENT,
+                    \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL,
+                ],
+                'in'
+            );
+        } else {
+            $this->searchCriteriaBuilder->addFilter('txn_type', \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND);
+        }
 
-        $transactions = $this->transactionRepo->getList($searchCriteria);
+        $transactions = $this->transactionRepo->getList($this->searchCriteriaBuilder->create());
 
         //Order has several creditmemos or invoices
         foreach ($transactions->getItems() as $index => $item) {

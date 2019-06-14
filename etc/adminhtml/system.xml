@@ -8,9 +8,6 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
-        <tab id="mygento" translate="label" sortOrder="10">
-            <label>Mygento Extensions</label>
-        </tab>
         <section id="mygento_kkm" translate="label" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
             <class>separator-top</class>
             <label>Kkm Integration</label>
@@ -125,7 +122,7 @@
                     <label>Custom shipping name</label>
                     <comment>
                         <![CDATA[Custom shipping name]]>
-                    </comment> 
+                    </comment>
                     <depends>
                         <field id="*/*/default_shipping_name">0</field>
                     </depends>
@@ -169,8 +166,106 @@
                 </field>
             </group>
 
+            <group id="company" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Extended Company Settings</label>
+                <field id="is_enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="jur_type_attribute" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Company Type Attribute</label>
+                    <source_model>Mygento\Kkm\Model\Source\CustomerAttributes</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="jur_type_attribute_value_map" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Company Type Attribute Value Map</label>
+                    <frontend_model>Mygento\Kkm\Block\Adminhtml\Form\Field\JurTypeValues</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="default_jur_type" translate="label" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Default Company Type</label>
+                    <source_model>Mygento\Kkm\Model\Source\JurType</source_model>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="jur_inn_attribute" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Inn Attribute</label>
+                    <source_model>Mygento\Kkm\Model\Source\CustomerAttributes</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="jur_name_attribute" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Name Attribute</label>
+                    <source_model>Mygento\Kkm\Model\Source\CustomerAttributes</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <comment><![CDATA[Customer attribute containing Organization name or Individual Entrepreneur full name.]]></comment>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="jur_passport_attribute" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Passport Attribute</label>
+                    <source_model>Mygento\Kkm\Model\Source\CustomerAttributes</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <comment><![CDATA[Customer attribute containing Individual Entrepreneur passport number.]]></comment>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="country_code_attribute" translate="label" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Country Code Attribute</label>
+                    <source_model>Mygento\Base\Model\Source\Attributes</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <comment><![CDATA[Product attribute containing country code according "Russian classification of countries of the world".]]></comment>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="default_country_code" translate="label" type="text" sortOrder="71" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Default Country Code</label>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="custom_declaration_attribute" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Declaration Attribute</label>
+                    <source_model>Mygento\Base\Model\Source\Attributes</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <comment><![CDATA[Product attribute containing custom declaration number value.]]></comment>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+                <field id="default_custom_declaration" translate="label" type="text" sortOrder="81" showInDefault="1" showInWebsite="1" showInStore="0">
+                    <label>Default Custom Declaration</label>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
+
+            </group>
+
             <!--REPORT HANDLING-->
-            <group id="report" translate="label" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="0">
+            <group id="report" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
                 <label>Report Settings</label>
                 <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
                     <label>Enabled</label>

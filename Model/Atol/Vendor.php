@@ -12,6 +12,8 @@ use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Model\EntityInterface;
+use Mygento\Base\Helper\Discount;
+use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
@@ -25,6 +27,13 @@ use Mygento\Kkm\Exception\CreateDocumentFailedException;
  */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
+    const CLIENT_NAME = 'client_name';
+    const CLIENT_INN = 'client_inn';
+
+    const TAX_SUM = 'tax_sum';
+    const CUSTOM_DECLARATION = 'custom_declaration';
+    const COUNTRY_CODE = 'country_code';
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -224,8 +233,15 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
      */
-    public function buildRequest($salesEntity): RequestInterface
-    {
+    public function buildRequest(
+        $salesEntity,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = '',
+        $clientInn = ''
+    ): RequestInterface {
+        /** @var RequestInterface $request */
         $request = $this->requestFactory->create();
         switch ($salesEntity->getEntityType()) {
             case 'invoice':
@@ -251,7 +267,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             );
         }
 
-        $recalculatedReceiptData = $this->kkmDiscount->getRecalculated(
+        $recalculatedReceiptData = $receiptData ?: $this->kkmDiscount->getRecalculated(
             $salesEntity,
             $taxValue,
             $attributeCode,
@@ -259,30 +275,37 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         );
 
         $items = [];
-        foreach ($recalculatedReceiptData['items'] as $key => $itemData) {
+        foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
             //For orders without Shipping (Virtual products)
-            if ($key == 'shipping' && $itemData['name'] === null) {
+            if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
                 continue;
             }
 
             $this->validateItemArray($itemData);
 
             //How to handle GiftCards - see Atol API documentation
-            $paymentMethod = $this->isGiftCard($salesEntity, $itemData['name'])
+            $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_METHOD_ADVANCE
-                : Item::PAYMENT_METHOD_FULL_PAYMENT;
-            $paymentObject = $this->isGiftCard($salesEntity, $itemData['name'])
+                : ($paymentMethod ?: Item::PAYMENT_METHOD_FULL_PAYMENT);
+            $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_OBJECT_PAYMENT
-                : Item::PAYMENT_OBJECT_BASIC;
+                : ($key == Discount::SHIPPING && $shippingPaymentObject ? $shippingPaymentObject : Item::PAYMENT_OBJECT_BASIC);
 
-            $items[] = $this->itemFactory->create()
-                ->setName($itemData['name'])
-                ->setPrice($itemData['price'])
-                ->setSum($itemData['sum'])
-                ->setQuantity($itemData['quantity'] ?? 1)
-                ->setTax($itemData['tax'])
-                ->setPaymentMethod($paymentMethod)
-                ->setPaymentObject($paymentObject);
+            /** @var ItemInterface $item */
+            $item = $this->itemFactory->create();
+            $item
+                ->setName($itemData[Discount::NAME])
+                ->setPrice($itemData[Discount::PRICE])
+                ->setSum($itemData[Discount::SUM])
+                ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
+                ->setTax($itemData[Discount::TAX])
+                ->setPaymentMethod($itemPaymentMethod)
+                ->setPaymentObject($itemPaymentObject)
+                ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
+                ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
+                ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
+
+            $items[] = $item;
         }
 
         $telephone = $order->getBillingAddress()
@@ -293,6 +316,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setExternalId($this->generateExternalId($salesEntity))
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setEmail($order->getCustomerEmail())
+            ->setClientName($clientName)
+            ->setClientInn($clientInn)
             ->setPhone($telephone)
             ->setCompanyEmail($this->kkmHelper->getStoreEmail())
             ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address'))
@@ -417,7 +442,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $response = $this->apiClient->{$callback}($request);
 
             //Save transaction data
-            $txn = $this->transactionHelper->registerTransaction($entity, $response);
+            $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
 
             //Mark attempt as Sent

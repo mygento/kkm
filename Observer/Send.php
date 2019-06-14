@@ -22,7 +22,7 @@ class Send implements ObserverInterface
     private $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Model\Processor
+     * @var \Mygento\Kkm\Api\ProcessorInterface
      */
     private $processor;
 
@@ -40,13 +40,13 @@ class Send implements ObserverInterface
      * Send constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
-     * @param \Mygento\Kkm\Model\Processor $processor
+     * @param \Mygento\Kkm\Api\ProcessorInterface $processor
      * @param \Magento\Framework\Message\ManagerInterface\Proxy $messageManager
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
-        \Mygento\Kkm\Model\Processor $processor,
+        \Mygento\Kkm\Api\ProcessorInterface $processor,
         \Magento\Framework\Message\ManagerInterface\Proxy $messageManager
     ) {
         $this->kkmHelper = $kkmHelper;
@@ -87,29 +87,32 @@ class Send implements ObserverInterface
             || !$this->kkmHelper->getConfig('general/auto_send_after_invoice')
             || $entity->getOrderCurrencyCode() != 'RUB'
             || $entity->getData(VendorInterface::ALREADY_SENT_FLAG)
+            || ($entity->getOrder() ? $entity->getOrder()->getData(VendorInterface::ALREADY_SENT_FLAG) : false)
         ) {
             return false;
         }
 
-        $order = $entity->getOrder();
-        $paymentMethod = $order->getPayment()->getMethod();
-        $origData = $entity->getOrigData();
-        $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods');
-        $paymentMethods = explode(',', $paymentMethods);
+        if (!$entity->getData(VendorInterface::SKIP_PAYMENT_METHOD_VALIDATION)) {
+            $order = $entity->getOrder();
+            $paymentMethod = $order->getPayment()->getMethod();
+            $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods');
+            $paymentMethods = explode(',', $paymentMethods);
 
-        if (!in_array($paymentMethod, $paymentMethods)) {
-            $this->kkmHelper->debug(
-                __(
-                    'Skipped autosend %1 %2. Reason: Payment method %3 is not allowed',
-                    $entity->getEntityType(),
-                    $entity->getIncrementId(),
-                    $paymentMethod
-                )
-            );
+            if (!in_array($paymentMethod, $paymentMethods)) {
+                $this->kkmHelper->debug(
+                    __(
+                        'Skipped autosend %1 %2. Reason: Payment method %3 is not allowed',
+                        $entity->getEntityType(),
+                        $entity->getIncrementId(),
+                        $paymentMethod
+                    )
+                );
 
-            return false;
+                return false;
+            }
         }
 
+        $origData = $entity->getOrigData();
         if ($origData && isset($origData['increment_id'])) {
             $this->kkmHelper->debug(
                 __(

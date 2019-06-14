@@ -41,6 +41,28 @@ interface RequestInterface
     public function setEmail($email): self;
 
     /**
+     * @return string|null
+     */
+    public function getClientName(): ?string;
+
+    /**
+     * @param string|null $clientName
+     * @return $this
+     */
+    public function setClientName($clientName): self;
+
+    /**
+     * @return string|null
+     */
+    public function getClientInn(): ?string;
+
+    /**
+     * @param string|null $clientInn
+     * @return $this
+     */
+    public function setClientInn($clientInn): self;
+
+    /**
      * @return string
      */
     public function getPhone(): string;

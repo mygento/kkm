@@ -8,12 +8,17 @@
 
 namespace Mygento\Kkm\Helper;
 
+use Exception;
+
 /**
  * Class Data
  */
 class Data extends \Mygento\Base\Helper\Data
 {
     const CONFIG_CODE = 'mygento_kkm';
+
+    const CFG_ATTRIBUTE_VALUE = 'attribute_value';
+    const CFG_JUR_TYPE = 'jur_type';
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
@@ -29,7 +34,7 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @return string
      */
     public function getAtolLogin()
@@ -37,14 +42,14 @@ class Data extends \Mygento\Base\Helper\Data
         $login = $this->getConfig('atol/login');
 
         if ($login == false) {
-            throw new \Exception('No login specified.');
+            throw new Exception('No login specified.');
         }
 
         return (string) $login;
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      * @return string
      */
     public function getAtolPassword()
@@ -52,7 +57,7 @@ class Data extends \Mygento\Base\Helper\Data
         $passwd = $this->getConfig('atol/password');
 
         if ($passwd == false) {
-            throw new \Exception('No password specified.');
+            throw new Exception('No password specified.');
         }
 
         return (string) $passwd;
