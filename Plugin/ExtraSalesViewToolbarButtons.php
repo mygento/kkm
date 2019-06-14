@@ -157,9 +157,10 @@ class ExtraSalesViewToolbarButtons
         $isWait = false;
         foreach ($transactions as $transaction) {
             $status = $transaction->getKkmStatus();
-            if ($status === Response::STATUS_DONE) {
-                return false;
-            }
+            // может быть завршенная транзакция по предоплате
+//            if ($status === Response::STATUS_DONE) {
+//                return false;
+//            }
             if ($status === Response::STATUS_WAIT) {
                 $isWait = true;
             }
