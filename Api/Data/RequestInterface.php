@@ -41,9 +41,9 @@ interface RequestInterface
     public function setEmail($email): self;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getClientName(): string;
+    public function getClientName(): ?string;
 
     /**
      * @param string|null $clientName
@@ -52,9 +52,9 @@ interface RequestInterface
     public function setClientName($clientName): self;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getClientInn(): string;
+    public function getClientInn(): ?string;
 
     /**
      * @param string|null $clientInn

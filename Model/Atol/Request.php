@@ -123,7 +123,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritdoc
      */
-    public function getClientName(): string
+    public function getClientName(): ?string
     {
         return $this->clientName;
     }
@@ -141,7 +141,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritdoc
      */
-    public function getClientInn(): string
+    public function getClientInn(): ?string
     {
         return $this->clientInn;
     }
