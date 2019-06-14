@@ -65,6 +65,9 @@ class JurType extends Select
         return $this->setName($value);
     }
 
+    /**
+     * @return string
+     */
     public function getId()
     {
         return $this->getInputId();
