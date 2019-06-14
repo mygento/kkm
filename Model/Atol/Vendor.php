@@ -284,10 +284,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $this->validateItemArray($itemData);
 
             //How to handle GiftCards - see Atol API documentation
-            $paymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_METHOD_ADVANCE
                 : ($paymentMethod ?: Item::PAYMENT_METHOD_FULL_PAYMENT);
-            $paymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_OBJECT_PAYMENT
                 : ($key == Discount::SHIPPING && $shippingPaymentObject ? $shippingPaymentObject : Item::PAYMENT_OBJECT_BASIC);
 
@@ -299,8 +299,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 ->setSum($itemData[Discount::SUM])
                 ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
                 ->setTax($itemData[Discount::TAX])
-                ->setPaymentMethod($paymentMethod)
-                ->setPaymentObject($paymentObject)
+                ->setPaymentMethod($itemPaymentMethod)
+                ->setPaymentObject($itemPaymentObject)
                 ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
                 ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
                 ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
