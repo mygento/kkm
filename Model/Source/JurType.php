@@ -20,6 +20,9 @@ class JurType implements OptionSourceInterfaceAlias
         self::ORGANIZATION => 'Organization',
     ];
 
+    /**
+     * @return array
+     */
     public function toOptionArray()
     {
         $optionArray = array_map(
