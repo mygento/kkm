@@ -21,6 +21,10 @@ class JurTypeValues extends AbstractFieldArray
      */
     private $isActiveRenderer = null;
 
+    /**
+     * @throws LocalizedException
+     * @return void
+     */
     protected function _prepareToRender()
     {
         $this->addColumn(

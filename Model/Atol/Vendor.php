@@ -267,12 +267,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             );
         }
 
-        $recalculatedReceiptData = $receiptData ?: $this->kkmDiscount->getRecalculated(
-            $salesEntity,
-            $taxValue,
-            $attributeCode,
-            $shippingTax
-        );
+        $recalculatedReceiptData = $receiptData
+            ?: $this->kkmDiscount->getRecalculated($salesEntity, $taxValue, $attributeCode, $shippingTax);
 
         $items = [];
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
@@ -289,23 +285,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 : ($paymentMethod ?: Item::PAYMENT_METHOD_FULL_PAYMENT);
             $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_OBJECT_PAYMENT
-                : ($key == Discount::SHIPPING && $shippingPaymentObject ? $shippingPaymentObject : Item::PAYMENT_OBJECT_BASIC);
+                : ($key == Discount::SHIPPING && $shippingPaymentObject
+                    ? $shippingPaymentObject
+                    : Item::PAYMENT_OBJECT_BASIC);
 
-            /** @var ItemInterface $item */
-            $item = $this->itemFactory->create();
-            $item
-                ->setName($itemData[Discount::NAME])
-                ->setPrice($itemData[Discount::PRICE])
-                ->setSum($itemData[Discount::SUM])
-                ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
-                ->setTax($itemData[Discount::TAX])
-                ->setPaymentMethod($itemPaymentMethod)
-                ->setPaymentObject($itemPaymentObject)
-                ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
-                ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
-                ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
-
-            $items[] = $item;
+            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject);
         }
 
         $telephone = $order->getBillingAddress()
@@ -404,6 +388,31 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $order->addStatusHistoryComment($comment);
         $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
         $order->save();
+    }
+
+    /**
+     * @param array $itemData
+     * @param string $itemPaymentMethod
+     * @param string $itemPaymentObject
+     * @return ItemInterface
+     */
+    private function buildItem(array $itemData, $itemPaymentMethod, $itemPaymentObject)
+    {
+        /** @var ItemInterface $item */
+        $item = $this->itemFactory->create();
+        $item
+            ->setName($itemData[Discount::NAME])
+            ->setPrice($itemData[Discount::PRICE])
+            ->setSum($itemData[Discount::SUM])
+            ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
+            ->setTax($itemData[Discount::TAX])
+            ->setPaymentMethod($itemPaymentMethod)
+            ->setPaymentObject($itemPaymentObject)
+            ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
+            ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
+            ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
+
+        return $item;
     }
 
     /**
