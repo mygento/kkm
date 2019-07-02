@@ -117,9 +117,13 @@ class Transaction
      * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function saveSellTransaction(InvoiceInterface $invoice, ResponseInterface $response, RequestInterface $request = null)
-    {
+    public function saveSellTransaction(
+        InvoiceInterface $invoice,
+        ResponseInterface $response,
+        RequestInterface $request = null
+    ) {
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Invoice %2',
@@ -138,9 +142,13 @@ class Transaction
      * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function saveRefundTransaction(CreditmemoInterface $creditmemo, ResponseInterface $response, RequestInterface $request = null)
-    {
+    public function saveRefundTransaction(
+        CreditmemoInterface $creditmemo,
+        ResponseInterface $response,
+        RequestInterface $request = null
+    ) {
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Creditmemo %2',
@@ -206,7 +214,10 @@ class Transaction
                 'in'
             );
         } else {
-            $this->searchCriteriaBuilder->addFilter('txn_type', \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND);
+            $this->searchCriteriaBuilder->addFilter(
+                'txn_type',
+                \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND
+            );
         }
 
         $transactions = $this->transactionRepo->getList($this->searchCriteriaBuilder->create());

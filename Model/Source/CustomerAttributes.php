@@ -19,12 +19,19 @@ class CustomerAttributes implements OptionSourceInterface
      */
     private $customerResource;
 
+    /**
+     * CustomerAttributes constructor.
+     * @param CustomerResource $customerResource
+     */
     public function __construct(
         CustomerResource $customerResource
     ) {
         $this->customerResource = $customerResource;
     }
 
+    /**
+     * @return array
+     */
     public function toOptionArray()
     {
         $customerAttributes = $this->customerResource->loadAllAttributes()->getAttributesByCode();

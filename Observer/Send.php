@@ -86,8 +86,7 @@ class Send implements ObserverInterface
         if (!$this->kkmHelper->getConfig('general/enabled')
             || !$this->kkmHelper->getConfig('general/auto_send_after_invoice')
             || $entity->getOrderCurrencyCode() != 'RUB'
-            || $entity->getData(VendorInterface::ALREADY_SENT_FLAG)
-            || ($entity->getOrder() ? $entity->getOrder()->getData(VendorInterface::ALREADY_SENT_FLAG) : false)
+            || $this->isAlreadySent($entity)
         ) {
             return false;
         }
@@ -126,6 +125,16 @@ class Send implements ObserverInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    private function isAlreadySent($entity)
+    {
+        return $entity->getData(VendorInterface::ALREADY_SENT_FLAG)
+            || ($entity->getOrder() ? $entity->getOrder()->getData(VendorInterface::ALREADY_SENT_FLAG) : false);
     }
 
     /**
