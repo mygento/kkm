@@ -427,7 +427,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private function sendRequest($request, $callback, $entity = null)
     {
-        $trials = $this->attemptHelper->getTrials($request);
+        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
+
+        $trials = $this->attemptHelper->getTrials($request, $entity);
         $maxTrials = $this->kkmHelper->getMaxTrials();
 
         //Don't send if trials number exceeded
@@ -436,8 +438,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             return null;
         }
-
-        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
 
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt(
