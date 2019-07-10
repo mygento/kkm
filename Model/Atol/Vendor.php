@@ -455,6 +455,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
 
+            //Check response.
+            $this->validateResponse($response);
+
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
         } catch (\Throwable $e) {
@@ -463,9 +466,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             throw $e;
         }
-
-        //Check response. Here attempt is successfully done.
-        $this->validateResponse($response);
 
         return $response;
     }
