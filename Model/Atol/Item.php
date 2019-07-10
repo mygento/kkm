@@ -67,13 +67,11 @@ class Item implements \JsonSerializable, ItemInterface
         }
 
         if ($this->getCountryCode()) {
-            // TODO: Тег 1230 в документации АТОЛ Онлайн отсутствует. Уточнить код параметра.
             $item['country_code'] = $this->getCountryCode();//for API v4
         }
 
         if ($this->getCustomsDeclaration()) {
-            // TODO: Тег 1231 в документации АТОЛ Онлайн отсутствует. Уточнить код параметра.
-            $item['customs_declaration'] = $this->getCustomsDeclaration();//for API v4
+            $item['declaration_number'] = $this->getCustomsDeclaration();//for API v4
         }
 
         return $item;
