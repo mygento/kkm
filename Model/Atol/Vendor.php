@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
@@ -436,7 +437,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {
             $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
 
-            return null;
+            throw new LocalizedException(__('Request is skipped. Max num of trials exceeded'));
         }
 
         //Register sending Attempt
