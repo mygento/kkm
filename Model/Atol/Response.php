@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Model\Atol;
 
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 
 class Response implements ResponseInterface
 {
@@ -69,7 +70,7 @@ class Response implements ResponseInterface
         // phpcs:enable
 
         if (!$this->uuid) {
-            throw new \Exception(
+            throw new VendorBadServerAnswerException(
                 __('Receipt is not registered. Response: %1', (string) $jsonRaw)
             );
         }

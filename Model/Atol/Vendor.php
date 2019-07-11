@@ -19,6 +19,7 @@ use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
+use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 
 /**
  * Class Vendor
@@ -160,8 +161,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * @inheritdoc
      * @param string $uuid
-     * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function updateStatus($uuid)
@@ -195,8 +196,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * Save callback from Atol and return related entity (Invoice or Creditmemo)
      * @param ResponseInterface $response
-     * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
      */
     public function saveCallback($response)
@@ -420,10 +421,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param RequestInterface $request
      * @param callable $callback
      * @param CreditmemoInterface|InvoiceInterface $entity
-     * @throws CreateDocumentFailedException
+     * @throws VendorNonFatalErrorException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Throwable
+     * @throws CreateDocumentFailedException
      * @return ResponseInterface|null
      */
     private function sendRequest($request, $callback, $entity = null)
@@ -510,15 +512,59 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * @param ResponseInterface $response
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      */
     private function validateResponse($response)
     {
-        //TODO: Add more validations
         if ($response->isFailed()) {
             throw new CreateDocumentFailedException(
                 __('Reponse is failed or invalid.'),
                 $response
             );
+        }
+
+        if (!$response instanceof \Mygento\Kkm\Model\Atol\Response) {
+            return;
+        }
+
+        if (!$response->getErrorCode()) {
+            return;
+        }
+
+        $this->validateErrorCode($response);
+    }
+
+    /**
+     * @param \Mygento\Kkm\Model\Atol\Response $response
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     */
+    private function validateErrorCode($response)
+    {
+        //Ошибки при работе с ККТ (cash machine errors)
+        if ($response->getErrorCode() < 0) {
+            //increment EID and send it
+            throw new VendorNonFatalErrorException();
+        }
+
+        switch ($response->getErrorCode()) {
+            case '1': //Timeout
+            case '2': //Incorrect INN (if type = agent) or incorrect Group_Code or Operation
+            case '3': //Incorrect Operation
+            case '8': //Validation error.
+            case '22': //Incorrect group_code
+                throw new VendorNonFatalErrorException(
+                    __(
+                        'Error response from ATOL with code %1. Need to resend with new external_id.',
+                        $response->getErrorCode()
+                    )
+                );
+
+            default:
+                throw new CreateDocumentFailedException(
+                    __('Error response from ATOL with code %1.', $response->getErrorCode()),
+                    $response
+                );
         }
     }
 
