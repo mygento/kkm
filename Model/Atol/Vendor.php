@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
@@ -427,17 +428,17 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private function sendRequest($request, $callback, $entity = null)
     {
-        $trials = $this->attemptHelper->getTrials($request);
+        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
+
+        $trials = $this->attemptHelper->getTrials($request, $entity);
         $maxTrials = $this->kkmHelper->getMaxTrials();
 
         //Don't send if trials number exceeded
         if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {
             $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
 
-            return null;
+            throw new LocalizedException(__('Request is skipped. Max num of trials exceeded'));
         }
-
-        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
 
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt(
@@ -454,6 +455,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
 
+            //Check response.
+            $this->validateResponse($response);
+
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
         } catch (\Throwable $e) {
@@ -462,9 +466,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             throw $e;
         }
-
-        //Check response. Here attempt is successfully done.
-        $this->validateResponse($response);
 
         return $response;
     }
