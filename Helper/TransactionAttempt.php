@@ -8,6 +8,8 @@
 
 namespace Mygento\Kkm\Helper;
 
+use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
@@ -51,12 +53,13 @@ class TransactionAttempt
     /**
      * Returns trials number of sending this request
      * @param RequestInterface $request
+     * @param CreditmemoInterface|InvoiceInterface $entity
      * @return int|null
      */
-    public function getTrials(RequestInterface $request)
+    public function getTrials(RequestInterface $request, $entity)
     {
         $attempt = $this->attemptRepository
-            ->getByEntityId($request->getOperationType(), $request->getSalesEntityId());
+            ->getByEntityId($request->getOperationType(), $entity->getIncrementId());
 
         return $attempt->getNumberOfTrials();
     }
