@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
-    <group id="default">
+    <group id="mygento_kkm">
         <job name="kkm_statuses" instance="Mygento\Kkm\Crontab\Update" method="execute">
             <config_path>mygento_kkm/general/update_cron_expr</config_path>
         </job>
