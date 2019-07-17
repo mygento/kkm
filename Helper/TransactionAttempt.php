@@ -58,8 +58,15 @@ class TransactionAttempt
      */
     public function getTrials(RequestInterface $request, $entity)
     {
+        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
-            ->getByEntityId($request->getOperationType(), $entity->getIncrementId());
+            ->getByEntityId($request->getOperationType(), $entity->getEntityId());
+
+        if (!$attempt->getId()) {
+            // поддержка старых попыток, которые имеют entity_id=0
+            $attempt = $this->attemptRepository
+                ->getByIncrementId($request->getOperationType(), $entity->getOrderId(), $entity->getIncrementId());
+        }
 
         return $attempt->getNumberOfTrials();
     }
@@ -67,15 +74,21 @@ class TransactionAttempt
     /**
      * Create new attempt based on request
      * @param RequestInterface $request
-     * @param int|string $entityIncrementId
-     * @param int|string $orderId
+     * @param CreditmemoInterface|InvoiceInterface $entity
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function registerAttempt(RequestInterface $request, $entityIncrementId, $orderId)
+    public function registerAttempt(RequestInterface $request, $entity)
     {
+        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
-            ->getByEntityId($request->getOperationType(), $entityIncrementId);
+            ->getByEntityId($request->getOperationType(), $entity->getEntityId());
+
+        if (!$attempt->getId()) {
+            // поддержка старых попыток, которые имеют entity_id=0
+            $attempt = $this->attemptRepository
+                ->getByIncrementId($request->getOperationType(), $entity->getOrderId(), $entity->getIncrementId());
+        }
 
         $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
 
@@ -84,8 +97,9 @@ class TransactionAttempt
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
             ->setOperation($request->getOperationType())
-            ->setOrderId($orderId)
-            ->setSalesEntityIncrementId($entityIncrementId)
+            ->setOrderId($entity->getOrderId())
+            ->setSalesEntityId($entity->getEntityId())
+            ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($trials === null ? 0 : $trials + 1);
 
         return $this->attemptRepository->save($attempt);

@@ -81,8 +81,27 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
-     * Get sales entity increment id
+     * Get sales entity id
      * @return int|null
+     */
+    public function getSalesEntityId()
+    {
+        return $this->getData(self::SALES_ENTITY_ID);
+    }
+
+    /**
+     * Set sales entity id
+     * @param int $salesEntityId
+     * @return $this
+     */
+    public function setSalesEntityId($salesEntityId)
+    {
+        return $this->setData(self::SALES_ENTITY_ID, $salesEntityId);
+    }
+
+    /**
+     * Get sales entity increment id
+     * @return string|null
      */
     public function getSalesEntityIncrementId()
     {
@@ -91,12 +110,12 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
 
     /**
      * Set sales entity increment id
-     * @param int $salesEntityId
+     * @param string $salesEntityIncrementId
      * @return $this
      */
-    public function setSalesEntityIncrementId($salesEntityId)
+    public function setSalesEntityIncrementId($salesEntityIncrementId)
     {
-        return $this->setData(self::SALES_ENTITY_INCREMENT_ID, $salesEntityId);
+        return $this->setData(self::SALES_ENTITY_INCREMENT_ID, $salesEntityIncrementId);
     }
 
     /**

@@ -18,6 +18,7 @@ interface TransactionAttemptInterface extends TransactionInterface
         1 => 'Payment',
         2 => 'Refund',
     ];
+    const SALES_ENTITY_ID = 'sales_entity_id';
     const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
     const STATUS = 'status';
     const MESSAGE = 'message';
@@ -74,14 +75,27 @@ interface TransactionAttemptInterface extends TransactionInterface
      * Get sales entity id
      * @return int|null
      */
+    public function getSalesEntityId();
+
+    /**
+     * Set sales entity id
+     * @param int $salesEntityId
+     * @return $this
+     */
+    public function setSalesEntityId($salesEntityId);
+
+    /**
+     * Get sales entity increment id
+     * @return string|null
+     */
     public function getSalesEntityIncrementId();
 
     /**
      * Set sales entity increment id
-     * @param int $salesEntityId
+     * @param string $salesEntityIncrementId
      * @return $this
      */
-    public function setSalesEntityIncrementId($salesEntityId);
+    public function setSalesEntityIncrementId($salesEntityIncrementId);
 
     /**
      * Get status

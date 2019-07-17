@@ -20,6 +20,11 @@ Mygento:
           nullable: false
           comment: 'Operation type. Sell or Refund.'
           length: 10
+        sales_entity_id:
+          type: int
+          nullable: false
+          unsigned: true
+          comment: 'Invoice or Creditmemo id'
         sales_entity_increment_id:
           type: varchar
           length: 50
@@ -53,7 +58,7 @@ Mygento:
           columns: ['order_id']
         IX_SALES_ENTITY_U:
           type: 'unique'
-          columns: ['operation', 'sales_entity_increment_id']
+          columns: ['operation', 'sales_entity_increment_id', 'sales_entity_id']
       fk:
         FK_ATTMPT_ORDER_ID_SAL_ORDER_ENT_ID:
           column: 'order_id'

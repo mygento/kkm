@@ -445,8 +445,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt(
             $request,
-            $entity->getIncrementId(),
-            $entity->getOrderId()
+            $entity
         );
 
         try {

@@ -68,7 +68,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
     /**
      * @inheritDoc
      */
-    public function getByEntityId($operation, $entityIncrementId)
+    public function getByEntityId($operation, $entityId)
     {
         /** @var ResourceModel\TransactionAttempt\Collection $collection */
         $collection = $this->collectionFactory->create();
@@ -76,6 +76,30 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             ->addFieldToFilter(
                 TransactionAttemptInterface::OPERATION,
                 ['eq' => $operation]
+            )
+            ->addFieldToFilter(
+                TransactionAttemptInterface::SALES_ENTITY_ID,
+                ['eq' => $entityId]
+            );
+
+        return $collection->getFirstItem();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getByIncrementId($operation, $orderId, $entityIncrementId)
+    {
+        /** @var ResourceModel\TransactionAttempt\Collection $collection */
+        $collection = $this->collectionFactory->create();
+        $collection
+            ->addFieldToFilter(
+                TransactionAttemptInterface::OPERATION,
+                ['eq' => $operation]
+            )
+            ->addFieldToFilter(
+                TransactionAttemptInterface::ORDER_ID,
+                ['eq' => $orderId]
             )
             ->addFieldToFilter(
                 TransactionAttemptInterface::SALES_ENTITY_INCREMENT_ID,
