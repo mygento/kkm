@@ -261,12 +261,19 @@ class Transaction
 
         switch ($entityType) {
             case 'invoice':
-                $invoice = $this->invoiceFactory->create()->loadByIncrementId($incrementId);
+                /** @var InvoiceInterface $invoice */
+                $invoice = $this->invoiceFactory->create()->getCollection()
+                    ->addFieldToFilter('order_id', $transaction->getOrderId())
+                    ->addFieldToFilter('increment_id', $incrementId)
+                    ->getFirstItem();
 
                 return $invoice;
             case 'creditmemo':
-                $creditmemo = $this->creditmemoRepo->create();
-                $this->creditmemoResource->load($creditmemo, $incrementId, 'increment_id');
+                /** @var CreditmemoInterface $creditmemo */
+                $creditmemo = $this->creditmemoRepo->create()->getCollection()
+                    ->addFieldToFilter('order_id', $transaction->getOrderId())
+                    ->addFieldToFilter('increment_id', $incrementId)
+                    ->getFirstItem();
 
                 return $creditmemo;
             default:
