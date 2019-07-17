@@ -122,6 +122,12 @@ class Consumer
     {
         try {
             $this->vendor->sendRefundRequest($request);
+        } catch (VendorNonFatalErrorException $e) {
+            $this->helper->info($e->getMessage());
+
+            $request->setIgnoreTrialsNum(false);
+            $this->increaseExternalId($request);
+            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 

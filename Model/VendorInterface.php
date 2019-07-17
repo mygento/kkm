@@ -45,6 +45,7 @@ interface VendorInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendRefundRequest($request, $creditmemo = null);
