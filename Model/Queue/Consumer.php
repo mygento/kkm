@@ -10,6 +10,7 @@ namespace Mygento\Kkm\Model\Queue;
 
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
+use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Model\Processor;
 
 class Consumer
@@ -96,8 +97,14 @@ class Consumer
     {
         try {
             $this->vendor->sendSellRequest($request);
+        } catch (VendorNonFatalErrorException $e) {
+            $this->helper->info($e->getMessage());
+
+            $request->setIgnoreTrialsNum(false);
+            $this->increaseExternalId($request);
+            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
         } catch (VendorBadServerAnswerException $e) {
-            $this->helper->critical($e->getMessage());
+            $this->helper->info($e->getMessage());
 
             $request->setIgnoreTrialsNum(false);
             $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
@@ -123,6 +130,18 @@ class Consumer
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+        }
+    }
+
+    /**
+     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     */
+    private function increaseExternalId($request)
+    {
+        if (preg_match('/^(.*)__(\d+)$/', $request->getExternalId(), $matches)) {
+            $request->setExternalId($matches[1] . '__' . ($matches[2] + 1));
+        } else {
+            $request->setExternalId($request->getExternalId() . '__1');
         }
     }
 }
