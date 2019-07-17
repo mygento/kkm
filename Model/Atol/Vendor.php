@@ -344,7 +344,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     {
         $postfix = $postfix ? "_{$postfix}" : '';
 
-        return $entity->getEntityType() . '_' . $entity->getIncrementId() . $postfix;
+        return $entity->getEntityType() . '_' . $entity->getStoreId() . '_' . $entity->getIncrementId() . $postfix;
     }
 
     /**
