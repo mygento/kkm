@@ -162,7 +162,11 @@ class Consumer
     public function sendUpdateRequest(UpdateRequestInterface $updateRequest)
     {
         try {
-            $this->vendor->updateStatus($updateRequest->getUuid(), true);
+            /** @var \Mygento\Kkm\Api\Data\ResponseInterface $response */
+            $response = $this->vendor->updateStatus($updateRequest->getUuid(), true);
+            if ($response->isWait()) {
+                $this->publisher->publish(Processor::TOPIC_NAME_UPDATE, $updateRequest);
+            }
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
