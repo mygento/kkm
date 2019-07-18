@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Helper;
 
+use Magento\Framework\DB\Adapter\Pdo\Mysql;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
@@ -317,11 +318,22 @@ class Transaction
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
         if ($this->kkmHelper->isMessageQueueEnabled()) {
-            // если используются очереди, получаем только те транзации, для которых нет активных заданий на обновление статуса
+            // если используются очереди, получаем только те транзации, для которых нет активных
+            // заданий на обновление статуса
             $alias = 't_mygento_kkm_transaction_attempt';
             $conditions[] = sprintf('main_table.order_id = %s.%s', $alias, TransactionAttemptInterface::ORDER_ID);
-            $conditions[] = sprintf('%s.%s = %s', $alias, TransactionAttemptInterface::OPERATION, UpdateRequestInterface::UPDATE_OPERATION_TYPE);
-            $conditions[] = sprintf('%s.%s = %s', $alias, TransactionAttemptInterface::STATUS, TransactionAttemptInterface::STATUS_NEW);
+            $conditions[] = sprintf(
+                '%s.%s = %s',
+                $alias,
+                TransactionAttemptInterface::OPERATION,
+                UpdateRequestInterface::UPDATE_OPERATION_TYPE
+            );
+            $conditions[] = sprintf(
+                '%s.%s > %s',
+                $alias,
+                TransactionAttemptInterface::UPDATED_AT,
+                $transactions->getConnection()->quote((new \DateTime('-1 hour'))->format(Mysql::TIMESTAMP_FORMAT))
+            );
             $transactions->getSelect()
                 ->joinLeft(
                     [$alias => $transactions->getTable('mygento_kkm_transaction_attempt')],

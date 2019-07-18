@@ -109,11 +109,11 @@ class TransactionAttempt
     /**
      * Create new attempt based on request
      * @param CreditmemoInterface|InvoiceInterface $entity
-     * @param int|null $trials
+     * @param bool $increaseTrials
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function registerUpdateAttempt($entity, $trials = null)
+    public function registerUpdateAttempt($entity, $increaseTrials = true)
     {
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
@@ -127,7 +127,11 @@ class TransactionAttempt
             ->setOrderId($entity->getOrderId())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
-            ->setNumberOfTrials($trials ?? $attempt->getNumberOfTrials() + 1);
+            ->setNumberOfTrials(
+                $increaseTrials
+                ? $attempt->getNumberOfTrials() + 1
+                : $attempt->getNumberOfTrials()
+            );
 
         return $this->attemptRepository->save($attempt);
     }
