@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Model\Queue;
 
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Model\Processor;
@@ -90,6 +91,20 @@ class Consumer
     }
 
     /**
+     * @param \Mygento\Kkm\Api\Queue\MergedUpdateRequestInterface $mergedUpdateRequest
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function sendUpdateMergedRequest($mergedUpdateRequest)
+    {
+        $requests = $mergedUpdateRequest->getRequests();
+        $this->helper->debug(count($requests) . ' UpdateRequests received to process.');
+
+        foreach ($requests as $request) {
+            $this->sendRefundRequest($request);
+        }
+    }
+
+    /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
@@ -135,6 +150,24 @@ class Consumer
             $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+        }
+    }
+
+    /**
+     * @param UpdateRequestInterface $updateRequest
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    public function sendUpdateRequest($updateRequest)
+    {
+        try {
+            $this->vendor->updateStatus($updateRequest->getUuid());
+        } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
+            $this->helper->info($e->getMessage());
+
+            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $updateRequest);
+        } catch (\Throwable $e) {
+            $entity = $this->requestHelper->getEntityByUpdateRequest($updateRequest);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }

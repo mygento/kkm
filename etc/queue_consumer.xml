@@ -14,4 +14,8 @@
     <consumer name="mygento.kkm.refund" queue="mygento_kkm_message_refund_queue" connection="db"
               consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
               handler="Mygento\Kkm\Model\Queue\Consumer::sendRefundMergedRequest"/>
+
+    <consumer name="mygento.kkm.update" queue="mygento_kkm_message_update_queue" connection="db"
+              consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
+              handler="Mygento\Kkm\Model\Queue\Consumer::sendUpdateMergedRequest"/>
 </config>

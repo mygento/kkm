@@ -65,3 +65,13 @@ Mygento:
           referenceTable: 'sales_order'
           referenceColumn: 'entity_id'
           indexName: 'IX_ORDER_ID'
+    UpdateRequest:
+      gui: false
+      columns:
+        uuid:
+          type: varchar
+    MergedUpdateRequest:
+      gui: false
+      columns:
+        requests:
+          type: varchar
