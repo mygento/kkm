@@ -96,11 +96,12 @@ class Consumer
      */
     public function sendUpdateMergedRequest($mergedUpdateRequest)
     {
-        $requests = $mergedUpdateRequest->getRequests();
-        $this->helper->debug(count($requests) . ' UpdateRequests received to process.');
+        $updateRequests = $mergedUpdateRequest->getRequests();
+        $this->helper->debug(count($updateRequests) . ' UpdateRequests received to process.');
 
-        foreach ($requests as $request) {
-            $this->sendRefundRequest($request);
+        /** @var UpdateRequestInterface $updateRequest */
+        foreach ($updateRequests as $updateRequest) {
+            $this->sendUpdateRequest($updateRequest);
         }
     }
 
@@ -158,14 +159,14 @@ class Consumer
      * @param UpdateRequestInterface $updateRequest
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function sendUpdateRequest($updateRequest)
+    public function sendUpdateRequest(UpdateRequestInterface $updateRequest)
     {
         try {
-            $this->vendor->updateStatus($updateRequest->getUuid());
+            $this->vendor->updateStatus($updateRequest->getUuid(), true);
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $updateRequest);
+            $this->publisher->publish(Processor::TOPIC_NAME_UPDATE, $updateRequest);
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByUpdateRequest($updateRequest);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);

@@ -94,4 +94,12 @@ class Data extends \Mygento\Base\Helper\Data
     {
         return (int) $this->getConfig('general/max_trials');
     }
+
+    /**
+     * @return int
+     */
+    public function getMaxUpdateTrials()
+    {
+        return (int) $this->getConfig('general/max_update_trials');
+    }
 }

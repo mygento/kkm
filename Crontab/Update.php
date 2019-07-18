@@ -130,11 +130,7 @@ class Update
         $updateRequest->setUuid($uuid);
 
         //Register sending Attempt
-        $this->attemptHelper->registerUpdateAttempt(
-            $updateRequest,
-            $entity,
-            0
-        );
+        $this->attemptHelper->registerUpdateAttempt($entity, 0);
 
         if ($updateRequest instanceof DataObject) {
             $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());

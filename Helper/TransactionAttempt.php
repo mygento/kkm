@@ -53,20 +53,20 @@ class TransactionAttempt
 
     /**
      * Returns trials number of sending this request
-     * @param RequestInterface $request
      * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param int $operationType
      * @return int|null
      */
-    public function getTrials(RequestInterface $request, $entity)
+    public function getTrials($entity, $operationType)
     {
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
-            ->getByEntityId($request->getOperationType(), $entity->getEntityId());
+            ->getByEntityId($operationType, $entity->getEntityId());
 
         if (!$attempt->getId()) {
             // поддержка старых попыток, которые имеют entity_id=0
             $attempt = $this->attemptRepository
-                ->getByIncrementId($request->getOperationType(), $entity->getOrderId(), $entity->getIncrementId());
+                ->getByIncrementId($operationType, $entity->getOrderId(), $entity->getIncrementId());
         }
 
         return $attempt->getNumberOfTrials();
@@ -108,13 +108,12 @@ class TransactionAttempt
 
     /**
      * Create new attempt based on request
-     * @param UpdateRequestInterface $updateRequest
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @param int|null $trials
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function registerUpdateAttempt(UpdateRequestInterface $updateRequest, $entity, $trials = null)
+    public function registerUpdateAttempt($entity, $trials = null)
     {
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository

@@ -12,12 +12,15 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 
@@ -165,8 +168,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
-    public function updateStatus($uuid)
+    public function updateStatus($uuid, $useAttempt = false)
     {
+        if ($useAttempt) {
+            return $this->tryUpdateStatus($uuid);
+        }
+
         $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
 
         if (!$transaction->getId()) {
@@ -393,6 +400,65 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
+     * @param string $uuid
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Throwable
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
+     */
+    private function tryUpdateStatus($uuid)
+    {
+        /** @var TransactionInterface $transaction */
+        $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
+        if (!$transaction->getTransactionId()) {
+            throw new \Exception("Transaction not found. Uuid: {$uuid}");
+        }
+
+        /** @var CreditmemoInterface|InvoiceInterface $entity */
+        $entity = $this->transactionHelper->getEntityByTransaction($transaction);
+        if (!$entity->getEntityId()) {
+            throw new \Exception("Entity not found. Uuid: {$uuid}");
+        }
+
+        $trials = $this->attemptHelper->getTrials($entity, UpdateRequestInterface::UPDATE_OPERATION_TYPE);
+        $maxUpdateTrials = $this->kkmHelper->getMaxUpdateTrials();
+
+        //Don't send if trials number exceeded
+        if ($trials >= $maxUpdateTrials) {
+            $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
+
+            throw new \Exception(__('Request is skipped. Max num of trials exceeded'));
+        }
+
+        //Register sending Attempt
+        /** @var TransactionAttemptInterface $attempt */
+        $attempt = $this->attemptHelper->registerUpdateAttempt($entity);
+
+        try {
+            //Make Request to Vendor's API
+            $response = $this->apiClient->receiveStatus($uuid);
+
+            //Save transaction data
+            /** @var TransactionInterface $txn */
+            $txn = $this->transactionHelper->registerTransaction($entity, $response);
+            $this->addCommentToOrder($entity, $response, $txn->getTransactionId() ?? null);
+
+            //Check response.
+            $this->validateResponse($response);
+
+            //Mark attempt as Sent
+            $this->attemptHelper->finishAttempt($attempt);
+        } catch (\Throwable $e) {
+            //Mark attempt as Error
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        }
+
+        return $response;
+    }
+
+    /**
      * @param array $itemData
      * @param string $itemPaymentMethod
      * @param string $itemPaymentObject
@@ -432,14 +498,14 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     {
         $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
 
-        $trials = $this->attemptHelper->getTrials($request, $entity);
+        $trials = $this->attemptHelper->getTrials($entity, $request->getOperationType());
         $maxTrials = $this->kkmHelper->getMaxTrials();
 
         //Don't send if trials number exceeded
         if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {
             $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
 
-            throw new LocalizedException(__('Request is skipped. Max num of trials exceeded'));
+            throw new \Exception(__('Request is skipped. Max num of trials exceeded'));
         }
 
         //Register sending Attempt
@@ -517,7 +583,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     {
         if ($response->isFailed()) {
             throw new CreateDocumentFailedException(
-                __('Reponse is failed or invalid.'),
+                __('Response is failed or invalid.'),
                 $response
             );
         }
