@@ -68,8 +68,8 @@ class Request
 
     /**
      * @param \Mygento\Kkm\Api\Data\UpdateRequestInterface $updateRequest
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @return CreditmemoInterface|InvoiceInterface|OrderInterface
-     *@throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function getEntityByUpdateRequest($updateRequest)
     {

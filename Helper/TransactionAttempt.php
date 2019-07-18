@@ -12,6 +12,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 
 /**
  * Class Transaction
@@ -101,6 +102,35 @@ class TransactionAttempt
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($trials === null ? 0 : $trials + 1);
+
+        return $this->attemptRepository->save($attempt);
+    }
+
+    /**
+     * Create new attempt based on request
+     * @param UpdateRequestInterface $updateRequest
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param int|null $trials
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
+    public function registerUpdateAttempt(UpdateRequestInterface $updateRequest, $entity, $trials = null)
+    {
+        /** @var TransactionAttemptInterface $attempt */
+        $attempt = $this->attemptRepository
+            ->getByEntityId(UpdateRequestInterface::UPDATE_OPERATION_TYPE, $entity->getEntityId());
+
+        $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
+
+        $trials = $trials ?? $attempt->getNumberOfTrials() + 1;
+
+        $attempt
+            ->setStatus(TransactionAttemptInterface::STATUS_NEW)
+            ->setOperation(UpdateRequestInterface::UPDATE_OPERATION_TYPE)
+            ->setOrderId($entity->getOrderId())
+            ->setSalesEntityId($entity->getEntityId())
+            ->setSalesEntityIncrementId($entity->getIncrementId())
+            ->setNumberOfTrials($trials);
 
         return $this->attemptRepository->save($attempt);
     }

@@ -13,8 +13,11 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
 /**
@@ -235,15 +238,18 @@ class Transaction
 
     /**
      * @param string $txnId
+     * @param null $kkmStatus
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function getTransactionByTxnId($txnId)
+    public function getTransactionByTxnId($txnId, $kkmStatus = null)
     {
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('txn_id', $txnId)
-            ->create();
+        $this->searchCriteriaBuilder->addFilter(TransactionInterface::TXN_ID, $txnId);
+        if ($kkmStatus) {
+            $this->searchCriteriaBuilder->addFilter('kkm_status', $kkmStatus);
+        }
 
-        $transactions = $this->transactionRepo->getList($searchCriteria);
+        /** @var TransactionCollection $transactions */
+        $transactions = $this->transactionRepo->getList($this->searchCriteriaBuilder->create());
 
         return $transactions->getFirstItem();
     }
@@ -307,9 +313,26 @@ class Transaction
             ->addFilter('kkm_status', Response::STATUS_WAIT)
             ->create();
 
+        /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
-        return $transactions->getColumnValues('txn_id');
+        if ($this->kkmHelper->isMessageQueueEnabled()) {
+            // если используются очереди, получаем только те транзации, для которых нет активных заданий на обновление статуса
+            $alias = 't_mygento_kkm_transaction_attempt';
+            $conditions[] = sprintf('main_table.order_id = %s.%s', $alias, TransactionAttemptInterface::ORDER_ID);
+            $conditions[] = sprintf('%s.%s = %s', $alias, TransactionAttemptInterface::OPERATION, UpdateRequestInterface::UPDATE_OPERATION_TYPE);
+            $conditions[] = sprintf('%s.%s = %s', $alias, TransactionAttemptInterface::STATUS, TransactionAttemptInterface::STATUS_NEW);
+            $transactions->getSelect()
+                ->joinLeft(
+                    [$alias => $transactions->getTable('mygento_kkm_transaction_attempt')],
+                    implode(' AND ', $conditions),
+                    []
+                )
+                ->where(sprintf('%s.%s IS NULL', $alias, TransactionAttemptInterface::ID))
+                ->group(TransactionInterface::TXN_ID);
+        }
+
+        return $transactions->getColumnValues(TransactionInterface::TXN_ID);
     }
 
     /**

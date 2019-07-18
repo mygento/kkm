@@ -167,7 +167,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function updateStatus($uuid)
     {
-        $transaction = $this->transactionHelper->getTransactionByTxnId($uuid);
+        $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
 
         if (!$transaction->getId()) {
             $this->kkmHelper->error("Transaction not found. Uuid: {$uuid}");
