@@ -121,15 +121,13 @@ class TransactionAttempt
 
         $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
 
-        $trials = $trials ?? $attempt->getNumberOfTrials() + 1;
-
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
             ->setOperation(UpdateRequestInterface::UPDATE_OPERATION_TYPE)
             ->setOrderId($entity->getOrderId())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
-            ->setNumberOfTrials($trials);
+            ->setNumberOfTrials($trials ?? $attempt->getNumberOfTrials() + 1);
 
         return $this->attemptRepository->save($attempt);
     }
