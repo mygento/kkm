@@ -239,7 +239,7 @@ class Transaction
 
     /**
      * @param string $txnId
-     * @param null $kkmStatus
+     * @param string $kkmStatus
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
     public function getTransactionByTxnId($txnId, $kkmStatus = null)

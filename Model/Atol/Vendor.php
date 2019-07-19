@@ -164,8 +164,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * @inheritdoc
      * @param string $uuid
+     * @param bool $useAttempt
+     * @throws LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Throwable
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function updateStatus($uuid, $useAttempt = false)

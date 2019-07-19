@@ -38,6 +38,7 @@ class Request
 
     /**
      * Request constructor.
+     * @param Transaction $transactionHelper
      * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
      * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
