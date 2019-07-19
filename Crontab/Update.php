@@ -112,7 +112,7 @@ class Update
     }
 
     /**
-     * @param $uuid
+     * @param string $uuid
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function createUpdateAttempt($uuid)
