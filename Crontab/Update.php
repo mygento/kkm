@@ -111,6 +111,10 @@ class Update
         $this->kkmHelper->info('KKM Update statuses Cron END');
     }
 
+    /**
+     * @param $uuid
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     private function createUpdateAttempt($uuid)
     {
         /** @var TransactionInterface $transaction */
