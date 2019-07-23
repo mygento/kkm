@@ -148,6 +148,7 @@ class Consumer
     /**
      * @param RequestInterface $request
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function sendRefundRequest($request)
     {
