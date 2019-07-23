@@ -134,7 +134,7 @@ class Consumer
 
             if ($this->helper->getIsUseCustomRetryIntervals()) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
-                $this->attemptHelper->scheduleNextAttempt($request);
+                $this->attemptHelper->scheduleNextAttempt($request, Processor::TOPIC_NAME_SELL);
             } else {
                 $request->setIgnoreTrialsNum(false);
                 $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
@@ -162,8 +162,13 @@ class Consumer
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 
-            $request->setIgnoreTrialsNum(false);
-            $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
+            if ($this->helper->getIsUseCustomRetryIntervals()) {
+                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
+                $this->attemptHelper->scheduleNextAttempt($request, Processor::TOPIC_NAME_REFUND);
+            } else {
+                $request->setIgnoreTrialsNum(false);
+                $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
+            }
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);

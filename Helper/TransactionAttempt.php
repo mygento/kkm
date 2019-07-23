@@ -126,11 +126,12 @@ class TransactionAttempt
 
     /**
      * @param RequestInterface $request
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param string $topic
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @return TransactionAttemptInterface
      */
-    public function scheduleNextAttempt(RequestInterface $request)
+    public function scheduleNextAttempt(RequestInterface $request, $topic)
     {
         /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
         $entity = $this->requestHelper->getEntityByRequest($request);
@@ -150,7 +151,7 @@ class TransactionAttempt
         $attempt
             ->setIsScheduled(true)
             ->setScheduledAt($this->resolveScheduledAt($attempt))
-            ->setRequestJson($this->messageEncoder->encode(\Mygento\Kkm\Model\Processor::TOPIC_NAME_SELL, $request));
+            ->setRequestJson($this->messageEncoder->encode($topic, $request));
 
         return $this->attemptRepository->save($attempt);
     }

@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Crontab;
 
 use Magento\Framework\Api\SearchCriteriaBuilder;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\MessageQueue\MessageEncoder;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -106,9 +107,26 @@ class ProceedScheduledAttempt
      */
     private function publishRequest(TransactionAttemptInterface $attempt)
     {
+        $topic = $this->getTopic($attempt);
         /** @var RequestInterface $request */
-        $request = $this->messageEncoder->decode(\Mygento\Kkm\Model\Processor::TOPIC_NAME_SELL, $attempt->getRequestJson());
+        $request = $this->messageEncoder->decode($topic, $attempt->getRequestJson());
+        $this->publisher->publish($topic, $request);
+    }
 
-        $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
+    /**
+     * @param TransactionAttemptInterface $attempt
+     * @throws LocalizedException
+     * @return string
+     */
+    private function getTopic(TransactionAttemptInterface $attempt)
+    {
+        switch ($attempt->getOperation()) {
+            case RequestInterface::SELL_OPERATION_TYPE:
+                return Processor::TOPIC_NAME_SELL;
+            case RequestInterface::REFUND_OPERATION_TYPE:
+                return Processor::TOPIC_NAME_REFUND;
+            default:
+                throw new LocalizedException(__('Unsupported operation: %1', $attempt->getOperation()));
+        }
     }
 }
