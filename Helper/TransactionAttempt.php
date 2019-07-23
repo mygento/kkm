@@ -8,8 +8,10 @@
 
 namespace Mygento\Kkm\Helper;
 
+use Magento\Framework\MessageQueue\MessageEncoder;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
@@ -20,6 +22,16 @@ use Mygento\Kkm\Api\Data\UpdateRequestInterface;
  */
 class TransactionAttempt
 {
+    /**
+     * @var MessageEncoder
+     */
+    private $messageEncoder;
+
+    /**
+     * @var Request
+     */
+    private $requestHelper;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -37,15 +49,21 @@ class TransactionAttempt
 
     /**
      * TransactionAttempt constructor.
+     * @param MessageEncoder $messageEncoder
+     * @param Request $requestHelper
      * @param Data $kkmHelper
      * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
+        MessageEncoder $messageEncoder,
+        \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
+        $this->messageEncoder = $messageEncoder;
+        $this->requestHelper = $requestHelper;
         $this->kkmHelper = $kkmHelper;
         $this->attemptRepository = $attemptRepository;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -102,6 +120,37 @@ class TransactionAttempt
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($trials === null ? 0 : $trials + 1);
+
+        return $this->attemptRepository->save($attempt);
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
+    public function scheduleNextAttempt(RequestInterface $request)
+    {
+        /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
+        $entity = $this->requestHelper->getEntityByRequest($request);
+
+        /** @var TransactionAttemptInterface $attempt */
+        $attempt = $this->getAttemptByRequest($request, $entity);
+        if (!$attempt->getId()) {
+            $attempt
+                ->setStatus(TransactionAttemptInterface::STATUS_NEW)
+                ->setOperation($request->getOperationType())
+                ->setOrderId($entity->getOrderId())
+                ->setSalesEntityId($entity->getEntityId())
+                ->setSalesEntityIncrementId($entity->getIncrementId())
+                ->setNumberOfTrials(0);
+        }
+
+        $attempt
+            ->setIsScheduled(true)
+            ->setScheduledAt($this->resolveScheduledAt($attempt))
+            ->setRequestJson($this->messageEncoder->encode(\Mygento\Kkm\Model\Processor::TOPIC_NAME_SELL, $request));
 
         return $this->attemptRepository->save($attempt);
     }
@@ -165,5 +214,43 @@ class TransactionAttempt
             ->setMessage($message);
 
         return $this->attemptRepository->save($attempt);
+    }
+
+    /**
+     * @param RequestInterface $request
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $entity
+     * @return TransactionAttemptInterface
+     */
+    private function getAttemptByRequest(RequestInterface $request, $entity)
+    {
+        /** @var TransactionAttemptInterface $attempt */
+        $attempt = $this->attemptRepository
+            ->getByEntityId($request->getOperationType(), $entity->getEntityId());
+
+        if (!$attempt->getId()) {
+            // поддержка старых попыток, которые имеют entity_id=0
+            $attempt = $this->attemptRepository
+                ->getByIncrementId($request->getOperationType(), $entity->getOrderId(), $entity->getIncrementId());
+        }
+
+        return $attempt;
+    }
+
+    /**
+     * @param TransactionAttemptInterface $attempt
+     * @throws \Exception
+     * @return string
+     */
+    private function resolveScheduledAt(TransactionAttemptInterface $attempt)
+    {
+        $numberOfTrials = $attempt->getNumberOfTrials();
+
+        $scheduledAt = new \DateTime();
+        $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals();
+        if ($customRetryIntervals && isset($customRetryIntervals[$numberOfTrials])) {
+            $scheduledAt->modify("+{$customRetryIntervals[$numberOfTrials]} minute");
+        }
+
+        return $scheduledAt->format('Y-m-d H:i:s');
     }
 }

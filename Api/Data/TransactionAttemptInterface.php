@@ -20,9 +20,10 @@ interface TransactionAttemptInterface extends TransactionInterface
     const MESSAGE = 'message';
     const NUMBER_OF_TRIALS = 'number_of_trials';
     const TOTAL_NUMBER_OF_TRIALS = 'total_number_of_trials';
-    const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
     const SCHEDULED_AT = 'scheduled_at';
+    const IS_SCHEDULED = 'is_scheduled';
+    const REQUEST_JSON = 'request_json';
 
     const OPERATION_LABEL = [
         1 => 'Payment',
@@ -197,4 +198,30 @@ interface TransactionAttemptInterface extends TransactionInterface
      * @return $this
      */
     public function setScheduledAt($scheduledAt);
+
+    /**
+     * Get is scheduled
+     * @return bool|null
+     */
+    public function getIsScheduled();
+
+    /**
+     * Set is scheduled
+     * @param bool $isScheduled
+     * @return $this
+     */
+    public function setIsScheduled($isScheduled);
+
+    /**
+     * Get request json
+     * @return string|null
+     */
+    public function getRequestJson();
+
+    /**
+     * Set request json
+     * @param string $requestJson
+     * @return $this
+     */
+    public function setRequestJson($requestJson);
 }

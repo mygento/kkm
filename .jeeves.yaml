@@ -63,6 +63,15 @@ Mygento:
           default: 'CURRENT_TIMESTAMP'
           comment: 'Scheduled At'
           on_update: false
+        is_scheduled:
+          type: boolean
+          nullable: false
+          default: 0
+          comment: 'Is Scheduled'
+        request_json:
+          type: longtext
+          nullable: true
+          comment: 'Request Json'
       indexes:
         IX_STATUS:
           columns: ['status']

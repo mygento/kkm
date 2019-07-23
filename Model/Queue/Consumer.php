@@ -17,6 +17,11 @@ use Mygento\Kkm\Model\Processor;
 class Consumer
 {
     /**
+     * @var \Mygento\Kkm\Helper\TransactionAttempt
+     */
+    private $attemptHelper;
+
+    /**
      * @var \Mygento\Kkm\Model\VendorInterface
      */
     private $vendor;
@@ -43,6 +48,7 @@ class Consumer
 
     /**
      * Consumer constructor.
+     * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
@@ -50,12 +56,14 @@ class Consumer
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
     public function __construct(
+        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $helper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Magento\Framework\MessageQueue\PublisherInterface $publisher
     ) {
+        $this->attemptHelper = $attemptHelper;
         $this->vendor = $vendor;
         $this->publisher = $publisher;
         $this->helper = $helper;
@@ -108,12 +116,14 @@ class Consumer
     /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
      */
     public function sendSellRequest($request)
     {
         try {
             $this->vendor->sendSellRequest($request);
         } catch (VendorNonFatalErrorException $e) {
+            // меняем external_id и пробуем сделать повторную отправку
             $this->helper->info($e->getMessage());
 
             $request->setIgnoreTrialsNum(false);
@@ -122,8 +132,13 @@ class Consumer
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            $request->setIgnoreTrialsNum(false);
-            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
+            if ($this->helper->getIsUseCustomRetryIntervals()) {
+                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
+                $this->attemptHelper->scheduleNextAttempt($request);
+            } else {
+                $request->setIgnoreTrialsNum(false);
+                $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
+            }
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);

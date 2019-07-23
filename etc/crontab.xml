@@ -4,6 +4,9 @@
         <job name="kkm_statuses" instance="Mygento\Kkm\Crontab\Update" method="execute">
             <config_path>mygento_kkm/general/update_cron_expr</config_path>
         </job>
+        <job name="kkm_proceed_scheduled_attempt" instance="Mygento\Kkm\Crontab\ProceedScheduledAttempt" method="execute">
+            <config_path>mygento_kkm/general/update_cron_expr</config_path>
+        </job>
         <job name="kkm_report" instance="Mygento\Kkm\Crontab\Report" method="execute">
             <config_path>mygento_kkm/report/cron_expr_to_send</config_path>
         </job>

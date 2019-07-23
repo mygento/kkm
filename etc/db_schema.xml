@@ -13,6 +13,8 @@
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Create time"/>
         <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Modify time"/>
         <column xsi:type="timestamp" name="scheduled_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Scheduled At"/>
+        <column xsi:type="boolean" name="is_scheduled" nullable="false" default="0" comment="Is Scheduled"/>
+        <column xsi:type="longtext" name="request_json" nullable="true" comment="Request Json"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>

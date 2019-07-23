@@ -88,6 +88,26 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
+     * @return bool
+     */
+    public function getIsUseCustomRetryIntervals()
+    {
+        return (bool) $this->getConfig('general/is_use_custom_retry_intervals');
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomRetryIntervals()
+    {
+        $customRetryIntervals = $this->getConfig('general/retry_intervals');
+
+        return trim($customRetryIntervals)
+            ? array_filter(array_map('trim', explode(',', $customRetryIntervals)))
+            : [];
+    }
+
+    /**
      * @return int
      */
     public function getMaxTrials()

@@ -267,6 +267,44 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * Get is scheduled
+     * @return bool|null
+     */
+    public function getIsScheduled()
+    {
+        return $this->getData(self::IS_SCHEDULED);
+    }
+
+    /**
+     * Set is scheduled
+     * @param bool $isScheduled
+     * @return $this
+     */
+    public function setIsScheduled($isScheduled)
+    {
+        return $this->setData(self::IS_SCHEDULED, $isScheduled);
+    }
+
+    /**
+     * Get request json
+     * @return string|null
+     */
+    public function getRequestJson()
+    {
+        return $this->getData(self::REQUEST_JSON);
+    }
+
+    /**
+     * Set request json
+     * @param string $requestJson
+     * @return $this
+     */
+    public function setRequestJson($requestJson)
+    {
+        return $this->setData(self::REQUEST_JSON, $requestJson);
+    }
+
+    /**
      * @inheritDoc
      */
     public function getTransactionId()
