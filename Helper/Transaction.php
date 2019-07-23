@@ -14,6 +14,10 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection as CreditmemoCollection;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as CreditmemoCollectionFactory;
+use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollection;
+use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory as InvoiceCollectionFactory;
 use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
@@ -57,46 +61,38 @@ class Transaction
     private $searchCriteriaBuilder;
 
     /**
-     * @var \Magento\Sales\Model\Order\CreditmemoRepository
+     * @var InvoiceCollectionFactory
      */
-    private $creditmemoRepo;
+    private $invoiceCollectionFactory;
 
     /**
-     * @var \Magento\Sales\Model\ResourceModel\Order\Creditmemo
+     * @var CreditmemoCollectionFactory
      */
-    private $creditmemoResource;
-
-    /**
-     * @var \Magento\Sales\Model\Order\InvoiceFactory
-     */
-    private $invoiceFactory;
+    private $creditmemoCollectionFactory;
 
     /**
      * Transaction constructor.
-     * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
+     * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo
-     * @param \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource
-     * @param \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory
+     * @param InvoiceCollectionFactory $invoiceCollectionFactory
+     * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
      * @param Data $kkmHelper
      */
     public function __construct(
-        \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
+        \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo,
-        \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource,
-        \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
+        InvoiceCollectionFactory $invoiceCollectionFactory,
+        CreditmemoCollectionFactory $creditmemoCollectionFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
-        $this->kkmHelper = $kkmHelper;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->creditmemoRepo = $creditmemoRepo;
-        $this->creditmemoResource = $creditmemoResource;
-        $this->invoiceFactory = $invoiceFactory;
+        $this->invoiceCollectionFactory = $invoiceCollectionFactory;
+        $this->creditmemoCollectionFactory = $creditmemoCollectionFactory;
+        $this->kkmHelper = $kkmHelper;
     }
 
     /**
@@ -268,21 +264,21 @@ class Transaction
 
         switch ($entityType) {
             case 'invoice':
-                /** @var InvoiceInterface $invoice */
-                $invoice = $this->invoiceFactory->create()->getCollection()
+                /** @var InvoiceCollection $invoiceCollection */
+                $invoiceCollection = $this->invoiceCollectionFactory->create();
+
+                return $invoiceCollection
                     ->addFieldToFilter('order_id', $transaction->getOrderId())
                     ->addFieldToFilter('increment_id', $incrementId)
                     ->getFirstItem();
-
-                return $invoice;
             case 'creditmemo':
-                /** @var CreditmemoInterface $creditmemo */
-                $creditmemo = $this->creditmemoRepo->create()->getCollection()
+                /** @var CreditmemoCollection $creditmemoCollection */
+                $creditmemoCollection = $this->creditmemoCollectionFactory->create();
+
+                return $creditmemoCollection
                     ->addFieldToFilter('order_id', $transaction->getOrderId())
                     ->addFieldToFilter('increment_id', $incrementId)
                     ->getFirstItem();
-
-                return $creditmemo;
             default:
                 throw new \Exception("Unknown entity type {$entityType}");
         }
