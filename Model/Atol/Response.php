@@ -69,7 +69,7 @@ class Response implements ResponseInterface
         $this->jsonResponse = json_encode($json);
         // phpcs:enable
 
-        if (!$this->uuid || true) { // TODO: TEST!!!!!!!!!!!!!!!!
+        if (!$this->uuid) {
             throw new VendorBadServerAnswerException(
                 __('Receipt is not registered. Response: %1', (string) $jsonRaw)
             );

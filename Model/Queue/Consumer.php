@@ -133,7 +133,10 @@ class Consumer
             $this->helper->info($e->getMessage());
 
             if ($this->helper->getIsUseCustomRetryIntervals()) {
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
+                // помечаем заказ, как KKM Fail
+                // далее находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
+                $entity = $this->requestHelper->getEntityByRequest($request);
+                $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
                 $this->attemptHelper->scheduleNextAttempt($request, Processor::TOPIC_NAME_SELL);
             } else {
                 $request->setIgnoreTrialsNum(false);
@@ -142,6 +145,14 @@ class Consumer
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            if ($this->helper->getIsUseCustomRetryIntervals()) {
+                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
+                $this->attemptHelper->scheduleNextAttempt(
+                    $request,
+                    Processor::TOPIC_NAME_SELL,
+                    (new \DateTime('+1 day'))->format('Y-m-d H:i:s')
+                );
+            }
         }
     }
 

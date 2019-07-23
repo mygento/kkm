@@ -100,18 +100,12 @@ class TransactionAttempt
     public function registerAttempt(RequestInterface $request, $entity)
     {
         /** @var TransactionAttemptInterface $attempt */
-        $attempt = $this->attemptRepository
-            ->getByEntityId($request->getOperationType(), $entity->getEntityId());
-
-        if (!$attempt->getId()) {
-            // поддержка старых попыток, которые имеют entity_id=0
-            $attempt = $this->attemptRepository
-                ->getByIncrementId($request->getOperationType(), $entity->getOrderId(), $entity->getIncrementId());
-        }
+        $attempt = $this->getAttemptByRequest($request, $entity);
 
         $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
 
-        $trials = $attempt->getNumberOfTrials();
+        $numberOfTrials = $attempt->getNumberOfTrials() === null ? 0 : $attempt->getNumberOfTrials() + 1;
+        $totalNumberOfTrials = $attempt->getTotalNumberOfTrials() === null ? 0 : $attempt->getTotalNumberOfTrials() + 1;
 
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
@@ -119,7 +113,17 @@ class TransactionAttempt
             ->setOrderId($entity->getOrderId())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
-            ->setNumberOfTrials($trials === null ? 0 : $trials + 1);
+            ->setNumberOfTrials($numberOfTrials)
+            ->setTotalNumberOfTrials($totalNumberOfTrials);
+
+        return $this->attemptRepository->save($attempt);
+    }
+
+    public function resetNumberOfTrials(RequestInterface $request, $entity)
+    {
+        /** @var TransactionAttemptInterface $attempt */
+        $attempt = $this->getAttemptByRequest($request, $entity);
+        $attempt->setNumberOfTrials(0);
 
         return $this->attemptRepository->save($attempt);
     }
@@ -127,11 +131,12 @@ class TransactionAttempt
     /**
      * @param RequestInterface $request
      * @param string $topic
+     * @param string $scheduledAt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @return TransactionAttemptInterface
      */
-    public function scheduleNextAttempt(RequestInterface $request, $topic)
+    public function scheduleNextAttempt(RequestInterface $request, $topic, $scheduledAt = null)
     {
         /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
         $entity = $this->requestHelper->getEntityByRequest($request);
@@ -150,7 +155,7 @@ class TransactionAttempt
 
         $attempt
             ->setIsScheduled(true)
-            ->setScheduledAt($this->resolveScheduledAt($attempt))
+            ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt))
             ->setRequestJson($this->messageEncoder->encode($topic, $request));
 
         return $this->attemptRepository->save($attempt);
@@ -181,6 +186,11 @@ class TransactionAttempt
                 $increaseTrials
                 ? $attempt->getNumberOfTrials() + 1
                 : $attempt->getNumberOfTrials()
+            )
+            ->setTotalNumberOfTrials(
+                $increaseTrials
+                    ? $attempt->getTotalNumberOfTrials() + 1
+                    : $attempt->getTotalNumberOfTrials()
             );
 
         return $this->attemptRepository->save($attempt);
