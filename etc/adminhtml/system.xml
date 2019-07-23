@@ -140,6 +140,14 @@
                     <comment>Through queue (Magento Queue Framework)</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="is_use_custom_retry_intervals" translate="label comment" type="select" sortOrder="181" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use Custom Retry Intervals</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="retry_intervals" translate="label" type="text" sortOrder="182" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Retry Intervals</label>
+                    <comment>Minutes separated by comma. Example: '1,5,15,30,60'</comment>
+                </field>
                 <field id="max_trials" translate="label" type="text" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Max trials to resend</label>
                 </field>
