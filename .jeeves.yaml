@@ -39,6 +39,10 @@ Mygento:
           type: smallint
           nullable: true
           comment: 'Count of attempts to make KKM transaction'
+        total_number_of_trials:
+          type: smallint
+          nullable: true
+          comment: 'Total count of attempts to make KKM transaction'
         created_at:
           type: timestamp
           nullable: false
@@ -51,6 +55,12 @@ Mygento:
           default: 'CURRENT_TIMESTAMP'
           comment: 'Modify time'
           on_update: true
+        scheduled_at:
+          type: timestamp
+          nullable: false
+          default: 'CURRENT_TIMESTAMP'
+          comment: 'Scheduled At'
+          on_update: false
       indexes:
         IX_STATUS:
           columns: ['status']

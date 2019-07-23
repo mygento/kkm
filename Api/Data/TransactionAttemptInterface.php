@@ -14,16 +14,20 @@ interface TransactionAttemptInterface extends TransactionInterface
 {
     const ID = 'id';
     const OPERATION = 'operation';
-    const OPERATION_LABEL = [
-        1 => 'Payment',
-        2 => 'Refund',
-    ];
     const SALES_ENTITY_ID = 'sales_entity_id';
     const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
     const STATUS = 'status';
     const MESSAGE = 'message';
     const NUMBER_OF_TRIALS = 'number_of_trials';
+    const TOTAL_NUMBER_OF_TRIALS = 'total_number_of_trials';
+    const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
+    const SCHEDULED_AT = 'scheduled_at';
+
+    const OPERATION_LABEL = [
+        1 => 'Payment',
+        2 => 'Refund',
+    ];
 
     const STATUS_NEW = 1;
     const STATUS_NEW_LABEL = 'New Attempt';
@@ -143,6 +147,19 @@ interface TransactionAttemptInterface extends TransactionInterface
     public function setNumberOfTrials($numberOfTrials);
 
     /**
+     * Get total number of trials
+     * @return int|null
+     */
+    public function getTotalNumberOfTrials();
+
+    /**
+     * Set total number of trials
+     * @param int $totalNumberOfTrials
+     * @return $this
+     */
+    public function setTotalNumberOfTrials($totalNumberOfTrials);
+
+    /**
      * Get created at
      * @return string|null
      */
@@ -167,4 +184,17 @@ interface TransactionAttemptInterface extends TransactionInterface
      * @return $this
      */
     public function setUpdatedAt($updatedAt);
+
+    /**
+     * Get scheduled at
+     * @return string|null
+     */
+    public function getScheduledAt();
+
+    /**
+     * Set scheduled at
+     * @param string $scheduledAt
+     * @return $this
+     */
+    public function setScheduledAt($scheduledAt);
 }

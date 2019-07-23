@@ -191,6 +191,25 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * Get total number of trials
+     * @return int|null
+     */
+    public function getTotalNumberOfTrials()
+    {
+        return $this->getData(self::TOTAL_NUMBER_OF_TRIALS);
+    }
+
+    /**
+     * Set total number of trials
+     * @param int $totalNumberOfTrials
+     * @return $this
+     */
+    public function setTotalNumberOfTrials($totalNumberOfTrials)
+    {
+        return $this->setData(self::TOTAL_NUMBER_OF_TRIALS, $totalNumberOfTrials);
+    }
+
+    /**
      * Get created at
      * @return string|null
      */
@@ -226,6 +245,25 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     public function setUpdatedAt($updatedAt)
     {
         return $this->setData(self::UPDATED_AT, $updatedAt);
+    }
+
+    /**
+     * Get scheduled at
+     * @return string|null
+     */
+    public function getScheduledAt()
+    {
+        return $this->getData(self::SCHEDULED_AT);
+    }
+
+    /**
+     * Set scheduled at
+     * @param string $scheduledAt
+     * @return $this
+     */
+    public function setScheduledAt($scheduledAt)
+    {
+        return $this->setData(self::SCHEDULED_AT, $scheduledAt);
     }
 
     /**
