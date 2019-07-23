@@ -37,11 +37,13 @@ Mygento:
           nullable: true
         number_of_trials:
           type: smallint
-          nullable: true
+          nullable: false
+          default: 0
           comment: 'Count of attempts to make KKM transaction'
         total_number_of_trials:
           type: smallint
-          nullable: true
+          nullable: false
+          default: 0
           comment: 'Total count of attempts to make KKM transaction'
         created_at:
           type: timestamp
