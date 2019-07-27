@@ -435,7 +435,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Register sending Attempt
         /** @var TransactionAttemptInterface $attempt */
-        $attempt = $this->attemptHelper->registerUpdateAttempt($entity);
+        $attempt = $this->attemptHelper->registerUpdateAttempt($entity, $transaction);
 
         try {
             //Make Request to Vendor's API

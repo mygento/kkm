@@ -302,6 +302,7 @@ class Transaction
     }
 
     /**
+     * @throws \Exception
      * @return string[]
      */
     public function getAllWaitUuids()
@@ -317,7 +318,18 @@ class Transaction
             // если используются очереди, получаем только те транзации, для которых нет активных
             // заданий на обновление статуса
             $alias = 't_mygento_kkm_transaction_attempt';
-            $conditions[] = sprintf('main_table.order_id = %s.%s', $alias, TransactionAttemptInterface::ORDER_ID);
+            $conditions[] = sprintf(
+                'main_table.%s = %s.%s',
+                TransactionInterface::ORDER_ID,
+                $alias,
+                TransactionAttemptInterface::ORDER_ID
+            );
+            $conditions[] = sprintf(
+                'main_table.%s = %s.%s',
+                TransactionInterface::TXN_TYPE,
+                $alias,
+                TransactionAttemptInterface::TXN_TYPE
+            );
             $conditions[] = sprintf(
                 '%s.%s = %s',
                 $alias,

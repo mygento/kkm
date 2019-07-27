@@ -12,6 +12,7 @@ use Magento\Framework\MessageQueue\MessageEncoder;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
@@ -170,11 +171,12 @@ class TransactionAttempt
     /**
      * Create new attempt based on request
      * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param TransactionInterface $transaction
      * @param bool $increaseTrials
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function registerUpdateAttempt($entity, $increaseTrials = true)
+    public function registerUpdateAttempt($entity, TransactionInterface $transaction, $increaseTrials = true)
     {
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
@@ -186,6 +188,7 @@ class TransactionAttempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
             ->setOperation(UpdateRequestInterface::UPDATE_OPERATION_TYPE)
             ->setOrderId($entity->getOrderId())
+            ->setTxnType($transaction->getTxnType())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials(

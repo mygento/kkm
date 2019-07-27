@@ -3,6 +3,7 @@
     <table name="mygento_kkm_transaction_attempt" resource="default" engine="innodb" comment="Table for kkm transaction attempts">
         <column xsi:type="int" name="id" nullable="false" identity="true" unsigned="true" padding="10" comment="Attempt ID"/>
         <column xsi:type="int" name="order_id" nullable="false" identity="false" unsigned="true" padding="10" comment="Order id"/>
+        <column xsi:type="varchar" name="txn_type" nullable="true" length="15" comment="Txn Type"/>
         <column xsi:type="smallint" name="operation" nullable="false" identity="false" unsigned="false" padding="10" comment="Operation type. Sell or Refund."/>
         <column xsi:type="int" name="sales_entity_id" nullable="false" identity="false" unsigned="true" padding="10" comment="Invoice or Creditmemo id"/>
         <column xsi:type="varchar" name="sales_entity_increment_id" nullable="false" length="50" comment="Invoice or Creditmemo increment id"/>

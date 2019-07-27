@@ -14,6 +14,7 @@ use Magento\Framework\MessageQueue\MessageEncoder;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Model\Processor;
 
@@ -125,6 +126,8 @@ class ProceedScheduledAttempt
                 return Processor::TOPIC_NAME_SELL;
             case RequestInterface::REFUND_OPERATION_TYPE:
                 return Processor::TOPIC_NAME_REFUND;
+            case UpdateRequestInterface::UPDATE_OPERATION_TYPE:
+                return Processor::TOPIC_NAME_UPDATE;
             default:
                 throw new LocalizedException(__('Unsupported operation: %1', $attempt->getOperation()));
         }
