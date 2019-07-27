@@ -9,13 +9,13 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework-message-queue:etc/consumer.xsd">
     <consumer name="mygento.kkm.sell" queue="mygento_kkm_message_sell_queue" connection="db"
               consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
-              handler="Mygento\Kkm\Model\Queue\Consumer::sendSellMergedRequest"/>
+              handler="Mygento\Kkm\Model\Queue\Consumer\SellConsumer::sendMergedRequest"/>
 
     <consumer name="mygento.kkm.refund" queue="mygento_kkm_message_refund_queue" connection="db"
               consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
-              handler="Mygento\Kkm\Model\Queue\Consumer::sendRefundMergedRequest"/>
+              handler="Mygento\Kkm\Model\Queue\Consumer\RefundConsumer::sendMergedRequest"/>
 
     <consumer name="mygento.kkm.update" queue="mygento_kkm_message_update_queue" connection="db"
               consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
-              handler="Mygento\Kkm\Model\Queue\Consumer::sendUpdateMergedRequest"/>
+              handler="Mygento\Kkm\Model\Queue\Consumer\UpdateConsumer::sendMergedRequest"/>
 </config>
