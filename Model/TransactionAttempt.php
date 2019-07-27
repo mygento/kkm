@@ -17,8 +17,6 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
  */
 class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface
 {
-    const NONE_UUID = 'none';
-
     /**
      * Get id
      * @return int|null
@@ -55,6 +53,25 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     public function setOrderId($orderId)
     {
         return $this->setData(self::ORDER_ID, $orderId);
+    }
+
+    /**
+     * Get txn type
+     * @return string|null
+     */
+    public function getTxnType()
+    {
+        return $this->getData(self::TXN_TYPE);
+    }
+
+    /**
+     * Set txn type
+     * @param string $txnType
+     * @return $this
+     */
+    public function setTxnType($txnType)
+    {
+        return $this->setData(self::TXN_TYPE, $txnType);
     }
 
     /**

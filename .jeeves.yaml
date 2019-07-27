@@ -15,6 +15,11 @@ Mygento:
           nullable: false
           unsigned: true
           comment: 'Order id'
+        txn_type:
+          type: varchar
+          length: 15
+          nullable: true
+          comment: 'Txn Type'
         operation:
           type: smallint
           nullable: false
