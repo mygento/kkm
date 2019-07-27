@@ -44,11 +44,6 @@ class TransactionAttempt
     private $attemptRepository;
 
     /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
-     */
-    private $searchCriteriaBuilder;
-
-    /**
      * TransactionAttempt constructor.
      * @param MessageEncoder $messageEncoder
      * @param Request $requestHelper
@@ -60,14 +55,12 @@ class TransactionAttempt
         MessageEncoder $messageEncoder,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+        \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
     ) {
         $this->messageEncoder = $messageEncoder;
         $this->requestHelper = $requestHelper;
         $this->kkmHelper = $kkmHelper;
         $this->attemptRepository = $attemptRepository;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
