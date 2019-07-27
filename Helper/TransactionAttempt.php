@@ -119,6 +119,12 @@ class TransactionAttempt
         return $this->attemptRepository->save($attempt);
     }
 
+    /**
+     * @param RequestInterface $request
+     * @param $entity
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
     public function resetNumberOfTrials(RequestInterface $request, $entity)
     {
         /** @var TransactionAttemptInterface $attempt */
