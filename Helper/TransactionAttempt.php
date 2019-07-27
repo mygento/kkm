@@ -49,7 +49,6 @@ class TransactionAttempt
      * @param Request $requestHelper
      * @param Data $kkmHelper
      * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
         MessageEncoder $messageEncoder,
