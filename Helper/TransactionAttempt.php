@@ -121,7 +121,7 @@ class TransactionAttempt
 
     /**
      * @param RequestInterface $request
-     * @param $entity
+     * @param CreditmemoInterface|InvoiceInterface $entity
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
