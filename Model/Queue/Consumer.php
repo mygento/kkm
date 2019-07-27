@@ -132,7 +132,7 @@ class Consumer
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            if ($this->helper->getIsUseCustomRetryIntervals()) {
+            if ($this->helper->isUseCustomRetryIntervals()) {
                 // помечаем заказ, как KKM Fail
                 // далее находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
                 $entity = $this->requestHelper->getEntityByRequest($request);
@@ -145,7 +145,7 @@ class Consumer
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-            if ($this->helper->getIsUseCustomRetryIntervals()) {
+            if ($this->helper->isUseCustomRetryIntervals()) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
                 $this->attemptHelper->scheduleNextAttempt(
                     $request,
@@ -174,7 +174,7 @@ class Consumer
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 
-            if ($this->helper->getIsUseCustomRetryIntervals()) {
+            if ($this->helper->isUseCustomRetryIntervals()) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
                 $this->attemptHelper->scheduleNextAttempt($request, Processor::TOPIC_NAME_REFUND);
             } else {

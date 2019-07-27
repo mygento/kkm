@@ -90,7 +90,7 @@ class Data extends \Mygento\Base\Helper\Data
     /**
      * @return bool
      */
-    public function getIsUseCustomRetryIntervals()
+    public function isUseCustomRetryIntervals()
     {
         return (bool) $this->getConfig('general/is_use_custom_retry_intervals');
     }
