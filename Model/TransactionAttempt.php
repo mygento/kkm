@@ -9,14 +9,10 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
-use Mygento\Kkm\Helper\Transaction;
 
 /**
- * Class TransactionAttempt should implement TransactionInterface to
- * provide opportunity to count TransactionAttempt in Kkm statistics and Reports.
+ * Class TransactionAttempt
  * @package Mygento\Kkm\Model
  */
 class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface
@@ -302,161 +298,6 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     public function setRequestJson($requestJson)
     {
         return $this->setData(self::REQUEST_JSON, $requestJson);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTransactionId()
-    {
-        return 0;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setTransactionId($id)
-    {
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getParentId()
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getPaymentId()
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTxnId()
-    {
-        return self::NONE_UUID;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getParentTxnId()
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTxnType()
-    {
-        $operation = $this->getOperation();
-
-        return self::OPERATION_LABEL[$operation] ?? $operation;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getIsClosed()
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAdditionalInformation($key = null)
-    {
-        $additionalInfo = $this->getData('additional_information');
-        if ($additionalInfo && isset($additionalInfo[$key])) {
-            return $additionalInfo[$key];
-        }
-
-        $additional[Transaction::INCREMENT_ID_KEY] = $this->getSalesEntityIncrementId();
-        $additional[Transaction::ERROR_MESSAGE_KEY] = $this->getMessage();
-
-        $this->setData('additional_information', [TransactionEntity::RAW_DETAILS => $additional]);
-
-        return $this->getData('additional_information')[$key] ?? null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getChildTransactions()
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setParentId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setPaymentId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setTxnId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setParentTxnId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setTxnType($txnType)
-    {
-        $this->setData(self::OPERATION, $txnType);
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setIsClosed($isClosed)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAdditionalInformation($key, $value)
-    {
-        $this->setData('additional_information', [$key => $value]);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getExtensionAttributes()
-    {
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setExtensionAttributes(\Magento\Sales\Api\Data\TransactionExtensionInterface $extensionAttributes)
-    {
     }
 
     /**

@@ -8,11 +8,10 @@
 
 namespace Mygento\Kkm\Api\Data;
 
-use Magento\Sales\Api\Data\TransactionInterface;
-
-interface TransactionAttemptInterface extends TransactionInterface
+interface TransactionAttemptInterface
 {
     const ID = 'id';
+    const ORDER_ID = 'order_id';
     const OPERATION = 'operation';
     const SALES_ENTITY_ID = 'sales_entity_id';
     const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
@@ -20,6 +19,7 @@ interface TransactionAttemptInterface extends TransactionInterface
     const MESSAGE = 'message';
     const NUMBER_OF_TRIALS = 'number_of_trials';
     const TOTAL_NUMBER_OF_TRIALS = 'total_number_of_trials';
+    const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
     const SCHEDULED_AT = 'scheduled_at';
     const IS_SCHEDULED = 'is_scheduled';
