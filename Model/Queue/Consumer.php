@@ -118,7 +118,7 @@ class Consumer
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function sendSellRequest($request)
+    private function sendSellRequest($request)
     {
         try {
             $this->vendor->sendSellRequest($request);
@@ -161,7 +161,7 @@ class Consumer
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    public function sendRefundRequest($request)
+    private function sendRefundRequest($request)
     {
         try {
             $this->vendor->sendRefundRequest($request);
@@ -191,7 +191,7 @@ class Consumer
      * @param UpdateRequestInterface $updateRequest
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    public function sendUpdateRequest(UpdateRequestInterface $updateRequest)
+    private function sendUpdateRequest(UpdateRequestInterface $updateRequest)
     {
         try {
             /** @var \Mygento\Kkm\Api\Data\ResponseInterface $response */
