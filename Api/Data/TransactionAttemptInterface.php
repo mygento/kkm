@@ -109,12 +109,6 @@ interface TransactionAttemptInterface
     public function getStatus();
 
     /**
-     * Get status label
-     * @return string
-     */
-    public function getStatusLabel();
-
-    /**
      * Set status
      * @param int $status
      * @return $this

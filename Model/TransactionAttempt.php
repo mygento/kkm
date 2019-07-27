@@ -134,21 +134,6 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
-     * @inheritDoc
-     */
-    public function getStatusLabel()
-    {
-        switch ($this->getStatus()) {
-            case self::STATUS_NEW:
-                return self::STATUS_NEW_LABEL;
-            case self::STATUS_SENT:
-                return self::STATUS_SENT_LABEL;
-            case self::STATUS_ERROR:
-                return self::STATUS_ERROR_LABEL;
-        }
-    }
-
-    /**
      * Get message
      * @return string|null
      */

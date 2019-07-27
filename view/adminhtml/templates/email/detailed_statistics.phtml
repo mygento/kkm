@@ -58,7 +58,7 @@ $notSent = array_merge($statistics->getFails(), $statistics->getUnknowns(), $sta
                         ?>
                     <tr>
                         <td style="padding: 0 15px 0 0;"><?php echo $item->getCreatedAt(); ?></td>
-                        <td style="padding: 0 15px;"><?php echo($item->getKkmStatus() ?? $item->getStatusLabel()); ?></td>
+                        <td style="padding: 0 15px;"><?php echo($item->getKkmStatus()); ?></td>
                         <td style="padding: 0 0 0 15px;"><?php echo $item->getTxnId(); ?></td>
                         <td style="padding: 0 0 0 15px;"><?php echo $item->getTxnType(); ?></td>
                         <td style="padding: 0 0 0 15px;"><?php echo $incrementId; ?></td>

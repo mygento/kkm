@@ -166,7 +166,7 @@ HELP
             $detailedStat->addRow(
                 [
                     $item->getCreatedAt(),
-                    $item->getKkmStatus() ?? $item->getStatusLabel(),
+                    $item->getKkmStatus(),
                     $item->getTxnId(),
                     $item->getTxnType(),
                     $incrementId,
