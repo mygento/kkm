@@ -11,10 +11,16 @@ namespace Mygento\Kkm\Helper;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 
 class Request
 {
+    /**
+     * @var Transaction
+     */
+    private $transactionHelper;
+
     /**
      * @var \Magento\Sales\Api\CreditmemoRepositoryInterface
      */
@@ -32,15 +38,18 @@ class Request
 
     /**
      * Request constructor.
+     * @param Transaction $transactionHelper
      * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
      * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
      */
     public function __construct(
+        \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
     ) {
+        $this->transactionHelper = $transactionHelper;
         $this->creditmemoRepository = $creditmemoRepository;
         $this->invoiceRepository = $invoiceRepository;
         $this->orderRepository = $orderRepository;
@@ -64,5 +73,27 @@ class Request
                 return $this->orderRepository->get($request->getSalesEntityId());
                 break;
         }
+    }
+
+    /**
+     * @param \Mygento\Kkm\Api\Data\UpdateRequestInterface $updateRequest
+     * @throws \Exception
+     * @return CreditmemoInterface|InvoiceInterface|OrderInterface
+     */
+    public function getEntityByUpdateRequest($updateRequest)
+    {
+        /** @var TransactionInterface $transaction */
+        $transaction = $this->transactionHelper->getTransactionByTxnId($updateRequest->getUuid());
+        if (!$transaction->getTransactionId()) {
+            throw new \Exception("Transaction not found. Uuid: {$updateRequest->getUuid()}");
+        }
+
+        /** @var CreditmemoInterface|InvoiceInterface $entity */
+        $entity = $this->transactionHelper->getEntityByTransaction($transaction);
+        if (!$entity->getEntityId()) {
+            throw new \Exception("Entity not found. Uuid: {$updateRequest->getUuid()}");
+        }
+
+        return $entity;
     }
 }

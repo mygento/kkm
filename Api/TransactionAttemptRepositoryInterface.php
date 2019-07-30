@@ -29,10 +29,19 @@ interface TransactionAttemptRepositoryInterface
     /**
      * Retrieve TransactionAttempt
      * @param int $operation
+     * @param int $entityId
+     * @return \Mygento\Kkm\Api\Data\TransactionAttemptInterface
+     */
+    public function getByEntityId($operation, $entityId);
+
+    /**
+     * Retrieve TransactionAttempt
+     * @param int $operation
+     * @param int $orderId
      * @param string $entityIncrementId
      * @return \Mygento\Kkm\Api\Data\TransactionAttemptInterface
      */
-    public function getByEntityId($operation, $entityIncrementId);
+    public function getByIncrementId($operation, $orderId, $entityIncrementId);
 
     /**
      * Retrieve TransactionAttempt entities matching the specified criteria

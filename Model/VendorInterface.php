@@ -45,17 +45,20 @@ interface VendorInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendRefundRequest($request, $creditmemo = null);
 
     /**
      * @param string $uuid It is Transaction Id on Magento side
+     * @param bool $useAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
-    public function updateStatus($uuid);
+    public function updateStatus($uuid, $useAttempt = false);
 
     /**
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity

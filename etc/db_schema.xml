@@ -3,13 +3,19 @@
     <table name="mygento_kkm_transaction_attempt" resource="default" engine="innodb" comment="Table for kkm transaction attempts">
         <column xsi:type="int" name="id" nullable="false" identity="true" unsigned="true" padding="10" comment="Attempt ID"/>
         <column xsi:type="int" name="order_id" nullable="false" identity="false" unsigned="true" padding="10" comment="Order id"/>
+        <column xsi:type="varchar" name="txn_type" nullable="true" length="15" comment="Txn Type"/>
         <column xsi:type="smallint" name="operation" nullable="false" identity="false" unsigned="false" padding="10" comment="Operation type. Sell or Refund."/>
-        <column xsi:type="varchar" name="sales_entity_increment_id" nullable="false" length="50" comment="Invoice or Creditmemo id"/>
+        <column xsi:type="int" name="sales_entity_id" nullable="false" identity="false" unsigned="true" padding="10" comment="Invoice or Creditmemo id"/>
+        <column xsi:type="varchar" name="sales_entity_increment_id" nullable="false" length="50" comment="Invoice or Creditmemo increment id"/>
         <column xsi:type="smallint" name="status" nullable="false" identity="false" unsigned="false" padding="10" comment="Status"/>
         <column xsi:type="text" name="message" nullable="true" comment="Message"/>
-        <column xsi:type="smallint" name="number_of_trials" nullable="true" identity="false" unsigned="false" padding="10" comment="Count of attempts to make KKM transaction"/>
+        <column xsi:type="smallint" name="number_of_trials" nullable="false" identity="false" unsigned="false" padding="10" default="0" comment="Count of attempts to make KKM transaction"/>
+        <column xsi:type="smallint" name="total_number_of_trials" nullable="false" identity="false" unsigned="false" padding="10" default="0" comment="Total count of attempts to make KKM transaction"/>
         <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Create time"/>
         <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="true" comment="Modify time"/>
+        <column xsi:type="timestamp" name="scheduled_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Scheduled At"/>
+        <column xsi:type="boolean" name="is_scheduled" nullable="false" default="0" comment="Is Scheduled"/>
+        <column xsi:type="longtext" name="request_json" nullable="true" comment="Request Json"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>
@@ -22,6 +28,7 @@
         <constraint xsi:type="unique" referenceId="IX_SALES_ENTITY_U">
             <column name="operation"/>
             <column name="sales_entity_increment_id"/>
+            <column name="sales_entity_id"/>
         </constraint>
         <constraint xsi:type="foreign" referenceId="FK_ATTMPT_ORDER_ID_SAL_ORDER_ENT_ID" table="mygento_kkm_transaction_attempt" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
     </table>
