@@ -125,7 +125,7 @@ class ExtraSalesViewToolbarButtons
             strpos($block->getType(), 'Adminhtml\Order\Invoice\View')
                 ||
                 strpos($block->getType(), 'Adminhtml\Order\Creditmemo\View')
-            )
+        )
         );
     }
 
