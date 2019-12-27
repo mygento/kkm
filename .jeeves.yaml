@@ -82,6 +82,8 @@ Mygento:
           columns: ['status']
         IX_ORDER_ID:
           columns: ['order_id']
+        IX_IS_SCHEDULED_SCHEDULED_AT:
+          columns: ['is_scheduled', 'scheduled_at']
         IX_SALES_ENTITY_U:
           type: 'unique'
           columns: ['operation', 'sales_entity_increment_id', 'sales_entity_id']
