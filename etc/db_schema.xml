@@ -25,6 +25,10 @@
         <index referenceId="IX_ORDER_ID" indexType="btree">
             <column name="order_id"/>
         </index>
+        <index referenceId="IX_IS_SCHEDULED_SCHEDULED_AT" indexType="btree">
+            <column name="is_scheduled"/>
+            <column name="scheduled_at"/>
+        </index>
         <constraint xsi:type="unique" referenceId="IX_SALES_ENTITY_U">
             <column name="operation"/>
             <column name="sales_entity_increment_id"/>
