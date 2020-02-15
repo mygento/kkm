@@ -321,6 +321,33 @@
                 </field>
 
             </group>
+
+            <group id="recalculating" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Recalculating Settings (Advanced)</label>
+
+                <field id="apply_algorithm" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Apply Discount Algorithm</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="spread_discount" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Spread Discount evenly</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="*/*/apply_algorithm">1</field>
+                    </depends>
+                </field>
+
+                <field id="split_allowed" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Split items allowed</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="*/*/apply_algorithm">1</field>
+                    </depends>
+                    <comment>Ability to split 1 item to 2 with different prices (if needed)</comment>
+                </field>
+
+            </group>
         </section>
     </system>
 </config>
