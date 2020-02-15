@@ -279,6 +279,19 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             );
         }
 
+        $this->kkmHelper->getConfig('atol/sno');
+
+        //Set mode flags for Discount logic
+        $applyAlgo = $this->kkmHelper->getConfig('recalculating/apply_algorithm');
+        $this->kkmDiscount->setDoCalculation((bool)$applyAlgo);
+        if ($applyAlgo) {
+            $isSpreadAllowed = $this->kkmHelper->getConfig('general/spread_discount');
+            $isSplitAllowed = $this->kkmHelper->getConfig('general/split_allowed');
+
+            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool)$isSpreadAllowed);
+            $this->kkmDiscount->setIsSplitItemsAllowed((bool)$isSplitAllowed);
+        }
+
         $recalculatedReceiptData = $receiptData
             ?: $this->kkmDiscount->getRecalculated($salesEntity, $taxValue, $attributeCode, $shippingTax);
 

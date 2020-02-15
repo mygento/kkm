@@ -35,6 +35,11 @@
                 <auto_send_after_cancel>1</auto_send_after_cancel>
                 <update_cron_expr>* * * * *</update_cron_expr>
             </general>
+            <recalculating>
+                <apply_algorithm>1</apply_algorithm>
+                <spread_discount>0</spread_discount>
+                <split_allowed>0</split_allowed>
+            </recalculating>
         </mygento_kkm>
     </default>
 </config>
