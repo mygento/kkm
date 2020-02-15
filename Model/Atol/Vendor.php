@@ -274,21 +274,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         if (!$this->kkmHelper->getConfig('general/default_shipping_name')) {
-            $order->setShippingDescription(
-                $this->kkmHelper->getConfig('general/custom_shipping_name')
-            );
+            $shippingDescription = $this->kkmHelper->getConfig('general/custom_shipping_name');
+            $order->setShippingDescription($shippingDescription);
         }
-
-        //Set mode flags for Discount logic
-        $applyAlgo = $this->kkmHelper->getConfig('recalculating/apply_algorithm');
-        $this->kkmDiscount->setDoCalculation((bool)$applyAlgo);
-        if ($applyAlgo) {
-            $isSpreadAllowed = $this->kkmHelper->getConfig('general/spread_discount');
-            $isSplitAllowed = $this->kkmHelper->getConfig('general/split_allowed');
-
-            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool)$isSpreadAllowed);
-            $this->kkmDiscount->setIsSplitItemsAllowed((bool)$isSplitAllowed);
-        }
+        $this->configureDiscountHelper();
 
         $recalculatedReceiptData = $receiptData
             ?: $this->kkmDiscount->getRecalculated($salesEntity, $taxValue, $attributeCode, $shippingTax);
@@ -664,6 +653,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw new \Exception(
                 __('Can not send data to Atol. Reason: %1', $reason)
             );
+        }
+    }
+
+    /**
+     * Set mode flags for Discount logic
+     */
+    protected function configureDiscountHelper()
+    {
+        $applyAlgo = $this->kkmHelper->getConfig('recalculating/apply_algorithm');
+        $this->kkmDiscount->setDoCalculation((bool)$applyAlgo);
+        if ($applyAlgo) {
+            $isSpreadAllowed = $this->kkmHelper->getConfig('general/spread_discount');
+            $isSplitAllowed = $this->kkmHelper->getConfig('general/split_allowed');
+
+            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool)$isSpreadAllowed);
+            $this->kkmDiscount->setIsSplitItemsAllowed((bool)$isSplitAllowed);
         }
     }
 }
