@@ -403,6 +403,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
+     * Set mode flags for Discount logic
+     */
+    protected function configureDiscountHelper()
+    {
+        $applyAlgo = $this->kkmHelper->getConfig('recalculating/apply_algorithm');
+        $this->kkmDiscount->setDoCalculation((bool) $applyAlgo);
+        if ($applyAlgo) {
+            $isSpreadAllowed = $this->kkmHelper->getConfig('general/spread_discount');
+            $isSplitAllowed = $this->kkmHelper->getConfig('general/split_allowed');
+
+            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool) $isSpreadAllowed);
+            $this->kkmDiscount->setIsSplitItemsAllowed((bool) $isSplitAllowed);
+        }
+    }
+
+    /**
      * @param string $uuid
      * @throws LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -653,22 +669,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw new \Exception(
                 __('Can not send data to Atol. Reason: %1', $reason)
             );
-        }
-    }
-
-    /**
-     * Set mode flags for Discount logic
-     */
-    protected function configureDiscountHelper()
-    {
-        $applyAlgo = $this->kkmHelper->getConfig('recalculating/apply_algorithm');
-        $this->kkmDiscount->setDoCalculation((bool)$applyAlgo);
-        if ($applyAlgo) {
-            $isSpreadAllowed = $this->kkmHelper->getConfig('general/spread_discount');
-            $isSplitAllowed = $this->kkmHelper->getConfig('general/split_allowed');
-
-            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool)$isSpreadAllowed);
-            $this->kkmDiscount->setIsSplitItemsAllowed((bool)$isSplitAllowed);
         }
     }
 }
