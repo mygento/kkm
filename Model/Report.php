@@ -130,14 +130,15 @@ class Report
                 ->addFilter('kkm_status', null, 'neq')
                 ->create()
         );
-        $transactionAttempts = $this->attemptRepository->getList(
-            $searchCriteriaBuilder->create()
-        );
+//        $transactionAttempts = $this->attemptRepository->getList(
+//            $searchCriteriaBuilder->create()
+//        );
 
         /** @var $statistics \Mygento\Kkm\Model\Statistics */
         $statistics = $this->statisticsFactory->create();
 
-        $items = array_merge($transactions->getItems(), $transactionAttempts->getItems());
+//        $items = array_merge($transactions->getItems(), $transactionAttempts->getItems());
+        $items = $transactions->getItems();
         foreach ($items as $item) {
             $info = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $status = $item->getKkmStatus()

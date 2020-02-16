@@ -14,6 +14,7 @@ class Processor implements ProcessorInterface
 {
     const TOPIC_NAME_SELL = 'mygento.kkm.message.sell';
     const TOPIC_NAME_REFUND = 'mygento.kkm.message.refund';
+    const TOPIC_NAME_UPDATE = 'mygento.kkm.message.update';
 
     /**
      * @var \Mygento\Kkm\Model\VendorInterface

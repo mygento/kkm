@@ -1,0 +1,25 @@
+{
+    "mygento_kkm_transaction_attempt": {
+        "column": {
+            "id": true,
+            "order_id": true,
+            "operation": true,
+            "sales_entity_id": true,
+            "sales_entity_increment_id": true,
+            "status": true,
+            "message": true,
+            "number_of_trials": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_STATUS": true,
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "UNQ_C25BBFFBD4D1C59FE6BF140EFB4852F0": true,
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+        }
+    }
+}

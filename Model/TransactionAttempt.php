@@ -9,20 +9,14 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Model\AbstractModel;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
-use Mygento\Kkm\Helper\Transaction;
 
 /**
- * Class TransactionAttempt should implement TransactionInterface to
- * provide opportunity to count TransactionAttempt in Kkm statistics and Reports.
+ * Class TransactionAttempt
  * @package Mygento\Kkm\Model
  */
 class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface
 {
-    const NONE_UUID = 'none';
-
     /**
      * Get id
      * @return int|null
@@ -62,6 +56,25 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * Get txn type
+     * @return string|null
+     */
+    public function getTxnType()
+    {
+        return $this->getData(self::TXN_TYPE);
+    }
+
+    /**
+     * Set txn type
+     * @param string $txnType
+     * @return $this
+     */
+    public function setTxnType($txnType)
+    {
+        return $this->setData(self::TXN_TYPE, $txnType);
+    }
+
+    /**
      * Get operation
      * @return int|null
      */
@@ -81,8 +94,27 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
-     * Get sales entity increment id
+     * Get sales entity id
      * @return int|null
+     */
+    public function getSalesEntityId()
+    {
+        return $this->getData(self::SALES_ENTITY_ID);
+    }
+
+    /**
+     * Set sales entity id
+     * @param int $salesEntityId
+     * @return $this
+     */
+    public function setSalesEntityId($salesEntityId)
+    {
+        return $this->setData(self::SALES_ENTITY_ID, $salesEntityId);
+    }
+
+    /**
+     * Get sales entity increment id
+     * @return string|null
      */
     public function getSalesEntityIncrementId()
     {
@@ -91,12 +123,12 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
 
     /**
      * Set sales entity increment id
-     * @param int $salesEntityId
+     * @param string $salesEntityIncrementId
      * @return $this
      */
-    public function setSalesEntityIncrementId($salesEntityId)
+    public function setSalesEntityIncrementId($salesEntityIncrementId)
     {
-        return $this->setData(self::SALES_ENTITY_INCREMENT_ID, $salesEntityId);
+        return $this->setData(self::SALES_ENTITY_INCREMENT_ID, $salesEntityIncrementId);
     }
 
     /**
@@ -116,21 +148,6 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     public function setStatus($status)
     {
         return $this->setData(self::STATUS, $status);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getStatusLabel()
-    {
-        switch ($this->getStatus()) {
-            case self::STATUS_NEW:
-                return self::STATUS_NEW_LABEL;
-            case self::STATUS_SENT:
-                return self::STATUS_SENT_LABEL;
-            case self::STATUS_ERROR:
-                return self::STATUS_ERROR_LABEL;
-        }
     }
 
     /**
@@ -172,6 +189,25 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * Get total number of trials
+     * @return int|null
+     */
+    public function getTotalNumberOfTrials()
+    {
+        return $this->getData(self::TOTAL_NUMBER_OF_TRIALS);
+    }
+
+    /**
+     * Set total number of trials
+     * @param int $totalNumberOfTrials
+     * @return $this
+     */
+    public function setTotalNumberOfTrials($totalNumberOfTrials)
+    {
+        return $this->setData(self::TOTAL_NUMBER_OF_TRIALS, $totalNumberOfTrials);
+    }
+
+    /**
      * Get created at
      * @return string|null
      */
@@ -210,158 +246,60 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
-     * @inheritDoc
+     * Get scheduled at
+     * @return string|null
      */
-    public function getTransactionId()
+    public function getScheduledAt()
     {
-        return 0;
+        return $this->getData(self::SCHEDULED_AT);
     }
 
     /**
-     * @inheritDoc
+     * Set scheduled at
+     * @param string $scheduledAt
+     * @return $this
      */
-    public function setTransactionId($id)
+    public function setScheduledAt($scheduledAt)
     {
-        return $this;
+        return $this->setData(self::SCHEDULED_AT, $scheduledAt);
     }
 
     /**
-     * @inheritDoc
+     * Get is scheduled
+     * @return bool|null
      */
-    public function getParentId()
+    public function getIsScheduled()
     {
+        return $this->getData(self::IS_SCHEDULED);
     }
 
     /**
-     * @inheritDoc
+     * Set is scheduled
+     * @param bool $isScheduled
+     * @return $this
      */
-    public function getPaymentId()
+    public function setIsScheduled($isScheduled)
     {
+        return $this->setData(self::IS_SCHEDULED, $isScheduled);
     }
 
     /**
-     * @inheritDoc
+     * Get request json
+     * @return string|null
      */
-    public function getTxnId()
+    public function getRequestJson()
     {
-        return self::NONE_UUID;
+        return $this->getData(self::REQUEST_JSON);
     }
 
     /**
-     * @inheritDoc
+     * Set request json
+     * @param string $requestJson
+     * @return $this
      */
-    public function getParentTxnId()
+    public function setRequestJson($requestJson)
     {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getTxnType()
-    {
-        $operation = $this->getOperation();
-
-        return self::OPERATION_LABEL[$operation] ?? $operation;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getIsClosed()
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getAdditionalInformation($key = null)
-    {
-        $additionalInfo = $this->getData('additional_information');
-        if ($additionalInfo && isset($additionalInfo[$key])) {
-            return $additionalInfo[$key];
-        }
-
-        $additional[Transaction::INCREMENT_ID_KEY] = $this->getSalesEntityIncrementId();
-        $additional[Transaction::ERROR_MESSAGE_KEY] = $this->getMessage();
-
-        $this->setData('additional_information', [TransactionEntity::RAW_DETAILS => $additional]);
-
-        return $this->getData('additional_information')[$key] ?? null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getChildTransactions()
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setParentId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setPaymentId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setTxnId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setParentTxnId($id)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setTxnType($txnType)
-    {
-        $this->setData(self::OPERATION, $txnType);
-
-        return $this;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setIsClosed($isClosed)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setAdditionalInformation($key, $value)
-    {
-        $this->setData('additional_information', [$key => $value]);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getExtensionAttributes()
-    {
-        return null;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function setExtensionAttributes(\Magento\Sales\Api\Data\TransactionExtensionInterface $extensionAttributes)
-    {
+        return $this->setData(self::REQUEST_JSON, $requestJson);
     }
 
     /**

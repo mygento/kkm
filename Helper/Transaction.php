@@ -8,13 +8,21 @@
 
 namespace Mygento\Kkm\Helper;
 
+use Magento\Framework\DB\Adapter\Pdo\Mysql;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection as CreditmemoCollection;
+use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as CreditmemoCollectionFactory;
+use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollection;
+use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory as InvoiceCollectionFactory;
+use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
 /**
@@ -53,46 +61,38 @@ class Transaction
     private $searchCriteriaBuilder;
 
     /**
-     * @var \Magento\Sales\Model\Order\CreditmemoRepository
+     * @var InvoiceCollectionFactory
      */
-    private $creditmemoRepo;
+    private $invoiceCollectionFactory;
 
     /**
-     * @var \Magento\Sales\Model\ResourceModel\Order\Creditmemo
+     * @var CreditmemoCollectionFactory
      */
-    private $creditmemoResource;
-
-    /**
-     * @var \Magento\Sales\Model\Order\InvoiceFactory
-     */
-    private $invoiceFactory;
+    private $creditmemoCollectionFactory;
 
     /**
      * Transaction constructor.
-     * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
+     * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo
-     * @param \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource
-     * @param \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory
+     * @param InvoiceCollectionFactory $invoiceCollectionFactory
+     * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
      * @param Data $kkmHelper
      */
     public function __construct(
-        \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
+        \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo,
-        \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource,
-        \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
+        InvoiceCollectionFactory $invoiceCollectionFactory,
+        CreditmemoCollectionFactory $creditmemoCollectionFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
-        $this->kkmHelper = $kkmHelper;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
-        $this->creditmemoRepo = $creditmemoRepo;
-        $this->creditmemoResource = $creditmemoResource;
-        $this->invoiceFactory = $invoiceFactory;
+        $this->invoiceCollectionFactory = $invoiceCollectionFactory;
+        $this->creditmemoCollectionFactory = $creditmemoCollectionFactory;
+        $this->kkmHelper = $kkmHelper;
     }
 
     /**
@@ -235,15 +235,18 @@ class Transaction
 
     /**
      * @param string $txnId
+     * @param string $kkmStatus
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function getTransactionByTxnId($txnId)
+    public function getTransactionByTxnId($txnId, $kkmStatus = null)
     {
-        $searchCriteria = $this->searchCriteriaBuilder
-            ->addFilter('txn_id', $txnId)
-            ->create();
+        $this->searchCriteriaBuilder->addFilter(TransactionInterface::TXN_ID, $txnId);
+        if ($kkmStatus) {
+            $this->searchCriteriaBuilder->addFilter('kkm_status', $kkmStatus);
+        }
 
-        $transactions = $this->transactionRepo->getList($searchCriteria);
+        /** @var TransactionCollection $transactions */
+        $transactions = $this->transactionRepo->getList($this->searchCriteriaBuilder->create());
 
         return $transactions->getFirstItem();
     }
@@ -261,14 +264,21 @@ class Transaction
 
         switch ($entityType) {
             case 'invoice':
-                $invoice = $this->invoiceFactory->create()->loadByIncrementId($incrementId);
+                /** @var InvoiceCollection $invoiceCollection */
+                $invoiceCollection = $this->invoiceCollectionFactory->create();
 
-                return $invoice;
+                return $invoiceCollection
+                    ->addFieldToFilter('order_id', $transaction->getOrderId())
+                    ->addFieldToFilter('increment_id', $incrementId)
+                    ->getFirstItem();
             case 'creditmemo':
-                $creditmemo = $this->creditmemoRepo->create();
-                $this->creditmemoResource->load($creditmemo, $incrementId, 'increment_id');
+                /** @var CreditmemoCollection $creditmemoCollection */
+                $creditmemoCollection = $this->creditmemoCollectionFactory->create();
 
-                return $creditmemo;
+                return $creditmemoCollection
+                    ->addFieldToFilter('order_id', $transaction->getOrderId())
+                    ->addFieldToFilter('increment_id', $incrementId)
+                    ->getFirstItem();
             default:
                 throw new \Exception("Unknown entity type {$entityType}");
         }
@@ -292,6 +302,7 @@ class Transaction
     }
 
     /**
+     * @throws \Exception
      * @return string[]
      */
     public function getAllWaitUuids()
@@ -300,9 +311,48 @@ class Transaction
             ->addFilter('kkm_status', Response::STATUS_WAIT)
             ->create();
 
+        /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
-        return $transactions->getColumnValues('txn_id');
+        if ($this->kkmHelper->isMessageQueueEnabled()) {
+            // если используются очереди, получаем только те транзации, для которых нет активных
+            // заданий на обновление статуса
+            $alias = 't_mygento_kkm_transaction_attempt';
+            $conditions[] = sprintf(
+                'main_table.%s = %s.%s',
+                TransactionInterface::ORDER_ID,
+                $alias,
+                TransactionAttemptInterface::ORDER_ID
+            );
+            $conditions[] = sprintf(
+                'main_table.%s = %s.%s',
+                TransactionInterface::TXN_TYPE,
+                $alias,
+                TransactionAttemptInterface::TXN_TYPE
+            );
+            $conditions[] = sprintf(
+                '%s.%s = %s',
+                $alias,
+                TransactionAttemptInterface::OPERATION,
+                UpdateRequestInterface::UPDATE_OPERATION_TYPE
+            );
+            $conditions[] = sprintf(
+                '%s.%s > %s',
+                $alias,
+                TransactionAttemptInterface::UPDATED_AT,
+                $transactions->getConnection()->quote((new \DateTime('-1 hour'))->format(Mysql::TIMESTAMP_FORMAT))
+            );
+            $transactions->getSelect()
+                ->joinLeft(
+                    [$alias => $transactions->getTable('mygento_kkm_transaction_attempt')],
+                    implode(' AND ', $conditions),
+                    []
+                )
+                ->where(sprintf('%s.%s IS NULL', $alias, TransactionAttemptInterface::ID))
+                ->group(TransactionInterface::TXN_ID);
+        }
+
+        return $transactions->getColumnValues(TransactionInterface::TXN_ID);
     }
 
     /**
