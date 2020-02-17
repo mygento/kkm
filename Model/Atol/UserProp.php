@@ -13,8 +13,9 @@ use Mygento\Kkm\Api\Data\UserPropInterface;
 class UserProp implements UserPropInterface
 {
     // phpcs:disable
+
     /**
-     * @var string 
+     * @var string
      */
     private $name = '';
 
@@ -22,6 +23,7 @@ class UserProp implements UserPropInterface
      * @var string
      */
     private $value = '';
+
     // phpcs:enable
 
     /**

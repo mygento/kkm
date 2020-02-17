@@ -53,7 +53,7 @@ class RequestForVersion4 extends Request
         if ($this->getAdditionalUserProps()) {
             $data['receipt']['additional_user_props'] = [
                 'name' => $this->getAdditionalUserProps()->getName(),
-                'value' => $this->getAdditionalUserProps()->getValue()
+                'value' => $this->getAdditionalUserProps()->getValue(),
             ];
         }
 
