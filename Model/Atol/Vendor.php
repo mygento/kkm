@@ -274,10 +274,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         if (!$this->kkmHelper->getConfig('general/default_shipping_name')) {
-            $order->setShippingDescription(
-                $this->kkmHelper->getConfig('general/custom_shipping_name')
-            );
+            $shippingDescription = $this->kkmHelper->getConfig('general/custom_shipping_name');
+            $order->setShippingDescription($shippingDescription);
         }
+        $this->configureDiscountHelper();
 
         $recalculatedReceiptData = $receiptData
             ?: $this->kkmDiscount->getRecalculated($salesEntity, $taxValue, $attributeCode, $shippingTax);
@@ -400,6 +400,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $order->addStatusHistoryComment($comment);
         $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
         $order->save();
+    }
+
+    /**
+     * Set mode flags for Discount logic
+     */
+    protected function configureDiscountHelper()
+    {
+        $applyAlgo = $this->kkmHelper->getConfig('recalculating/apply_algorithm');
+        $this->kkmDiscount->setDoCalculation((bool) $applyAlgo);
+        if ($applyAlgo) {
+            $isSpreadAllowed = $this->kkmHelper->getConfig('general/spread_discount');
+            $isSplitAllowed = $this->kkmHelper->getConfig('general/split_allowed');
+
+            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool) $isSpreadAllowed);
+            $this->kkmDiscount->setIsSplitItemsAllowed((bool) $isSplitAllowed);
+        }
     }
 
     /**
