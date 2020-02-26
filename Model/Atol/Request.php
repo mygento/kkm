@@ -449,7 +449,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritDoc
      */
-    public function getAdditionalUserProps(): \Mygento\Kkm\Api\Data\UserPropInterface
+    public function getAdditionalUserProps(): ?\Mygento\Kkm\Api\Data\UserPropInterface
     {
         return $this->additionalUserProps;
     }
