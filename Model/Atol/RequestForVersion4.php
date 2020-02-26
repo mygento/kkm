@@ -35,7 +35,7 @@ class RequestForVersion4 extends Request
             'payment_address' => $this->getPaymentAddress(),
         ];
 
-        return [
+        $data = [
             'external_id' => $this->getExternalId(),
             'receipt' => [
                 'client' => $client,
@@ -49,5 +49,14 @@ class RequestForVersion4 extends Request
             ],
             'timestamp' => $this->getTimestamp(),
         ];
+
+        if ($this->getAdditionalUserProps()) {
+            $data['receipt']['additional_user_props'] = [
+                'name' => $this->getAdditionalUserProps()->getName(),
+                'value' => $this->getAdditionalUserProps()->getValue(),
+            ];
+        }
+
+        return $data;
     }
 }

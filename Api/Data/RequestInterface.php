@@ -231,4 +231,15 @@ interface RequestInterface
      * @return $this
      */
     public function setIgnoreTrialsNum($ignore);
+
+    /**
+     * @return \Mygento\Kkm\Api\Data\UserPropInterface
+     */
+    public function getAdditionalUserProps(): \Mygento\Kkm\Api\Data\UserPropInterface;
+
+    /**
+     * @param \Mygento\Kkm\Api\Data\UserPropInterface $userProp
+     * @return $this
+     */
+    public function setAdditionalUserProps(\Mygento\Kkm\Api\Data\UserPropInterface $userProp): self;
 }

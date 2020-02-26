@@ -51,6 +51,8 @@ abstract class Request implements \JsonSerializable, RequestInterface
 
     protected $retryCount = null;
 
+    protected $additionalUserProps = null;
+
     // phpcs:enable
 
     /**
@@ -440,6 +442,24 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setIgnoreTrialsNum($ignore)
     {
         $this->ignoreTrialsNum = (bool) $ignore;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAdditionalUserProps(): \Mygento\Kkm\Api\Data\UserPropInterface
+    {
+        return $this->additionalUserProps;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAdditionalUserProps(\Mygento\Kkm\Api\Data\UserPropInterface $userProp): RequestInterface
+    {
+        $this->additionalUserProps = $userProp;
 
         return $this;
     }
