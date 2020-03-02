@@ -90,7 +90,7 @@
                 <field id="payment_methods" translate="label" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>List of payment methods</label>
-                    <source_model>Mygento\Kkm\Model\Source\Payments</source_model>
+                    <source_model>Mygento\Base\Model\Source\Payments</source_model>
                     <frontend_class>validate-select</frontend_class>
                     <comment>
                         <![CDATA[Choose payment methods. Limit 1-10.]]>
