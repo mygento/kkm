@@ -23,6 +23,7 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
+use Mygento\Kkm\Helper\Error;
 
 /**
  * Class Vendor
@@ -397,8 +398,19 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         $comment = __('[ATOL] Cheque was sent. %1', $message);
 
-        $order->addStatusHistoryComment($comment);
-        $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
+        if ($response->getStatus() == Response::STATUS_DONE
+            && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
+            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone()
+        ) {
+            $order->addStatusToHistory(
+                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone(),
+                $comment
+            );
+        } else {
+            $order->addStatusHistoryComment($comment);
+            $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
+        }
+
         $order->save();
     }
 
