@@ -90,6 +90,14 @@ class Data extends \Mygento\Base\Helper\Data
     /**
      * @return bool
      */
+    public function isRetrySendingEndlessly()
+    {
+        return (bool) $this->getConfig('general/is_retry_sending_endlessly');
+    }
+
+    /**
+     * @return bool
+     */
     public function isUseCustomRetryIntervals()
     {
         return (bool) $this->getConfig('general/is_use_custom_retry_intervals');

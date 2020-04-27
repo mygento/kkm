@@ -68,6 +68,7 @@ Frequency (Cron expression),Частота (CRON)
 "Custom Declaration Attribute","Атрибут ГТД"
 "Product attribute containing custom declaration number value.","Атрибут продукта, содержащий значение ГТД."
 "Default Custom Declaration","ГТД по умолчанию"
+"Retry sending endlessly","Повторять отправку бесконечно"
 "Use Custom Retry Intervals","Использовать настраиваемые интервалы для повторных попыток отправки"
 "Custom Retry Intervals","Интервалы для повторных попыток отправки"
 Recalculating Settings (Advanced),Настройки пересчета скидок

@@ -59,7 +59,7 @@ class SellConsumer extends AbstractConsumer
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-            if ($this->helper->isUseCustomRetryIntervals()) {
+            if ($this->helper->isRetrySendingEndlessly()) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
                 $this->attemptHelper->scheduleNextAttempt(
                     $request,
