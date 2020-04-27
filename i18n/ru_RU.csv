@@ -70,6 +70,8 @@ Frequency (Cron expression),Частота (CRON)
 "Default Custom Declaration","ГТД по умолчанию"
 "Use Custom Retry Intervals","Использовать настраиваемые интервалы для повторных попыток отправки"
 "Custom Retry Intervals","Интервалы для повторных попыток отправки"
+"Order status after kkm transaction done","Статус заказа после успешной отправки чека"
+"Only for orders with 'KKM Failed' status","Только для заказов со статусом 'KKM Failed'"
 Recalculating Settings (Advanced),Настройки пересчета скидок
 Apply Discount Algorithm,Применять алгоритм перерасчета скидок
 Spread Discount evenly,Размазывать скидку равномерно
