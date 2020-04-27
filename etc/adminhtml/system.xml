@@ -140,6 +140,10 @@
                     <comment>Through queue (Magento Queue Framework)</comment>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
+                <field id="is_retry_sending_endlessly" translate="label comment" type="select" sortOrder="181" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Retry sending endlessly</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
                 <field id="is_use_custom_retry_intervals" translate="label comment" type="select" sortOrder="181" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Use Custom Retry Intervals</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
