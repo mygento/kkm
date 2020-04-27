@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2019 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -449,7 +449,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritDoc
      */
-    public function getAdditionalUserProps(): \Mygento\Kkm\Api\Data\UserPropInterface
+    public function getAdditionalUserProps(): ?\Mygento\Kkm\Api\Data\UserPropInterface
     {
         return $this->additionalUserProps;
     }
