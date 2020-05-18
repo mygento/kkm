@@ -92,7 +92,7 @@ class Data extends \Mygento\Base\Helper\Data
      */
     public function getOrderStatusAfterKkmTransactionDone()
     {
-        return $this->getConfig('general/order_status_after_kkm_transaction_done');
+        return $this->getConfig('general/order_status_after_kkm_transaction_done') ?: false;
     }
 
     /**

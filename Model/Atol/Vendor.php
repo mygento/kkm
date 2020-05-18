@@ -402,12 +402,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
             && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone()
         ) {
-            $order->addStatusToHistory(
-                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone(),
-                $comment
+            $order->addCommentToStatusHistory(
+                $comment,
+                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone()
             );
         } else {
-            $order->addStatusHistoryComment($comment);
+            $order->addCommentToStatusHistory($comment);
             $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
         }
 
