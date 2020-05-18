@@ -223,7 +223,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             throw new \Exception("Transaction not found. Uuid: {$response->getUuid()}");
         }
+
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
+
+        $status = $transaction->getKkmStatus();
+        if ($status === Response::STATUS_DONE) {
+            return $entity;
+        }
 
         switch ($entity->getEntityType()) {
             case 'invoice':
