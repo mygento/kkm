@@ -24,7 +24,6 @@ Mygento:
           type: smallint
           nullable: false
           comment: 'Operation type. Sell or Refund.'
-          length: 10
         sales_entity_id:
           type: int
           nullable: false
