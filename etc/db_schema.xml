@@ -37,8 +37,15 @@
         <constraint xsi:type="foreign" referenceId="FK_ATTMPT_ORDER_ID_SAL_ORDER_ENT_ID" table="mygento_kkm_transaction_attempt" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
     </table>
 
-    <!--Add column to Payment Transaction table-->
+    <!-- Add column to Payment Transaction table -->
     <table name="sales_payment_transaction">
         <column xsi:type="varchar" length="16" name="kkm_status" comment="Kkm status"/>
+    </table>
+
+    <!-- Add column to Payment table -->
+    <table name="sales_payment">
+        <column xsi:type="decimal" name="fiscal_prepay_amount" scale="4" precision="20" unsigned="false" nullable="true" comment="Fiscal Prepay amount" />
+        <column xsi:type="decimal" name="fiscal_receipt_amount" scale="4" precision="20" unsigned="false" nullable="true" comment="Fiscal Receipt Amount" />
+        <column xsi:type="decimal" name="fiscal_refund_amount" scale="4" precision="20" unsigned="false" nullable="true" comment="Fiscal Refund Amount" />
     </table>
 </schema>
