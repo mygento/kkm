@@ -34,7 +34,6 @@ class Error
     private $adminNotifier;
 
     /**
-     * Error constructor.
      * @param \Mygento\Kkm\Helper\Data $baseHelper
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
      * @param \Magento\Framework\Notification\NotifierInterface $adminNotifier

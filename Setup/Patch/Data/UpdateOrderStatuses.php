@@ -23,7 +23,6 @@ class UpdateOrderStatuses implements DataPatchInterface
     private $moduleDataSetup;
 
     /**
-     * UpdateOrderStatuses constructor.
      * @param \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
      */
     public function __construct(

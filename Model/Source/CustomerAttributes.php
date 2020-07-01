@@ -20,7 +20,6 @@ class CustomerAttributes implements OptionSourceInterface
     private $customerResource;
 
     /**
-     * CustomerAttributes constructor.
      * @param CustomerResource $customerResource
      */
     public function __construct(

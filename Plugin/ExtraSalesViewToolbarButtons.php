@@ -30,7 +30,6 @@ class ExtraSalesViewToolbarButtons
     private $transactionHelper;
 
     /**
-     * ExtraSalesViewToolbarButtons constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
      * @param \Magento\Framework\AuthorizationInterface $authorization

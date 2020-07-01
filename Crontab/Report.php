@@ -32,7 +32,6 @@ class Report
     private $emailHelper;
 
     /**
-     * Report constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Model\Report $report
      * @param \Mygento\Kkm\Helper\Email $emailHelper

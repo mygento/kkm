@@ -53,7 +53,6 @@ class Client
     private $responseFactory;
 
     /**
-     * Client constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param ResponseFactory $responseFactory
      * @param \Magento\Framework\HTTP\Client\CurlFactory $curlFactory

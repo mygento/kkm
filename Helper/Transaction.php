@@ -71,7 +71,6 @@ class Transaction
     private $creditmemoCollectionFactory;
 
     /**
-     * Transaction constructor.
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder

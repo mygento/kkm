@@ -40,7 +40,6 @@ class Response implements ResponseInterface
     private $jsonResponse;
 
     /**
-     * ReportResponse constructor.
      * @param string $jsonRaw
      * @throws \Exception
      */

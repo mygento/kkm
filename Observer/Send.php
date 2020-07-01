@@ -37,7 +37,6 @@ class Send implements ObserverInterface
     private $errorHelper;
 
     /**
-     * Send constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Api\ProcessorInterface $processor

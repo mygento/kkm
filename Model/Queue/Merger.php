@@ -26,7 +26,6 @@ class Merger implements MergerInterface
     private $mergedRequestFactory;
 
     /**
-     * Merger constructor.
      * @param \Mygento\Kkm\Api\Queue\MergedRequestInterfaceFactory $mergedRequestFactory
      * @param \Magento\Framework\MessageQueue\MergedMessageInterfaceFactory $mergedMessageFactory
      */

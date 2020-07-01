@@ -35,7 +35,6 @@ class RequestFactory
     private $kkmHelper;
 
     /**
-     * RequestFactory constructor.
      * @param \Mygento\Kkm\Model\Atol\RequestForVersion3Factory $request3Factory
      * @param \Mygento\Kkm\Model\Atol\RequestForVersion4Factory $request4Factory
      * @param \Mygento\Kkm\Helper\Data $kkmHelper

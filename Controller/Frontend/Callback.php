@@ -36,7 +36,6 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     private $errorHelper;
 
     /**
-     * Callback constructor.
      * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper

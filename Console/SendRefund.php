@@ -55,7 +55,6 @@ class SendRefund extends Command
     private $transactionHelper;
 
     /**
-     * SendRefund constructor.
      * @param \Mygento\Kkm\Api\ProcessorInterface $processor
      * @param Transaction $transactionHelper
      * @param \Magento\Framework\App\State $state

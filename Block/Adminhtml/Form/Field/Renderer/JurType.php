@@ -20,8 +20,6 @@ class JurType extends Select
     private $source;
 
     /**
-     * Constructor
-     *
      * @param JurTypeSource $source
      * @param Context $context
      * @param array $data

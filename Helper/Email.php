@@ -43,7 +43,6 @@ class Email
     private $storeManager;
 
     /**
-     * Email constructor.
      * @param \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation
      * @param \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
