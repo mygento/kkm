@@ -48,7 +48,6 @@ class Update
     private $publisher;
 
     /**
-     * Update constructor.
      * @param UpdateRequestInterfaceFactory $updateRequestFactory
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Helper\Data $kkmHelper

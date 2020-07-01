@@ -53,7 +53,6 @@ class Report extends Command
     private $output;
 
     /**
-     * Report constructor.
      * @param \Mygento\Kkm\Model\Report $report
      * @param \Magento\Framework\App\State $state
      */

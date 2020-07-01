@@ -41,7 +41,6 @@ class Report
     private $attemptRepository;
 
     /**
-     * Report constructor.
      * @param StatisticsFactory $statisticsFactory
      * @param TransactionAttemptRepositoryInterface $attemptRepository
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo

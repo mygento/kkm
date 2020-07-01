@@ -50,7 +50,6 @@ class SendSell extends Command
     private $transactionHelper;
 
     /**
-     * SendSell constructor.
      * @param \Mygento\Kkm\Api\ProcessorInterface $processor
      * @param Transaction $transactionHelper
      * @param \Magento\Framework\App\State $state

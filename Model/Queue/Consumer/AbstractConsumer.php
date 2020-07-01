@@ -41,7 +41,6 @@ abstract class AbstractConsumer
     protected $errorHelper;
 
     /**
-     * Consumer constructor.
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper

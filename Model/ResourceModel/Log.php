@@ -14,8 +14,6 @@ namespace Mygento\Kkm\Model\ResourceModel;
 class Log extends \Magento\Framework\Model\ResourceModel\Db\AbstractDb
 {
     /**
-     * Class constructor
-     *
      * @return void
      */
     protected function _construct()

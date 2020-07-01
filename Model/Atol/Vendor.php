@@ -102,7 +102,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private $urlHelper;
 
     /**
-     * Vendor constructor.
      * @param \Mygento\Base\Helper\Discount $kkmDiscount
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper

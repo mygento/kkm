@@ -13,10 +13,6 @@ use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 
 class Response implements ResponseInterface
 {
-    const STATUS_DONE = 'done';
-    const STATUS_FAIL = 'fail';
-    const STATUS_WAIT = 'wait';
-
     // phpcs:disable
     private $uuid;
 
@@ -44,7 +40,6 @@ class Response implements ResponseInterface
     private $jsonResponse;
 
     /**
-     * ReportResponse constructor.
      * @param string $jsonRaw
      * @throws \Exception
      */

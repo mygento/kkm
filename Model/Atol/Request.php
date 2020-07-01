@@ -66,7 +66,6 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $ignoreTrialsNum = false;
 
     /**
-     * Request constructor.
      * @param \Magento\Framework\Stdlib\DateTime\Timezone $date
      */
     public function __construct(

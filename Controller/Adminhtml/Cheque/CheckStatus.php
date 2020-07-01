@@ -26,7 +26,6 @@ class CheckStatus extends \Magento\Backend\App\Action
     private $vendor;
 
     /**
-     * CheckStatus constructor.
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor

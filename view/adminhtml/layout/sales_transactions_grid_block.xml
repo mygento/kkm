@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="sales_transactions.grid.container">
+            <referenceBlock name="sales.transactions.grid">
+                <block class="Magento\Backend\Block\Widget\Grid\Massaction" name="adminhtml.cache.massaction" as="grid.massaction">
+                    <arguments>
+                        <argument name="massaction_id_field" xsi:type="string">transaction_id</argument>
+                        <argument name="form_field_name" xsi:type="string">types</argument>
+                        <argument name="use_select_all" xsi:type="string">1</argument>
+                        <argument name="options" xsi:type="array">
+                            <item name="resend" xsi:type="array">
+                                <item name="label" xsi:type="string" translate="true">Resend</item>
+                                <item name="url" xsi:type="string">adminhtml/*/massResend</item>
+                                <item name="selected" xsi:type="string">0</item>
+                            </item>
+                        </argument>
+                    </arguments>
+                </block>
+                <referenceBlock name="sales.transactions.grid.columnSet">
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" name="kkm_status" as="kkm_status">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">KKM Status</argument>
+                            <argument name="type" xsi:type="string">options</argument>
+                            <argument name="index" xsi:type="string">kkm_status</argument>
+                            <argument name="id" xsi:type="string">kkm_status</argument>
+                            <argument name="options" xsi:type="options" model="Mygento\Kkm\Model\Source\TransactionStatus"/>
+                            <argument name="header_css_class" xsi:type="string">col-kkm-status</argument>
+                            <argument name="column_css_class" xsi:type="string">col-kkm-status</argument>
+                        </arguments>
+                    </block>
+                </referenceBlock>
+            </referenceBlock>
+        </referenceBlock>
+    </body>
+</page>

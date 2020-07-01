@@ -42,7 +42,6 @@ class Resend extends \Magento\Backend\App\Action
     private $errorHelper;
 
     /**
-     * Resend constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Api\ProcessorInterface $processor

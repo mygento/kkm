@@ -26,7 +26,6 @@ class UpdateMerger implements MergerInterface
     private $mergedUpdateRequestFactory;
 
     /**
-     * Merger constructor.
      * @param \Mygento\Kkm\Api\Queue\MergedUpdateRequestInterfaceFactory $mergedUpdateRequestFactory
      * @param \Magento\Framework\MessageQueue\MergedMessageInterfaceFactory $mergedMessageFactory
      */

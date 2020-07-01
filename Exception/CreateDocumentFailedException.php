@@ -23,7 +23,6 @@ class CreateDocumentFailedException extends \Exception
     private $response;
 
     /**
-     * CreateDocumentFailedException constructor.
      * @param string $message
      * @param ResponseInterface|null $response
      * @param array $debugData

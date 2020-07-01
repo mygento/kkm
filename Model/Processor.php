@@ -32,7 +32,6 @@ class Processor implements ProcessorInterface
     protected $publisher;
 
     /**
-     * Processor constructor.
      * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher

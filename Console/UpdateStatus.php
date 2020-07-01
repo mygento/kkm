@@ -38,7 +38,6 @@ class UpdateStatus extends Command
     private $transactionHelper;
 
     /**
-     * UpdateStatus constructor.
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
      * @param \Magento\Framework\App\State $state

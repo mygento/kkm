@@ -44,7 +44,6 @@ class TransactionAttempt
     private $attemptRepository;
 
     /**
-     * TransactionAttempt constructor.
      * @param MessageEncoder $messageEncoder
      * @param Request $requestHelper
      * @param Data $kkmHelper
