@@ -87,6 +87,7 @@ class ProceedScheduledAttempt
             $this->searchCriteriaBuilder
                 ->addFilter(TransactionAttemptInterface::IS_SCHEDULED, true)
                 ->addFilter(TransactionAttemptInterface::SCHEDULED_AT, $this->dateTime->gmtDate(), 'lteq')
+                ->setPageSize($this->kkmHelper->getConfig('general/retry_limit'))
                 ->create()
         )->getItems();
 
