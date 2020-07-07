@@ -156,6 +156,10 @@
                     <label>Custom Retry Intervals</label>
                     <comment>Minutes separated by comma. Example: '1,5,15,30,60'</comment>
                 </field>
+                <field id="retry_limit" translate="label" type="text" sortOrder="183" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Custom Retry Limit</label>
+                    <comment>Limit when processing scheduled attempts</comment>
+                </field>
                 <field id="max_trials" translate="label" type="text" sortOrder="185" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Max trials to resend</label>
                 </field>
