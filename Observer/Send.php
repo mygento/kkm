@@ -11,6 +11,8 @@ namespace Mygento\Kkm\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Sales\Model\Order\Invoice;
 use Mygento\Kkm\Model\VendorInterface;
 
 /**
@@ -80,6 +82,8 @@ class Send implements ObserverInterface
      * Check Invoice|Creditmemo, Kkm setting, Currency etc before sending
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     protected function canProceed($entity)
     {
@@ -87,6 +91,7 @@ class Send implements ObserverInterface
             || !$this->kkmHelper->getConfig('general/auto_send_after_invoice')
             || $entity->getOrderCurrencyCode() != 'RUB'
             || $this->isAlreadySent($entity)
+            || !$this->isStateAllowed($entity)
         ) {
             return false;
         }
@@ -112,10 +117,10 @@ class Send implements ObserverInterface
         }
 
         $origData = $entity->getOrigData();
-        if ($origData && isset($origData['increment_id'])) {
+        if ($origData && isset($origData['state']) && ($origData['state'] === $entity->getState())) {
             $this->kkmHelper->debug(
                 __(
-                    'Skipped autosend %1 %2. Reason: %1 is not new',
+                    'Skipped autosend %1 %2. Reason: %1 is not new or state not changed',
                     $entity->getEntityType(),
                     $entity->getIncrementId()
                 )
@@ -135,6 +140,31 @@ class Send implements ObserverInterface
     {
         return $entity->getData(VendorInterface::ALREADY_SENT_FLAG)
             || ($entity->getOrder() ? $entity->getOrder()->getData(VendorInterface::ALREADY_SENT_FLAG) : false);
+    }
+
+    /**
+     * @param Creditmemo|Invoice $entity
+     * @return bool
+     */
+    private function isStateAllowed($entity)
+    {
+        $allowedState = $entity->getEntityType() === 'invoice'
+            ? Invoice::STATE_PAID
+            : Creditmemo::STATE_REFUNDED;
+        if ($entity->getState() != $allowedState) {
+            $this->kkmHelper->debug(
+                __(
+                    'Wrong state for autosending. %1 %2 in %3 state.',
+                    $entity->getEntityType(),
+                    $entity->getIncrementId(),
+                    $entity->getStateName()
+                )
+            );
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
