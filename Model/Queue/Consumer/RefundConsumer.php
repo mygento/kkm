@@ -43,7 +43,7 @@ class RefundConsumer extends AbstractConsumer
 
             $request->setIgnoreTrialsNum(false);
             $this->increaseExternalId($request);
-            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
+            $this->publisher->publish(Processor::TOPIC_NAME_REFUND, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 
