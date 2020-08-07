@@ -516,6 +516,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
             ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
             ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
+        if ($this->kkmHelper->isMarkingEnabled()) {
+            $item
+                ->setMarkingRequired(false)
+                ->setMarking(null);
+        }
 
         return $item;
     }

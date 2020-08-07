@@ -119,4 +119,26 @@ interface ItemInterface
      * @return $this
      */
     public function setCustomsDeclaration($customsDeclaration);
+
+    /**
+     * @return bool
+     */
+    public function isMarkingRequired();
+
+    /**
+     * @param bool $value
+     * @return $this
+     */
+    public function setMarkingRequired($value);
+
+    /**
+     * @return string
+     */
+    public function getMarking();
+
+    /**
+     * @param string $value
+     * @return $this
+     */
+    public function setMarking($value);
 }

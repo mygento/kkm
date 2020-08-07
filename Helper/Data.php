@@ -138,4 +138,30 @@ class Data extends \Mygento\Base\Helper\Data
     {
         return (int) $this->getConfig('general/max_update_trials');
     }
+
+    /**
+     * @return bool
+     */
+    public function isMarkingEnabled(): bool
+    {
+        return $this->getConfig('marking/enabled')
+            && $this->getMarkingShouldField()
+            && $this->getMarkingField();
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkingShouldField()
+    {
+        return $this->getConfig('marking/marking_status_field');
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkingField()
+    {
+        return $this->getConfig('marking/marking_mark_field');
+    }
 }

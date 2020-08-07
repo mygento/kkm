@@ -43,6 +43,10 @@ class Item implements \JsonSerializable, ItemInterface
 
     private $customsDeclaration = '';
 
+    private $shouldHaveMarking = false;
+
+    private $marking;
+
     // phpcs:enable
 
     /**
@@ -61,6 +65,10 @@ class Item implements \JsonSerializable, ItemInterface
                 'type' => $this->getTax(), //for API v4
             ],
         ];
+
+        if ($this->isMarkingRequired()) {
+            $item['nomenclature_code'] = $this->getMarking();
+        }
 
         if ($this->getTaxSum()) {
             $item['vat']['sum'] = $this->getTaxSum();//for API v4
@@ -260,6 +268,42 @@ class Item implements \JsonSerializable, ItemInterface
     public function setCustomsDeclaration($customsDeclaration)
     {
         $this->customsDeclaration = $customsDeclaration;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMarking()
+    {
+        return $this->marking;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isMarkingRequired()
+    {
+        return $this->shouldHaveMarking;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setMarking($value)
+    {
+        $this->marking = $value;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setMarkingRequired($value)
+    {
+        $this->shouldHaveMarking = (bool) $value;
 
         return $this;
     }
