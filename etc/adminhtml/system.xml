@@ -87,7 +87,7 @@
                         <field id="*/*/tax_all">0</field>
                     </depends>
                 </field>
-                <field id="payment_methods" translate="label" type="multiselect" sortOrder="120" showInDefault="1" showInWebsite="1"
+                <field id="payment_methods" translate="label" type="multiselect" sortOrder="125" showInDefault="1" showInWebsite="1"
                        showInStore="1">
                     <label>List of payment methods</label>
                     <source_model>Mygento\Base\Model\Source\Payments</source_model>
@@ -359,6 +359,27 @@
                     <comment>Ability to split 1 item to 2 with different prices (if needed)</comment>
                 </field>
 
+            </group>
+            <group id="marking" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Marking</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="marking_status_field" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Field if marking process should apply</label>
+                    <source_model>Mygento\Kkm\Model\Source\OrderItem</source_model>
+                    <depends>
+                        <field id="*/*/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="marking_mark_field" translate="label" type="select" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Field with marking</label>
+                    <source_model>Mygento\Kkm\Model\Source\OrderItem</source_model>
+                    <depends>
+                        <field id="*/*/enabled">1</field>
+                    </depends>
+                </field>
             </group>
         </section>
     </system>
