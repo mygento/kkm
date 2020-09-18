@@ -251,6 +251,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function buildRequest(
         $salesEntity,
@@ -285,9 +286,23 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $order->setShippingDescription($shippingDescription);
         }
         $this->configureDiscountHelper();
+        $markingAttribute = '';
+        $markingListAttribute = '';
+
+        if ($this->kkmHelper->isMarkingEnabled()) {
+            $markingAttribute = $this->kkmHelper->getMarkingShouldField();
+            $markingListAttribute = $this->kkmHelper->getMarkingField();
+        }
 
         $recalculatedReceiptData = $receiptData
-            ?: $this->kkmDiscount->getRecalculated($salesEntity, $taxValue, $attributeCode, $shippingTax);
+            ?: $this->kkmDiscount->getRecalculated(
+                $salesEntity,
+                $taxValue,
+                $attributeCode,
+                $shippingTax,
+                $markingAttribute,
+                $markingListAttribute
+            );
 
         $items = [];
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
@@ -516,6 +531,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
             ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
             ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
+        if ($this->kkmHelper->isMarkingEnabled() && !empty($itemData[Discount::MARKING])) {
+            $item->setMarkingRequired(true);
+            $item->setMarking(
+                $this->convertMarkingToHex($itemData[Discount::MARKING])
+            );
+        }
 
         return $item;
     }
@@ -688,5 +709,33 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 __('Can not send data to Atol. Reason: %1', $reason)
             );
         }
+    }
+
+    /**
+     * @param string $marking
+     * @return string
+     */
+    private function convertMarkingToHex(string $marking): string
+    {
+        $productCode = '444D';
+        $gtin = substr($marking, 2, $this->kkmHelper->getConfig('marking/gtin_length'));
+        $serialNumber = substr($marking, 2 + $this->kkmHelper->getConfig('marking/gtin_length') + 2);
+        $gtinHex = $this->normalizeHex(dechex($gtin));
+        $serialHex = $this->normalizeHex(bin2hex($serialNumber));
+
+        return trim(chunk_split(strtoupper($productCode . $gtinHex . $serialHex), 2, ' '));
+    }
+
+    /**
+     * @param string $hex
+     * @return string
+     */
+    private function normalizeHex(string $hex): string
+    {
+        if (strlen($hex) % 2 > 0) {
+            $hex = '0' . $hex;
+        }
+
+        return $hex;
     }
 }

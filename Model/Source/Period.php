@@ -8,7 +8,7 @@
 
 namespace Mygento\Kkm\Model\Source;
 
-class Period implements \Magento\Framework\Option\ArrayInterface
+class Period implements \Magento\Framework\Data\OptionSourceInterface
 {
     const WEEKLY_NAME = 'week';
     const YESTERDAY_NAME = 'yesterday';

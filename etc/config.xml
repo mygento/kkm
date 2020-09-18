@@ -41,6 +41,9 @@
                 <spread_discount>0</spread_discount>
                 <split_allowed>0</split_allowed>
             </recalculating>
+            <marking>
+                <gtin_length>14</gtin_length>
+            </marking>
         </mygento_kkm>
     </default>
 </config>
