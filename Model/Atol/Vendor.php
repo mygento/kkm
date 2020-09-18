@@ -285,9 +285,23 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $order->setShippingDescription($shippingDescription);
         }
         $this->configureDiscountHelper();
+        $markingAttribute = '';
+        $markingListAttribute = '';
+
+        if ($this->kkmHelper->isMarkingEnabled()) {
+            $markingAttribute = $this->kkmHelper->getMarkingShouldField();
+            $markingListAttribute = $this->kkmHelper->getMarkingField();
+        }
 
         $recalculatedReceiptData = $receiptData
-            ?: $this->kkmDiscount->getRecalculated($salesEntity, $taxValue, $attributeCode, $shippingTax);
+            ?: $this->kkmDiscount->getRecalculated(
+                $salesEntity,
+                $taxValue,
+                $attributeCode,
+                $shippingTax,
+                $markingAttribute,
+                $markingListAttribute
+            );
 
         $items = [];
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
@@ -516,10 +530,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
             ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
             ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
-        if ($this->kkmHelper->isMarkingEnabled()) {
-            $item
-                ->setMarkingRequired(false)
-                ->setMarking(null);
+        if ($this->kkmHelper->isMarkingEnabled() && !empty($itemData[Discount::MARKING])) {
+            $item->setMarkingRequired(true);
+            $item->setMarking(
+                $this->convertMarkingToHex($itemData[Discount::MARKING])
+            );
         }
 
         return $item;
@@ -693,5 +708,35 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 __('Can not send data to Atol. Reason: %1', $reason)
             );
         }
+    }
+
+    /**
+     * @param string $marking
+     * @return string
+     */
+    private function convertMarkingToHex($marking)
+    {
+        $productCode = substr($marking, 0, 5);
+        $gtin = substr($marking, 5, $this->kkmHelper->getConfig('marking/gtin_length'));
+        $serialNumber = substr($marking, 5 + $this->kkmHelper->getConfig('marking/gtin_length'));
+
+        $productCode = $this->normalizeHex(dechex($productCode));
+        $gtin = $this->normalizeHex(dechex($gtin));
+        $serialNumber = $this->normalizeHex(bin2hex($serialNumber));
+
+        return trim(chunk_split(strtoupper($productCode . $gtin . $serialNumber), 2, ' '));
+    }
+
+    /**
+     * @param string $hex
+     * @return string
+     */
+    private function normalizeHex($hex)
+    {
+        if (strlen($hex) % 2 > 0) {
+            $hex = '0' . $hex;
+        }
+
+        return $hex;
     }
 }

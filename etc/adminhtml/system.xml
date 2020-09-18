@@ -380,6 +380,13 @@
                         <field id="*/*/enabled">1</field>
                     </depends>
                 </field>
+                <field id="gtin_length" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>GTIN Lenght</label>
+                    <validate>validate-number</validate>
+                    <depends>
+                        <field id="*/*/enabled">1</field>
+                    </depends>
+                </field>
             </group>
         </section>
     </system>
