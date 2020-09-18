@@ -251,6 +251,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      *
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function buildRequest(
         $salesEntity,
@@ -714,24 +715,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param string $marking
      * @return string
      */
-    private function convertMarkingToHex($marking)
+    private function convertMarkingToHex(string $marking): string
     {
-        $productCode = substr($marking, 0, 5);
-        $gtin = substr($marking, 5, $this->kkmHelper->getConfig('marking/gtin_length'));
-        $serialNumber = substr($marking, 5 + $this->kkmHelper->getConfig('marking/gtin_length'));
+        $productCode = '444D';
+        $gtin = substr($marking, 2, $this->kkmHelper->getConfig('marking/gtin_length'));
+        $serialNumber = substr($marking, 2 + $this->kkmHelper->getConfig('marking/gtin_length') + 2);
+        $gtinHex = $this->normalizeHex(dechex($gtin));
+        $serialHex = $this->normalizeHex(bin2hex($serialNumber));
 
-        $productCode = $this->normalizeHex(dechex($productCode));
-        $gtin = $this->normalizeHex(dechex($gtin));
-        $serialNumber = $this->normalizeHex(bin2hex($serialNumber));
-
-        return trim(chunk_split(strtoupper($productCode . $gtin . $serialNumber), 2, ' '));
+        return trim(chunk_split(strtoupper($productCode . $gtinHex . $serialHex), 2, ' '));
     }
 
     /**
      * @param string $hex
      * @return string
      */
-    private function normalizeHex($hex)
+    private function normalizeHex(string $hex): string
     {
         if (strlen($hex) % 2 > 0) {
             $hex = '0' . $hex;
