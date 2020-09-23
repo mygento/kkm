@@ -24,6 +24,7 @@ use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Helper\Error;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 
 /**
  * Class Vendor
@@ -66,7 +67,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private $apiClient;
 
     /**
-     * @var \Mygento\Kkm\Helper\Transaction
+     * @var TransactionHelper
      */
     private $transactionHelper;
 
@@ -152,6 +153,36 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     public function sendSellRequest($request, $invoice = null)
     {
         return $this->sendRequest($request, 'sendSell', $invoice);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function sendResellRequest(RequestInterface $request, $invoice): ResponseInterface
+    {
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+
+        if (!$doneTransaction) {
+            throw new LocalizedException(
+                __(
+                    'Invoice %s does not have transaction with status DONE.',
+                    $invoice->getIncrementId()
+                )
+            );
+        }
+
+        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
+            ?? $this->generateExternalId($invoice);
+        $externalId .= '_refund';
+
+        //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
+        //set ФПД for resell requests.
+        $request->setAdditionalCheckProps($this->transactionHelper->getFpd($doneTransaction));
+        $request->setExternalId($externalId);
+        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
+
+        return $this->sendRequest($request, 'sendRefund', $invoice);
     }
 
     /**
@@ -550,9 +581,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Throwable
      * @throws CreateDocumentFailedException
-     * @return ResponseInterface|null
+     * @return ResponseInterface
      */
-    private function sendRequest($request, $callback, $entity = null)
+    private function sendRequest($request, $callback, $entity = null): ResponseInterface
     {
         $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
 

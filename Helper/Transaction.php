@@ -9,7 +9,9 @@
 namespace Mygento\Kkm\Helper;
 
 use Magento\Framework\DB\Adapter\Pdo\Mysql;
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\EntityInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
@@ -33,12 +35,13 @@ use Mygento\Kkm\Model\Atol\Response;
  */
 class Transaction
 {
-    const ENTITY_KEY = 'entity';
-    const INCREMENT_ID_KEY = 'increment_id';
-    const UUID_KEY = 'uuid';
-    const STATUS_KEY = 'status';
-    const ERROR_MESSAGE_KEY = 'error';
-    const RAW_RESPONSE_KEY = 'raw_response';
+    public const ENTITY_KEY = 'entity';
+    public const INCREMENT_ID_KEY = 'increment_id';
+    public const UUID_KEY = 'uuid';
+    public const STATUS_KEY = 'status';
+    public const ERROR_MESSAGE_KEY = 'error';
+    public const RAW_RESPONSE_KEY = 'raw_response';
+    public const FPD_KEY = 'fiscal_document_attribute';
 
     /**
      * @var \Magento\Sales\Api\TransactionRepositoryInterface
@@ -71,20 +74,34 @@ class Transaction
     private $creditmemoCollectionFactory;
 
     /**
+     * @var \Magento\Framework\Serialize\Serializer\Json
+     */
+    private $jsonSerializer;
+
+    /**
+     * @var \Magento\Framework\Api\SortOrderBuilder
+     */
+    private $sortOrderBuilder;
+
+    /**
      * Transaction constructor.
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder
      * @param InvoiceCollectionFactory $invoiceCollectionFactory
      * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
      * @param Data $kkmHelper
      */
     public function __construct(
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder,
         InvoiceCollectionFactory $invoiceCollectionFactory,
         CreditmemoCollectionFactory $creditmemoCollectionFactory,
+        \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
         \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
         $this->transactionRepo = $transactionRepo;
@@ -93,17 +110,25 @@ class Transaction
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->creditmemoCollectionFactory = $creditmemoCollectionFactory;
         $this->kkmHelper = $kkmHelper;
+        $this->jsonSerializer = $jsonSerializer;
+        $this->sortOrderBuilder = $sortOrderBuilder;
     }
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @param ResponseInterface $response
-     * @param RequestInterface $request
+     * @param RequestInterface|null $request
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
     public function registerTransaction($entity, ResponseInterface $response, RequestInterface $request = null)
     {
+        $isResellRefund = $request && $request->getOperationType() === RequestInterface::RESELL_REFUND_OPERATION_TYPE;
+
+        if ($entity instanceof InvoiceInterface && $isResellRefund) {
+            return $this->saveResellRefundTransaction($entity, $response);
+        }
+
         if ($entity instanceof InvoiceInterface) {
             return $this->saveSellTransaction($entity, $response, $request);
         }
@@ -134,6 +159,73 @@ class Transaction
         $type = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL;
 
         return $this->saveTransaction($invoice, $response, $type);
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param ResponseInterface $response
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
+     */
+    public function saveResellRefundTransaction(InvoiceInterface $invoice, ResponseInterface $response)
+    {
+        $this->kkmHelper->info(
+            __(
+                'start save transaction %1. Resell Invoice %2',
+                $response->getUuid(),
+                $invoice->getIncrementId()
+            )
+        );
+        $type = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND;
+
+        $doneTransaction = $this->getDoneTransaction($invoice, true);
+
+        if (!$doneTransaction) {
+            throw new LocalizedException(
+                __(
+                    'Invoice %s does not have transaction with status DONE.',
+                    $invoice->getIncrementId()
+                )
+            );
+        }
+
+        return $this->saveTransaction($invoice, $response, $type, $doneTransaction);
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param bool $fromTheEnd
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface|null
+     */
+    public function getDoneTransaction($invoice, $fromTheEnd = false): ?TransactionInterface
+    {
+        //Transactions are sorted by createdAt by default.
+        $transactions = $this->getTransactionsByInvoice($invoice);
+
+        if ($fromTheEnd) {
+            $transactions = array_reverse($transactions);
+        }
+
+        if (!$transactions) {
+            throw new LocalizedException(__('Invoice %s has no KKM transactions.', $invoice->getIncrementId()));
+        }
+
+        /** @var \Magento\Sales\Api\Data\TransactionInterface|null $doneTransaction */
+        $doneTransaction = null;
+        array_walk(
+            $transactions,
+            function ($transaction) use (&$doneTransaction) {
+                $doneTransaction = $doneTransaction ??
+                    (
+                        $transaction->getKkmStatus() === Response::STATUS_DONE
+                        ? $transaction
+                        : null
+                    );
+            }
+        );
+
+        return $doneTransaction;
     }
 
     /**
@@ -177,12 +269,13 @@ class Transaction
     }
 
     /**
-     * @param \Magento\Sales\Model\Order\Invoice $invoice
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param bool $includingResell
      * @return \Magento\Sales\Api\Data\TransactionInterface[]
      */
-    public function getTransactionsByInvoice($invoice)
+    public function getTransactionsByInvoice(InvoiceInterface $invoice, $includingResell = false)
     {
-        return $this->getTransactionsByEntity($invoice);
+        return $this->getTransactionsByEntity($invoice, $includingResell);
     }
 
     /**
@@ -196,21 +289,36 @@ class Transaction
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param bool $includingResellTransactions
      * @return \Magento\Sales\Api\Data\TransactionInterface[]
      */
-    public function getTransactionsByEntity($entity)
+    public function getTransactionsByEntity($entity, $includingResellTransactions = false)
     {
         /** @var Order $order */
         $order = $entity->getOrder();
         $this->searchCriteriaBuilder->addFilter('order_id', $order->getId());
 
+        //Fetch the freshest entity
+        $sortOrder = $this->sortOrderBuilder
+            ->setField('created_at')
+            ->setDirection('DESC')
+            ->create();
+
+        $this->searchCriteriaBuilder->setSortOrders([$sortOrder]);
+
         if ($entity->getEntityType() === 'invoice') {
+            $types = [
+                \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_PREPAYMENT,
+                \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL,
+            ];
+
+            if ($includingResellTransactions) {
+                $types[] = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND;
+            }
+
             $this->searchCriteriaBuilder->addFilter(
                 'txn_type',
-                [
-                    \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_PREPAYMENT,
-                    \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL,
-                ],
+                $types,
                 'in'
             );
         } else {
@@ -225,7 +333,10 @@ class Transaction
         //Order has several creditmemos or invoices
         foreach ($transactions->getItems() as $index => $item) {
             $data = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
-            if ($data[self::INCREMENT_ID_KEY] !== $entity->getIncrementId()) {
+            $invalidIncrementId = $data[self::INCREMENT_ID_KEY] !== $entity->getIncrementId();
+            $invalidEntityType = $data[self::ENTITY_KEY] !== $entity->getEntityType();
+
+            if ($invalidIncrementId || $invalidEntityType) {
                 $transactions->removeItemByKey($index);
             }
         }
@@ -356,13 +467,46 @@ class Transaction
     }
 
     /**
-     * @param \Magento\Sales\Api\Data\EntityInterface $entity
-     * @param ResponseInterface $response
-     * @param mixed $type
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Magento\Sales\Api\Data\TransactionInterface
+     * @param \Magento\Sales\Api\Data\TransactionInterface $transaction
+     * @throws \InvalidArgumentException
+     * @return string|null
      */
-    protected function saveTransaction($entity, ResponseInterface $response, $type)
+    public function getExternalId(TransactionInterface $transaction): ?string
+    {
+        $additionalInformation = $transaction->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+
+        $externalId = $additionalInformation[RequestInterface::EXTERNAL_ID_KEY] ?? '';
+
+        if ($externalId) {
+            return $externalId;
+        }
+
+        $rawResponse = $this->jsonSerializer->unserialize($additionalInformation[self::RAW_RESPONSE_KEY]);
+
+        return $rawResponse[RequestInterface::EXTERNAL_ID_KEY] ?? null;
+    }
+
+    /**
+     * Returns "Фискальный признак документа" if it exists.
+     *
+     * @param \Magento\Sales\Api\Data\TransactionInterface $transaction
+     * @return string
+     */
+    public function getFpd(TransactionInterface $transaction): string
+    {
+        $additionalInformation = $transaction->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
+
+        return $additionalInformation[self::FPD_KEY] ?? '';
+    }
+
+    /**
+     * @param CreditmemoInterface|EntityInterface|InvoiceInterface $entity
+     * @param ResponseInterface $response
+     * @param string $type
+     * @param TransactionInterface|null $parentTransaction
+     * @return TransactionInterface
+     */
+    protected function saveTransaction($entity, ResponseInterface $response, $type, $parentTransaction = null)
     {
         $txnId = $response->getUuid();
         $order = $entity->getOrder();
@@ -372,6 +516,7 @@ class Transaction
         $additional = [
             self::ENTITY_KEY => $entity->getEntityType(),
             self::INCREMENT_ID_KEY => $entity->getIncrementId(),
+            RequestInterface::EXTERNAL_ID_KEY => $response->getExternalId(),
             self::UUID_KEY => $txnId,
             self::STATUS_KEY => $response->getStatus(),
             self::ERROR_MESSAGE_KEY => $response->getErrorMessage(),
@@ -395,6 +540,7 @@ class Transaction
         }
 
         //Create
+        /** @var TransactionInterface $transaction */
         $transaction = $this->transactionFactory->create()
             ->setPayment($payment)
             ->setOrder($order)
@@ -403,10 +549,17 @@ class Transaction
             ->setIsClosed($isClosed)
             ->setTxnId($txnId)
             ->setKkmStatus($response->getStatus())
+            ->setKkmStatus($response->getStatus())
             ->setAdditionalInformation(
                 TransactionEntity::RAW_DETAILS,
                 $additional
             );
+
+        if ($parentTransaction) {
+            $transaction
+                ->setParentId($parentTransaction->getTransactionId())
+                ->setParentTxnId($parentTransaction->getTxnId());
+        }
 
         return $this->transactionRepo->save($transaction);
     }

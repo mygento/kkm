@@ -92,10 +92,11 @@ class TransactionAttempt
      */
     public function registerAttempt(RequestInterface $request, $entity)
     {
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);
 
-        $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
+        if ($attempt->getId()) {
+            $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
+        }
 
         $numberOfTrials = $attempt->getNumberOfTrials() === null ? 0 : $attempt->getNumberOfTrials() + 1;
         $totalNumberOfTrials = $attempt->getTotalNumberOfTrials() === null ? 0 : $attempt->getTotalNumberOfTrials() + 1;
@@ -235,6 +236,15 @@ class TransactionAttempt
      */
     private function getAttemptByRequest(RequestInterface $request, $entity)
     {
+        $resellOperations = [
+            RequestInterface::RESELL_REFUND_OPERATION_TYPE,
+            RequestInterface::RESELL_SELL_OPERATION_TYPE,
+        ];
+
+        if (in_array($request->getOperationType(), $resellOperations, true)) {
+            return $this->getAttemptForResell($entity);
+        }
+
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
             ->getByEntityId($request->getOperationType(), $entity->getEntityId());
@@ -246,6 +256,20 @@ class TransactionAttempt
         }
 
         return $attempt;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $entity
+     * @return TransactionAttemptInterface
+     */
+    private function getAttemptForResell($entity)
+    {
+        //Create new entity in weird way. In order not to add Factory dependency.
+        $attempt = $this->attemptRepository->getByEntityId(666, 0);
+
+        $parentAttempt = $this->attemptRepository->getParentAttempt($entity->getId());
+
+        return $attempt->setParentId($parentAttempt->getId());
     }
 
     /**

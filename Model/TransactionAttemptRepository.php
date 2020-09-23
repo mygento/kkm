@@ -10,6 +10,7 @@ namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Api\SortOrder;
 use Magento\Framework\Data\Collection;
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
 /**
@@ -107,6 +108,40 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             );
 
         return $collection->getFirstItem();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getParentAttempt($entityId): TransactionAttemptInterface
+    {
+        $collection = $this->collectionFactory->create();
+        $collection
+            ->addFieldToFilter(
+                TransactionAttemptInterface::OPERATION,
+                ['eq' => RequestInterface::RESELL_SELL_OPERATION_TYPE]
+            )
+            ->addFieldToFilter(
+                TransactionAttemptInterface::SALES_ENTITY_ID,
+                ['eq' => $entityId]
+            );
+
+        if ($collection->getSize() === 0) {
+            return $this->getByEntityId(RequestInterface::SELL_OPERATION_TYPE, $entityId);
+        }
+
+        if ($collection->getSize() === 1) {
+            return $collection->getFirstItem();
+        }
+
+        //В бинарном дереве ищем узел без потомков
+        $allParentIds = $collection->getColumnValues(TransactionAttemptInterface::PARENT_ID);
+        $allIds = $collection->getColumnValues(TransactionAttemptInterface::ID);
+
+        $withoutChildren = array_diff($allIds, $allParentIds);
+        $childlessAttemptId = array_shift($withoutChildren);
+
+        return $collection->getItemById($childlessAttemptId);
     }
 
     /**

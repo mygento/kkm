@@ -100,4 +100,33 @@ class Processor implements ProcessorInterface
 
         return true;
     }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param bool $sync
+     * @param bool $ignoreTrials
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return bool
+     */
+    public function proceedResell($invoice, $sync = false, $ignoreTrials = false)
+    {
+        $request = $this->vendor->buildRequest($invoice);
+
+        $request->setIgnoreTrialsNum($ignoreTrials);
+
+        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+            $this->helper->debug('Sending request without Queue: ', $request->__toArray());
+            $this->vendor->sendResellRequest($request, $invoice);
+
+            return true;
+        }
+
+        //TODO:
+        $this->helper->debug('Publish request: ', $request->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_RESELL, $request);
+
+        return true;
+    }
 }

@@ -10,6 +10,10 @@ namespace Mygento\Kkm\Api\Data;
 
 interface ResponseInterface
 {
+    const STATUS_DONE = 'done';
+    const STATUS_FAIL = 'fail';
+    const STATUS_WAIT = 'wait';
+
     /**
      * @return string
      */
@@ -34,6 +38,11 @@ interface ResponseInterface
      * @return string
      */
     public function getStatus();
+
+    /**
+     * @return string
+     */
+    public function getExternalId();
 
     /**
      * @return string

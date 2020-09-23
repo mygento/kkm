@@ -303,6 +303,22 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getParentId()
+    {
+        return $this->getData(self::PARENT_ID);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setParentId($parentId)
+    {
+        return $this->setData(self::PARENT_ID, $parentId);
+    }
+
+    /**
      * @return void
      */
     protected function _construct()

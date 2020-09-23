@@ -8,6 +8,7 @@
                 <item name="sendSellToAtol" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
                 <item name="sendSellRefundToAtol" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
                 <item name="updateStatusAtol" xsi:type="object">Mygento\Kkm\Console\UpdateStatus</item>
+                <item name="sendResellToAtol" xsi:type="object">Mygento\Kkm\Console\SendResell</item>
                 <item name="showReport" xsi:type="object">Mygento\Kkm\Console\Report</item>
             </argument>
         </arguments>

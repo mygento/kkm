@@ -15,6 +15,7 @@ use Mygento\Kkm\Api\Data\RequestInterface;
  * Class Request
  * @package Mygento\Kkm\Model\Atol
  * @SuppressWarnings(PHPMD.TooManyFields)
+ * @SuppressWarnings(PHPMD.ExcessivePublicCount)
  */
 abstract class Request implements \JsonSerializable, RequestInterface
 {
@@ -52,6 +53,8 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $retryCount = null;
 
     protected $additionalUserProps = null;
+
+    protected $additionalCheckProps = '';
 
     // phpcs:enable
 
@@ -460,6 +463,24 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setAdditionalUserProps(\Mygento\Kkm\Api\Data\UserPropInterface $userProp): RequestInterface
     {
         $this->additionalUserProps = $userProp;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getAdditionalCheckProps(): ?string
+    {
+        return $this->additionalCheckProps;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAdditionalCheckProps($checkProps): RequestInterface
+    {
+        $this->additionalCheckProps = $checkProps;
 
         return $this;
     }

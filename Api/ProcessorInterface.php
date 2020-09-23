@@ -25,4 +25,12 @@ interface ProcessorInterface
      * @return bool
      */
     public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false);
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param bool $sync
+     * @param bool $ignoreTrials
+     * @return bool
+     */
+    public function proceedResell($invoice, $sync = false, $ignoreTrials = false);
 }

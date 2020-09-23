@@ -57,6 +57,10 @@ class RequestForVersion4 extends Request
             ];
         }
 
+        if ($this->getAdditionalCheckProps()) {
+            $data['receipt']['additional_check_props'] = $this->getAdditionalCheckProps();
+        }
+
         return $data;
     }
 }

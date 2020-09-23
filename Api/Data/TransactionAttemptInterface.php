@@ -10,21 +10,22 @@ namespace Mygento\Kkm\Api\Data;
 
 interface TransactionAttemptInterface
 {
-    const ID = 'id';
-    const ORDER_ID = 'order_id';
-    const TXN_TYPE = 'txn_type';
-    const OPERATION = 'operation';
-    const SALES_ENTITY_ID = 'sales_entity_id';
-    const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
-    const STATUS = 'status';
-    const MESSAGE = 'message';
-    const NUMBER_OF_TRIALS = 'number_of_trials';
-    const TOTAL_NUMBER_OF_TRIALS = 'total_number_of_trials';
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = 'updated_at';
-    const SCHEDULED_AT = 'scheduled_at';
-    const IS_SCHEDULED = 'is_scheduled';
-    const REQUEST_JSON = 'request_json';
+    public const ID = 'id';
+    public const ORDER_ID = 'order_id';
+    public const TXN_TYPE = 'txn_type';
+    public const OPERATION = 'operation';
+    public const SALES_ENTITY_ID = 'sales_entity_id';
+    public const SALES_ENTITY_INCREMENT_ID = 'sales_entity_increment_id';
+    public const STATUS = 'status';
+    public const MESSAGE = 'message';
+    public const NUMBER_OF_TRIALS = 'number_of_trials';
+    public const TOTAL_NUMBER_OF_TRIALS = 'total_number_of_trials';
+    public const CREATED_AT = 'created_at';
+    public const UPDATED_AT = 'updated_at';
+    public const SCHEDULED_AT = 'scheduled_at';
+    public const IS_SCHEDULED = 'is_scheduled';
+    public const REQUEST_JSON = 'request_json';
+    public const PARENT_ID = 'parent_id';
 
     const OPERATION_LABEL = [
         1 => 'Payment',
@@ -232,4 +233,17 @@ interface TransactionAttemptInterface
      * @return $this
      */
     public function setRequestJson($requestJson);
+
+    /**
+     * Get parent id
+     * @return int|null
+     */
+    public function getParentId();
+
+    /**
+     * Set parent id
+     * @param int $id
+     * @return $this
+     */
+    public function setParentId($id);
 }

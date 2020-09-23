@@ -51,6 +51,19 @@ interface VendorInterface
     public function sendRefundRequest($request, $creditmemo = null);
 
     /**
+     * Send resell (refund and again sell) request to Vendor
+     *
+     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
+     */
+    public function sendResellRequest(RequestInterface $request, $invoice): ResponseInterface;
+
+    /**
      * @param string $uuid It is Transaction Id on Magento side
      * @param bool $useAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
