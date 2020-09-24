@@ -8,8 +8,6 @@
 
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
-use Magento\Framework\Exception\ValidatorException;
-
 class CheckStatus extends \Magento\Backend\App\Action
 {
     /**
@@ -47,12 +45,44 @@ class CheckStatus extends \Magento\Backend\App\Action
      */
     public function execute()
     {
+        $uuid = strtolower($this->_request->getParam('uuid'));
+        if (!$uuid) {
+            $this->getMessageManager()->addErrorMessage(__('Invalid request. No uuid specified.'));
+            $this->kkmHelper->error(
+                'Invalid url. No uuid. Params:',
+                $this->getRequest()->getParams()
+            );
+
+            return $this->redirect();
+        }
+
+        $uuids = explode(',', $uuid);
+
+        foreach ($uuids as $value) {
+            $this->check($value);
+        }
+
+        return $this->redirect();
+    }
+
+    /**
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
+    protected function redirect(): \Magento\Framework\Controller\Result\Redirect
+    {
+        return $this->resultRedirectFactory->create()->setUrl(
+            $this->_redirect->getRefererUrl()
+        );
+    }
+
+    /**
+     * @param string $uuid
+     */
+    protected function check(string $uuid): void
+    {
         try {
-            $this->validateRequest();
-
-            $uuid = strtolower($this->_request->getParam('uuid'));
-
             $response = $this->vendor->updateStatus($uuid);
+
             $this->getMessageManager()->addSuccessMessage(
                 __('Kkm transaction status was updated. Status: %1', $response->getStatus())
             );
@@ -62,27 +92,6 @@ class CheckStatus extends \Magento\Backend\App\Action
             );
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error($exc->getMessage());
-        } finally {
-            return $this->resultRedirectFactory->create()->setUrl(
-                $this->_redirect->getRefererUrl()
-            );
-        }
-    }
-
-    /**
-     * @throws \Magento\Framework\Exception\ValidatorException
-     */
-    protected function validateRequest()
-    {
-        $uuid = $this->getRequest()->getParam('uuid');
-
-        if (!$uuid) {
-            $this->kkmHelper->error(
-                'Invalid url. No uuid. Params:',
-                $this->getRequest()->getParams()
-            );
-
-            throw new ValidatorException(__('Invalid request. Check logs.'));
         }
     }
 }

@@ -183,7 +183,7 @@ class Transaction
         if (!$doneTransaction) {
             throw new LocalizedException(
                 __(
-                    'Invoice %s does not have transaction with status DONE.',
+                    'Invoice %1 does not have transaction with status DONE.',
                     $invoice->getIncrementId()
                 )
             );
@@ -196,9 +196,9 @@ class Transaction
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param bool $fromTheEnd
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Magento\Sales\Api\Data\TransactionInterface|null
+     * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function getDoneTransaction($invoice, $fromTheEnd = false): ?TransactionInterface
+    public function getDoneTransaction($invoice, $fromTheEnd = false): TransactionInterface
     {
         //Transactions are sorted by createdAt by default.
         $transactions = $this->getTransactionsByInvoice($invoice);
@@ -208,20 +208,21 @@ class Transaction
         }
 
         if (!$transactions) {
-            throw new LocalizedException(__('Invoice %s has no KKM transactions.', $invoice->getIncrementId()));
+            throw new LocalizedException(__('Invoice %1 has no KKM transactions.', $invoice->getIncrementId()));
         }
 
-        /** @var \Magento\Sales\Api\Data\TransactionInterface|null $doneTransaction */
-        $doneTransaction = null;
+        /** @var \Magento\Sales\Api\Data\TransactionInterface $doneTransaction */
+        $doneTransaction = $this->transactionFactory->create();
         array_walk(
             $transactions,
             function ($transaction) use (&$doneTransaction) {
-                $doneTransaction = $doneTransaction ??
-                    (
-                        $transaction->getKkmStatus() === Response::STATUS_DONE
-                        ? $transaction
-                        : null
-                    );
+                if ($doneTransaction->getId()) {
+                    return;
+                }
+
+                $doneTransaction = $transaction->getKkmStatus() === Response::STATUS_DONE
+                    ? $transaction
+                    : $doneTransaction;
             }
         );
 
@@ -266,6 +267,27 @@ class Transaction
             $paymentId,
             $orderId
         );
+    }
+
+    /**
+     * @param InvoiceInterface $invoice
+     * @return bool
+     */
+    public function isResellRefundTransactionOpened(InvoiceInterface $invoice): bool
+    {
+        $transactions = $this->getTransactionsByInvoice($invoice, true);
+
+        foreach ($transactions as $transaction) {
+            if ($transaction->getTxnType() !== \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND) {
+                continue;
+            }
+
+            if ($transaction->getKkmStatus() === Response::STATUS_WAIT) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -398,18 +420,19 @@ class Transaction
     /**
      * Returns UUID if invoice or creditmemo has uncompleted kkm transactions
      * @param CreditmemoInterface|InvoiceInterface $entity Invoice|Creditmemo
-     * @return string|null uuid
+     * @return string[] uuid
      */
-    public function getWaitUuid($entity)
+    public function getWaitUuid($entity): array
     {
-        $transactions = $this->getTransactionsByEntity($entity);
+        $transactions = $this->getTransactionsByEntity($entity, true);
+        $uuids = [];
         foreach ($transactions as $transaction) {
             if ($transaction->getKkmStatus() === Response::STATUS_WAIT) {
-                return $transaction->getTxnId();
+                $uuids[] = $transaction->getTxnId();
             }
         }
 
-        return null;
+        return $uuids;
     }
 
     /**
@@ -481,7 +504,9 @@ class Transaction
             return $externalId;
         }
 
-        $rawResponse = $this->jsonSerializer->unserialize($additionalInformation[self::RAW_RESPONSE_KEY]);
+        $rawResponse = $additionalInformation
+            ? $this->jsonSerializer->unserialize($additionalInformation[self::RAW_RESPONSE_KEY])
+            : [];
 
         return $rawResponse[RequestInterface::EXTERNAL_ID_KEY] ?? null;
     }

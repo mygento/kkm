@@ -102,17 +102,14 @@ class SendResell extends Command
             $output->writeln("<error>Error: {$error}</error>");
         }
 
-        //TODO: Razobratsya s Transactions
         $transactions = $this->transactionHelper->getTransactionsByInvoice($invoice, true);
 
         foreach ($transactions as $transaction) {
             $status = $transaction->getKkmStatus();
             $additional = $transaction->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
-            $transactionTypeText = ucfirst(trim($transaction->getTxnType(),'fiscal_'));
+            $transactionTypeText = ucfirst(trim($transaction->getTxnType(), 'fiscal_'));
 
-            $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
-                ? $additional[Transaction::ERROR_MESSAGE_KEY]
-                : $additional[Transaction::RAW_RESPONSE_KEY];
+            $message = $additional[Transaction::ERROR_MESSAGE_KEY] ?? $additional[Transaction::RAW_RESPONSE_KEY];
 
             $output->writeln('');
             if ($status != Response::STATUS_DONE && $status != Response::STATUS_WAIT) {

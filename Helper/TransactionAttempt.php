@@ -141,7 +141,6 @@ class TransactionAttempt
         /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
         $entity = $this->requestHelper->getEntityByRequest($request);
 
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);
         if (!$attempt->getId()) {
             $attempt
@@ -236,16 +235,6 @@ class TransactionAttempt
      */
     private function getAttemptByRequest(RequestInterface $request, $entity)
     {
-        $resellOperations = [
-            RequestInterface::RESELL_REFUND_OPERATION_TYPE,
-            RequestInterface::RESELL_SELL_OPERATION_TYPE,
-        ];
-
-        if (in_array($request->getOperationType(), $resellOperations, true)) {
-            return $this->getAttemptForResell($entity);
-        }
-
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
             ->getByEntityId($request->getOperationType(), $entity->getEntityId());
 
@@ -255,21 +244,17 @@ class TransactionAttempt
                 ->getByIncrementId($request->getOperationType(), $entity->getOrderId(), $entity->getIncrementId());
         }
 
+        //Set Parent Attempt (for resell attempts)
+        $resellOperations = [
+            RequestInterface::RESELL_REFUND_OPERATION_TYPE,
+            RequestInterface::RESELL_SELL_OPERATION_TYPE,
+        ];
+        if (in_array($request->getOperationType(), $resellOperations, true)) {
+            $parentAttempt = $this->attemptRepository->getParentAttempt($entity->getId());
+            $attempt->setParentId($parentAttempt->getId());
+        }
+
         return $attempt;
-    }
-
-    /**
-     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $entity
-     * @return TransactionAttemptInterface
-     */
-    private function getAttemptForResell($entity)
-    {
-        //Create new entity in weird way. In order not to add Factory dependency.
-        $attempt = $this->attemptRepository->getByEntityId(666, 0);
-
-        $parentAttempt = $this->attemptRepository->getParentAttempt($entity->getId());
-
-        return $attempt->setParentId($parentAttempt->getId());
     }
 
     /**

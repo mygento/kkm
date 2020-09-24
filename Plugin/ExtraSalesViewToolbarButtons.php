@@ -80,7 +80,7 @@ class ExtraSalesViewToolbarButtons
 //            return;
 //        }
 
-        $transactions = $this->transactionHelper->getTransactionsByEntity($entity);
+        $transactions = $this->transactionHelper->getTransactionsByEntity($entity, true);
 
         if ($this->canBeShownResendButton($transactions)) {
             $url = $this->urlBuilder->getUrl(
@@ -101,7 +101,7 @@ class ExtraSalesViewToolbarButtons
             $url = $this->urlBuilder->getUrl(
                 'kkm/cheque/checkStatus',
                 [
-                    'uuid' => $this->transactionHelper->getWaitUuid($entity),
+                    'uuid' => implode(',', $this->transactionHelper->getWaitUuid($entity)),
                 ]
             );
             $data = [

@@ -64,14 +64,13 @@ class Request
     {
         switch ($request->getOperationType()) {
             case RequestInterface::SELL_OPERATION_TYPE:
+            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
+            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
                 return $this->invoiceRepository->get($request->getSalesEntityId());
-                break;
             case RequestInterface::REFUND_OPERATION_TYPE:
                 return $this->creditmemoRepository->get($request->getSalesEntityId());
-                break;
             default:
                 return $this->orderRepository->get($request->getSalesEntityId());
-                break;
         }
     }
 
