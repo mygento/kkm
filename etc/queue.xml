@@ -6,6 +6,9 @@
     <broker topic="mygento.kkm.message.refund" exchange="magento-db" type="db">
         <queue name="mygento_kkm_message_refund_queue" consumer="mygento.kkm.refund"/>
     </broker>
+    <broker topic="mygento.kkm.message.resell" exchange="magento-db" type="db">
+        <queue name="mygento_kkm_message_resell_queue" consumer="mygento.kkm.resell"/>
+    </broker>
     <broker topic="mygento.kkm.message.update" exchange="magento-db" type="db">
         <queue name="mygento_kkm_message_update_queue" consumer="mygento.kkm.update"/>
     </broker>

@@ -15,6 +15,7 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Base\Helper\Discount;
+use Mygento\Base\Model\Payment\Transaction;
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -158,29 +159,31 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * @inheritdoc
      */
-    public function sendResellRequest(RequestInterface $request, $invoice): ResponseInterface
+    public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface
     {
+        $invoice = $invoice ?? $this->requestHelper->getEntityByRequest($request);
+
         //Check is there a done transaction among entity transactions.
         $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
 
         if (!$doneTransaction) {
             throw new LocalizedException(
                 __(
-                    'Invoice %s does not have transaction with status DONE.',
+                    'Invoice %1 does not have transaction with status DONE.',
                     $invoice->getIncrementId()
                 )
             );
         }
 
-        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
-            ?? $this->generateExternalId($invoice);
-        $externalId .= '_refund';
-
-        //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
-        //set ФПД for resell requests.
-        $request->setAdditionalCheckProps($this->transactionHelper->getFpd($doneTransaction));
-        $request->setExternalId($externalId);
-        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
+        //Stop sending if there is 'wait' resell_refund transaction
+        if ($this->transactionHelper->isResellRefundTransactionOpened($invoice)) {
+            throw new LocalizedException(
+                __(
+                    'Invoice %1 has opened refund transaction.',
+                    $invoice->getIncrementId()
+                )
+            );
+        }
 
         return $this->sendRequest($request, 'sendRefund', $invoice);
     }
@@ -223,7 +226,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         switch ($entity->getEntityType()) {
             case 'invoice':
-                $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
+                $txn = $transaction->getTxnType() === Transaction::TYPE_FISCAL_REFUND
+                    ? $this->transactionHelper->saveResellRefundTransaction($entity, $response)
+                    : $this->transactionHelper->saveSellTransaction($entity, $response);
                 break;
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
@@ -274,6 +279,42 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $this->addCommentToOrder($entity, $response, $txn->getId());
 
         return $entity;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildRequestForResell(
+        $invoice,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = '',
+        $clientInn = ''
+    ): RequestInterface {
+        $request = $this->buildRequest(
+            $invoice,
+            $paymentMethod,
+            $shippingPaymentObject,
+            $receiptData,
+            $clientName,
+            $clientInn
+        );
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+
+        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
+            ?? $this->generateExternalId($invoice);
+        $externalId .= '_refund';
+
+        //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
+        //set ФПД for resell requests.
+        $request->setAdditionalCheckProps($this->transactionHelper->getFpd($doneTransaction));
+        $request->setExternalId($externalId);
+        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
+
+        return $request;
     }
 
     /**
@@ -425,7 +466,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * @inheritdoc
      */
-    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null)
+    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
     {
         $order = $entity->getOrder();
 
@@ -448,7 +489,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $message .= " <a href='{$href}'>Transaction id: {$txnId}</a>";
         }
 
-        $comment = __('[ATOL] Cheque was sent. %1', $message);
+        $comment = $operation === RequestInterface::RESELL_REFUND_OPERATION_TYPE
+            ? __('[ATOL] Resell (refund) was sent. %1', $message)
+            : __('[ATOL] Cheque was sent. %1', $message);
 
         if ($response->getStatus() == Response::STATUS_DONE
             && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
@@ -522,7 +565,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $response = $this->apiClient->receiveStatus($uuid);
 
             //Save transaction data
-            /** @var TransactionInterface $txn */
             $txn = $this->transactionHelper->registerTransaction($entity, $response);
             $this->addCommentToOrder($entity, $response, $txn->getTransactionId() ?? null);
 
@@ -607,7 +649,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             //Save transaction data
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
-            $this->addCommentToOrder($entity, $response, $txn->getId() ?? null);
+            $this->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
 
             //Check response.
             $this->validateResponse($response);

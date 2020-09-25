@@ -54,14 +54,14 @@ interface VendorInterface
      * Send resell (refund and again sell) request to Vendor
      *
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param \Magento\Sales\Api\Data\InvoiceInterface|null $invoice
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
-    public function sendResellRequest(RequestInterface $request, $invoice): ResponseInterface;
+    public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface;
 
     /**
      * @param string $uuid It is Transaction Id on Magento side
@@ -92,9 +92,28 @@ interface VendorInterface
     ): RequestInterface;
 
     /**
+     * @param InvoiceInterface $invoice
+     * @param string $paymentMethod
+     * @param string $shippingPaymentObject
+     * @param array $receiptData
+     * @param string $clientName
+     * @param string $clientInn
+     * @return \Mygento\Kkm\Api\Data\RequestInterface
+     */
+    public function buildRequestForResell(
+        $invoice,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = '',
+        $clientInn = ''
+    ): RequestInterface;
+
+    /**
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @param \Mygento\Kkm\Api\Data\ResponseInterface $response
      * @param mixed|null $txnId
+     * @param string $operation
      */
-    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null);
+    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '');
 }
