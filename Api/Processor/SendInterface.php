@@ -6,10 +6,14 @@
  * @package Mygento_Kkm
  */
 
-namespace Mygento\Kkm\Api;
+namespace Mygento\Kkm\Api\Processor;
 
-interface ProcessorInterface
+interface SendInterface
 {
+    public const TOPIC_NAME_REFUND = 'mygento.kkm.message.refund';
+    public const TOPIC_NAME_RESELL = 'mygento.kkm.message.resell';
+    public const TOPIC_NAME_SELL = 'mygento.kkm.message.sell';
+
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param bool $sync

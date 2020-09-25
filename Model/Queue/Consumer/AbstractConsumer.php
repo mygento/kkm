@@ -41,9 +41,15 @@ abstract class AbstractConsumer
     protected $errorHelper;
 
     /**
+     * @var \Mygento\Kkm\Api\Processor\UpdateInterface
+     */
+    protected $updateProcessor;
+
+    /**
      * Consumer constructor.
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
@@ -52,6 +58,7 @@ abstract class AbstractConsumer
     public function __construct(
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\VendorInterface $vendor,
+        \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
         \Mygento\Kkm\Helper\Data $helper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
         \Mygento\Kkm\Helper\Request $requestHelper,
@@ -63,6 +70,7 @@ abstract class AbstractConsumer
         $this->helper = $helper;
         $this->requestHelper = $requestHelper;
         $this->errorHelper = $errorHelper;
+        $this->updateProcessor = $updateProcessor;
     }
 
     /**

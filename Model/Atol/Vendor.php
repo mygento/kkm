@@ -245,7 +245,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param ResponseInterface $response
      * @throws \Exception
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @return \Magento\Sales\Api\Data\CreditmemoInterface|\Magento\Sales\Model\Order\Invoice
+     * @return CreditmemoInterface|InvoiceInterface
      */
     public function saveCallback($response)
     {

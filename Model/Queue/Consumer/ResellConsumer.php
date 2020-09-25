@@ -9,9 +9,9 @@
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
-use Mygento\Kkm\Model\Processor;
 
 class ResellConsumer extends AbstractConsumer
 {
@@ -45,16 +45,16 @@ class ResellConsumer extends AbstractConsumer
 
             $request->setIgnoreTrialsNum(false);
             $this->increaseExternalId($request);
-            $this->publisher->publish(Processor::TOPIC_NAME_RESELL, $request);
+            $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 
             if ($this->helper->isUseCustomRetryIntervals()) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
-                $this->attemptHelper->scheduleNextAttempt($request, Processor::TOPIC_NAME_RESELL);
+                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
             } else {
                 $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(Processor::TOPIC_NAME_RESELL, $request);
+                $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
             }
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);

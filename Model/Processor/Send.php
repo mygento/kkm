@@ -6,20 +6,16 @@
  * @package Mygento_Kkm
  */
 
-namespace Mygento\Kkm\Model;
+namespace Mygento\Kkm\Model\Processor;
 
 use Magento\Framework\MessageQueue\PublisherInterface;
-use Mygento\Kkm\Api\ProcessorInterface;
+use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\TransactionAttempt as TransactionAttemptHelper;
+use Mygento\Kkm\Model\VendorInterface;
 
-class Processor implements ProcessorInterface
+class Send implements SendInterface
 {
-    public const TOPIC_NAME_SELL = 'mygento.kkm.message.sell';
-    public const TOPIC_NAME_REFUND = 'mygento.kkm.message.refund';
-    public const TOPIC_NAME_RESELL = 'mygento.kkm.message.resell';
-    public const TOPIC_NAME_UPDATE = 'mygento.kkm.message.update';
-
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
      */

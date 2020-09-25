@@ -15,7 +15,6 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterfaceFactory;
 use Mygento\Kkm\Model\Atol\Response;
-use Mygento\Kkm\Model\Processor;
 
 class Update
 {
@@ -33,43 +32,35 @@ class Update
     private $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
-     */
-    private $vendor;
-
-    /**
      * @var \Mygento\Kkm\Helper\Transaction\Proxy
      */
     private $transactionHelper;
 
     /**
-     * @var \Magento\Framework\MessageQueue\PublisherInterface
+     * @var \Mygento\Kkm\Api\Processor\UpdateInterface
      */
-    private $publisher;
+    private $updateProcessor;
 
     /**
      * Update constructor.
      * @param UpdateRequestInterfaceFactory $updateRequestFactory
+     * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
-     * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
     public function __construct(
         UpdateRequestInterfaceFactory $updateRequestFactory,
+        \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
-        \Mygento\Kkm\Model\VendorInterface $vendor,
-        \Magento\Framework\MessageQueue\PublisherInterface $publisher
+        \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
     ) {
         $this->updateRequestFactory = $updateRequestFactory;
         $this->attemptHelper = $attemptHelper;
         $this->kkmHelper = $kkmHelper;
-        $this->vendor = $vendor;
         $this->transactionHelper = $transactionHelper;
-        $this->publisher = $publisher;
+        $this->updateProcessor = $updateProcessor;
     }
 
     /**
@@ -91,7 +82,7 @@ class Update
         foreach ($uuids as $uuid) {
             try {
                 if (!$this->kkmHelper->isMessageQueueEnabled()) {
-                    $response = $this->vendor->updateStatus($uuid);
+                    $response = $this->updateProcessor->proceedSync($uuid);
 
                     $result[] = "UUID {$uuid} new status: {$response->getStatus()}";
                     $i++;
@@ -140,6 +131,6 @@ class Update
             $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
         }
 
-        $this->publisher->publish(Processor::TOPIC_NAME_UPDATE, $updateRequest);
+        $this->updateProcessor->proceedAsync($updateRequest);
     }
 }

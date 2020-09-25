@@ -41,7 +41,7 @@ class SendResell extends Command
     private $invoiceFactory;
 
     /**
-     * @var \Mygento\Kkm\Api\ProcessorInterface
+     * @var \Mygento\Kkm\Api\Processor\SendInterface
      */
     private $processor;
 
@@ -52,13 +52,13 @@ class SendResell extends Command
 
     /**
      * SendSell constructor.
-     * @param \Mygento\Kkm\Api\ProcessorInterface $processor
+     * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param Transaction $transactionHelper
      * @param \Magento\Framework\App\State $state
      * @param \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory
      */
     public function __construct(
-        \Mygento\Kkm\Api\ProcessorInterface $processor,
+        \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Framework\App\State $state,
         \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory

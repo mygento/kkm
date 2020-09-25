@@ -26,14 +26,24 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     private $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
-     */
-    private $vendor;
-
-    /**
      * @var \Mygento\Kkm\Helper\Error\Proxy
      */
     private $errorHelper;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Resell
+     */
+    private $resellHelper;
+
+    /**
+     * @var \Mygento\Kkm\Api\Processor\SendInterface
+     */
+    private $processor;
+
+    /**
+     * @var \Mygento\Kkm\Model\VendorInterface
+     */
+    private $vendor;
 
     /**
      * Callback constructor.
@@ -41,6 +51,8 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Helper\Resell $resellHelper
+     * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param \Magento\Framework\App\Action\Context $context
      */
     public function __construct(
@@ -48,6 +60,8 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
         \Mygento\Kkm\Model\VendorInterface $vendor,
+        \Mygento\Kkm\Helper\Resell $resellHelper,
+        \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Magento\Framework\App\Action\Context $context
     ) {
         parent::__construct($context);
@@ -55,6 +69,8 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
         $this->kkmHelper = $kkmHelper;
         $this->vendor = $vendor;
         $this->errorHelper = $errorHelper;
+        $this->resellHelper = $resellHelper;
+        $this->processor = $processor;
     }
 
     /**
@@ -86,6 +102,12 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
             sleep(3);
 
             $entity = $this->vendor->saveCallback($response);
+
+            //Если был совершен refund по инвойсу - следовательно, это коррекция чека
+            //и нужно заново отправить инвойс в АТОЛ
+            if ($this->resellHelper->isNeededToResendSell($entity, $response)) {
+                $this->processor->proceedSell($entity);
+            }
 
             $this->getResponse()
                 ->setBody($entity->getIncrementId())

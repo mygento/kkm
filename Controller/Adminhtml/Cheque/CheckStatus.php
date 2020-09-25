@@ -8,7 +8,13 @@
 
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
-class CheckStatus extends \Magento\Backend\App\Action
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\Redirect;
+use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Helper\Data;
+
+class CheckStatus extends Action
 {
     /**
      * @see _isAllowed()
@@ -19,25 +25,25 @@ class CheckStatus extends \Magento\Backend\App\Action
     protected $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
+     * @var \Mygento\Kkm\Api\Processor\UpdateInterface
      */
-    private $vendor;
+    private $updateProcessor;
 
     /**
      * CheckStatus constructor.
      * @param \Magento\Backend\App\Action\Context $context
+     * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Data $helper
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Model\VendorInterface $vendor
+        Context $context,
+        UpdateInterface $updateProcessor,
+        Data $helper
     ) {
         parent::__construct($context);
 
         $this->kkmHelper = $helper;
-        $this->vendor = $vendor;
+        $this->updateProcessor = $updateProcessor;
     }
 
     /**
@@ -68,7 +74,7 @@ class CheckStatus extends \Magento\Backend\App\Action
     /**
      * @return \Magento\Framework\Controller\Result\Redirect
      */
-    protected function redirect(): \Magento\Framework\Controller\Result\Redirect
+    protected function redirect(): Redirect
     {
         return $this->resultRedirectFactory->create()->setUrl(
             $this->_redirect->getRefererUrl()
@@ -81,7 +87,7 @@ class CheckStatus extends \Magento\Backend\App\Action
     protected function check(string $uuid): void
     {
         try {
-            $response = $this->vendor->updateStatus($uuid);
+            $response = $this->updateProcessor->proceedSync($uuid);
 
             $this->getMessageManager()->addSuccessMessage(
                 __('Kkm transaction status was updated. Status: %1', $response->getStatus())

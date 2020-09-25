@@ -14,7 +14,8 @@
         </arguments>
     </type>
 
-    <preference for="Mygento\Kkm\Api\ProcessorInterface" type="Mygento\Kkm\Model\Processor"/>
+    <preference for="Mygento\Kkm\Api\Processor\SendInterface" type="Mygento\Kkm\Model\Processor\Send"/>
+    <preference for="Mygento\Kkm\Api\Processor\UpdateInterface" type="Mygento\Kkm\Model\Processor\Update"/>
 
     <preference for="Mygento\Kkm\Api\Data\RequestInterface" type="Mygento\Kkm\Model\Atol\RequestForVersion4"/>
     <preference for="Mygento\Kkm\Api\Data\UpdateRequestInterface" type="Mygento\Kkm\Model\Atol\UpdateRequest"/>

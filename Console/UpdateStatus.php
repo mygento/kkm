@@ -8,6 +8,11 @@
 
 namespace Mygento\Kkm\Console;
 
+use Magento\Framework\App\Area;
+use Magento\Framework\App\State;
+use Magento\Framework\Console\Cli;
+use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Helper\Transaction\Proxy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,12 +20,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateStatus extends Command
 {
-    const ARGUMENT = 'param';
-    const ARGUMENT_DESCRIPTION = 'UUID (Transaction id) or "all" to update all';
-    const COMMAND = 'mygento:atol:update';
-    const COMMAND_DESCRIPTION = 'Get status from Atol and save it.';
+    public const ARGUMENT = 'param';
+    public const ARGUMENT_DESCRIPTION = 'UUID (Transaction id) or "all" to update all';
+    public const COMMAND = 'mygento:atol:update';
+    public const COMMAND_DESCRIPTION = 'Get status from Atol and save it.';
 
-    const RUN_ALL_PARAM = 'all';
+    public const RUN_ALL_PARAM = 'all';
 
     /**
      * @var \Magento\Framework\App\State
@@ -28,30 +33,30 @@ class UpdateStatus extends Command
     protected $appState;
 
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
-     */
-    private $vendor;
-
-    /**
      * @var \Mygento\Kkm\Helper\Transaction\Proxy
      */
     private $transactionHelper;
 
     /**
+     * @var \Mygento\Kkm\Api\Processor\UpdateInterface
+     */
+    private $updateProcessor;
+
+    /**
      * UpdateStatus constructor.
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
      * @param \Magento\Framework\App\State $state
      */
     public function __construct(
-        \Mygento\Kkm\Model\VendorInterface $vendor,
-        \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
-        \Magento\Framework\App\State $state
+        UpdateInterface $updateProcessor,
+        Proxy $transactionHelper,
+        State $state
     ) {
         parent::__construct();
 
         $this->appState = $state;
-        $this->vendor = $vendor;
+        $this->updateProcessor = $updateProcessor;
         $this->transactionHelper = $transactionHelper;
     }
 
@@ -63,7 +68,7 @@ class UpdateStatus extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->appState->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
+        $this->appState->setAreaCode(Area::AREA_GLOBAL);
 
         $param = $input->getArgument('param');
 
@@ -78,7 +83,7 @@ class UpdateStatus extends Command
             $i++;
         }
 
-        return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
+        return Cli::RETURN_SUCCESS;
     }
 
     /**
@@ -116,19 +121,19 @@ HELP
     private function updateOne($output, $uuid)
     {
         //Обновление статуса
-        $response = $this->vendor->updateStatus($uuid);
+        $response = $this->updateProcessor->proceedSync($uuid);
 
         if ($response->isFailed() || $response->getError()) {
             $output->writeln("<error>Status: {$response->getStatus()}</error>");
             $output->writeln("<error>Uuid: {$response->getUuid()}</error>");
             $output->writeln("<error>Text: {$response->getErrorMessage()}</error>");
 
-            return \Magento\Framework\Console\Cli::RETURN_FAILURE;
+            return Cli::RETURN_FAILURE;
         }
 
         $output->writeln("<info>Status: {$response->getStatus()}</info>");
         $output->writeln("<info>Uuid: {$response->getUuid()}</info>");
 
-        return \Magento\Framework\Console\Cli::RETURN_SUCCESS;
+        return Cli::RETURN_SUCCESS;
     }
 }
