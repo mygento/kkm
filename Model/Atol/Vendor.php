@@ -543,6 +543,23 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
+     * @param string $operation
+     * @param string $message
+     * @return \Magento\Framework\Phrase
+     */
+    protected function buildOrderComment(string $operation, string $message): \Magento\Framework\Phrase
+    {
+        switch ($operation) {
+            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
+                return __('[ATOL] Resell (refund) was sent. %1', $message);
+            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
+                return __('[ATOL] Resell (sell) was sent. %1', $message);
+            default:
+                return __('[ATOL] Cheque was sent. %1', $message);
+        }
+    }
+
+    /**
      * @param string $uuid
      * @throws LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -827,22 +844,5 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         return $hex;
-    }
-
-    /**
-     * @param string $operation
-     * @param string $message
-     * @return \Magento\Framework\Phrase
-     */
-    protected function buildOrderComment(string $operation, string $message): \Magento\Framework\Phrase
-    {
-        switch ($operation) {
-            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
-                return __('[ATOL] Resell (refund) was sent. %1', $message);
-            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
-                return __('[ATOL] Resell (sell) was sent. %1', $message);
-            default:
-                return __('[ATOL] Cheque was sent. %1', $message);
-        }
     }
 }

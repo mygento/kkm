@@ -193,6 +193,4 @@ class Send implements SendInterface
 
         return true;
     }
-
-
 }
