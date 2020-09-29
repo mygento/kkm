@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="sales_transactions.grid.container">
+            <referenceBlock name="sales.transactions.grid">
+                <referenceBlock name="sales.transactions.grid.columnSet">
+                    <block class="Magento\Backend\Block\Widget\Grid\Column" name="kkm_status" as="kkm_status">
+                        <arguments>
+                            <argument name="header" xsi:type="string" translate="true">KKM Status</argument>
+                            <argument name="type" xsi:type="string">options</argument>
+                            <argument name="index" xsi:type="string">kkm_status</argument>
+                            <argument name="id" xsi:type="string">kkm_status</argument>
+                            <argument name="options" xsi:type="options" model="Mygento\Kkm\Model\Source\Transaction\Grid\KkmStatus"/>
+                            <argument name="header_css_class" xsi:type="string">col-kkm-status</argument>
+                            <argument name="column_css_class" xsi:type="string">col-kkm-status</argument>
+                        </arguments>
+                    </block>
+                </referenceBlock>
+            </referenceBlock>
+        </referenceBlock>
+    </body>
+</page>

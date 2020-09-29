@@ -166,7 +166,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         //Check is there a done transaction among entity transactions.
         $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
 
-        if (!$doneTransaction) {
+        if (!$doneTransaction->getId()) {
             throw new LocalizedException(
                 __(
                     'Invoice %1 does not have transaction with status DONE.',
@@ -267,16 +267,20 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             return $entity;
         }
 
+        $operation = '';
         switch ($entity->getEntityType()) {
             case 'invoice':
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
+                $operation = $txn->getTxnType() !== Transaction::TYPE_FISCAL_REFUND
+                    ? RequestInterface::RESELL_REFUND_OPERATION_TYPE
+                    : '';
                 break;
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
                 break;
         }
 
-        $this->addCommentToOrder($entity, $response, $txn->getId());
+        $this->addCommentToOrder($entity, $response, $txn->getId(), $operation);
 
         return $entity;
     }
@@ -284,22 +288,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * @inheritDoc
      */
-    public function buildRequestForResell(
-        $invoice,
-        $paymentMethod = null,
-        $shippingPaymentObject = null,
-        array $receiptData = [],
-        $clientName = '',
-        $clientInn = ''
-    ): RequestInterface {
-        $request = $this->buildRequest(
-            $invoice,
-            $paymentMethod,
-            $shippingPaymentObject,
-            $receiptData,
-            $clientName,
-            $clientInn
-        );
+    public function buildRequestForResellRefund($invoice): RequestInterface
+    {
+        $request = $this->buildRequest($invoice);
 
         //Check is there a done transaction among entity transactions.
         $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
@@ -313,6 +304,32 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $request->setAdditionalCheckProps($this->transactionHelper->getFpd($doneTransaction));
         $request->setExternalId($externalId);
         $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
+
+        return $request;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildRequestForResellSell($invoice): RequestInterface
+    {
+        $request = $this->buildRequest($invoice);
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+//        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
+
+        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
+            ?? $this->generateExternalId($invoice);
+        $externalId .= '_resell';
+
+//        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
+
+        //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
+        //set ФПД for resell requests.
+        $request->setAdditionalCheckProps($this->transactionHelper->getFpd($doneTransaction));
+        $request->setExternalId($externalId);
+        $request->setOperationType(RequestInterface::RESELL_SELL_OPERATION_TYPE);
 
         return $request;
     }
@@ -448,6 +465,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     {
         $postfix = $postfix ? "_{$postfix}" : '';
 
+        $postfix .= '_test.28.09.2020.mygento';
+
         return $entity->getEntityType() . '_' . $entity->getStoreId() . '_' . $entity->getIncrementId() . $postfix;
     }
 
@@ -489,9 +508,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $message .= " <a href='{$href}'>Transaction id: {$txnId}</a>";
         }
 
-        $comment = $operation === RequestInterface::RESELL_REFUND_OPERATION_TYPE
-            ? __('[ATOL] Resell (refund) was sent. %1', $message)
-            : __('[ATOL] Cheque was sent. %1', $message);
+        $comment = $this->buildOrderComment($operation, $message);
 
         if ($response->getStatus() == Response::STATUS_DONE
             && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
@@ -810,5 +827,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         return $hex;
+    }
+
+    /**
+     * @param string $operation
+     * @param string $message
+     * @return \Magento\Framework\Phrase
+     */
+    protected function buildOrderComment(string $operation, string $message): \Magento\Framework\Phrase
+    {
+        switch ($operation) {
+            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
+                return __('[ATOL] Resell (refund) was sent. %1', $message);
+            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
+                return __('[ATOL] Resell (sell) was sent. %1', $message);
+            default:
+                return __('[ATOL] Cheque was sent. %1', $message);
+        }
     }
 }

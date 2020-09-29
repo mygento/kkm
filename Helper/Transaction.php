@@ -124,9 +124,14 @@ class Transaction
     public function registerTransaction($entity, ResponseInterface $response, RequestInterface $request = null)
     {
         $isResellRefund = $request && $request->getOperationType() === RequestInterface::RESELL_REFUND_OPERATION_TYPE;
+        $isResellSell = $request && $request->getOperationType() === RequestInterface::RESELL_SELL_OPERATION_TYPE;
 
-        if ($entity instanceof InvoiceInterface && $isResellRefund) {
+        if ($isResellRefund) {
             return $this->saveResellRefundTransaction($entity, $response);
+        }
+
+        if ($isResellSell) {
+            return $this->saveResellSellTransaction($entity, $response);
         }
 
         if ($entity instanceof InvoiceInterface) {
@@ -171,7 +176,7 @@ class Transaction
     {
         $this->kkmHelper->info(
             __(
-                'start save transaction %1. Resell Invoice %2',
+                'start save transaction %1. Resell (refund) Invoice %2',
                 $response->getUuid(),
                 $invoice->getIncrementId()
             )
@@ -180,16 +185,29 @@ class Transaction
 
         $doneTransaction = $this->getDoneTransaction($invoice, true);
 
-        if (!$doneTransaction) {
-            throw new LocalizedException(
-                __(
-                    'Invoice %1 does not have transaction with status DONE.',
-                    $invoice->getIncrementId()
-                )
-            );
-        }
-
         return $this->saveTransaction($invoice, $response, $type, $doneTransaction);
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param ResponseInterface $response
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
+     */
+    public function saveResellSellTransaction(InvoiceInterface $invoice, ResponseInterface $response)
+    {
+        $this->kkmHelper->info(
+            __(
+                'start save transaction %1. Resell (sell) Invoice %2',
+                $response->getUuid(),
+                $invoice->getIncrementId()
+            )
+        );
+        $type = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL;
+
+        $parentTransaction = $this->getDoneTransaction($invoice, true);
+
+        return $this->saveTransaction($invoice, $response, $type, $parentTransaction);
     }
 
     /**

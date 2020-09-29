@@ -125,6 +125,10 @@ class TransactionAttempt
         $attempt = $this->getAttemptByRequest($request, $entity);
         $attempt->setNumberOfTrials(0);
 
+        if (!$attempt->getId()) {
+            return $attempt;
+        }
+
         return $this->attemptRepository->save($attempt);
     }
 

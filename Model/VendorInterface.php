@@ -93,21 +93,15 @@ interface VendorInterface
 
     /**
      * @param InvoiceInterface $invoice
-     * @param string $paymentMethod
-     * @param string $shippingPaymentObject
-     * @param array $receiptData
-     * @param string $clientName
-     * @param string $clientInn
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
-    public function buildRequestForResell(
-        $invoice,
-        $paymentMethod = null,
-        $shippingPaymentObject = null,
-        array $receiptData = [],
-        $clientName = '',
-        $clientInn = ''
-    ): RequestInterface;
+    public function buildRequestForResellRefund($invoice): RequestInterface;
+
+    /**
+     * @param InvoiceInterface $invoice
+     * @return \Mygento\Kkm\Api\Data\RequestInterface
+     */
+    public function buildRequestForResellSell($invoice): RequestInterface;
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity

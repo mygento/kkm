@@ -106,7 +106,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
             //Если был совершен refund по инвойсу - следовательно, это коррекция чека
             //и нужно заново отправить инвойс в АТОЛ
             if ($this->resellHelper->isNeededToResendSell($entity, $response)) {
-                $this->processor->proceedSell($entity);
+                $this->processor->proceedResellSell($entity);
             }
 
             $this->getResponse()
