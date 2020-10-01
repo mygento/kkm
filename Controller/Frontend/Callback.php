@@ -110,7 +110,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
             }
 
             $this->getResponse()
-                ->setBody($entity->getIncrementId())
+                ->setBody((string)$entity->getIncrementId())
                 ->sendResponse();
 
             $result->setContents($entity->getIncrementId());

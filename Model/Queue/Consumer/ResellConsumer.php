@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
+use Magento\Framework\Exception\InputException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
@@ -36,8 +37,6 @@ class ResellConsumer extends AbstractConsumer
      */
     private function sendResellRequest($request)
     {
-        //TODO: Test it
-
         try {
             $this->vendor->sendResellRequest($request);
         } catch (VendorNonFatalErrorException $e) {
@@ -56,6 +55,8 @@ class ResellConsumer extends AbstractConsumer
                 $request->setIgnoreTrialsNum(false);
                 $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
             }
+        } catch (InputException $exc) {
+            $this->helper->error($exc->getMessage());
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);

@@ -21,6 +21,7 @@ use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as Cred
 use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollection;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory as InvoiceCollectionFactory;
 use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
+use Mygento\Base\Model\Payment\Transaction as TransactionBase;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
@@ -212,18 +213,14 @@ class Transaction
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
-     * @param bool $fromTheEnd
+     * @param bool $includingResell
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function getDoneTransaction($invoice, $fromTheEnd = false): TransactionInterface
+    public function getDoneTransaction($invoice, $includingResell = false): TransactionInterface
     {
         //Transactions are sorted by createdAt by default.
-        $transactions = $this->getTransactionsByInvoice($invoice);
-
-        if ($fromTheEnd) {
-            $transactions = array_reverse($transactions);
-        }
+        $transactions = $this->getTransactionsByInvoice($invoice, $includingResell);
 
         if (!$transactions) {
             throw new LocalizedException(__('Invoice %1 has no KKM transactions.', $invoice->getIncrementId()));
@@ -245,6 +242,74 @@ class Transaction
         );
 
         return $doneTransaction;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
+     */
+    public function getLastResellRefundTransaction($invoice): TransactionInterface
+    {
+        //Transactions are sorted by createdAt by default.
+        $transactions = $this->getTransactionsByInvoice($invoice, true);
+
+        if (!$transactions) {
+            throw new LocalizedException(__('Invoice %1 has no KKM transactions.', $invoice->getIncrementId()));
+        }
+
+        /** @var \Magento\Sales\Api\Data\TransactionInterface $refundTransaction */
+        $refundTransaction = $this->transactionFactory->create();
+        array_walk(
+            $transactions,
+            function ($transaction) use (&$refundTransaction) {
+                if ($refundTransaction->getId()) {
+                    return;
+                }
+
+                /** @var TransactionInterface $transaction */
+                $refundTransaction =
+                    $transaction->getTxnType() === \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND
+                        ? $transaction
+                        : $refundTransaction;
+            }
+        );
+
+        return $refundTransaction;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return \Magento\Sales\Api\Data\TransactionInterface
+     */
+    public function getLastResellSellTransaction($invoice): TransactionInterface
+    {
+        //Transactions are sorted by createdAt by default.
+        $transactions = $this->getTransactionsByInvoice($invoice, true);
+
+        if (!$transactions) {
+            throw new LocalizedException(__('Invoice %1 has no KKM transactions.', $invoice->getIncrementId()));
+        }
+
+        /** @var \Magento\Sales\Api\Data\TransactionInterface $sellTransaction */
+        $sellTransaction = $this->transactionFactory->create();
+        array_walk(
+            $transactions,
+            function ($transaction) use (&$sellTransaction) {
+                if ($sellTransaction->getId()) {
+                    return;
+                }
+
+                /** @var TransactionInterface $transaction */
+                $sellTransaction =
+                    $transaction->getTxnType() === \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL
+                        ? $transaction
+                        : $sellTransaction;
+            }
+        );
+
+        return $sellTransaction;
     }
 
     /**
@@ -291,7 +356,7 @@ class Transaction
      * @param InvoiceInterface $invoice
      * @return bool
      */
-    public function isResellRefundTransactionOpened(InvoiceInterface $invoice): bool
+    public function isResellOpened(InvoiceInterface $invoice): bool
     {
         $transactions = $this->getTransactionsByInvoice($invoice, true);
 
@@ -302,6 +367,17 @@ class Transaction
 
             if ($transaction->getKkmStatus() === Response::STATUS_WAIT) {
                 return true;
+            }
+
+            $children = $transaction->getChildTransactions();
+            foreach ($children as $child) {
+                if ($child->getTxnType() !== TransactionBase::TYPE_FISCAL) {
+                    continue;
+                }
+
+                if ($child->getKkmStatus() === Response::STATUS_WAIT) {
+                    return true;
+                }
             }
         }
 

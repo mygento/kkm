@@ -103,4 +103,16 @@ class Request
 
         return $entity;
     }
+
+    /**
+     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     */
+    public function increaseExternalId($request)
+    {
+        if (preg_match('/^(.*)__(\d+)$/', $request->getExternalId(), $matches)) {
+            $request->setExternalId($matches[1] . '__' . ($matches[2] + 1));
+        } else {
+            $request->setExternalId($request->getExternalId() . '__1');
+        }
+    }
 }

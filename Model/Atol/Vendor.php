@@ -8,7 +8,9 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NotFoundException;
 use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
@@ -167,7 +169,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
 
         if (!$doneTransaction->getId()) {
-            throw new LocalizedException(
+            throw new InputException(
                 __(
                     'Invoice %1 does not have transaction with status DONE.',
                     $invoice->getIncrementId()
@@ -176,8 +178,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         //Stop sending if there is 'wait' resell_refund transaction
-        if ($this->transactionHelper->isResellRefundTransactionOpened($invoice)) {
-            throw new LocalizedException(
+        if ($this->transactionHelper->isResellOpened($invoice)) {
+            throw new InputException(
                 __(
                     'Invoice %1 has opened refund transaction.',
                     $invoice->getIncrementId()
@@ -224,18 +226,23 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         //TODO: Validate response
         $response = $this->apiClient->receiveStatus($uuid);
 
+        $operation = '';
         switch ($entity->getEntityType()) {
             case 'invoice':
-                $txn = $transaction->getTxnType() === Transaction::TYPE_FISCAL_REFUND
-                    ? $this->transactionHelper->saveResellRefundTransaction($entity, $response)
-                    : $this->transactionHelper->saveSellTransaction($entity, $response);
+                if ($transaction->getTxnType() === Transaction::TYPE_FISCAL_REFUND) {
+                    $txn = $this->transactionHelper->saveResellRefundTransaction($entity, $response);
+                    $operation = RequestInterface::RESELL_REFUND_OPERATION_TYPE;
+                    break;
+                }
+
+                $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
                 break;
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
                 break;
         }
 
-        $this->addCommentToOrder($entity, $response, $txn->getId());
+        $this->addCommentToOrder($entity, $response, $txn->getId(), $operation);
 
         return $response;
     }
@@ -262,6 +269,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
 
+        if (!$entity->getId()) {
+            throw new NotFoundException(__("Entity for uuid {$response->getUuid()} not found"));
+        }
+
         $status = $transaction->getKkmStatus();
         if ($status === Response::STATUS_DONE) {
             return $entity;
@@ -271,7 +282,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         switch ($entity->getEntityType()) {
             case 'invoice':
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
-                $operation = $txn->getTxnType() !== Transaction::TYPE_FISCAL_REFUND
+                $operation = $txn->getTxnType() === Transaction::TYPE_FISCAL_REFUND
                     ? RequestInterface::RESELL_REFUND_OPERATION_TYPE
                     : '';
                 break;
@@ -294,10 +305,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Check is there a done transaction among entity transactions.
         $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+        $lastRefundTransaction = $this->transactionHelper->getLastResellRefundTransaction($invoice);
 
         $externalId = $this->transactionHelper->getExternalId($doneTransaction)
             ?? $this->generateExternalId($invoice);
         $externalId .= '_refund';
+
+        $externalId = $this->transactionHelper->getExternalId($lastRefundTransaction) ?? $externalId;
 
         //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
         //set ФПД for resell requests.
@@ -317,13 +331,14 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Check is there a done transaction among entity transactions.
         $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-//        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
+
+        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
 
         $externalId = $this->transactionHelper->getExternalId($doneTransaction)
             ?? $this->generateExternalId($invoice);
         $externalId .= '_resell';
 
-//        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
+        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
 
         //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
         //set ФПД for resell requests.

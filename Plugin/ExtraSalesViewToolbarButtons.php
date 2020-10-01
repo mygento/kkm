@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Plugin;
 
+use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
 class ExtraSalesViewToolbarButtons
@@ -110,6 +111,20 @@ class ExtraSalesViewToolbarButtons
                 'onclick' => 'setLocation(\'' . $url . '\')',
             ];
             $buttonList->add('check_status_in_kkm', $data);
+        } elseif ($entity instanceof InvoiceInterface && $this->canBeShownResellButton($transactions)) {
+            $url = $this->urlBuilder->getUrl(
+                'kkm/cheque/resell',
+                [
+                    'id' => $entity->getId(),
+                ]
+            );
+            $data = [
+                'label' => __('Send Resell to KKM'),
+                'class' => '',
+                'onclick' => 'setLocation(\'' . $url . '\')',
+            ];
+
+            $buttonList->add('resell_to_kkm', $data);
         }
     }
 
@@ -151,9 +166,28 @@ class ExtraSalesViewToolbarButtons
      * @param array $transactions
      * @return bool
      */
+    protected function canBeShownResellButton($transactions)
+    {
+        //Если есть Done. Только для Invoice.
+        $isDone = false;
+        foreach ($transactions as $transaction) {
+            $status = $transaction->getKkmStatus();
+            if ($status === Response::STATUS_DONE) {
+                $isDone = true;
+            }
+        }
+
+        //Check ACL
+        return $isDone && $this->authorization->isAllowed('Mygento_Kkm::cheque_resend');
+    }
+
+    /**
+     * @param array $transactions
+     * @return bool
+     */
     protected function canBeShownCheckStatusButton($transactions)
     {
-        //Есть ли есть Done || нет Wait - то нельзя спросить статус
+        //Если ли есть Done || нет Wait - то нельзя спросить статус
         $isWait = false;
         foreach ($transactions as $transaction) {
             $status = $transaction->getKkmStatus();

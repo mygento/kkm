@@ -1,0 +1,141 @@
+<?php
+
+/**
+ * @author Mygento Team
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
+namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
+
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Exception\ValidatorException;
+use Mygento\Kkm\Exception\VendorNonFatalErrorException;
+
+class Resell extends \Magento\Backend\App\Action
+{
+    /**
+     * @see _isAllowed()
+     */
+    const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
+
+    /** @var \Mygento\Kkm\Helper\Data */
+    protected $kkmHelper;
+
+    /**
+     * @var \Magento\Sales\Model\Order\InvoiceFactory
+     */
+    private $invoiceRepository;
+
+    /**
+     * @var \Mygento\Kkm\Api\Processor\SendInterface
+     */
+    private $processor;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Error\Proxy
+     */
+    private $errorHelper;
+    /**
+     * @var \Mygento\Kkm\Helper\Resell
+     */
+    private $resellHelper;
+
+    /**
+     * Resend constructor.
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
+     * @param \Mygento\Kkm\Helper\Resell $resellHelper
+     * @param \Magento\Backend\App\Action\Context $context
+     * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+     */
+    public function __construct(
+        \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Api\Processor\SendInterface $processor,
+        \Mygento\Kkm\Helper\Resell $resellHelper,
+        \Magento\Backend\App\Action\Context $context,
+        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+    ) {
+        parent::__construct($context);
+
+        $this->kkmHelper = $kkmHelper;
+        $this->invoiceRepository = $invoiceRepository;
+        $this->processor = $processor;
+        $this->errorHelper = $errorHelper;
+        $this->resellHelper = $resellHelper;
+    }
+
+    /**
+     * Execute
+     */
+    public function execute()
+    {
+        try {
+            $this->validateRequest();
+
+            $id = $this->getRequest()->getParam('id');
+            $invoice = $this->invoiceRepository->get($id);
+
+            if ($this->resellHelper->isResellFailed($invoice)) {
+
+                $this->processor->proceedFailedResell($invoice, false, true);
+
+                $comment = $this->kkmHelper->isMessageQueueEnabled()
+                    ? 'Finishing resell via Magento queue.'
+                    : 'Finishing existing resell process.';
+
+                $this->getMessageManager()->addSuccessMessage(__($comment));
+
+                return $this->resultRedirectFactory->create()->setUrl(
+                    $this->_redirect->getRefererUrl()
+                );
+            }
+
+            $this->processor->proceedResellRefund($invoice, false, true);
+
+            $comment = $this->kkmHelper->isMessageQueueEnabled()
+                ? 'Resell started via Magento queue.'
+                : 'Resell started. Refund was sent to KKM.';
+
+            $this->getMessageManager()->addSuccessMessage(__($comment));
+        } catch (NoSuchEntityException $exc) {
+            $this->getMessageManager()->addErrorMessage(__('Invoice %1 not found', $id));
+            $this->kkmHelper->error("Invoice {$id} not found.");
+        } catch (InputException $exc) {
+            $this->getMessageManager()->addErrorMessage($exc->getMessage());
+            $this->kkmHelper->error($exc->getMessage());
+        } catch (\Exception $exc) {
+            $this->getMessageManager()->addErrorMessage($exc->getMessage());
+            $this->kkmHelper->error('Resell failed. Reason: ' . $exc->getMessage());
+            $this->errorHelper->processKkmChequeRegistrationError($invoice, $exc);
+        } catch (\Throwable $thr) {
+            $this->getMessageManager()->addErrorMessage(__('Something went wrong. See log.'));
+            $this->kkmHelper->error('Resell failed. Reason: ' . $thr->getMessage());
+            $this->errorHelper->processKkmChequeRegistrationError($invoice, $thr);
+        } finally {
+            return $this->resultRedirectFactory->create()->setUrl(
+                $this->_redirect->getRefererUrl()
+            );
+        }
+    }
+
+    /**
+     * @throws \Magento\Framework\Exception\ValidatorException
+     */
+    protected function validateRequest()
+    {
+        $id = $this->getRequest()->getParam('id');
+
+        if (!$id) {
+            $this->kkmHelper->error(
+                'Invalid url. No id param:',
+                $this->getRequest()->getParams()
+            );
+
+            throw new ValidatorException(__('Invalid request. Check logs.'));
+        }
+    }
+}

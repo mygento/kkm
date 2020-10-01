@@ -11,7 +11,10 @@ namespace Mygento\Kkm\Helper;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Base\Model\Payment\Transaction as TransactionBase;
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
+use Mygento\Kkm\Model\Atol\Response;
 
 class Resell
 {
@@ -19,11 +22,17 @@ class Resell
      * @var \Mygento\Kkm\Helper\Transaction
      */
     private $transactionHelper;
+    /**
+     * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
+     */
+    private $attemptRepository;
 
     public function __construct(
-        Transaction $transactionHelper
+        Transaction $transactionHelper,
+        TransactionAttemptRepositoryInterface $attemptRepository
     ) {
         $this->transactionHelper = $transactionHelper;
+        $this->attemptRepository = $attemptRepository;
     }
 
     /**
@@ -35,9 +44,56 @@ class Resell
     {
         $transaction = $this->transactionHelper->getTransactionByTxnId($response->getUuid());
 
+        $children = $transaction->getChildTransactions();
+        foreach ($children as $child) {
+            if ($child->getTxnType() === TransactionBase::TYPE_FISCAL) {
+                return false;
+            }
+        }
+
         return
             $response->getStatus() === ResponseInterface::STATUS_DONE
             && $entity->getEntityType() === 'invoice'
             && $transaction->getTxnType() === TransactionBase::TYPE_FISCAL_REFUND;
+    }
+
+    /**
+     * @param InvoiceInterface $invoice
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return bool
+     */
+    public function isResellFailed($invoice): bool
+    {
+        /** @var \Mygento\Base\Model\Payment\Transaction $lastRefundTxn */
+        $lastRefundTxn = $this->transactionHelper->getLastResellRefundTransaction($invoice);
+        $isWait = $lastRefundTxn->getKkmStatus() === Response::STATUS_WAIT;
+        if (!$lastRefundTxn->getId() || $isWait) {
+            return false;
+        }
+
+        if ($lastRefundTxn->getKkmStatus() === Response::STATUS_FAIL) {
+            return true;
+        }
+
+        //TODO: Test this case
+        if (!$lastRefundTxn->hasChildTransaction()) {
+            return true;
+        }
+
+        $children = $lastRefundTxn->getChildTransactions();
+        foreach ($children as $transaction) {
+            if ($transaction->getTxnType() !== TransactionBase::TYPE_FISCAL) {
+                continue;
+            }
+
+            $isDone = $transaction->getKkmStatus() === Response::STATUS_DONE;
+            $isWait = $transaction->getKkmStatus() === Response::STATUS_WAIT;
+
+            if ($isDone || $isWait) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
