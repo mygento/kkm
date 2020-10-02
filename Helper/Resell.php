@@ -11,7 +11,6 @@ namespace Mygento\Kkm\Helper;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Base\Model\Payment\Transaction as TransactionBase;
-use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Model\Atol\Response;
@@ -22,6 +21,7 @@ class Resell
      * @var \Mygento\Kkm\Helper\Transaction
      */
     private $transactionHelper;
+
     /**
      * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
      */

@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\Processor;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Framework\MessageQueue\PublisherInterface;
 use Mygento\Base\Model\Payment\Transaction as TransactionBase;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -47,10 +48,12 @@ class Send implements SendInterface
      * @var \Mygento\Kkm\Helper\Request
      */
     private $requestHelper;
+
     /**
      * @var \Mygento\Kkm\Helper\Transaction
      */
     private $transactionHelper;
+
     /**
      * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
      */
@@ -241,11 +244,14 @@ class Send implements SendInterface
                 $invoice->getEntityId()
             );
 
-            if ($attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {
+            if ((int) $attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {
                 return $this->proceedResellSell($invoice, false, false, true);
             }
+            if (!$this->helper->isMessageQueueEnabled()) {
+                throw new InputException(__('Can not proceed resell process.'));
+            }
 
-            return true;
+            return false;
         }
 
         //getChildTransactions() with $type argument contains bugs.

@@ -162,7 +162,7 @@ class Transaction
                 $invoice->getIncrementId()
             )
         );
-        $type = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL;
+        $type = TransactionBase::TYPE_FISCAL;
 
         return $this->saveTransaction($invoice, $response, $type);
     }
@@ -182,7 +182,7 @@ class Transaction
                 $invoice->getIncrementId()
             )
         );
-        $type = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND;
+        $type = TransactionBase::TYPE_FISCAL_REFUND;
 
         $doneTransaction = $this->getDoneTransaction($invoice, true);
 
@@ -204,7 +204,7 @@ class Transaction
                 $invoice->getIncrementId()
             )
         );
-        $type = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL;
+        $type = TransactionBase::TYPE_FISCAL;
 
         $parentTransaction = $this->getDoneTransaction($invoice, true);
 
@@ -269,7 +269,7 @@ class Transaction
 
                 /** @var TransactionInterface $transaction */
                 $refundTransaction =
-                    $transaction->getTxnType() === \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND
+                    $transaction->getTxnType() === TransactionBase::TYPE_FISCAL_REFUND
                         ? $transaction
                         : $refundTransaction;
             }
@@ -303,7 +303,7 @@ class Transaction
 
                 /** @var TransactionInterface $transaction */
                 $sellTransaction =
-                    $transaction->getTxnType() === \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL
+                    $transaction->getTxnType() === TransactionBase::TYPE_FISCAL && $transaction->getParentId()
                         ? $transaction
                         : $sellTransaction;
             }
@@ -332,7 +332,7 @@ class Transaction
                 $creditmemo->getIncrementId()
             )
         );
-        $type = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND;
+        $type = TransactionBase::TYPE_FISCAL_REFUND;
 
         return $this->saveTransaction($creditmemo, $response, $type);
     }
@@ -361,7 +361,7 @@ class Transaction
         $transactions = $this->getTransactionsByInvoice($invoice, true);
 
         foreach ($transactions as $transaction) {
-            if ($transaction->getTxnType() !== \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND) {
+            if ($transaction->getTxnType() !== TransactionBase::TYPE_FISCAL_REFUND) {
                 continue;
             }
 
@@ -424,12 +424,12 @@ class Transaction
 
         if ($entity->getEntityType() === 'invoice') {
             $types = [
-                \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_PREPAYMENT,
-                \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL,
+                TransactionBase::TYPE_FISCAL_PREPAYMENT,
+                TransactionBase::TYPE_FISCAL,
             ];
 
             if ($includingResellTransactions) {
-                $types[] = \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND;
+                $types[] = TransactionBase::TYPE_FISCAL_REFUND;
             }
 
             $this->searchCriteriaBuilder->addFilter(
@@ -440,7 +440,7 @@ class Transaction
         } else {
             $this->searchCriteriaBuilder->addFilter(
                 'txn_type',
-                \Mygento\Base\Model\Payment\Transaction::TYPE_FISCAL_REFUND
+                TransactionBase::TYPE_FISCAL_REFUND
             );
         }
 

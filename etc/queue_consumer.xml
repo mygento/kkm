@@ -17,7 +17,7 @@
 
     <consumer name="mygento.kkm.resell" queue="mygento_kkm_message_resell_queue" connection="db"
               consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"
-              handler="Mygento\Kkm\Model\Queue\Consumer\ResellConsumer::sendResellRequest"/>
+              handler="Mygento\Kkm\Model\Queue\Consumer\ResellConsumer::sendMergedRequest"/>
 
     <consumer name="mygento.kkm.update" queue="mygento_kkm_message_update_queue" connection="db"
               consumerInstance="Magento\Framework\MessageQueue\BatchConsumer"

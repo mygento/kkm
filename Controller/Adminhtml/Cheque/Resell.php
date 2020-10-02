@@ -11,7 +11,6 @@ namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Exception\ValidatorException;
-use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 
 class Resell extends \Magento\Backend\App\Action
 {
@@ -37,6 +36,7 @@ class Resell extends \Magento\Backend\App\Action
      * @var \Mygento\Kkm\Helper\Error\Proxy
      */
     private $errorHelper;
+
     /**
      * @var \Mygento\Kkm\Helper\Resell
      */
@@ -80,12 +80,13 @@ class Resell extends \Magento\Backend\App\Action
             $invoice = $this->invoiceRepository->get($id);
 
             if ($this->resellHelper->isResellFailed($invoice)) {
-
-                $this->processor->proceedFailedResell($invoice, false, true);
-
                 $comment = $this->kkmHelper->isMessageQueueEnabled()
                     ? 'Finishing resell via Magento queue.'
                     : 'Finishing existing resell process.';
+
+                $isProcessed = $this->processor->proceedFailedResell($invoice, false, true);
+
+                $comment = $isProcessed ? $comment : 'Resell cannot be processed right now. Perhaps previous resell process is opened.';
 
                 $this->getMessageManager()->addSuccessMessage(__($comment));
 
