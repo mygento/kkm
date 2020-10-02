@@ -27,6 +27,10 @@ class Resell
      */
     private $attemptRepository;
 
+    /**
+     * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
+     * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
+     */
     public function __construct(
         Transaction $transactionHelper,
         TransactionAttemptRepositoryInterface $attemptRepository

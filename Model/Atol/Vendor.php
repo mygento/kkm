@@ -480,8 +480,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     {
         $postfix = $postfix ? "_{$postfix}" : '';
 
-        $postfix .= '_test.28.09.2020.mygento';
-
         return $entity->getEntityType() . '_' . $entity->getStoreId() . '_' . $entity->getIncrementId() . $postfix;
     }
 

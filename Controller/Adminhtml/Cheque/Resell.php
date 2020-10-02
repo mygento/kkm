@@ -86,7 +86,9 @@ class Resell extends \Magento\Backend\App\Action
 
                 $isProcessed = $this->processor->proceedFailedResell($invoice, false, true);
 
-                $comment = $isProcessed ? $comment : 'Resell cannot be processed right now. Perhaps previous resell process is opened.';
+                $comment = $isProcessed
+                    ? $comment
+                    : 'Resell cannot be processed right now. Perhaps previous resell process is opened.';
 
                 $this->getMessageManager()->addSuccessMessage(__($comment));
 

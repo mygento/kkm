@@ -22,6 +22,9 @@ use Mygento\Kkm\Helper\TransactionAttempt as TransactionAttemptHelper;
 use Mygento\Kkm\Model\Atol\Response;
 use Mygento\Kkm\Model\VendorInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Send implements SendInterface
 {
     /**

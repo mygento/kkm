@@ -93,8 +93,8 @@ class Update implements UpdateInterface
     }
 
     /**
-     * @param $uuid
-     * @param false $useAttempt
+     * @param string $uuid
+     * @param bool $useAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
