@@ -380,7 +380,14 @@
                         <field id="*/*/enabled">1</field>
                     </depends>
                 </field>
-                <field id="gtin_length" translate="label" type="text" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="marking_refund_field" translate="label" type="select" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Field with refund marking</label>
+                    <source_model>Mygento\Base\Model\Source\OrderItem</source_model>
+                    <depends>
+                        <field id="*/*/enabled">1</field>
+                    </depends>
+                </field>
+                <field id="gtin_length" translate="label" type="text" sortOrder="140" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>GTIN Lenght</label>
                     <validate>validate-number</validate>
                     <depends>

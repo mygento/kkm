@@ -288,10 +288,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $this->configureDiscountHelper();
         $markingAttribute = '';
         $markingListAttribute = '';
+        $markingRefundAttribute = '';
 
         if ($this->kkmHelper->isMarkingEnabled()) {
             $markingAttribute = $this->kkmHelper->getMarkingShouldField();
             $markingListAttribute = $this->kkmHelper->getMarkingField();
+            $markingRefundAttribute = $this->kkmHelper->getMarkingRefundField();
         }
 
         $recalculatedReceiptData = $receiptData
@@ -301,7 +303,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 $attributeCode,
                 $shippingTax,
                 $markingAttribute,
-                $markingListAttribute
+                $markingListAttribute,
+                $markingRefundAttribute
             );
 
         $items = [];

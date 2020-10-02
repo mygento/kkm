@@ -154,7 +154,7 @@ class Data extends \Mygento\Base\Helper\Data
      */
     public function getMarkingShouldField()
     {
-        return $this->getConfig('marking/marking_status_field');
+        return $this->getConfig('marking/marking_status_field') ?: '';
     }
 
     /**
@@ -162,6 +162,14 @@ class Data extends \Mygento\Base\Helper\Data
      */
     public function getMarkingField()
     {
-        return $this->getConfig('marking/marking_mark_field');
+        return $this->getConfig('marking/marking_mark_field') ?: '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getMarkingRefundField()
+    {
+        return $this->getConfig('marking/marking_refund_field') ?: '';
     }
 }
