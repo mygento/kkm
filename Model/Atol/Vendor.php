@@ -571,7 +571,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         //Ignore number of trials just one time
-        if($request->isIgnoreTrialsNum()) {
+        if ($request->isIgnoreTrialsNum()) {
             $this->kkmHelper->debug('Reset Number of Trials cause of set IgnoreTrialsNum');
             $this->attemptHelper->resetNumberOfTrials($request, $entity);
 
