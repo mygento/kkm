@@ -295,7 +295,6 @@ class TransactionAttempt
         }
 
         return $attempt;
-
     }
 
     /**
