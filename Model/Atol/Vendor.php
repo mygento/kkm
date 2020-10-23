@@ -564,9 +564,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Append one trial
         if($request->isAppendOneTime()) {
-            $request->setAppendOneTime(false);
-
             $this->attemptHelper->appendOneTrial($request, $entity);
+            $request->setAppendOneTime(false);
         }
 
         //Don't send if trials number exceeded
