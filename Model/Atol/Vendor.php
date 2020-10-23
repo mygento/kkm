@@ -563,7 +563,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $maxTrials = $this->kkmHelper->getMaxTrials();
 
         //Append one trial
-        if($request->isAppendOneTime()) {
+        if ($request->isAppendOneTime()) {
             $this->attemptHelper->appendOneTrial($request, $entity);
             $request->setAppendOneTime(false);
         }

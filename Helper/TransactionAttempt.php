@@ -129,7 +129,7 @@ class TransactionAttempt
 
     /**
      * @param RequestInterface $request
-     * @param CreditmemoInterface|InvoiceInterface  $entity
+     * @param CreditmemoInterface|InvoiceInterface $entity
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
@@ -141,7 +141,7 @@ class TransactionAttempt
         $trials = $attempt->getNumberOfTrials();
         $maxTrials = $this->kkmHelper->getMaxTrials();
 
-        if($trials <= $maxTrials) {
+        if ($trials <= $maxTrials) {
             $attempt->setNumberOfTrials($trials - 1);
 
             return $this->attemptRepository->save($attempt);
