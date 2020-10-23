@@ -481,7 +481,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         //Don't send if trials number exceeded
         if ($trials >= $maxUpdateTrials) {
             $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded while update');
-            $this->attemptHelper->resetNumberOfTrialsByOperationType(UpdateRequestInterface::UPDATE_OPERATION_TYPE, $entity);
+            $this->attemptHelper->resetNumberOfTrialsByOperationType(
+                UpdateRequestInterface::UPDATE_OPERATION_TYPE, $entity);
 
             throw new \Exception(__('Request is skipped. Max num of trials exceeded while update'));
         }
