@@ -129,6 +129,29 @@ class TransactionAttempt
 
     /**
      * @param RequestInterface $request
+     * @param CreditmemoInterface|InvoiceInterface  $entity
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
+    public function appendOneTrial(RequestInterface $request, $entity)
+    {
+        /** @var TransactionAttemptInterface $attempt */
+        $attempt = $this->getAttemptByRequest($request, $entity);
+
+        $trials = $attempt->getNumberOfTrials();
+        $maxTrials = $this->kkmHelper->getMaxTrials();
+
+        if($trials <= $maxTrials) {
+            $attempt->setNumberOfTrials($trials - 1);
+
+            return $this->attemptRepository->save($attempt);
+        }
+
+        return $attempt;
+    }
+
+    /**
+     * @param RequestInterface $request
      * @param string $topic
      * @param string $scheduledAt
      * @throws \Magento\Framework\Exception\LocalizedException

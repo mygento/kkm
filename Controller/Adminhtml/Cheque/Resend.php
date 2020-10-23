@@ -81,7 +81,7 @@ class Resend extends \Magento\Backend\App\Action
             switch ($entityType) {
                 case 'invoice':
                     $entity = $this->invoiceRepository->get($id);
-                    $this->processor->proceedSell($entity, false, true);
+                    $this->processor->proceedSell($entity, true, false, true);
                     $comment = 'Cheque ';
                     break;
                 case 'creditmemo':

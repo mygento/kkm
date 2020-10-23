@@ -66,6 +66,11 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $ignoreTrialsNum = false;
 
     /**
+     * @var bool
+     */
+    protected $appendOneTime = false;
+
+    /**
      * Request constructor.
      * @param \Magento\Framework\Stdlib\DateTime\Timezone $date
      */
@@ -442,6 +447,24 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setIgnoreTrialsNum($ignore)
     {
         $this->ignoreTrialsNum = (bool) $ignore;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isAppendOneTime()
+    {
+        return (bool) $this->appendOneTime;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setAppendOneTime($appendOneTime)
+    {
+        $this->appendOneTime = (bool) $appendOneTime;
 
         return $this;
     }
