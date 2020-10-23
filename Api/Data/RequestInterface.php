@@ -233,17 +233,6 @@ interface RequestInterface
     public function setIgnoreTrialsNum($ignore);
 
     /**
-     * @return bool
-     */
-    public function isAppendOneTime();
-
-    /**
-     * @param bool $appendOneTime
-     * @return $this
-     */
-    public function setAppendOneTime($appendOneTime);
-
-    /**
      * @return \Mygento\Kkm\Api\Data\UserPropInterface|null
      */
     public function getAdditionalUserProps(): ?\Mygento\Kkm\Api\Data\UserPropInterface;

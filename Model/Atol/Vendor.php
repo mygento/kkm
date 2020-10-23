@@ -562,12 +562,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $trials = $this->attemptHelper->getTrials($entity, $request->getOperationType());
         $maxTrials = $this->kkmHelper->getMaxTrials();
 
-        //Append one trial
-        if ($request->isAppendOneTime()) {
-            $this->attemptHelper->appendOneTrial($request, $entity);
-            $request->setAppendOneTime(false);
-        }
-
         //Don't send if trials number exceeded
         if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {
             $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
