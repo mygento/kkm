@@ -14,10 +14,9 @@ interface ProcessorInterface
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param bool $sync
      * @param bool $ignoreTrials
-     * @param bool $appendOneTime
      * @return bool
      */
-    public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $appendOneTime = false);
+    public function proceedSell($invoice, $sync = false, $ignoreTrials = false);
 
     /**
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo

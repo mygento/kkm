@@ -59,21 +59,15 @@ class Processor implements ProcessorInterface
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param bool $sync
      * @param bool $ignoreTrials
-     * @param bool $appendOneTime
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return bool
      */
-    public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $appendOneTime = false)
+    public function proceedSell($invoice, $sync = false, $ignoreTrials = false)
     {
         $request = $this->vendor->buildRequest($invoice);
         $request->setIgnoreTrialsNum($ignoreTrials);
-
-        //Append one trial
-        if ($sync && $appendOneTime) {
-            $this->attemptHelper->appendOneTrial($request, $invoice);
-        }
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
