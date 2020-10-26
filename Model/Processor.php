@@ -32,24 +32,16 @@ class Processor implements ProcessorInterface
     protected $publisher;
 
     /**
-     * @var \Mygento\Kkm\Helper\TransactionAttempt
-     */
-    private $attemptHelper;
-
-    /**
      * Processor constructor.
-     * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
     public function __construct(
-        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $helper,
         \Magento\Framework\MessageQueue\PublisherInterface $publisher
     ) {
-        $this->attemptHelper = $attemptHelper;
         $this->vendor = $vendor;
         $this->helper = $helper;
         $this->publisher = $publisher;
