@@ -568,6 +568,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         if ($request->isIgnoreTrialsNum()) {
             $this->attemptHelper->appendOneTrial($request, $entity);
+            $request->setIgnoreTrialsNum(false);
         }
 
         //Don't send if trials number exceeded
