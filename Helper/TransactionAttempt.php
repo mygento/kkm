@@ -156,6 +156,8 @@ class TransactionAttempt
         $trials = $attempt->getNumberOfTrials();
         $maxTrials = $this->kkmHelper->getMaxTrials();
 
+        $request->setIgnoreTrialsNum(false);
+
         if ($trials <= $maxTrials) {
             $newTrials = ($trials > 1) ? ($trials - 1) : 0;
             $attempt->setNumberOfTrials($newTrials);
