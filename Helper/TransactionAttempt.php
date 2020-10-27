@@ -148,7 +148,7 @@ class TransactionAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function appendOneTrial(RequestInterface $request, $entity)
+    public function decreaseByOneTrial(RequestInterface $request, $entity)
     {
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);

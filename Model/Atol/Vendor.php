@@ -575,7 +575,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         if ($request->isIgnoreTrialsNum()) {
-            $this->attemptHelper->appendOneTrial($request, $entity);
+            $this->attemptHelper->decreaseByOneTrial($request, $entity);
             $request->setIgnoreTrialsNum(false);
         }
 
