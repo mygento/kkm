@@ -128,21 +128,6 @@ class TransactionAttempt
     }
 
     /**
-     * @param string $operationType
-     * @param CreditmemoInterface|InvoiceInterface $entity
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @return TransactionAttemptInterface
-     */
-    public function resetNumberOfTrialsByOperationType($operationType, $entity)
-    {
-        /** @var TransactionAttemptInterface $attempt */
-        $attempt = $this->getAttemptByOperationType($operationType, $entity);
-        $attempt->setNumberOfTrials(0);
-
-        return $this->attemptRepository->save($attempt);
-    }
-
-    /**
      * @param RequestInterface $request
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @throws \Magento\Framework\Exception\LocalizedException
