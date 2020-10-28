@@ -129,6 +129,29 @@ class TransactionAttempt
 
     /**
      * @param RequestInterface $request
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @return TransactionAttemptInterface
+     */
+    public function decreaseByOneTrial(RequestInterface $request, $entity)
+    {
+        /** @var TransactionAttemptInterface $attempt */
+        $attempt = $this->getAttemptByRequest($request, $entity);
+
+        $trials = $attempt->getNumberOfTrials();
+        $maxTrials = $this->kkmHelper->getMaxTrials();
+
+        if ($trials >= $maxTrials) {
+            $attempt->setNumberOfTrials($maxTrials - 1);
+
+            return $this->attemptRepository->save($attempt);
+        }
+
+        return $attempt;
+    }
+
+    /**
+     * @param RequestInterface $request
      * @param string $topic
      * @param string $scheduledAt
      * @throws \Magento\Framework\Exception\LocalizedException
@@ -235,14 +258,24 @@ class TransactionAttempt
      */
     private function getAttemptByRequest(RequestInterface $request, $entity)
     {
+        return $this->getAttemptByOperationType($request->getOperationType(), $entity);
+    }
+
+    /**
+     * @param string $operationType
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $entity
+     * @return TransactionAttemptInterface
+     */
+    private function getAttemptByOperationType($operationType, $entity)
+    {
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
-            ->getByEntityId($request->getOperationType(), $entity->getEntityId());
+            ->getByEntityId($operationType, $entity->getEntityId());
 
         if (!$attempt->getId()) {
             // поддержка старых попыток, которые имеют entity_id=0
             $attempt = $this->attemptRepository
-                ->getByIncrementId($request->getOperationType(), $entity->getOrderId(), $entity->getIncrementId());
+                ->getByIncrementId($operationType, $entity->getOrderId(), $entity->getIncrementId());
         }
 
         return $attempt;
