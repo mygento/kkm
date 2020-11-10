@@ -18,8 +18,13 @@ class Resend extends \Magento\Backend\App\Action
      */
     const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
 
+    /**
+     * @var \Magento\Store\Model\App\Emulation
+     */
+    private $emulation;
+
     /** @var \Mygento\Kkm\Helper\Data */
-    protected $kkmHelper;
+    private $kkmHelper;
 
     /**
      * @var \Magento\Sales\Model\Order\InvoiceFactory
@@ -42,21 +47,22 @@ class Resend extends \Magento\Backend\App\Action
     private $errorHelper;
 
     /**
-     * Resend constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Api\ProcessorInterface $processor
-     * @param \Magento\Backend\App\Action\Context $context
      * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
      * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+     * @param \Magento\Store\Model\App\Emulation $emulation
+     * @param \Magento\Backend\App\Action\Context $context
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
         \Mygento\Kkm\Api\ProcessorInterface $processor,
-        \Magento\Backend\App\Action\Context $context,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
-        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
+        \Magento\Store\Model\App\Emulation $emulation,
+        \Magento\Backend\App\Action\Context $context
     ) {
         parent::__construct($context);
 
@@ -65,6 +71,7 @@ class Resend extends \Magento\Backend\App\Action
         $this->creditmemoRepository = $creditmemoRepository;
         $this->processor = $processor;
         $this->errorHelper = $errorHelper;
+        $this->emulation = $emulation;
     }
 
     /**
@@ -72,8 +79,11 @@ class Resend extends \Magento\Backend\App\Action
      */
     public function execute()
     {
+        $storeId = $this->_request->getParam('store_id');
+
         try {
             $this->validateRequest();
+            $this->emulation->startEnvironmentEmulation($storeId);
 
             $entityType = strtolower($this->_request->getParam('entity'));
             $id = $this->getRequest()->getParam('id');
@@ -110,6 +120,8 @@ class Resend extends \Magento\Backend\App\Action
             $this->kkmHelper->error('Resend failed. Reason: ' . $thr->getMessage());
             $this->errorHelper->processKkmChequeRegistrationError($entity, $thr);
         } finally {
+            $this->emulation->stopEnvironmentEmulation();
+
             return $this->resultRedirectFactory->create()->setUrl(
                 $this->_redirect->getRefererUrl()
             );

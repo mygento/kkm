@@ -17,8 +17,15 @@ class CheckStatus extends \Magento\Backend\App\Action
      */
     const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_checkstatus';
 
-    /** @var \Mygento\Kkm\Helper\Data */
-    protected $kkmHelper;
+    /**
+     * @var \Magento\Store\Model\App\Emulation
+     */
+    private $emulation;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Data
+     */
+    private $kkmHelper;
 
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
@@ -26,20 +33,22 @@ class CheckStatus extends \Magento\Backend\App\Action
     private $vendor;
 
     /**
-     * CheckStatus constructor.
-     * @param \Magento\Backend\App\Action\Context $context
-     * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Helper\Data $helper
+     * @param \Magento\Store\Model\App\Emulation $emulation
+     * @param \Magento\Backend\App\Action\Context $context
      */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Model\VendorInterface $vendor
+        \Magento\Store\Model\App\Emulation $emulation,
+        \Magento\Backend\App\Action\Context $context
     ) {
         parent::__construct($context);
 
         $this->kkmHelper = $helper;
         $this->vendor = $vendor;
+        $this->emulation = $emulation;
     }
 
     /**
@@ -47,11 +56,12 @@ class CheckStatus extends \Magento\Backend\App\Action
      */
     public function execute()
     {
+        $storeId = $this->_request->getParam('store_id');
+
         try {
+            $this->emulation->startEnvironmentEmulation($storeId);
             $this->validateRequest();
-
             $uuid = strtolower($this->_request->getParam('uuid'));
-
             $response = $this->vendor->updateStatus($uuid);
             $this->getMessageManager()->addSuccessMessage(
                 __('Kkm transaction status was updated. Status: %1', $response->getStatus())
@@ -63,6 +73,8 @@ class CheckStatus extends \Magento\Backend\App\Action
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error($exc->getMessage());
         } finally {
+            $this->emulation->stopEnvironmentEmulation();
+
             return $this->resultRedirectFactory->create()->setUrl(
                 $this->_redirect->getRefererUrl()
             );
