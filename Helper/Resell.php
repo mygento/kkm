@@ -79,7 +79,6 @@ class Resell
             return true;
         }
 
-        //TODO: Test this case
         if (!$lastRefundTxn->hasChildTransaction()) {
             return true;
         }

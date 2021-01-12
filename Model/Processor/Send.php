@@ -30,17 +30,17 @@ class Send implements SendInterface
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
      */
-    protected $vendor;
+    private $vendor;
 
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
-    protected $helper;
+    private $helper;
 
     /**
      * @var \Magento\Framework\MessageQueue\PublisherInterface
      */
-    protected $publisher;
+    private $publisher;
 
     /**
      * @var TransactionAttemptHelper
@@ -236,7 +236,7 @@ class Send implements SendInterface
         $lastRefundTxn = $this->transactionHelper->getLastResellRefundTransaction($invoice);
 
         if ($lastRefundTxn->getKkmStatus() === Response::STATUS_FAIL) {
-            return $this->proceedResellRefund($invoice, false, false, true);
+            return $this->proceedResellRefund($invoice, $sync, false, true);
         }
 
         //Это может означать, что эта отправка еще висит в очереди.
@@ -248,7 +248,7 @@ class Send implements SendInterface
             );
 
             if ((int) $attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {
-                return $this->proceedResellSell($invoice, false, false, true);
+                return $this->proceedResellSell($invoice, $sync, false, true);
             }
             if (!$this->helper->isMessageQueueEnabled()) {
                 throw new InputException(__('Can not proceed resell process.'));
@@ -272,6 +272,6 @@ class Send implements SendInterface
             }
         }
 
-        return $this->proceedResellSell($invoice, false, false, true);
+        return $this->proceedResellSell($invoice, $sync, false, true);
     }
 }

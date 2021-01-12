@@ -22,12 +22,12 @@ class Update implements UpdateInterface
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
      */
-    protected $vendor;
+    private $vendor;
 
     /**
      * @var \Magento\Framework\MessageQueue\PublisherInterface
      */
-    protected $publisher;
+    private $publisher;
 
     /**
      * @var \Mygento\Kkm\Helper\Resell

@@ -84,7 +84,7 @@ class Resell extends \Magento\Backend\App\Action
                     ? 'Finishing resell via Magento queue.'
                     : 'Finishing existing resell process.';
 
-                $isProcessed = $this->processor->proceedFailedResell($invoice, false, true);
+                $isProcessed = $this->processor->proceedFailedResell($invoice, true, true);
 
                 $comment = $isProcessed
                     ? $comment
@@ -97,7 +97,8 @@ class Resell extends \Magento\Backend\App\Action
                 );
             }
 
-            $this->processor->proceedResellRefund($invoice, false, true);
+            //Кнопка в админке должна отправлять сразу же $sync=true
+            $this->processor->proceedResellRefund($invoice, true, true);
 
             $comment = $this->kkmHelper->isMessageQueueEnabled()
                 ? 'Resell started via Magento queue.'

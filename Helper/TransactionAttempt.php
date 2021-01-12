@@ -117,19 +117,15 @@ class TransactionAttempt
      * @param RequestInterface $request
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @return TransactionAttemptInterface
      */
-    public function resetNumberOfTrials(RequestInterface $request, $entity)
+    public function resetNumberOfTrials(RequestInterface $request, $entity): void
     {
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);
         $attempt->setNumberOfTrials(0);
 
-        if (!$attempt->getId()) {
-            return $attempt;
+        if ($attempt->getId()) {
+            $this->attemptRepository->save($attempt);
         }
-
-        return $this->attemptRepository->save($attempt);
     }
 
     /**
