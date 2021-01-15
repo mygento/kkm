@@ -67,7 +67,7 @@ class ExtraSalesViewToolbarButtons
 
         $entity = $context->getInvoice() ?: $context->getCreditmemo();
 
-        $transactions = $this->transactionHelper->getTransactionsByEntity($entity);
+        $transactions = $this->transactionHelper->getTransactionsByEntity($entity, true);
 
         if ($this->canBeShownResendButton($transactions)) {
             $url = $this->urlBuilder->getUrl(
