@@ -392,10 +392,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $this->configureDiscountHelper();
         $markingAttribute = '';
         $markingListAttribute = '';
+        $markingRefundAttribute = '';
 
         if ($this->kkmHelper->isMarkingEnabled()) {
             $markingAttribute = $this->kkmHelper->getMarkingShouldField();
             $markingListAttribute = $this->kkmHelper->getMarkingField();
+            $markingRefundAttribute = $this->kkmHelper->getMarkingRefundField();
         }
 
         $recalculatedReceiptData = $receiptData
@@ -405,7 +407,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 $attributeCode,
                 $shippingTax,
                 $markingAttribute,
-                $markingListAttribute
+                $markingListAttribute,
+                $markingRefundAttribute
             );
 
         $items = [];
@@ -598,9 +601,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Don't send if trials number exceeded
         if ($trials >= $maxUpdateTrials) {
-            $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
+            $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded while update');
 
-            throw new \Exception(__('Request is skipped. Max num of trials exceeded'));
+            throw new \Exception(__('Request is skipped. Max num of trials exceeded while update'));
         }
 
         //Register sending Attempt
@@ -685,6 +688,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $this->attemptHelper->resetNumberOfTrials($request, $entity);
 
             throw new \Exception(__('Request is skipped. Max num of trials exceeded'));
+        }
+
+        if ($request->isIgnoreTrialsNum()) {
+            $this->attemptHelper->decreaseByOneTrial($request, $entity);
+            $request->setIgnoreTrialsNum(false);
         }
 
         //Register sending Attempt

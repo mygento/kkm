@@ -14,16 +14,16 @@ use Mygento\Kkm\Model\Atol\Response;
 class ExtraSalesViewToolbarButtons
 {
     /** @var \Mygento\Kkm\Helper\Data */
-    protected $kkmHelper;
+    private $kkmHelper;
 
     /**
      * Role Authorizations Service
      * @var \Magento\Framework\AuthorizationInterface
      */
-    protected $authorization;
+    private $authorization;
 
     /** @var \Magento\Backend\Model\UrlInterface */
-    protected $urlBuilder;
+    private $urlBuilder;
 
     /**
      * @var \Mygento\Kkm\Helper\Transaction
@@ -67,21 +67,7 @@ class ExtraSalesViewToolbarButtons
 
         $entity = $context->getInvoice() ?: $context->getCreditmemo();
 
-        // Не проверять по методу оплаты. Достаточно проверки по транзакциям.
-//        $order = $entity->getOrder();
-//        $paymentMethod = $order->getPayment()->getMethod();
-//        $paymentMethods = explode(
-//            ',',
-//            $this->kkmHelper->getConfig('general/payment_methods')
-//        );
-//
-//        if (!in_array($paymentMethod, $paymentMethods)
-//            || $entity->getOrderCurrencyCode() != 'RUB'
-//        ) {
-//            return;
-//        }
-
-        $transactions = $this->transactionHelper->getTransactionsByEntity($entity, true);
+        $transactions = $this->transactionHelper->getTransactionsByEntity($entity);
 
         if ($this->canBeShownResendButton($transactions)) {
             $url = $this->urlBuilder->getUrl(
@@ -89,6 +75,7 @@ class ExtraSalesViewToolbarButtons
                 [
                     'entity' => $entity->getEntityType(),
                     'id' => $entity->getId(),
+                    'store_id' => $entity->getStoreId(),
                 ]
             );
             $data = [
@@ -103,6 +90,7 @@ class ExtraSalesViewToolbarButtons
                 'kkm/cheque/checkStatus',
                 [
                     'uuid' => implode(',', $this->transactionHelper->getWaitUuid($entity)),
+                    'store_id' => $entity->getStoreId(),
                 ]
             );
             $data = [
@@ -134,13 +122,11 @@ class ExtraSalesViewToolbarButtons
      * @param \Magento\Framework\View\Element\AbstractBlock $block
      * @return bool
      */
-    protected function isProperPageForKkmButtons($block)
+    private function isProperPageForKkmButtons($block)
     {
-        return (null !== $block && (
+        return null !== $block && (
             strpos($block->getType(), 'Adminhtml\Order\Invoice\View')
-                ||
-                strpos($block->getType(), 'Adminhtml\Order\Creditmemo\View')
-        )
+            || strpos($block->getType(), 'Adminhtml\Order\Creditmemo\View')
         );
     }
 
@@ -148,7 +134,7 @@ class ExtraSalesViewToolbarButtons
      * @param array $transactions
      * @return bool
      */
-    protected function canBeShownResendButton($transactions)
+    private function canBeShownResendButton($transactions)
     {
         //Есть ли хоть одна Done || Wait - то нельзя отправить снова
         foreach ($transactions as $transaction) {
@@ -166,7 +152,7 @@ class ExtraSalesViewToolbarButtons
      * @param array $transactions
      * @return bool
      */
-    protected function canBeShownResellButton($transactions)
+    private function canBeShownResellButton($transactions)
     {
         //Если есть Done. Только для Invoice.
         $isDone = false;
@@ -185,9 +171,9 @@ class ExtraSalesViewToolbarButtons
      * @param array $transactions
      * @return bool
      */
-    protected function canBeShownCheckStatusButton($transactions)
+    private function canBeShownCheckStatusButton($transactions)
     {
-        //Если ли есть Done || нет Wait - то нельзя спросить статус
+        // Если есть Done || нет Wait - то нельзя спросить статус
         $isWait = false;
         foreach ($transactions as $transaction) {
             $status = $transaction->getKkmStatus();

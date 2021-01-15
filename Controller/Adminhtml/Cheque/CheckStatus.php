@@ -11,6 +11,7 @@ namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect;
+use Magento\Store\Model\App\Emulation;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Data;
 
@@ -21,8 +22,15 @@ class CheckStatus extends Action
      */
     const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_checkstatus';
 
-    /** @var \Mygento\Kkm\Helper\Data */
-    protected $kkmHelper;
+    /**
+     * @var \Magento\Store\Model\App\Emulation
+     */
+    private $emulation;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Data
+     */
+    private $kkmHelper;
 
     /**
      * @var \Mygento\Kkm\Api\Processor\UpdateInterface
@@ -33,17 +41,20 @@ class CheckStatus extends Action
      * CheckStatus constructor.
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
+     * @param \Magento\Store\Model\App\Emulation $emulation
      * @param \Mygento\Kkm\Helper\Data $helper
      */
     public function __construct(
         Context $context,
         UpdateInterface $updateProcessor,
+        Emulation $emulation,
         Data $helper
     ) {
         parent::__construct($context);
 
         $this->kkmHelper = $helper;
         $this->updateProcessor = $updateProcessor;
+        $this->emulation = $emulation;
     }
 
     /**
@@ -51,6 +62,7 @@ class CheckStatus extends Action
      */
     public function execute()
     {
+        $storeId = $this->_request->getParam('store_id');
         $uuid = strtolower($this->_request->getParam('uuid'));
         if (!$uuid) {
             $this->getMessageManager()->addErrorMessage(__('Invalid request. No uuid specified.'));
@@ -62,11 +74,15 @@ class CheckStatus extends Action
             return $this->redirect();
         }
 
+        $this->emulation->startEnvironmentEmulation($storeId);
+
         $uuids = explode(',', $uuid);
 
         foreach ($uuids as $value) {
             $this->check($value);
         }
+
+        $this->emulation->stopEnvironmentEmulation();
 
         return $this->redirect();
     }

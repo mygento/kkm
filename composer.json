@@ -1,7 +1,7 @@
 {
     "name": "mygento/module-kkm",
     "type": "magento2-module",
-    "version": "2.3.17-RC1",
+    "version": "2.3.18",
     "license": "OSL-3.0",
     "description": "Модуль интеграции фискальных кассовых аппаратов для Magento в соответствии с 54-ФЗ",
     "keywords": [
@@ -9,7 +9,7 @@
         "atol"
     ],
     "require": {
-        "mygento/module-base": "~2.3.14-RC1",
+        "mygento/module-base": "~2.3.14",
         "magento/framework-message-queue": "100.3.*"
     },
     "require-dev": {
