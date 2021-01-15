@@ -80,9 +80,7 @@ class Resell extends \Magento\Backend\App\Action
             $invoice = $this->invoiceRepository->get($id);
 
             if ($this->resellHelper->isResellFailed($invoice)) {
-                $comment = $this->kkmHelper->isMessageQueueEnabled()
-                    ? 'Finishing resell via Magento queue.'
-                    : 'Finishing existing resell process.';
+                $comment = 'Finishing existing resell process.';
 
                 $isProcessed = $this->processor->proceedFailedResell($invoice, true, true);
 
@@ -100,9 +98,7 @@ class Resell extends \Magento\Backend\App\Action
             //Кнопка в админке должна отправлять сразу же $sync=true
             $this->processor->proceedResellRefund($invoice, true, true);
 
-            $comment = $this->kkmHelper->isMessageQueueEnabled()
-                ? 'Resell started via Magento queue.'
-                : 'Resell started. Refund was sent to KKM.';
+            $comment = 'Resell started. Refund was sent to KKM.';
 
             $this->getMessageManager()->addSuccessMessage(__($comment));
         } catch (NoSuchEntityException $exc) {
@@ -119,11 +115,11 @@ class Resell extends \Magento\Backend\App\Action
             $this->getMessageManager()->addErrorMessage(__('Something went wrong. See log.'));
             $this->kkmHelper->error('Resell failed. Reason: ' . $thr->getMessage());
             $this->errorHelper->processKkmChequeRegistrationError($invoice, $thr);
-        } finally {
-            return $this->resultRedirectFactory->create()->setUrl(
-                $this->_redirect->getRefererUrl()
-            );
         }
+
+        return $this->resultRedirectFactory->create()->setUrl(
+            $this->_redirect->getRefererUrl()
+        );
     }
 
     /**
