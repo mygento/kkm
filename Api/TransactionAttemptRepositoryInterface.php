@@ -35,6 +35,14 @@ interface TransactionAttemptRepositoryInterface
     public function getByEntityId($operation, $entityId);
 
     /**
+     * Retrieve TransactionAttempt which should be marked as parent for new one
+     *
+     * @param int $entityId
+     * @return \Mygento\Kkm\Api\Data\TransactionAttemptInterface
+     */
+    public function getParentAttempt($entityId): Data\TransactionAttemptInterface;
+
+    /**
      * Retrieve TransactionAttempt
      * @param int $operation
      * @param int $orderId

@@ -92,10 +92,11 @@ class TransactionAttempt
      */
     public function registerAttempt(RequestInterface $request, $entity)
     {
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);
 
-        $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
+        if ($attempt->getId()) {
+            $this->kkmHelper->debug('Attempt found: ' . $attempt->getId(), $attempt->getData());
+        }
 
         $numberOfTrials = $attempt->getNumberOfTrials() === null ? 0 : $attempt->getNumberOfTrials() + 1;
         $totalNumberOfTrials = $attempt->getTotalNumberOfTrials() === null ? 0 : $attempt->getTotalNumberOfTrials() + 1;
@@ -116,15 +117,15 @@ class TransactionAttempt
      * @param RequestInterface $request
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @return TransactionAttemptInterface
      */
-    public function resetNumberOfTrials(RequestInterface $request, $entity)
+    public function resetNumberOfTrials(RequestInterface $request, $entity): void
     {
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);
         $attempt->setNumberOfTrials(0);
 
-        return $this->attemptRepository->save($attempt);
+        if ($attempt->getId()) {
+            $this->attemptRepository->save($attempt);
+        }
     }
 
     /**
@@ -163,7 +164,6 @@ class TransactionAttempt
         /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
         $entity = $this->requestHelper->getEntityByRequest($request);
 
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);
         if (!$attempt->getId()) {
             $attempt
@@ -276,6 +276,16 @@ class TransactionAttempt
             // поддержка старых попыток, которые имеют entity_id=0
             $attempt = $this->attemptRepository
                 ->getByIncrementId($operationType, $entity->getOrderId(), $entity->getIncrementId());
+        }
+
+        //Set Parent Attempt (for resell attempts)
+        $resellOperations = [
+            RequestInterface::RESELL_REFUND_OPERATION_TYPE,
+            RequestInterface::RESELL_SELL_OPERATION_TYPE,
+        ];
+        if (in_array($operationType, $resellOperations, true)) {
+            $parentAttempt = $this->attemptRepository->getParentAttempt($entity->getId());
+            $attempt->setParentId($parentAttempt->getId());
         }
 
         return $attempt;

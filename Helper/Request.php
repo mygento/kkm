@@ -11,7 +11,6 @@ namespace Mygento\Kkm\Helper;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 
 class Request
@@ -64,14 +63,13 @@ class Request
     {
         switch ($request->getOperationType()) {
             case RequestInterface::SELL_OPERATION_TYPE:
+            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
+            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
                 return $this->invoiceRepository->get($request->getSalesEntityId());
-                break;
             case RequestInterface::REFUND_OPERATION_TYPE:
                 return $this->creditmemoRepository->get($request->getSalesEntityId());
-                break;
             default:
                 return $this->orderRepository->get($request->getSalesEntityId());
-                break;
         }
     }
 
@@ -82,18 +80,39 @@ class Request
      */
     public function getEntityByUpdateRequest($updateRequest)
     {
-        /** @var TransactionInterface $transaction */
-        $transaction = $this->transactionHelper->getTransactionByTxnId($updateRequest->getUuid());
+        return $this->getEntityByUuid($updateRequest->getUuid());
+    }
+
+    /**
+     * @param string $uuid
+     * @throws \Exception
+     * @return CreditmemoInterface|InvoiceInterface|OrderInterface
+     */
+    public function getEntityByUuid($uuid)
+    {
+        $transaction = $this->transactionHelper->getTransactionByTxnId($uuid);
         if (!$transaction->getTransactionId()) {
-            throw new \Exception("Transaction not found. Uuid: {$updateRequest->getUuid()}");
+            throw new \Exception("Transaction not found. Uuid: {$uuid}");
         }
 
         /** @var CreditmemoInterface|InvoiceInterface $entity */
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
         if (!$entity->getEntityId()) {
-            throw new \Exception("Entity not found. Uuid: {$updateRequest->getUuid()}");
+            throw new \Exception("Entity not found. Uuid: {$uuid}");
         }
 
         return $entity;
+    }
+
+    /**
+     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     */
+    public function increaseExternalId($request)
+    {
+        if (preg_match('/^(.*)__(\d+)$/', $request->getExternalId(), $matches)) {
+            $request->setExternalId($matches[1] . '__' . ($matches[2] + 1));
+        } else {
+            $request->setExternalId($request->getExternalId() . '__1');
+        }
     }
 }

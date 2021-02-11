@@ -53,19 +53,27 @@ class Client
     private $responseFactory;
 
     /**
+     * @var \Magento\Framework\Serialize\Serializer\Json
+     */
+    private $jsonSerializer;
+
+    /**
      * Client constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param ResponseFactory $responseFactory
      * @param \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
+     * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
-        \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
+        \Magento\Framework\HTTP\Client\CurlFactory $curlFactory,
+        \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->responseFactory = $responseFactory;
         $this->curlClientFactory = $curlFactory;
+        $this->jsonSerializer = $jsonSerializer;
     }
 
     /**
@@ -81,7 +89,7 @@ class Client
         $login = $helper->getAtolLogin();
         $password = $helper->decrypt($helper->getAtolPassword());
 
-        $dataBody = json_encode(
+        $dataBody = $this->jsonSerializer->serialize(
             [
                 'login' => $login,
                 'pass' => $password,
@@ -95,16 +103,16 @@ class Client
         $curl->post($url, $dataBody);
         $response = $curl->getBody();
 
-        $decodedResult = json_decode($response);
+        $decodedResult = $this->jsonSerializer->unserialize($response);
 
-        if (!$decodedResult || !isset($decodedResult->token) || $decodedResult->token == '') {
+        if (!$decodedResult || !isset($decodedResult['token']) || $decodedResult['token'] == '') {
             throw new \Exception(
                 __('Response from Atol does not contain valid token value. Response: ')
-                . strval($response)
+                . (string) $response
             );
         }
 
-        $this->token = $decodedResult->token;
+        $this->token = $decodedResult['token'];
 
         $this->kkmHelper->info('Token: ' . $this->token);
 
@@ -143,10 +151,10 @@ class Client
     public function sendRefund($request): ResponseInterface
     {
         $debugData = [];
-        $this->kkmHelper->info('START Sending creditmemo');
+        $this->kkmHelper->info('START Sending refund');
         $this->kkmHelper->debug('Request', $request->__toArray());
 
-        $request = $debugData['request'] = json_encode($request);
+        $request = $debugData['request'] = $this->jsonSerializer->serialize($request);
 
         try {
             $groupCode = $this->getGroupCode();
@@ -157,7 +165,7 @@ class Client
             $responseRaw = $this->sendPostRequest($url, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-            $this->kkmHelper->info(__('Creditmemo is sent. Uuid: %1', $response->getUuid()));
+            $this->kkmHelper->info(__('Refund is sent. Uuid: %1', $response->getUuid()));
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (VendorBadServerAnswerException $exc) {
             throw $exc;
@@ -184,7 +192,7 @@ class Client
         $this->kkmHelper->info('START Sending invoice');
         $this->kkmHelper->debug('Request:', $request->__toArray());
 
-        $request = $debugData['request'] = json_encode($request);
+        $request = $debugData['request'] = $this->jsonSerializer->serialize($request);
 
         try {
             $groupCode = $this->getGroupCode();

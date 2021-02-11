@@ -10,8 +10,12 @@ namespace Mygento\Kkm\Api\Data;
 
 interface RequestInterface
 {
-    const SELL_OPERATION_TYPE = 1;
-    const REFUND_OPERATION_TYPE = 2;
+    public const SELL_OPERATION_TYPE = 1;
+    public const REFUND_OPERATION_TYPE = 2;
+    public const RESELL_REFUND_OPERATION_TYPE = 4;
+    public const RESELL_SELL_OPERATION_TYPE = 5;
+
+    public const EXTERNAL_ID_KEY = 'external_id';
 
     /**
      * @return mixed
@@ -242,4 +246,15 @@ interface RequestInterface
      * @return $this
      */
     public function setAdditionalUserProps(\Mygento\Kkm\Api\Data\UserPropInterface $userProp): self;
+
+    /**
+     * @return string
+     */
+    public function getAdditionalCheckProps(): ?string;
+
+    /**
+     * @param string $checkProps
+     * @return $this
+     */
+    public function setAdditionalCheckProps($checkProps): self;
 }

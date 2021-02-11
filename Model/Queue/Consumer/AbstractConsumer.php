@@ -41,9 +41,15 @@ abstract class AbstractConsumer
     protected $errorHelper;
 
     /**
+     * @var \Mygento\Kkm\Api\Processor\UpdateInterface
+     */
+    protected $updateProcessor;
+
+    /**
      * Consumer constructor.
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
@@ -52,6 +58,7 @@ abstract class AbstractConsumer
     public function __construct(
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\VendorInterface $vendor,
+        \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
         \Mygento\Kkm\Helper\Data $helper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
         \Mygento\Kkm\Helper\Request $requestHelper,
@@ -63,6 +70,7 @@ abstract class AbstractConsumer
         $this->helper = $helper;
         $this->requestHelper = $requestHelper;
         $this->errorHelper = $errorHelper;
+        $this->updateProcessor = $updateProcessor;
     }
 
     /**
@@ -76,10 +84,6 @@ abstract class AbstractConsumer
      */
     protected function increaseExternalId($request)
     {
-        if (preg_match('/^(.*)__(\d+)$/', $request->getExternalId(), $matches)) {
-            $request->setExternalId($matches[1] . '__' . ($matches[2] + 1));
-        } else {
-            $request->setExternalId($request->getExternalId() . '__1');
-        }
+        $this->requestHelper->increaseExternalId($request);
     }
 }

@@ -10,16 +10,30 @@
             "message": true,
             "number_of_trials": true,
             "created_at": true,
-            "updated_at": true
+            "updated_at": true,
+            "parent_id": true,
+            "txn_type": true,
+            "total_number_of_trials": true,
+            "scheduled_at": true,
+            "is_scheduled": true,
+            "request_json": true
         },
         "index": {
             "MYGENTO_KKM_TRANSACTION_ATTEMPT_STATUS": true,
-            "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID": true
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID": true,
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_IS_SCHEDULED_SCHEDULED_AT": true
         },
         "constraint": {
             "PRIMARY": true,
             "UNQ_C25BBFFBD4D1C59FE6BF140EFB4852F0": true,
-            "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID": true
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
+            "FK_CFECB3C346D292C3B779AC43203C200E": true,
+            "UNQ_32A3A4FB4F4D50876D225D9A9E8DD7B2": true
+        }
+    },
+    "sales_payment_transaction": {
+        "column": {
+            "kkm_status": true
         }
     }
 }

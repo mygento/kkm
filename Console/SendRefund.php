@@ -45,7 +45,7 @@ class SendRefund extends Command
     private $creditmemoResource;
 
     /**
-     * @var \Mygento\Kkm\Api\ProcessorInterface
+     * @var \Mygento\Kkm\Api\Processor\SendInterface
      */
     private $processor;
 
@@ -56,14 +56,14 @@ class SendRefund extends Command
 
     /**
      * SendRefund constructor.
-     * @param \Mygento\Kkm\Api\ProcessorInterface $processor
+     * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param Transaction $transactionHelper
      * @param \Magento\Framework\App\State $state
      * @param \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo
      * @param \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource
      */
     public function __construct(
-        \Mygento\Kkm\Api\ProcessorInterface $processor,
+        \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Framework\App\State $state,
         \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo,

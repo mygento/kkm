@@ -13,10 +13,6 @@ use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 
 class Response implements ResponseInterface
 {
-    const STATUS_DONE = 'done';
-    const STATUS_FAIL = 'fail';
-    const STATUS_WAIT = 'wait';
-
     // phpcs:disable
     private $uuid;
 
@@ -25,6 +21,8 @@ class Response implements ResponseInterface
     private $status;
 
     private $payload;
+
+    private $externalId;
 
     private $timestamp;
 
@@ -61,6 +59,7 @@ class Response implements ResponseInterface
         $this->error = $json->error ?? null;
         $this->payload = $json->payload ?? null;
         $this->status = $json->status ?? null;
+        $this->externalId = $json->external_id ?? null;
         $this->timestamp = $json->timestamp;
         $this->groupCode = $json->group_code ?? null;
         $this->daemonCode = $json->daemon_code ?? null;
@@ -169,6 +168,14 @@ class Response implements ResponseInterface
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getExternalId()
+    {
+        return $this->externalId;
     }
 
     /**

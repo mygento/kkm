@@ -8,9 +8,9 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
+use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
-use Mygento\Kkm\Model\Processor;
 
 class SellConsumer extends AbstractConsumer
 {
@@ -42,7 +42,7 @@ class SellConsumer extends AbstractConsumer
 
             $request->setIgnoreTrialsNum(false);
             $this->increaseExternalId($request);
-            $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
+            $this->publisher->publish(SendInterface::TOPIC_NAME_SELL, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
@@ -51,10 +51,10 @@ class SellConsumer extends AbstractConsumer
                 // далее находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
                 $entity = $this->requestHelper->getEntityByRequest($request);
                 $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-                $this->attemptHelper->scheduleNextAttempt($request, Processor::TOPIC_NAME_SELL);
+                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_SELL);
             } else {
                 $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(Processor::TOPIC_NAME_SELL, $request);
+                $this->publisher->publish(SendInterface::TOPIC_NAME_SELL, $request);
             }
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
@@ -63,7 +63,7 @@ class SellConsumer extends AbstractConsumer
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
                 $this->attemptHelper->scheduleNextAttempt(
                     $request,
-                    Processor::TOPIC_NAME_SELL,
+                    SendInterface::TOPIC_NAME_SELL,
                     (new \DateTime('+1 day'))->format('Y-m-d H:i:s')
                 );
             }

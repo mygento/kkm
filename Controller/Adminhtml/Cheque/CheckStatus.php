@@ -8,9 +8,14 @@
 
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
-use Magento\Framework\Exception\ValidatorException;
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\Redirect;
+use Magento\Store\Model\App\Emulation;
+use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Helper\Data;
 
-class CheckStatus extends \Magento\Backend\App\Action
+class CheckStatus extends Action
 {
     /**
      * @see _isAllowed()
@@ -28,26 +33,27 @@ class CheckStatus extends \Magento\Backend\App\Action
     private $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
+     * @var \Mygento\Kkm\Api\Processor\UpdateInterface
      */
-    private $vendor;
+    private $updateProcessor;
 
     /**
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
-     * @param \Mygento\Kkm\Helper\Data $helper
-     * @param \Magento\Store\Model\App\Emulation $emulation
+     * CheckStatus constructor.
      * @param \Magento\Backend\App\Action\Context $context
+     * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
+     * @param \Magento\Store\Model\App\Emulation $emulation
+     * @param \Mygento\Kkm\Helper\Data $helper
      */
     public function __construct(
-        \Mygento\Kkm\Model\VendorInterface $vendor,
-        \Mygento\Kkm\Helper\Data $helper,
-        \Magento\Store\Model\App\Emulation $emulation,
-        \Magento\Backend\App\Action\Context $context
+        Context $context,
+        UpdateInterface $updateProcessor,
+        Emulation $emulation,
+        Data $helper
     ) {
         parent::__construct($context);
 
         $this->kkmHelper = $helper;
-        $this->vendor = $vendor;
+        $this->updateProcessor = $updateProcessor;
         $this->emulation = $emulation;
     }
 
@@ -57,12 +63,48 @@ class CheckStatus extends \Magento\Backend\App\Action
     public function execute()
     {
         $storeId = $this->_request->getParam('store_id');
+        $uuid = strtolower($this->_request->getParam('uuid'));
+        if (!$uuid) {
+            $this->getMessageManager()->addErrorMessage(__('Invalid request. No uuid specified.'));
+            $this->kkmHelper->error(
+                'Invalid url. No uuid. Params:',
+                $this->getRequest()->getParams()
+            );
 
+            return $this->redirect();
+        }
+
+        $this->emulation->startEnvironmentEmulation($storeId);
+
+        $uuids = explode(',', $uuid);
+
+        foreach ($uuids as $value) {
+            $this->check($value);
+        }
+
+        $this->emulation->stopEnvironmentEmulation();
+
+        return $this->redirect();
+    }
+
+    /**
+     * @return \Magento\Framework\Controller\Result\Redirect
+     */
+    protected function redirect(): Redirect
+    {
+        return $this->resultRedirectFactory->create()->setUrl(
+            $this->_redirect->getRefererUrl()
+        );
+    }
+
+    /**
+     * @param string $uuid
+     */
+    protected function check(string $uuid): void
+    {
         try {
-            $this->emulation->startEnvironmentEmulation($storeId);
-            $this->validateRequest();
-            $uuid = strtolower($this->_request->getParam('uuid'));
-            $response = $this->vendor->updateStatus($uuid);
+            $response = $this->updateProcessor->proceedSync($uuid);
+
             $this->getMessageManager()->addSuccessMessage(
                 __('Kkm transaction status was updated. Status: %1', $response->getStatus())
             );
@@ -72,29 +114,6 @@ class CheckStatus extends \Magento\Backend\App\Action
             );
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error($exc->getMessage());
-        } finally {
-            $this->emulation->stopEnvironmentEmulation();
-
-            return $this->resultRedirectFactory->create()->setUrl(
-                $this->_redirect->getRefererUrl()
-            );
-        }
-    }
-
-    /**
-     * @throws \Magento\Framework\Exception\ValidatorException
-     */
-    protected function validateRequest()
-    {
-        $uuid = $this->getRequest()->getParam('uuid');
-
-        if (!$uuid) {
-            $this->kkmHelper->error(
-                'Invalid url. No uuid. Params:',
-                $this->getRequest()->getParams()
-            );
-
-            throw new ValidatorException(__('Invalid request. Check logs.'));
         }
     }
 }

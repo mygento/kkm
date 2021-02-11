@@ -9,9 +9,9 @@
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
-use Mygento\Kkm\Model\Processor;
 
 class UpdateConsumer extends AbstractConsumer
 {
@@ -37,15 +37,14 @@ class UpdateConsumer extends AbstractConsumer
     private function sendUpdateRequest(UpdateRequestInterface $updateRequest)
     {
         try {
-            /** @var \Mygento\Kkm\Api\Data\ResponseInterface $response */
-            $response = $this->vendor->updateStatus($updateRequest->getUuid(), true);
+            $response = $this->updateProcessor->proceedUsingAttempt($updateRequest->getUuid());
             if ($response->isWait()) {
-                $this->publisher->publish(Processor::TOPIC_NAME_UPDATE, $updateRequest);
+                $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
             }
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            $this->publisher->publish(Processor::TOPIC_NAME_UPDATE, $updateRequest);
+            $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByUpdateRequest($updateRequest);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
