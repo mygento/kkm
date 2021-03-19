@@ -377,39 +377,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
+        $storeId = $order->getStoreId();
 
-        $shippingTax = $this->kkmHelper->getConfig('general/shipping_tax');
-        $taxValue = $this->kkmHelper->getConfig('general/tax_options');
-        $attributeCode = '';
-        if (!$this->kkmHelper->getConfig('general/tax_all')) {
-            $attributeCode = $this->kkmHelper->getConfig('general/product_tax_attr');
-        }
-
-        if (!$this->kkmHelper->getConfig('general/default_shipping_name')) {
-            $shippingDescription = $this->kkmHelper->getConfig('general/custom_shipping_name');
-            $order->setShippingDescription($shippingDescription);
-        }
-        $this->configureDiscountHelper();
-        $markingAttribute = '';
-        $markingListAttribute = '';
-        $markingRefundAttribute = '';
-
-        if ($this->kkmHelper->isMarkingEnabled()) {
-            $markingAttribute = $this->kkmHelper->getMarkingShouldField();
-            $markingListAttribute = $this->kkmHelper->getMarkingField();
-            $markingRefundAttribute = $this->kkmHelper->getMarkingRefundField();
-        }
-
-        $recalculatedReceiptData = $receiptData
-            ?: $this->kkmDiscount->getRecalculated(
-                $salesEntity,
-                $taxValue,
-                $attributeCode,
-                $shippingTax,
-                $markingAttribute,
-                $markingListAttribute,
-                $markingRefundAttribute
-            );
+        $recalculatedReceiptData = $this->getRecalculated->execute($salesEntity);
 
         $items = [];
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
@@ -430,7 +400,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     ? $shippingPaymentObject
                     : Item::PAYMENT_OBJECT_BASIC);
 
-            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject);
+            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId);
         }
 
         $telephone = $order->getBillingAddress()
@@ -444,11 +414,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setClientName($clientName)
             ->setClientInn($clientInn)
             ->setPhone($telephone)
-            ->setCompanyEmail($this->kkmHelper->getStoreEmail())
-            ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address'))
-            ->setSno($this->kkmHelper->getConfig('atol/sno'))
-            ->setInn($this->kkmHelper->getConfig('atol/inn'))
-            ->setCallbackUrl($this->getCallbackUrl())
+            ->setCompanyEmail($this->kkmHelper->getStoreEmail($storeId))
+            ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address', $storeId))
+            ->setSno($this->kkmHelper->getConfig('atol/sno', $storeId))
+            ->setInn($this->kkmHelper->getConfig('atol/inn', $storeId))
+            ->setCallbackUrl($this->getCallbackUrl($storeId))
             ->setItems($items);
 
         //Basic payment
@@ -487,12 +457,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
+     * @param int|null $storeId
      * @return string
      */
-    public function getCallbackUrl()
+    public function getCallbackUrl($storeId = null)
     {
-        return $this->kkmHelper->getConfig('atol/callback_url')
-            ?? $this->urlHelper->getUrl('kkm/frontend/callback', [
+        return $this->kkmHelper->getConfig('atol/callback_url', $storeId)
+            ?? $this->urlHelper->setScope($storeId)->getUrl('kkm/frontend/callback', [
                 '_secure' => true,
                 '_nosid' => true,
             ]);
@@ -540,22 +511,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         $order->save();
-    }
-
-    /**
-     * Set mode flags for Discount logic
-     */
-    protected function configureDiscountHelper()
-    {
-        $applyAlgo = $this->kkmHelper->getConfig('recalculating/apply_algorithm');
-        $this->kkmDiscount->setDoCalculation((bool) $applyAlgo);
-        if ($applyAlgo) {
-            $isSpreadAllowed = $this->kkmHelper->getConfig('general/spread_discount');
-            $isSplitAllowed = $this->kkmHelper->getConfig('general/split_allowed');
-
-            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool) $isSpreadAllowed);
-            $this->kkmDiscount->setIsSplitItemsAllowed((bool) $isSplitAllowed);
-        }
     }
 
     /**
@@ -637,9 +592,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param array $itemData
      * @param string $itemPaymentMethod
      * @param string $itemPaymentObject
+     * @param int|null $storeId
      * @return ItemInterface
      */
-    private function buildItem(array $itemData, $itemPaymentMethod, $itemPaymentObject)
+    private function buildItem(array $itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
     {
         /** @var ItemInterface $item */
         $item = $this->itemFactory->create();
@@ -654,7 +610,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
             ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
             ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
-        if ($this->kkmHelper->isMarkingEnabled() && !empty($itemData[Discount::MARKING])) {
+        if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
             $item->setMarkingRequired(true);
             $item->setMarking(
                 $this->convertMarkingToHex($itemData[Discount::MARKING])

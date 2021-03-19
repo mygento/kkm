@@ -64,11 +64,12 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
+     * @param int|null $storeId
      * @return string|null
      */
-    public function getStoreEmail()
+    public function getStoreEmail($storeId = null)
     {
-        return parent::getConfig('trans_email/ident_general/email');
+        return parent::getConfig('trans_email/ident_general/email', $storeId);
     }
 
     /**
@@ -140,36 +141,40 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
+     * @param int|null $storeId
      * @return bool
      */
-    public function isMarkingEnabled(): bool
+    public function isMarkingEnabled($storeId = null): bool
     {
-        return $this->getConfig('marking/enabled')
-            && $this->getMarkingShouldField()
-            && $this->getMarkingField();
+        return $this->getConfig('marking/enabled', $storeId)
+            && $this->getMarkingShouldField($storeId)
+            && $this->getMarkingField($storeId);
     }
 
     /**
+     * @param int|null $storeId
      * @return string
      */
-    public function getMarkingShouldField()
+    public function getMarkingShouldField($storeId = null)
     {
-        return $this->getConfig('marking/marking_status_field') ?: '';
+        return $this->getConfig('marking/marking_status_field', $storeId) ?: '';
     }
 
     /**
+     * @param int|null $storeId
      * @return string
      */
-    public function getMarkingField()
+    public function getMarkingField($storeId = null)
     {
-        return $this->getConfig('marking/marking_mark_field') ?: '';
+        return $this->getConfig('marking/marking_mark_field', $storeId) ?: '';
     }
 
     /**
+     * @param int|null $storeId
      * @return string
      */
-    public function getMarkingRefundField()
+    public function getMarkingRefundField($storeId = null)
     {
-        return $this->getConfig('marking/marking_refund_field') ?: '';
+        return $this->getConfig('marking/marking_refund_field', $storeId) ?: '';
     }
 }
