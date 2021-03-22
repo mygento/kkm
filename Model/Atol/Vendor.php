@@ -18,6 +18,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Base\Model\Payment\Transaction;
+use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -106,7 +107,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private $urlHelper;
 
     /**
-     * Vendor constructor.
+     * @var \Mygento\Kkm\Model\GetRecalculated
+     */
+    private $getRecalculated;
+
+    /**
      * @param \Mygento\Base\Helper\Discount $kkmDiscount
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
@@ -119,7 +124,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param \Magento\Framework\Url $urlHelper
      * @param \Magento\Backend\Model\UrlInterface $urlBuilder
      * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
-     *
+     * @param \Mygento\Kkm\Model\GetRecalculated $getRecalculated
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -134,7 +139,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         \Mygento\Kkm\Model\Atol\Client $apiClient,
         \Magento\Framework\Url $urlHelper,
         \Magento\Backend\Model\UrlInterface $urlBuilder,
-        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        \Mygento\Kkm\Model\GetRecalculated $getRecalculated
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->kkmDiscount = $kkmDiscount;
@@ -148,6 +154,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $this->productRepository = $productRepository;
         $this->paymentFactory = $paymentFactory;
         $this->urlHelper = $urlHelper;
+        $this->getRecalculated = $getRecalculated;
     }
 
     /**
@@ -388,7 +395,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 continue;
             }
 
-            $this->validateItemArray($itemData);
+            $this->validateItem($itemData);
 
             //How to handle GiftCards - see Atol API documentation
             $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
@@ -589,13 +596,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
-     * @param array $itemData
+     * @param RecalculateResultItemInterface $itemData
      * @param string $itemPaymentMethod
      * @param string $itemPaymentObject
      * @param int|null $storeId
      * @return ItemInterface
      */
-    private function buildItem(array $itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
+    private function buildItem(RecalculateResultItemInterface $itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
     {
         /** @var ItemInterface $item */
         $item = $this->itemFactory->create();
@@ -774,10 +781,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
-     * @param array $item
+     * @param RecalculateResultItemInterface $item
      * @throws \Exception
      */
-    private function validateItemArray(array $item)
+    private function validateItem(RecalculateResultItemInterface $item)
     {
         $reason = false;
         if (!isset($item['name']) || $item['name'] === null || $item['name'] === '') {

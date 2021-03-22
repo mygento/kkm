@@ -13,15 +13,10 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\Sales\Api\Data\OrderItemInterfaceFactory;
-use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Helper\Data;
 
 class GetRecalculated
 {
-    /**
-     * @var \Mygento\Base\Helper\Discount
-     */
-    private $discountHelper;
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -40,7 +35,6 @@ class GetRecalculated
     private $recalculatorFacade;
 
     public function __construct(
-        Discount $kkmDiscount,
         Data $kkmHelper,
         OrderInterfaceFactory $orderFactory,
         OrderItemInterfaceFactory $orderItemFactory,
@@ -48,7 +42,6 @@ class GetRecalculated
         //TODO: Может его заюзать, а?!
         \Mygento\Base\Service\RecalculatorFacade $recalculatorFacade
     ) {
-        $this->discountHelper = $kkmDiscount;
         $this->configHelper = $kkmHelper;
         $this->orderFactory = $orderFactory;
         $this->orderItemFactory = $orderItemFactory;
@@ -75,38 +68,35 @@ class GetRecalculated
         ));
 
         $storeId = $salesEntity->getStoreId();
-        $shippingTax = $this->configHelper->getConfig('general/shipping_tax', $storeId);
-        $taxValue = $this->configHelper->getConfig('general/tax_options', $storeId);
-        $attributeCode = '';
-        if (!$this->configHelper->getConfig('general/tax_all', $storeId)) {
-            $attributeCode = $this->configHelper->getConfig('general/product_tax_attr', $storeId);
-        }
+
+        $args = $this->collectArguments($storeId);
 
         if (!$this->configHelper->getConfig('general/default_shipping_name', $storeId)) {
             $shippingDescription = $this->configHelper->getConfig('general/custom_shipping_name', $storeId);
             $orderMock->setShippingDescription($shippingDescription);
         }
 
-        $this->configureDiscountHelper();
-        $markingAttribute = '';
-        $markingListAttribute = '';
-        $markingRefundAttribute = '';
+        $isSpreadAllowed = (bool) $this->configHelper->getConfig('recalculating/spread_discount', $storeId);
+        $isSplitAllowed = (bool) $this->configHelper->getConfig('recalculating/split_allowed', $storeId);
 
-        if ($this->configHelper->isMarkingEnabled($storeId)) {
-            $markingAttribute = $this->configHelper->getMarkingShouldField($storeId);
-            $markingListAttribute = $this->configHelper->getMarkingField($storeId);
-            $markingRefundAttribute = $this->configHelper->getMarkingRefundField($storeId);
+        $isSplit = ($isSplitAllowed & 1) << 1;
+        $isSpread = ($isSpreadAllowed & 1) << 2;
+
+        $applyAlgo = $this->configHelper->getConfig('recalculating/apply_algorithm', $storeId);
+        if (!$applyAlgo) {
+            return $this->recalculatorFacade->executeWithoutCalculation($orderMock, ...$args);
         }
 
-        return $this->discountHelper->getRecalculated(
-            $orderMock,
-                $taxValue,
-                $attributeCode,
-                $shippingTax,
-                $markingAttribute,
-                $markingListAttribute,
-                $markingRefundAttribute
-            );
+        switch ($isSplit + $isSpread) {
+            case 2:  // true false
+                return $this->recalculatorFacade->executeWithSplitting($orderMock, ...$args);
+            case 4:  // false true
+                return $this->recalculatorFacade->executeWithSpreading($orderMock, ...$args);
+            case 6:  // true true
+                return $this->recalculatorFacade->executeWithSpreadingAndSplitting($orderMock, ...$args);
+            default: //false false
+                return $this->recalculatorFacade->execute($orderMock, ...$args);
+        }
     }
 
     /**
@@ -120,6 +110,7 @@ class GetRecalculated
     public function getMockOrder($salesEntity): OrderInterface
     {
         $orderMock = $this->orderFactory->create(['data' => $salesEntity->getData()]);
+        $orderMock->setShippingDescription($salesEntity->getOrder()->getShippingDescription());
 
         $items = array_map(
             function ($item) {
@@ -134,20 +125,35 @@ class GetRecalculated
     }
 
     /**
-     * Set mode flags for Discount logic
      * @param int|null $storeId
+     * @return array
      */
-    protected function configureDiscountHelper($storeId = null)
+    private function collectArguments(?int $storeId): array
     {
-        $applyAlgo = $this->configHelper->getConfig('recalculating/apply_algorithm', $storeId);
-        $this->kkmDiscount->setDoCalculation((bool) $applyAlgo);
-        if ($applyAlgo) {
-            $isSpreadAllowed = $this->configHelper->getConfig('general/spread_discount', $storeId);
-            $isSplitAllowed = $this->configHelper->getConfig('general/split_allowed', $storeId);
-
-            $this->kkmDiscount->setSpreadDiscOnAllUnits((bool) $isSpreadAllowed);
-            $this->kkmDiscount->setIsSplitItemsAllowed((bool) $isSplitAllowed);
+        $shippingTax = $this->configHelper->getConfig('general/shipping_tax', $storeId);
+        $taxValue = $this->configHelper->getConfig('general/tax_options', $storeId);
+        $attributeCode = '';
+        if (!$this->configHelper->getConfig('general/tax_all', $storeId)) {
+            $attributeCode = $this->configHelper->getConfig('general/product_tax_attr', $storeId);
         }
-    }
 
+        $markingAttribute = '';
+        $markingListAttribute = '';
+        $markingRefundAttribute = '';
+
+        if ($this->configHelper->isMarkingEnabled($storeId)) {
+            $markingAttribute = $this->configHelper->getMarkingShouldField($storeId);
+            $markingListAttribute = $this->configHelper->getMarkingField($storeId);
+            $markingRefundAttribute = $this->configHelper->getMarkingRefundField($storeId);
+        }
+
+        return [
+            $taxValue,
+            $attributeCode,
+            $shippingTax,
+            $markingAttribute,
+            $markingListAttribute,
+            $markingRefundAttribute
+        ];
+    }
 }
