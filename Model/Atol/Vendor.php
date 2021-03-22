@@ -16,9 +16,9 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\EntityInterface;
+use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Base\Model\Payment\Transaction;
-use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -602,7 +602,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param int|null $storeId
      * @return ItemInterface
      */
-    private function buildItem(RecalculateResultItemInterface $itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
+    private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
     {
         /** @var ItemInterface $item */
         $item = $this->itemFactory->create();

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2021 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -13,6 +13,7 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\Sales\Api\Data\OrderItemInterfaceFactory;
+use Mygento\Base\Service\RecalculatorFacade;
 use Mygento\Kkm\Helper\Data;
 
 class GetRecalculated
@@ -21,26 +22,33 @@ class GetRecalculated
      * @var \Mygento\Kkm\Helper\Data
      */
     private $configHelper;
+
     /**
      * @var \Magento\Sales\Api\Data\OrderInterfaceFactory
      */
     private $orderFactory;
+
     /**
      * @var \Magento\Sales\Api\Data\OrderItemInterfaceFactory
      */
     private $orderItemFactory;
+
     /**
      * @var \Mygento\Base\Service\RecalculatorFacade
      */
     private $recalculatorFacade;
 
+    /**
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Magento\Sales\Api\Data\OrderInterfaceFactory $orderFactory
+     * @param \Magento\Sales\Api\Data\OrderItemInterfaceFactory $orderItemFactory
+     * @param \Mygento\Base\Service\RecalculatorFacade $recalculatorFacade
+     */
     public function __construct(
         Data $kkmHelper,
         OrderInterfaceFactory $orderFactory,
         OrderItemInterfaceFactory $orderItemFactory,
-
-        //TODO: Может его заюзать, а?!
-        \Mygento\Base\Service\RecalculatorFacade $recalculatorFacade
+        RecalculatorFacade $recalculatorFacade
     ) {
         $this->configHelper = $kkmHelper;
         $this->orderFactory = $orderFactory;
@@ -153,7 +161,7 @@ class GetRecalculated
             $shippingTax,
             $markingAttribute,
             $markingListAttribute,
-            $markingRefundAttribute
+            $markingRefundAttribute,
         ];
     }
 }
