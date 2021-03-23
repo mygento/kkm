@@ -13,6 +13,7 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
 use Magento\Sales\Api\Data\OrderItemInterfaceFactory;
+use Mygento\Base\Service\RecalculatorFacade;
 use Mygento\Kkm\Helper\Data;
 
 class GetRecalculated
@@ -21,26 +22,33 @@ class GetRecalculated
      * @var \Mygento\Kkm\Helper\Data
      */
     private $configHelper;
+
     /**
      * @var \Magento\Sales\Api\Data\OrderInterfaceFactory
      */
     private $orderFactory;
+
     /**
      * @var \Magento\Sales\Api\Data\OrderItemInterfaceFactory
      */
     private $orderItemFactory;
+
     /**
      * @var \Mygento\Base\Service\RecalculatorFacade
      */
     private $recalculatorFacade;
 
+    /**
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Magento\Sales\Api\Data\OrderInterfaceFactory $orderFactory
+     * @param \Magento\Sales\Api\Data\OrderItemInterfaceFactory $orderItemFactory
+     * @param \Mygento\Base\Service\RecalculatorFacade $recalculatorFacade
+     */
     public function __construct(
         Data $kkmHelper,
         OrderInterfaceFactory $orderFactory,
         OrderItemInterfaceFactory $orderItemFactory,
-
-        //TODO: Может его заюзать, а?!
-        \Mygento\Base\Service\RecalculatorFacade $recalculatorFacade
+        RecalculatorFacade $recalculatorFacade
     ) {
         $this->configHelper = $kkmHelper;
         $this->orderFactory = $orderFactory;
@@ -59,11 +67,16 @@ class GetRecalculated
 
         //Особенность отправки чеков в ККМ: цены продуктов должны быть оригинальными
         //а GiftCard и StoreCredit должны быть отправлены как аванс
+        $giftCardsAmount = $orderMock->getData('gift_cards_amount')
+            ?? $salesEntity->getOrder()->getData('gift_cards_amount');
+        $customerBalanceAmount = $orderMock->getData('customer_balance_amount')
+            ?? $salesEntity->getOrder()->getData('customer_balance_amount');
+
         $orderMock->setGrandTotal(round(
             $orderMock->getGrandTotal()
             //Magento Commerce Features
-            + $orderMock->getData('gift_cards_amount')
-            + $orderMock->getData('customer_balance_amount'),
+            + $giftCardsAmount
+            + $customerBalanceAmount,
             4
         ));
 
@@ -109,17 +122,50 @@ class GetRecalculated
      */
     public function getMockOrder($salesEntity): OrderInterface
     {
+        /** @var OrderInterface $orderMock */
         $orderMock = $this->orderFactory->create(['data' => $salesEntity->getData()]);
         $orderMock->setShippingDescription($salesEntity->getOrder()->getShippingDescription());
 
+        $newTotal = 0;
         $items = array_map(
-            function ($item) {
+            function ($item) use($salesEntity) {
+
+                $orderItem = $salesEntity->getOrder()->getItemById($item->getOrderItemId());
+
+                $giftCardAmount = $orderItem->getData('gift_cards_amount');
+                $customerBalanceAmount = $orderItem->getData('customer_balance_amount');
+
+                $add = static function ($val) use($giftCardAmount, $customerBalanceAmount) {
+                    return bcadd($val, bcadd($giftCardAmount, $customerBalanceAmount, 4), 4);
+                };
+
+                /** @var \Magento\Sales\Api\Data\OrderItemInterface $itemMock */
                 $itemMock = $this->orderItemFactory->create(['data' => $item->getData()]);
+
+                $itemMock
+                    //TODO: Incorrect Price
+                    //FIXME: ALARM!
+                    ->setPrice($add($item->getRowTotalInclTax()))
+                    ->setPriceInclTax($add($item->getRowTotalInclTax()))
+//                    ->setTaxAmount($newItemTax)
+//                    ->setBaseTaxAmount($newItemTax)
+//                    ->setBasePrice($orderItem->getBaseOriginalPrice())
+//                    ->setBasePriceInclTax($orderItem->getBaseOriginalPrice())
+                    ->setRowTotal($add($item->getRowTotal()))
+                    ->setRowTotalInclTax($add($item->getRowTotalInclTax()))
+                    ->setBaseRowTotal($add($item->getBaseRowTotal()))
+                    ->setBaseRowTotalInclTax($add($item->getBaseRowTotalInclTax()));
 
                 return $itemMock->setId($item->getId());
             },
             $salesEntity->getItems()
         );
+
+        $orderMock
+            ->setSubtotal($newTotal)
+            ->setBaseSubtotal($newTotal)
+            ->setSubtotalInclTax($newTotal)
+            ->setBaseSubtotalInclTax($newTotal);
 
         return $orderMock->setItems($items);
     }

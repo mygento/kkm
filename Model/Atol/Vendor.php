@@ -440,11 +440,27 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //"GiftCard applied" payment
         if ($this->isGiftCardApplied($salesEntity)) {
+            $giftCardsAmount = $salesEntity->getGiftCardsAmount()
+                ?? $salesEntity->getOrder()->getGiftCardsAmount();
+
             $request
                 ->addPayment(
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
-                        ->setSum(round($salesEntity->getGiftCardsAmount(), 2))
+                        ->setSum(round($giftCardsAmount, 2))
+                );
+        }
+
+        //"CustomerBalance applied" payment
+        if ($this->isCustomerBalanceApplied($salesEntity)) {
+            $customerBalanceAmount = $salesEntity->getCustomerBalanceAmount()
+                ?? $salesEntity->getOrder()->getCustomerBalanceAmount();
+
+            $request
+                ->addPayment(
+                    $this->paymentFactory->create()
+                        ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
+                        ->setSum(round($customerBalanceAmount, 2))
                 );
         }
 
@@ -602,7 +618,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param int|null $storeId
      * @return ItemInterface
      */
-    private function buildItem(RecalculateResultItemInterface $itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
+    private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
     {
         /** @var ItemInterface $item */
         $item = $this->itemFactory->create();
@@ -718,7 +734,21 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private function isGiftCardApplied($entity)
     {
-        return $entity->getGiftCardsAmount() + $entity->getCustomerBalanceAmount() > 0.00;
+        $giftCardAmnt = $entity->getGiftCardsAmount() ?? $entity->getOrder()->getGiftCardsAmount();
+
+        return $giftCardAmnt > 0.00;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    private function isCustomerBalanceApplied($entity)
+    {
+        $customerBalanceAmount = $entity->getCustomerBalanceAmount()
+            ?? $entity->getOrder()->getCustomerBalanceAmount();
+
+        return $customerBalanceAmount > 0.00;
     }
 
     /**
