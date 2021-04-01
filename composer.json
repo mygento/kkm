@@ -1,5 +1,5 @@
 {
-    "name": "odahviiiing/module-kkm",
+    "name": "mygento/module-kkm",
     "type": "magento2-module",
     "version": "2.3.19",
     "license": "OSL-3.0",
@@ -9,7 +9,7 @@
         "atol"
     ],
     "require": {
-        "mygento/module-base": "~2.3.19",
+        "mygento/module-base": "~2.4.0-RC1",
         "magento/framework-message-queue": "100.4.*"
     },
     "require-dev": {
