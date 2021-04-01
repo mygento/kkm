@@ -10,7 +10,7 @@
     ],
     "require": {
         "mygento/module-base": "~2.3.19",
-        "magento/framework-message-queue": "100.3.*"
+        "magento/framework-message-queue": "100.4.*"
     },
     "require-dev": {
         "mygento/coding-standard": "~2.13.5"
