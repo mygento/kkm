@@ -5,6 +5,7 @@
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
+                <item name="ololoshka" xsi:type="object">Mygento\Kkm\Console\Ololoshka</item>
                 <item name="sendSellToAtol" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
                 <item name="sendSellRefundToAtol" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
                 <item name="updateStatusAtol" xsi:type="object">Mygento\Kkm\Console\UpdateStatus</item>

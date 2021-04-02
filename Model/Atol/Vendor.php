@@ -384,7 +384,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
-        $storeId = $order->getStoreId();
 
         $recalculatedReceiptData = $this->getRecalculated->execute($salesEntity);
 
@@ -407,7 +406,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     ? $shippingPaymentObject
                     : Item::PAYMENT_OBJECT_BASIC);
 
-            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId);
+            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject);
         }
 
         $telephone = $order->getBillingAddress()
@@ -421,11 +420,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setClientName($clientName)
             ->setClientInn($clientInn)
             ->setPhone($telephone)
-            ->setCompanyEmail($this->kkmHelper->getStoreEmail($storeId))
-            ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address', $storeId))
-            ->setSno($this->kkmHelper->getConfig('atol/sno', $storeId))
-            ->setInn($this->kkmHelper->getConfig('atol/inn', $storeId))
-            ->setCallbackUrl($this->getCallbackUrl($storeId))
+            ->setCompanyEmail($this->kkmHelper->getStoreEmail())
+            ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address'))
+            ->setSno($this->kkmHelper->getConfig('atol/sno'))
+            ->setInn($this->kkmHelper->getConfig('atol/inn'))
+            ->setCallbackUrl($this->getCallbackUrl())
             ->setItems($items);
 
         //Basic payment
@@ -480,13 +479,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
-     * @param int|null $storeId
      * @return string
      */
-    public function getCallbackUrl($storeId = null)
+    public function getCallbackUrl()
     {
-        return $this->kkmHelper->getConfig('atol/callback_url', $storeId)
-            ?? $this->urlHelper->setScope($storeId)->getUrl('kkm/frontend/callback', [
+        return $this->kkmHelper->getConfig('atol/callback_url')
+            ?? $this->urlHelper->getUrl('kkm/frontend/callback', [
                 '_secure' => true,
                 '_nosid' => true,
             ]);
@@ -615,10 +613,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param RecalculateResultItemInterface $itemData
      * @param string $itemPaymentMethod
      * @param string $itemPaymentObject
-     * @param int|null $storeId
      * @return ItemInterface
      */
-    private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
+    private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject)
     {
         /** @var ItemInterface $item */
         $item = $this->itemFactory->create();
@@ -633,7 +630,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
             ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
             ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
-        if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
+        if ($this->kkmHelper->isMarkingEnabled() && !empty($itemData[Discount::MARKING])) {
             $item->setMarkingRequired(true);
             $item->setMarking(
                 $this->convertMarkingToHex($itemData[Discount::MARKING])
