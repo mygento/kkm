@@ -10,9 +10,10 @@ namespace Mygento\Kkm\Api\Data;
 
 interface UpdateRequestInterface
 {
-    const UPDATE_OPERATION_TYPE = 3;
+    public const UPDATE_OPERATION_TYPE = 3;
 
-    const UUID = 'uuid';
+    public const UUID = 'uuid';
+    public const STORE_ID = 'store_id';
 
     /**
      * Get uuid
@@ -26,4 +27,21 @@ interface UpdateRequestInterface
      * @return $this
      */
     public function setUuid($uuid);
+
+    /**
+     * @return int
+     */
+    public function getStoreId(): ?int;
+
+    /**
+     * Set storeId
+     * @param int|string $id
+     * @return $this
+     */
+    public function setStoreId($id): self;
+
+    /**
+     * @return string
+     */
+    public function __toString();
 }

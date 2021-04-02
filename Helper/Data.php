@@ -15,10 +15,10 @@ use Exception;
  */
 class Data extends \Mygento\Base\Helper\Data
 {
-    const CONFIG_CODE = 'mygento_kkm';
+    public const CONFIG_CODE = 'mygento_kkm';
 
-    const CFG_ATTRIBUTE_VALUE = 'attribute_value';
-    const CFG_JUR_TYPE = 'jur_type';
+    public const CFG_ATTRIBUTE_VALUE = 'attribute_value';
+    public const CFG_JUR_TYPE = 'jur_type';
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
@@ -34,12 +34,13 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @throws Exception
+     * @param int|null $storeId
+     * @throws \Exception
      * @return string
      */
-    public function getAtolLogin()
+    public function getAtolLogin($storeId = null)
     {
-        $login = $this->getConfig('atol/login');
+        $login = $this->getConfig('atol/login', $storeId);
 
         if ($login == false) {
             throw new Exception('No login specified.');
@@ -49,12 +50,13 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @throws Exception
+     * @param int|null $storeId
+     * @throws \Exception
      * @return string
      */
-    public function getAtolPassword()
+    public function getAtolPassword($storeId = null)
     {
-        $passwd = $this->getConfig('atol/password');
+        $passwd = $this->getConfig('atol/password', $storeId);
 
         if ($passwd == false) {
             throw new Exception('No password specified.');
@@ -75,9 +77,9 @@ class Data extends \Mygento\Base\Helper\Data
     /**
      * @return bool
      */
-    public function isTestMode()
+    public function isTestMode($storeId = null)
     {
-        return (bool) $this->getConfig('atol/test_mode');
+        return (bool) $this->getConfig('atol/test_mode', $storeId);
     }
 
     /**

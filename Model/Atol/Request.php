@@ -69,6 +69,11 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $ignoreTrialsNum = false;
 
     /**
+     * @var int
+     */
+    protected $storeId;
+
+    /**
      * Request constructor.
      * @param \Magento\Framework\Stdlib\DateTime\Timezone $date
      */
@@ -85,6 +90,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     {
         $array = $this->jsonSerialize();
         $array['ignore_trials'] = $this->ignoreTrialsNum;
+        $array['store_id'] = $this->getStoreId();
 
         return $array;
     }
@@ -412,6 +418,31 @@ abstract class Request implements \JsonSerializable, RequestInterface
     {
         return $this->salesEntityId;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setStoreId($id): RequestInterface
+    {
+        $this->storeId = (int) $id;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getStoreId(): ?int
+    {
+        if (!isset($this->storeId)) {
+            $parts = explode('_', $this->getExternalId());
+
+            $this->storeId = $parts[1] ?? null;
+        }
+
+        return $this->storeId;
+    }
+
 
     /**
      * @inheritDoc

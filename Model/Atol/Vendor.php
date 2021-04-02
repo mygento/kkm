@@ -385,6 +385,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
         $storeId = $order->getStoreId();
+        $request->setStoreId($storeId);
 
         $recalculatedReceiptData = $this->getRecalculated->execute($salesEntity);
 

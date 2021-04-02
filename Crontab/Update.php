@@ -103,13 +103,13 @@ class Update
     }
 
     /**
-     * @param string $uuid
+     * @param UpdateRequestInterface $uuid
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function createUpdateAttempt($uuid)
     {
         /** @var TransactionInterface $transaction */
-        $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
+        $transaction = $this->transactionHelper->getTransactionByTxnId($uuid->getUuid(), Response::STATUS_WAIT);
         if (!$transaction->getTransactionId()) {
             throw new \Exception("Transaction not found. Uuid: {$uuid}");
         }
@@ -120,17 +120,13 @@ class Update
             throw new \Exception("Entity not found. Uuid: {$uuid}");
         }
 
-        /** @var UpdateRequestInterface $updateRequest */
-        $updateRequest = $this->updateRequestFactory->create();
-        $updateRequest->setUuid($uuid);
-
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);
 
-        if ($updateRequest instanceof DataObject) {
-            $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
+        if ($uuid instanceof DataObject) {
+            $this->kkmHelper->debug('Publish request: ', $uuid->toArray());
         }
 
-        $this->updateProcessor->proceedAsync($updateRequest);
+        $this->updateProcessor->proceedAsync($uuid);
     }
 }
