@@ -21,6 +21,7 @@
                 <cron_expr_to_send>7 0 * * *</cron_expr_to_send>
             </report>
             <general>
+                <service>atol</service>
                 <enabled>0</enabled>
                 <tax_all>1</tax_all>
                 <async_enabled>1</async_enabled>
