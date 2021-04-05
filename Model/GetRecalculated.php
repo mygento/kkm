@@ -189,10 +189,10 @@ class GetRecalculated
         $markingListAttribute = '';
         $markingRefundAttribute = '';
 
-        if ($this->configHelper->isMarkingEnabled($storeId)) {
-            $markingAttribute = $this->configHelper->getMarkingShouldField($storeId);
-            $markingListAttribute = $this->configHelper->getMarkingField($storeId);
-            $markingRefundAttribute = $this->configHelper->getMarkingRefundField($storeId);
+        if ($this->configHelper->isMarkingEnabled()) {
+            $markingAttribute = $this->configHelper->getMarkingShouldField();
+            $markingListAttribute = $this->configHelper->getMarkingField();
+            $markingRefundAttribute = $this->configHelper->getMarkingRefundField();
         }
 
         return [
