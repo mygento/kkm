@@ -23,15 +23,15 @@ interface RequestInterface
     public function __toArray();
 
     /**
-     * @return string
+     * @return string|int
      */
-    public function getSno(): string;
+    public function getSno();
 
     /**
-     * @param string $sno
+     * @param string|int $sno
      * @return $this
      */
-    public function setSno(string $sno): self;
+    public function setSno($sno): self;
 
     /**
      * @return string

@@ -17,6 +17,15 @@ class Sno implements \Magento\Framework\Option\ArrayInterface
     const RECEIPT_SNO_ESN = 'esn';
     const RECEIPT_SNO_PATENT = 'patent';
 
+    // phpcs:disable
+    protected $osnValue = self::RECEIPT_SNO_OSN;
+    protected $usnIncomeValue = self::RECEIPT_SNO_USN_INCOME;
+    protected $usnIncomeOutcomeValue = self::RECEIPT_SNO_USN_INCOME_OUTCOME;
+    protected $envdValue = self::RECEIPT_SNO_ENVD;
+    protected $esnValue = self::RECEIPT_SNO_ESN;
+    protected $patentValue = self::RECEIPT_SNO_PATENT;
+    // phpcs:enable
+
     /**
      * Get options
      *
@@ -26,27 +35,27 @@ class Sno implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             [
-                'value' => self::RECEIPT_SNO_OSN,
+                'value' => $this->osnValue,
                 'label' => __('общая СН'),
             ],
             [
-                'value' => self::RECEIPT_SNO_USN_INCOME,
+                'value' => $this->usnIncomeValue,
                 'label' => __('упрощенная СН (доходы)'),
             ],
             [
-                'value' => self::RECEIPT_SNO_USN_INCOME_OUTCOME,
+                'value' => $this->usnIncomeOutcomeValue,
                 'label' => __('упрощенная СН (доходы минус расходы)'),
             ],
             [
-                'value' => self::RECEIPT_SNO_ENVD,
+                'value' => $this->envdValue,
                 'label' => __('единый налог на вмененный доход'),
             ],
             [
-                'value' => self::RECEIPT_SNO_ESN,
+                'value' => $this->esnValue,
                 'label' => __('единый сельскохозяйственный налог'),
             ],
             [
-                'value' => self::RECEIPT_SNO_PATENT,
+                'value' => $this->patentValue,
                 'label' => __('патентная СН'),
             ],
         ];

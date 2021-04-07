@@ -11,12 +11,34 @@ namespace Mygento\Kkm\Model\CheckOnline;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Model\CheckOnline\RequestBuilder;
+use Mygento\Kkm\Model\CheckOnline\ClientFactory;
 
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
+    /**
+     * @var RequestBuilder
+     */
+    private $requestBuilder;
+
+    /**
+     * @var ClientFactory
+     */
+    private $clientFactory;
+
+    public function __construct(
+        RequestBuilder $requestBuilder,
+        ClientFactory $clientFactory
+    ) {
+        $this->requestBuilder = $requestBuilder;
+        $this->clientFactory = $clientFactory;
+    }
+
     public function sendSellRequest($request, $invoice = null)
     {
-        // TODO: Implement sendSellRequest() method.
+        /** @var \Mygento\Kkm\Model\CheckOnline\Client $client */
+        $client = $this->clientFactory->create();
+        $client->sendSell($request);
     }
 
     public function sendRefundRequest($request, $creditmemo = null)
@@ -47,7 +69,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $clientName = '',
         $clientInn = ''
     ): RequestInterface {
-        // TODO: Implement buildRequest() method.
+        return $this->requestBuilder->buildRequest($salesEntity);
     }
 
     public function buildRequestForResellSell($invoice): RequestInterface

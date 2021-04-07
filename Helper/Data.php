@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Helper;
 
 use Exception;
+use Mygento\Kkm\Model\VendorFactory;
 
 /**
  * Class Data
@@ -22,6 +23,22 @@ class Data extends \Mygento\Base\Helper\Data
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
+
+    /**
+     * @var VendorFactory
+     */
+    private $vendorFactory;
+
+    public function __construct(
+        \Mygento\Base\Model\LogManager $logManager,
+        \Magento\Framework\Encryption\Encryptor $encryptor,
+        \Magento\Framework\App\Helper\Context $context,
+        \Mygento\Kkm\Model\VendorFactory $vendorFactory
+    ) {
+        $this->vendorFactory = $vendorFactory;
+
+        parent::__construct($logManager, $encryptor, $context);
+    }
 
     /**
      * @param string $param
@@ -176,5 +193,33 @@ class Data extends \Mygento\Base\Helper\Data
     public function getMarkingRefundField($storeId = null)
     {
         return $this->getConfig('marking/marking_refund_field', $storeId) ?: '';
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return string
+     */
+    public function isCheckonlineTestMode($storeId = null)
+    {
+        return $this->getConfig('checkonline/test_mode', $storeId);
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return string
+     */
+    public function getCurrentVendorCode($storeId = null)
+    {
+        return $this->getConfig('general/service', $storeId);
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return \Mygento\Kkm\Model\VendorInterface
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
+     */
+    public function getCurrentVendor($storeId = null)
+    {
+        return $this->vendorFactory->create($this->getCurrentVendorCode($storeId));
     }
 }

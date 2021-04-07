@@ -73,6 +73,17 @@
                     <backend_model>Mygento\Kkm\Model\Config\Backend\CertFile</backend_model>
                     <upload_dir>kkm/certs/prod</upload_dir>
                 </field>
+                <field id="client_id" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Client ID</label>
+                    <comment>Fill in if you have multiple sites. If there is only one site, leave it blank.</comment>
+                </field>
+                <field id="sno" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>SNO</label>
+                    <source_model>Mygento\Kkm\Model\Source\CheckOnline\Sno</source_model>
+                    <comment>
+                        <![CDATA[Система налогообложения]]>
+                    </comment>
+                </field>
                 <field id="test_mode" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Test mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>

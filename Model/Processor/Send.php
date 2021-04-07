@@ -101,12 +101,13 @@ class Send implements SendInterface
      */
     public function proceedSell($invoice, $sync = false, $ignoreTrials = false)
     {
-        $request = $this->vendor->buildRequest($invoice);
+        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
+        $request = $vendor->buildRequest($invoice);
         $request->setIgnoreTrialsNum($ignoreTrials);
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $this->vendor->sendSellRequest($request);
+            $vendor->sendSellRequest($request);
 
             return true;
         }

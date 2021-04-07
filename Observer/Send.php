@@ -70,7 +70,8 @@ class Send implements ObserverInterface
             return;
         }
 
-        $this->kkmHelper->info("Auto send {$entity->getEntityType()} to Atol");
+        $vendorCode = $this->kkmHelper->getCurrentVendorCode($entity->getStoreId());
+        $this->kkmHelper->info("Auto send {$entity->getEntityType()} to {$vendorCode}");
 
         //Set Flag, in order to avoid loop
         $entity->setData(VendorInterface::ALREADY_SENT_FLAG, 1);
