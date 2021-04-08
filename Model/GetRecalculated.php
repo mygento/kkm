@@ -130,12 +130,17 @@ class GetRecalculated
         $newItems = [];
         foreach ($salesEntity->getItems() as $item) {
             $orderItem = $salesEntity->getOrder()->getItemById($item->getOrderItemId());
+            if ($orderItem->isDummy()) {
+                continue;
+            }
 
             $giftCardAmount = $orderItem->getData('gift_cards_amount');
             $customerBalanceAmount = $orderItem->getData('customer_balance_amount');
 
             $add = static function ($val) use ($giftCardAmount, $customerBalanceAmount) {
-                return bcadd($val, bcadd($giftCardAmount, $customerBalanceAmount, 4), 4);
+                return $val === null
+                    ? $val
+                    : bcadd($val, bcadd($giftCardAmount, $customerBalanceAmount, 4), 4);
             };
 
             /** @var \Magento\Sales\Api\Data\OrderItemInterface $itemMock */
