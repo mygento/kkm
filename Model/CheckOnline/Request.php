@@ -9,7 +9,10 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 
 class Request extends \Mygento\Kkm\Model\Request\Request
 {
-    const CHECKONLINE_SELL_OPERATION_TYPE = 0;
+    const CHECKONLINE_OPERATION_TYPE_MAPPING = [
+        RequestInterface::SELL_OPERATION_TYPE => 0,
+        RequestInterface::REFUND_OPERATION_TYPE => 2,
+    ];
 
     /**
      * @var string
@@ -40,6 +43,11 @@ class Request extends \Mygento\Kkm\Model\Request\Request
      * @var string
      */
     private $entityStoreId;
+
+    /**
+     * @var string
+     */
+    private $group;
 
     /**
      * @inheritDoc
@@ -142,6 +150,25 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
+     * @return string
+     */
+    public function getGroup(): string
+    {
+        return $this->group;
+    }
+
+    /**
+     * @param string $group
+     * @return RequestInterface
+     */
+    public function setGroup($group): RequestInterface
+    {
+        $this->group = $group;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize(): array
@@ -150,7 +177,7 @@ class Request extends \Mygento\Kkm\Model\Request\Request
             'Device' => $this->getDevice(),
             'Password' => $this->getPassword(),
             'RequestId' => $this->getExternalId(),
-            'DocumentType' => $this->getOperationType(),
+            'DocumentType' => self::CHECKONLINE_OPERATION_TYPE_MAPPING[$this->getOperationType()],
             'Lines' => $this->getItems(),
             'NonCash' => $this->getNonCash(),
             'TaxMode' => $this->getSno(),
@@ -160,6 +187,10 @@ class Request extends \Mygento\Kkm\Model\Request\Request
 
         if ($this->getClientId()) {
             $data['ClientId'] = $this->getClientId();
+        }
+
+        if ($this->getGroup()) {
+            $data['Group'] = $this->getGroup();
         }
 
         return $data;

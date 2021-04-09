@@ -308,4 +308,28 @@ class TransactionAttempt
 
         return $scheduledAt->format('Y-m-d H:i:s');
     }
+
+    /**
+     * @param RequestInterface $request
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function processTrials($request, $entity)
+    {
+        $trials = $this->getTrials($entity, $request->getOperationType());
+        $maxTrials = $this->kkmHelper->getMaxTrials($entity->getStoreId());
+
+        //Don't send if trials number exceeded
+        if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {
+            $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
+            $this->resetNumberOfTrials($request, $entity);
+
+            throw new \Exception(__('Request is skipped. Max num of trials exceeded'));
+        }
+
+        if ($request->isIgnoreTrialsNum()) {
+            $this->decreaseByOneTrial($request, $entity);
+            $request->setIgnoreTrialsNum(false);
+        }
+    }
 }

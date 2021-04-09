@@ -73,6 +73,10 @@
                     <backend_model>Mygento\Kkm\Model\Config\Backend\CertFile</backend_model>
                     <upload_dir>kkm/certs/prod</upload_dir>
                 </field>
+                <field id="group" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Group</label>
+                    <comment>Will be extracted from the certificate by default. Fill in if one certificate is used for several enterprises.</comment>
+                </field>
                 <field id="client_id" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Client ID</label>
                     <comment>Fill in if you have multiple sites. If there is only one site, leave it blank.</comment>

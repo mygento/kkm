@@ -12,7 +12,9 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Model\CheckOnline\RequestBuilder;
-use Mygento\Kkm\Model\CheckOnline\ClientFactory;
+use Mygento\Kkm\Model\CheckOnline\Client;
+use Mygento\Kkm\Helper\TransactionAttempt;
+use Mygento\Kkm\Helper\Request as RequestHelper;
 
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
@@ -22,23 +24,41 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private $requestBuilder;
 
     /**
-     * @var ClientFactory
+     * @var Client
      */
-    private $clientFactory;
+    private $apiClient;
+
+    /**
+     * @var TransactionAttempt
+     */
+    private $attemptHelper;
+
+    /**
+     * @var RequestHelper
+     */
+    private $requestHelper;
+
 
     public function __construct(
         RequestBuilder $requestBuilder,
-        ClientFactory $clientFactory
+        Client $apiClient,
+        TransactionAttempt $attemptHelper,
+        RequestHelper $requestHelper
     ) {
         $this->requestBuilder = $requestBuilder;
-        $this->clientFactory = $clientFactory;
+        $this->apiClient = $apiClient;
+        $this->attemptHelper = $attemptHelper;
+        $this->requestHelper = $requestHelper;
     }
 
     public function sendSellRequest($request, $invoice = null)
     {
-        /** @var \Mygento\Kkm\Model\CheckOnline\Client $client */
-        $client = $this->clientFactory->create();
-        $client->sendSell($request);
+        $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
+        $this->attemptHelper->processTrials($request, $entity);
+
+        $attempt = $this->attemptHelper->registerAttempt($request, $entity);
+
+        $this->apiClient->sendSell($request);
     }
 
     public function sendRefundRequest($request, $creditmemo = null)

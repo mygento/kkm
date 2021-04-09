@@ -65,7 +65,7 @@ class RequestBuilder
 
         switch ($salesEntity->getEntityType()) {
             case 'invoice':
-                $request->setOperationType(Request::CHECKONLINE_SELL_OPERATION_TYPE);
+                $request->setOperationType(Request::SELL_OPERATION_TYPE);
                 break;
             case 'creditmemo':
                 $request->setOperationType(Request::REFUND_OPERATION_TYPE);
@@ -82,6 +82,7 @@ class RequestBuilder
             ->setEntityStoreId($storeId)
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setClientId($this->helper->getConfig('checkonline/client_id', $storeId))
+            ->setGroup($this->helper->getConfig('checkonline/group', $storeId))
             ->setExternalId($this->generateExternalId($salesEntity))
             ->setNonCash(array(round($order->getGrandTotal() * 100, 0)))
             ->setSno((int) $this->helper->getConfig('checkonline/sno', $storeId))

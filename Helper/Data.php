@@ -142,11 +142,12 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
+     * @param string|null $storeId
      * @return int
      */
-    public function getMaxTrials()
+    public function getMaxTrials($storeId = null)
     {
-        return (int) $this->getConfig('general/max_trials');
+        return (int) $this->getConfig('general/max_trials', $storeId);
     }
 
     /**
