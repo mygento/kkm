@@ -9,9 +9,12 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\CreditmemoItemInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\InvoiceItemInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
+use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Api\Data\OrderItemInterfaceFactory;
 use Mygento\Base\Service\RecalculatorFacade;
 use Mygento\Kkm\Helper\Data;
@@ -146,6 +149,8 @@ class GetRecalculated
             /** @var \Magento\Sales\Api\Data\OrderItemInterface $itemMock */
             $itemMock = $this->orderItemFactory->create(['data' => $item->getData()]);
 
+            $this->updateMarking($itemMock, $item);
+
             $qty = $item->getQty();
             $newPriceAdd = round(($giftCardAmount + $customerBalanceAmount) / $qty, 2);
 
@@ -208,5 +213,20 @@ class GetRecalculated
             $markingListAttribute,
             $markingRefundAttribute,
         ];
+    }
+
+    /**
+     * @param OrderItemInterface $itemMock
+     * @param CreditmemoItemInterface|InvoiceItemInterface $item
+     */
+    private function updateMarking($itemMock, $item): void
+    {
+        $markingAttribute = $this->configHelper->getMarkingShouldField();
+        $markingListAttribute = $this->configHelper->getMarkingField();
+        $markingRefundAttribute = $this->configHelper->getMarkingRefundField();
+
+        $itemMock->setData($markingAttribute, $item->getOrderItem()->getData($markingAttribute));
+        $itemMock->setData($markingListAttribute, $item->getOrderItem()->getData($markingListAttribute));
+        $itemMock->setData($markingRefundAttribute, $item->getOrderItem()->getData($markingRefundAttribute));
     }
 }
