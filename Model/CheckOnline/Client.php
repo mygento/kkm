@@ -9,7 +9,6 @@
 namespace Mygento\Kkm\Model\CheckOnline;
 
 use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem\Driver\File;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -23,7 +22,6 @@ class Client
         'prod' => 'kkm/certs/prod',
         'test' => 'kkm/certs/test',
     ];
-    const ALLOWED_HTTP_STATUSES = [100, 200, 400, 401, 500];
 
     /**
      * @var \Mygento\Kkm\Helper\Data
@@ -36,7 +34,7 @@ class Client
     private $curlClientFactory;
 
     /**
-     * @var \Mygento\Kkm\Model\Atol\ResponseFactory
+     * @var \Mygento\Kkm\Model\CheckOnline\ResponseFactory
      */
     private $responseFactory;
 
@@ -59,13 +57,13 @@ class Client
     /**
      * Client constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param ResponseFactory $responseFactory
+     * @param \Mygento\Kkm\Model\CheckOnline\ResponseFactory $responseFactory
      * @param \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
      * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
+        \Mygento\Kkm\Model\CheckOnline\ResponseFactory $responseFactory,
         \Magento\Framework\HTTP\Client\CurlFactory $curlFactory,
         \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
         DirectoryList $directoryList,
@@ -86,21 +84,20 @@ class Client
      */
     public function sendSell($request): ResponseInterface
     {
-        return $this->sendPostRequest($request, 'Invoice');
+        return $this->sendPostRequest($request);
     }
 
     /**
      * @param RequestInterface $request
-     * @param string $operationType
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
-    protected function sendPostRequest($request, $operationType): ResponseInterface
+    public function sendPostRequest($request): ResponseInterface
     {
         $entityStoreId = $request->getEntityStoreId();
         $debugData = [];
         $url = $debugData['url'] = $this->getUrl($entityStoreId);
-        $this->kkmHelper->info('START Sending ' . $operationType);
+        $this->kkmHelper->info('START Sending ' . $request->getEntityType());
         $this->kkmHelper->debug('URL: ' . $url);
         $this->kkmHelper->debug('Request:', $request->__toArray());
 
@@ -112,12 +109,16 @@ class Client
             $curl->setOption(CURLOPT_SSLCERT, $this->getFilePath('certificate', $entityStoreId));
             $curl->setOption(CURLOPT_SSLKEY, $this->getFilePath('key', $entityStoreId));
             $curl->post($url, $params);
+
+            if (!$curl->getBody()) {
+                throw new VendorBadServerAnswerException('Empty response from Checkonline.');
+            }
+
             $responseRaw = $curl->getBody();
+            $this->validateVendorAnswer($responseRaw);
+            $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-//            $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
-            $response = $responseRaw;
-
-//            $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getUuid()));
+            $this->kkmHelper->info(__('%1 is sent. RequestId: %2', $request->getEntityType(), $response->getIdForTransaction()));
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (FileSystemException $e) {
             throw new CreateDocumentFailedException(
@@ -129,17 +130,6 @@ class Client
             throw new VendorBadServerAnswerException(
                 sprintf('Error while sending request to Checkonline: %s. Url: %s', $e->getMessage(), $url)
             );
-        }
-
-        if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
-            throw new VendorBadServerAnswerException(
-                'Bad response from Checkonline. Status: ' . $curl->getStatus()
-                . ($response ? '. Response: ' . (string) $response : '')
-            );
-        }
-
-        if (!$curl->getBody()) {
-            throw new VendorBadServerAnswerException('Empty response from Checkonline.');
         }
 
         return $response;
@@ -187,5 +177,18 @@ class Client
             ? 'checkonline/test_api_url' : 'checkonline/api_url';
 
         return $this->kkmHelper->getConfig($configPath, $storeId);
+    }
+
+    /**
+     * @param string $rawResponse
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     */
+    private function validateVendorAnswer($rawResponse)
+    {
+        if (!$json = json_decode($rawResponse)) {
+            throw new VendorBadServerAnswerException(
+                __('Response from Checkonline is not valid. Response: %1', (string) $rawResponse)
+            );
+        }
     }
 }

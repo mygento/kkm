@@ -93,7 +93,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
                 __(
                     'Callback received. Status: %1. Uuid: %2',
                     $response->getStatus(),
-                    $response->getUuid()
+                    $response->getIdForTransaction()
                 )
             );
             $this->kkmHelper->debug(__('Callback received: %1', (string) $response));

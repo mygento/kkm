@@ -26,40 +26,8 @@ class ResellConsumer extends AbstractConsumer
         $this->helper->debug(count($requests) . ' ResellRequests received to process.');
 
         foreach ($requests as $request) {
-            $this->sendResellRequest($request);
-        }
-    }
-
-    /**
-     * @param RequestInterface $request
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function sendResellRequest($request)
-    {
-        try {
-            $this->vendor->sendResellRequest($request);
-        } catch (VendorNonFatalErrorException $e) {
-            $this->helper->info($e->getMessage());
-
-            $request->setIgnoreTrialsNum(false);
-            $this->increaseExternalId($request);
-            $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
-        } catch (VendorBadServerAnswerException $e) {
-            $this->helper->critical($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals()) {
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
-                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
-            }
-        } catch (InputException $exc) {
-            $this->helper->error($exc->getMessage());
-        } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByRequest($request);
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            //todo unserialize
+            $this->getConsumerProcessor($request->getEntityStoreId())->processResell($request);
         }
     }
 }

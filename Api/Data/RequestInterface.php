@@ -23,6 +23,16 @@ interface RequestInterface
     public function __toArray();
 
     /**
+     * @return array
+     */
+    public function __serialize(): array;
+
+    /**
+     * @param array $data
+     */
+    public function __unserialize(array $data): void;
+
+    /**
      * @return string|int
      */
     public function getSno();
@@ -257,4 +267,15 @@ interface RequestInterface
      * @return $this
      */
     public function setAdditionalCheckProps($checkProps): self;
+
+    /**
+     * @return string|int
+     */
+    public function getEntityStoreId();
+
+    /**
+     * @param string|int $storeId
+     * @return $this
+     */
+    public function setEntityStoreId($storeId): self;
 }

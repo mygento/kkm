@@ -264,20 +264,20 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     public function saveCallback($response)
     {
         $transaction = $this->transactionHelper->getTransactionByTxnId(
-            $response->getUuid()
+            $response->getIdForTransaction()
         );
         //TODO: Validate response
 
         if (!$transaction->getId()) {
-            $this->kkmHelper->error("Transaction not found. Uuid: {$response->getUuid()}");
+            $this->kkmHelper->error("Transaction not found. Uuid: {$response->getIdForTransaction()}");
 
-            throw new \Exception("Transaction not found. Uuid: {$response->getUuid()}");
+            throw new \Exception("Transaction not found. Uuid: {$response->getIdForTransaction()}");
         }
 
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
 
         if (!$entity->getId()) {
-            throw new NotFoundException(__("Entity for uuid {$response->getUuid()} not found"));
+            throw new NotFoundException(__("Entity for uuid {$response->getIdForTransaction()} not found"));
         }
 
         $status = $transaction->getKkmStatus();
@@ -415,6 +415,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             : '';
 
         $request
+            ->setEntityStoreId($storeId)
             ->setExternalId($this->generateExternalId($salesEntity))
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setEmail($order->getCustomerEmail())

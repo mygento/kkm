@@ -9,6 +9,8 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 
 class Request extends \Mygento\Kkm\Model\Request\Request
 {
+    const REQUEST_ID_KEY = 'RequestId';
+
     const CHECKONLINE_OPERATION_TYPE_MAPPING = [
         RequestInterface::SELL_OPERATION_TYPE => 0,
         RequestInterface::REFUND_OPERATION_TYPE => 2,
@@ -42,12 +44,19 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     /**
      * @var string
      */
-    private $entityStoreId;
+    private $group;
+
+    /**
+     * @var bool
+     */
+    private $fullResponse;
 
     /**
      * @var string
      */
-    private $group;
+    private $entityType;
+
+    private $type;
 
     /**
      * @inheritDoc
@@ -131,15 +140,15 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
-     * @return string
+     * @return string|int
      */
-    public function getEntityStoreId(): string
+    public function getEntityStoreId()
     {
         return $this->entityStoreId;
     }
 
     /**
-     * @param string $storeId
+     * @param string|int $storeId
      * @return RequestInterface
      */
     public function setEntityStoreId($storeId): RequestInterface
@@ -169,6 +178,44 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
+     * @return bool
+     */
+    public function getFullResponse(): bool
+    {
+        return $this->fullResponse;
+    }
+
+    /**
+     * @param bool $fullResponse
+     * @return RequestInterface
+     */
+    public function setFullResponse($fullResponse): RequestInterface
+    {
+        $this->fullResponse = $fullResponse;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEntityType(): string
+    {
+        return $this->entityType;
+    }
+
+    /**
+     * @param $entityType
+     * @return RequestInterface
+     */
+    public function setEntityType($entityType): RequestInterface
+    {
+        $this->entityType = $entityType;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize(): array
@@ -183,6 +230,7 @@ class Request extends \Mygento\Kkm\Model\Request\Request
             'TaxMode' => $this->getSno(),
             'PhoneOrEmail' => $this->getPhone() ?: $this->getEmail(),
             'Place' => $this->getPlace(),
+            'FullResponse' => $this->getFullResponse(),
         ];
 
         if ($this->getClientId()) {
@@ -194,5 +242,77 @@ class Request extends \Mygento\Kkm\Model\Request\Request
         }
 
         return $data;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function __serialize(): array
+    {
+        return [
+            'sno' => $this->sno,
+            'externalId' => $this->externalId,
+            'email' => $this->email,
+            'clientName' => $this->clientName,
+            'clientInn' => $this->clientInn,
+            'companyEmail' => $this->companyEmail,
+            'phone' => $this->phone,
+            'items' => $this->items,
+            'payments' => $this->payments,
+            'total' => $this->total,
+            'inn' => $this->inn,
+            'paymentAddress' => $this->paymentAddress,
+            'callbackUrl' => $this->callbackUrl,
+            'operationType' => $this->operationType,
+            'salesEntityId' => $this->salesEntityId,
+            'retryCount' => $this->retryCount,
+            'additionalUserProps' => $this->additionalUserProps,
+            'additionalCheckProps' => $this->additionalCheckProps,
+            'entityStoreId' => $this->entityStoreId,
+            'device' => $this->device,
+            'password' => $this->password,
+            'clientId' => $this->clientId,
+            'nonCash' => $this->nonCash,
+            'place' => $this->place,
+            'group' => $this->group,
+            'fullResponse' => $this->fullResponse,
+            'entityType' => $this->entityType,
+            'type' => $this->type,
+        ];
+    }
+
+    /**
+     * @param array $data
+     */
+    public function __unserialize(array $data): void
+    {
+        $this->sno = $data['sno'];
+        $this->externalId = $data['externalId'];
+        $this->email = $data['email'];
+        $this->clientName = $data['clientName'];
+        $this->clientInn = $data['clientInn'];
+        $this->companyEmail = $data['companyEmail'];
+        $this->phone = $data['phone'];
+        $this->items = $data['items'];
+        $this->payments = $data['payments'];
+        $this->total = $data['total'];
+        $this->inn = $data['inn'];
+        $this->paymentAddress = $data['paymentAddress'];
+        $this->callbackUrl = $data['callbackUrl'];
+        $this->operationType = $data['operationType'];
+        $this->salesEntityId = $data['salesEntityId'];
+        $this->retryCount = $data['retryCount'];
+        $this->additionalUserProps = $data['additionalUserProps'];
+        $this->additionalCheckProps = $data['additionalCheckProps'];
+        $this->entityStoreId = $data['entityStoreId'];
+        $this->device = $data['device'];
+        $this->password = $data['password'];
+        $this->clientId = $data['clientId'];
+        $this->nonCash = $data['nonCash'];
+        $this->place = $data['place'];
+        $this->group = $data['group'];
+        $this->fullResponse = $data['fullResponse'];
+        $this->entityType = $data['entityType'];
+        $this->type = $data['type'];
     }
 }

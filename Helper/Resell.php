@@ -46,7 +46,7 @@ class Resell
      */
     public function isNeededToResendSell($entity, $response): bool
     {
-        $transaction = $this->transactionHelper->getTransactionByTxnId($response->getUuid());
+        $transaction = $this->transactionHelper->getTransactionByTxnId($response->getIdForTransaction());
 
         $children = $transaction->getChildTransactions();
         foreach ($children as $child) {

@@ -158,7 +158,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Invoice %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $invoice->getIncrementId()
             )
         );
@@ -178,7 +178,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Resell (refund) Invoice %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $invoice->getIncrementId()
             )
         );
@@ -200,7 +200,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Resell (sell) Invoice %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $invoice->getIncrementId()
             )
         );
@@ -328,7 +328,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Creditmemo %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $creditmemo->getIncrementId()
             )
         );
@@ -627,21 +627,23 @@ class Transaction
      */
     protected function saveTransaction($entity, ResponseInterface $response, $type, $parentTransaction = null)
     {
-        $txnId = $response->getUuid();
+        $txnId = $response->getIdForTransaction();
         $order = $entity->getOrder();
         $payment = $entity->getOrder()->getPayment();
         $isClosed = ($response->isDone() || $response->isFailed()) ? 1 : 0;
-        $rawResponse = json_encode(json_decode((string) $response), JSON_UNESCAPED_UNICODE);
+        // todo remove comments
+//        $rawResponse = json_encode(json_decode((string) $response), JSON_UNESCAPED_UNICODE);
         $additional = [
             self::ENTITY_KEY => $entity->getEntityType(),
             self::INCREMENT_ID_KEY => $entity->getIncrementId(),
-            RequestInterface::EXTERNAL_ID_KEY => $response->getExternalId(),
-            self::UUID_KEY => $txnId,
-            self::STATUS_KEY => $response->getStatus(),
-            self::ERROR_MESSAGE_KEY => $response->getErrorMessage(),
-            self::RAW_RESPONSE_KEY => $rawResponse,
+//            RequestInterface::EXTERNAL_ID_KEY => $response->getExternalId(),
+//            self::UUID_KEY => $txnId,
+//            self::STATUS_KEY => $response->getStatus(),
+//            self::ERROR_MESSAGE_KEY => $response->getErrorMessage(),
+//            self::RAW_RESPONSE_KEY => $rawResponse,
         ];
-        $additional = array_merge($additional, (array) $response->getPayload());
+//        $additional = array_merge($additional, (array) $response->getPayload());
+        $additional = array_merge($additional, $response->getVendorSpecificTxnData());
 
         //Update
         if ($this->isTransactionExists($txnId, $payment->getId(), $order->getId())) {

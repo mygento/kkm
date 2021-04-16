@@ -165,7 +165,7 @@ class Client
             $responseRaw = $this->sendPostRequest($url, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-            $this->kkmHelper->info(__('Refund is sent. Uuid: %1', $response->getUuid()));
+            $this->kkmHelper->info(__('Refund is sent. Uuid: %1', $response->getIdForTransaction()));
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (VendorBadServerAnswerException $exc) {
             throw $exc;
@@ -203,7 +203,7 @@ class Client
             $responseRaw = $this->sendPostRequest($url, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-            $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getUuid()));
+            $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getIdForTransaction()));
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (VendorBadServerAnswerException $exc) {
             throw $exc;

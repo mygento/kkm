@@ -66,14 +66,16 @@ class RequestBuilder
         switch ($salesEntity->getEntityType()) {
             case 'invoice':
                 $request->setOperationType(Request::SELL_OPERATION_TYPE);
+                $request->setEntityType('Invoice');
                 break;
             case 'creditmemo':
                 $request->setOperationType(Request::REFUND_OPERATION_TYPE);
+                $request->setEntityType('Refund');
                 break;
         }
 
-        $storeId = $salesEntity->getStoreId();
         $order = $salesEntity->getOrder() ?? $salesEntity;
+        $storeId = $order->getStoreId();
         $telephone = $order->getBillingAddress()
             ? (string) $order->getBillingAddress()->getTelephone()
             : '';
@@ -84,12 +86,13 @@ class RequestBuilder
             ->setClientId($this->helper->getConfig('checkonline/client_id', $storeId))
             ->setGroup($this->helper->getConfig('checkonline/group', $storeId))
             ->setExternalId($this->generateExternalId($salesEntity))
-            ->setNonCash(array(round($order->getGrandTotal() * 100, 0)))
+            ->setNonCash(array((int) round($order->getGrandTotal() * 100, 0)))
             ->setSno((int) $this->helper->getConfig('checkonline/sno', $storeId))
             ->setPhone($telephone)
             ->setEmail($order->getCustomerEmail())
             ->setPlace($order->getStore()->getBaseUrl())
             ->setItems($this->buildItems($salesEntity))
+            ->setFullResponse((bool) $this->helper->getConfig('checkonline/full_response', $storeId))
         ;
 
         return $request;

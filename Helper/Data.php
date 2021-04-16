@@ -100,9 +100,9 @@ class Data extends \Mygento\Base\Helper\Data
     /**
      * @return bool
      */
-    public function isMessageQueueEnabled()
+    public function isMessageQueueEnabled($storeId = null)
     {
-        return (bool) $this->getConfig('general/async_enabled');
+        return (bool) $this->getConfig('general/async_enabled', $storeId);
     }
 
     /**
@@ -124,17 +124,17 @@ class Data extends \Mygento\Base\Helper\Data
     /**
      * @return bool
      */
-    public function isUseCustomRetryIntervals()
+    public function isUseCustomRetryIntervals($storeId = null)
     {
-        return (bool) $this->getConfig('general/is_use_custom_retry_intervals');
+        return (bool) $this->getConfig('general/is_use_custom_retry_intervals', $storeId);
     }
 
     /**
      * @return array
      */
-    public function getCustomRetryIntervals()
+    public function getCustomRetryIntervals($storeId = null)
     {
-        $customRetryIntervals = $this->getConfig('general/retry_intervals');
+        $customRetryIntervals = $this->getConfig('general/retry_intervals', $storeId);
 
         return trim($customRetryIntervals)
             ? array_filter(array_map('trim', explode(',', $customRetryIntervals)))

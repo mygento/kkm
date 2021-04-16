@@ -25,38 +25,8 @@ class RefundConsumer extends AbstractConsumer
         $this->helper->debug(count($requests) . ' RefundRequests received to process.');
 
         foreach ($requests as $request) {
-            $this->sendRefundRequest($request);
-        }
-    }
-
-    /**
-     * @param RequestInterface $request
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
-     */
-    private function sendRefundRequest($request)
-    {
-        try {
-            $this->vendor->sendRefundRequest($request);
-        } catch (VendorNonFatalErrorException $e) {
-            $this->helper->info($e->getMessage());
-
-            $request->setIgnoreTrialsNum(false);
-            $this->increaseExternalId($request);
-            $this->publisher->publish(SendInterface::TOPIC_NAME_REFUND, $request);
-        } catch (VendorBadServerAnswerException $e) {
-            $this->helper->critical($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals()) {
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
-                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_REFUND);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(SendInterface::TOPIC_NAME_REFUND, $request);
-            }
-        } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByRequest($request);
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            //todo unserialize
+            $this->getConsumerProcessor($request->getEntityStoreId())->processRefund($request);
         }
     }
 }

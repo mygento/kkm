@@ -13,12 +13,12 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 interface MergedRequestInterface
 {
     /**
-     * @return RequestInterface[]
+     * @return string[]
      */
     public function getRequests();
 
     /**
-     * @param RequestInterface[] $value
+     * @param string[] $value
      * @return $this
      */
     public function setRequests(array $value);

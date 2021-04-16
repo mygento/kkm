@@ -26,28 +26,9 @@ class UpdateConsumer extends AbstractConsumer
 
         /** @var UpdateRequestInterface $updateRequest */
         foreach ($updateRequests as $updateRequest) {
-            $this->sendUpdateRequest($updateRequest);
-        }
-    }
-
-    /**
-     * @param UpdateRequestInterface $updateRequest
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     */
-    private function sendUpdateRequest(UpdateRequestInterface $updateRequest)
-    {
-        try {
-            $response = $this->updateProcessor->proceedUsingAttempt($updateRequest->getUuid());
-            if ($response->isWait()) {
-                $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
-            }
-        } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
-
-            $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
-        } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByUpdateRequest($updateRequest);
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            //todo unserialize
+            // todo what about store-specific config for cron?
+            $this->getConsumerProcessor()->processUpdate($updateRequest);
         }
     }
 }

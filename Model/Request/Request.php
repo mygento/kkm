@@ -56,6 +56,8 @@ abstract class Request implements \JsonSerializable, RequestInterface
 
     protected $additionalCheckProps = '';
 
+    protected $entityStoreId;
+
     // phpcs:enable
 
     /**
@@ -481,6 +483,25 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setAdditionalCheckProps($checkProps): RequestInterface
     {
         $this->additionalCheckProps = $checkProps;
+
+        return $this;
+    }
+
+    /**
+     * @return string|int
+     */
+    public function getEntityStoreId()
+    {
+        return $this->entityStoreId;
+    }
+
+    /**
+     * @param string|int $storeId
+     * @return RequestInterface
+     */
+    public function setEntityStoreId($storeId): RequestInterface
+    {
+        $this->entityStoreId = $storeId;
 
         return $this;
     }

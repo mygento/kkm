@@ -17,7 +17,7 @@
     <preference for="Mygento\Kkm\Api\Processor\SendInterface" type="Mygento\Kkm\Model\Processor\Send"/>
     <preference for="Mygento\Kkm\Api\Processor\UpdateInterface" type="Mygento\Kkm\Model\Processor\Update"/>
 
-    <preference for="Mygento\Kkm\Api\Data\RequestInterface" type="Mygento\Kkm\Model\Atol\RequestForVersion4"/>
+<!--    <preference for="Mygento\Kkm\Api\Data\RequestInterface" type="Mygento\Kkm\Model\Atol\RequestForVersion4"/>-->
     <preference for="Mygento\Kkm\Api\Data\UpdateRequestInterface" type="Mygento\Kkm\Model\Atol\UpdateRequest"/>
     <preference for="Mygento\Kkm\Api\Data\ItemInterface" type="Mygento\Kkm\Model\Atol\Item"/>
     <preference for="Mygento\Kkm\Api\Data\UserPropInterface" type="Mygento\Kkm\Model\Atol\UserProp"/>
@@ -33,6 +33,14 @@
                 <item name="mygento.kkm.refund" xsi:type="string">Mygento\Kkm\Model\Queue\Merger</item>
                 <item name="mygento.kkm.resell" xsi:type="string">Mygento\Kkm\Model\Queue\Merger</item>
                 <item name="mygento.kkm.update" xsi:type="string">Mygento\Kkm\Model\Queue\UpdateMerger</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory">
+        <arguments>
+            <argument name="processorFactories" xsi:type="array">
+                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\Atol\ConsumerProcessorFactory</item>
+                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\CheckOnline\ConsumerProcessorFactory</item>
             </argument>
         </arguments>
     </type>

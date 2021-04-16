@@ -113,7 +113,7 @@ class Send implements SendInterface
         }
 
         $this->helper->debug('Publish request: ', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_SELL, $request);
+        $this->publisher->publish(self::TOPIC_NAME_SELL, serialize($request));
 
         return true;
     }
@@ -129,12 +129,13 @@ class Send implements SendInterface
      */
     public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false)
     {
-        $request = $this->vendor->buildRequest($creditmemo);
+        $vendor = $this->helper->getCurrentVendor($creditmemo->getStoreId());
+        $request = $vendor->buildRequest($creditmemo);
         $request->setIgnoreTrialsNum($ignoreTrials);
 
         if ($sync || !$this->helper->isMessageQueueEnabled()) {
             $this->helper->debug('Sending request without Queue:', $request->__toArray());
-            $this->vendor->sendRefundRequest($request);
+            $vendor->sendRefundRequest($request);
 
             return true;
         }

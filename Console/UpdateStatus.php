@@ -125,14 +125,14 @@ HELP
 
         if ($response->isFailed() || $response->getError()) {
             $output->writeln("<error>Status: {$response->getStatus()}</error>");
-            $output->writeln("<error>Uuid: {$response->getUuid()}</error>");
+            $output->writeln("<error>Uuid: {$response->getIdForTransaction()}</error>");
             $output->writeln("<error>Text: {$response->getErrorMessage()}</error>");
 
             return Cli::RETURN_FAILURE;
         }
 
         $output->writeln("<info>Status: {$response->getStatus()}</info>");
-        $output->writeln("<info>Uuid: {$response->getUuid()}</info>");
+        $output->writeln("<info>Uuid: {$response->getIdForTransaction()}</info>");
 
         return Cli::RETURN_SUCCESS;
     }
