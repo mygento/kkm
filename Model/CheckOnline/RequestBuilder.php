@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\CheckOnline;
 
+use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -15,6 +16,7 @@ use Magento\Sales\Model\EntityInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Model\CheckOnline\RequestFactory;
 use Mygento\Kkm\Model\GetRecalculated;
 use Mygento\Kkm\Model\CheckOnline\Item;
@@ -42,16 +44,23 @@ class RequestBuilder
      */
     private $itemFactory;
 
+    /**
+     * @var RequestHelper
+     */
+    private $requestHelper;
+
     public function __construct(
         Data $helper,
         RequestFactory $requestFactory,
         GetRecalculated $getRecalculated,
-        ItemFactory $itemFactory
+        ItemFactory $itemFactory,
+        RequestHelper $requestHelper
     ) {
         $this->helper = $helper;
         $this->requestFactory = $requestFactory;
         $this->getRecalculated = $getRecalculated;
         $this->itemFactory = $itemFactory;
+        $this->requestHelper = $requestHelper;
     }
 
     /**
@@ -85,29 +94,17 @@ class RequestBuilder
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setClientId($this->helper->getConfig('checkonline/client_id', $storeId))
             ->setGroup($this->helper->getConfig('checkonline/group', $storeId))
-            ->setExternalId($this->generateExternalId($salesEntity))
+            ->setExternalId($this->requestHelper->generateExternalId($salesEntity))
             ->setNonCash(array((int) round($order->getGrandTotal() * 100, 0)))
             ->setSno((int) $this->helper->getConfig('checkonline/sno', $storeId))
             ->setPhone($telephone)
             ->setEmail($order->getCustomerEmail())
-            ->setPlace($order->getStore()->getBaseUrl())
+            ->setPlace($order->getStore()->getBaseUrl(UrlInterface::URL_TYPE_LINK, true))
             ->setItems($this->buildItems($salesEntity))
             ->setFullResponse((bool) $this->helper->getConfig('checkonline/full_response', $storeId))
         ;
 
         return $request;
-    }
-
-    /**
-     * @param \Magento\Sales\Model\EntityInterface $entity Order|Invoice|Creditmemo
-     * @param string $postfix
-     * @return string
-     */
-    public function generateExternalId(EntityInterface $entity, $postfix = '')
-    {
-        $postfix = $postfix ? "_{$postfix}" : '';
-
-        return $entity->getEntityType() . '_' . $entity->getStoreId() . '_' . $entity->getIncrementId() . $postfix;
     }
 
     /**
@@ -121,11 +118,11 @@ class RequestBuilder
         $recalculatedItems = $this->getRecalculated->execute($salesEntity);
 
         foreach ($recalculatedItems[Discount::ITEMS] as $key => $itemData) {
-            //todo is it need?
-            //For orders without Shipping (Virtual products)
-//            if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
-//                continue;
-//            }
+            // For orders without Shipping (Virtual products)
+            if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
+                continue;
+            }
+
             //todo validation
 //            $this->validateItem($itemData);
 

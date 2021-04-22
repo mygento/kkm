@@ -18,19 +18,27 @@ abstract class AbstractConsumer
     /**
      * @var \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory
      */
-    private $consumerProcessorFactory;
+    protected $consumerProcessorFactory;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Request
+     */
+    protected $requestHelper;
 
     /**
      * Consumer constructor.
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory $consumerProcessorFactory
+     * @param \Mygento\Kkm\Helper\Request $requestHelper
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory $consumerProcessorFactory
+        \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory $consumerProcessorFactory,
+        \Mygento\Kkm\Helper\Request $requestHelper
     ) {
         $this->helper = $helper;
         $this->consumerProcessorFactory = $consumerProcessorFactory;
+        $this->requestHelper = $requestHelper;
     }
 
     /**

@@ -223,4 +223,14 @@ class Data extends \Mygento\Base\Helper\Data
     {
         return $this->vendorFactory->create($this->getCurrentVendorCode($storeId));
     }
+
+    /**
+     * @param string|null $storeId
+     * @return bool
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
+     */
+    public function isVendorNeedUpdateStatus($storeId = null)
+    {
+        return $this->getCurrentVendor($storeId)->isNeedUpdateStatus();
+    }
 }

@@ -26,9 +26,7 @@ class UpdateConsumer extends AbstractConsumer
 
         /** @var UpdateRequestInterface $updateRequest */
         foreach ($updateRequests as $updateRequest) {
-            //todo unserialize
-            // todo what about store-specific config for cron?
-            $this->getConsumerProcessor()->processUpdate($updateRequest);
+            $this->getConsumerProcessor($updateRequest->getEntityStoreId())->processUpdate($updateRequest);
         }
     }
 }

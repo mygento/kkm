@@ -26,6 +26,7 @@ interface TransactionAttemptInterface
     public const IS_SCHEDULED = 'is_scheduled';
     public const REQUEST_JSON = 'request_json';
     public const PARENT_ID = 'parent_id';
+    public const STORE_ID = 'store_id';
 
     const OPERATION_LABEL = [
         1 => 'Payment',
@@ -246,4 +247,15 @@ interface TransactionAttemptInterface
      * @return $this
      */
     public function setParentId($id);
+
+    /**
+     * @return int|null
+     */
+    public function getStoreId();
+
+    /**
+     * @param string|int $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId);
 }

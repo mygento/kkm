@@ -30,4 +30,20 @@ class UpdateRequest extends DataObject implements \Mygento\Kkm\Api\Data\UpdateRe
     {
         return $this->setData(self::UUID, $uuid);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEntityStoreId()
+    {
+        return $this->getData(self::ENTITY_STORE_ID);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setEntityStoreId($storeId)
+    {
+        return $this->setData(self::ENTITY_STORE_ID, $storeId);
+    }
 }

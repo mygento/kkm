@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Model\Queue\Consumer\Atol;
 
 use Magento\Framework\Exception\InputException;
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Api\Queue\ConsumerProcessorInterface;
@@ -83,32 +84,40 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     /**
      * @inheritDoc
      */
-    public function processSell($request)
+    public function processSell($queueMessage)
     {
-        $this->processSellAndRefund($request, SendInterface::TOPIC_NAME_SELL);
+        $this->processSellAndRefund($queueMessage, SendInterface::TOPIC_NAME_SELL,);
     }
 
     /**
      * @inheritDoc
      */
-    public function processRefund($request)
+    public function processRefund($queueMessage)
     {
-        $this->processSellAndRefund($request, SendInterface::TOPIC_NAME_REFUND);
+        $this->processSellAndRefund($queueMessage, SendInterface::TOPIC_NAME_REFUND);
     }
 
     /**
      * @inheritDoc
      */
-    public function processResell($request)
+    public function processResell($queueMessage)
     {
         try {
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
+            $request = $this->vendor->buildRequestForResellRefund($entity);
             $this->vendor->sendResellRequest($request);
         } catch (VendorNonFatalErrorException $e) {
             $this->helper->info($e->getMessage());
 
             $request->setIgnoreTrialsNum(false);
             $this->requestHelper->increaseExternalId($request);
-            $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
+            $this->publisher->publish(
+                SendInterface::TOPIC_NAME_RESELL,
+                $this->requestHelper->getQueueMessage($request)
+            );
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
 
@@ -117,12 +126,14 @@ class ConsumerProcessor implements ConsumerProcessorInterface
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
             } else {
                 $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
+                $this->publisher->publish(
+                    SendInterface::TOPIC_NAME_RESELL,
+                    $this->requestHelper->getQueueMessage($request)
+                );
             }
         } catch (InputException $exc) {
             $this->helper->error($exc->getMessage());
         } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
@@ -130,47 +141,57 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     /**
      * @inheritDoc
      */
-    public function processUpdate($request)
+    public function processUpdate($updateRequest)
     {
         try {
-            $response = $this->updateProcessor->proceedUsingAttempt($request->getUuid());
+            $response = $this->updateProcessor->proceedUsingAttempt($updateRequest->getUuid());
             if ($response->isWait()) {
-                $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $request);
+                $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
             }
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $request);
+            $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
         } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByUpdateRequest($request);
+            $entity = $this->requestHelper->getEntityByUpdateRequest($updateRequest);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
     /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
      * @param string $topicName
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
-    private function processSellAndRefund($request, $topicName)
+    private function processSellAndRefund($queueMessage, $topicName)
     {
         try {
-            $this->vendor->sendSellRequest($request);
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
+
+            if ($queueMessage->getOperationType() === RequestInterface::RESELL_SELL_OPERATION_TYPE) {
+                $request = $this->vendor->buildRequestForResellSell($entity);
+            } else {
+                $request = $this->vendor->buildRequest($entity);
+            }
+
+            $this->vendor->sendSellRequest($request, $entity);
         } catch (VendorNonFatalErrorException $e) {
             // меняем external_id и пробуем сделать повторную отправку
             $this->helper->info($e->getMessage());
 
             $request->setIgnoreTrialsNum(false);
             $this->requestHelper->increaseExternalId($request);
-            $this->publisher->publish($topicName, $request);
+            $this->publisher->publish($topicName, $this->requestHelper->getQueueMessage($request));
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
             if ($this->helper->isUseCustomRetryIntervals()) {
                 if ($topicName === SendInterface::TOPIC_NAME_SELL) {
                     // помечаем заказ, как KKM Fail
-                    $entity = $this->requestHelper->getEntityByRequest($request);
                     $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
                 }
 
@@ -178,10 +199,9 @@ class ConsumerProcessor implements ConsumerProcessorInterface
                 $this->attemptHelper->scheduleNextAttempt($request, $topicName);
             } else {
                 $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish($topicName, $request);
+                $this->publisher->publish($topicName, $this->requestHelper->getQueueMessage($request));
             }
         } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
             if ($topicName === SendInterface::TOPIC_NAME_SELL && $this->helper->isRetrySendingEndlessly()) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день

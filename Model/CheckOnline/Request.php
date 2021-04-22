@@ -14,6 +14,8 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     const CHECKONLINE_OPERATION_TYPE_MAPPING = [
         RequestInterface::SELL_OPERATION_TYPE => 0,
         RequestInterface::REFUND_OPERATION_TYPE => 2,
+        RequestInterface::RESELL_REFUND_OPERATION_TYPE => 2,
+        RequestInterface::RESELL_SELL_OPERATION_TYPE => 0,
     ];
 
     /**
@@ -55,8 +57,6 @@ class Request extends \Mygento\Kkm\Model\Request\Request
      * @var string
      */
     private $entityType;
-
-    private $type;
 
     /**
      * @inheritDoc
@@ -242,77 +242,5 @@ class Request extends \Mygento\Kkm\Model\Request\Request
         }
 
         return $data;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function __serialize(): array
-    {
-        return [
-            'sno' => $this->sno,
-            'externalId' => $this->externalId,
-            'email' => $this->email,
-            'clientName' => $this->clientName,
-            'clientInn' => $this->clientInn,
-            'companyEmail' => $this->companyEmail,
-            'phone' => $this->phone,
-            'items' => $this->items,
-            'payments' => $this->payments,
-            'total' => $this->total,
-            'inn' => $this->inn,
-            'paymentAddress' => $this->paymentAddress,
-            'callbackUrl' => $this->callbackUrl,
-            'operationType' => $this->operationType,
-            'salesEntityId' => $this->salesEntityId,
-            'retryCount' => $this->retryCount,
-            'additionalUserProps' => $this->additionalUserProps,
-            'additionalCheckProps' => $this->additionalCheckProps,
-            'entityStoreId' => $this->entityStoreId,
-            'device' => $this->device,
-            'password' => $this->password,
-            'clientId' => $this->clientId,
-            'nonCash' => $this->nonCash,
-            'place' => $this->place,
-            'group' => $this->group,
-            'fullResponse' => $this->fullResponse,
-            'entityType' => $this->entityType,
-            'type' => $this->type,
-        ];
-    }
-
-    /**
-     * @param array $data
-     */
-    public function __unserialize(array $data): void
-    {
-        $this->sno = $data['sno'];
-        $this->externalId = $data['externalId'];
-        $this->email = $data['email'];
-        $this->clientName = $data['clientName'];
-        $this->clientInn = $data['clientInn'];
-        $this->companyEmail = $data['companyEmail'];
-        $this->phone = $data['phone'];
-        $this->items = $data['items'];
-        $this->payments = $data['payments'];
-        $this->total = $data['total'];
-        $this->inn = $data['inn'];
-        $this->paymentAddress = $data['paymentAddress'];
-        $this->callbackUrl = $data['callbackUrl'];
-        $this->operationType = $data['operationType'];
-        $this->salesEntityId = $data['salesEntityId'];
-        $this->retryCount = $data['retryCount'];
-        $this->additionalUserProps = $data['additionalUserProps'];
-        $this->additionalCheckProps = $data['additionalCheckProps'];
-        $this->entityStoreId = $data['entityStoreId'];
-        $this->device = $data['device'];
-        $this->password = $data['password'];
-        $this->clientId = $data['clientId'];
-        $this->nonCash = $data['nonCash'];
-        $this->place = $data['place'];
-        $this->group = $data['group'];
-        $this->fullResponse = $data['fullResponse'];
-        $this->entityType = $data['entityType'];
-        $this->type = $data['type'];
     }
 }

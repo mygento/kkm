@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\CheckOnline;
 
+use Magento\Framework\Exception\InputException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -61,11 +62,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private $kkmHelper;
 
-    /**
-     * @var PublisherInterface
-     */
-    private $publisher;
-
     public function __construct(
         RequestBuilder $requestBuilder,
         Client $apiClient,
@@ -73,8 +69,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         RequestHelper $requestHelper,
         OrderComment $orderCommentHelper,
         TransactionHelper $transactionHelper,
-        KkmHelper $kkmHelper,
-        PublisherInterface $publisher
+        KkmHelper $kkmHelper
     ) {
         $this->requestBuilder = $requestBuilder;
         $this->apiClient = $apiClient;
@@ -132,7 +127,31 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
     public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface
     {
-        // TODO: Implement sendResellRequest() method.
+        $invoice = $invoice ?? $this->requestHelper->getEntityByRequest($request);
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+
+        if (!$doneTransaction->getId()) {
+            throw new InputException(
+                __(
+                    'Invoice %1 does not have transaction with status DONE.',
+                    $invoice->getIncrementId()
+                )
+            );
+        }
+
+        //Stop sending if there is 'wait' resell_refund transaction
+        if ($this->transactionHelper->isResellOpened($invoice)) {
+            throw new InputException(
+                __(
+                    'Invoice %1 has opened refund transaction.',
+                    $invoice->getIncrementId()
+                )
+            );
+        }
+
+        return $this->sendRequest($request, $invoice);
     }
 
     public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
@@ -145,7 +164,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function updateStatus($uuid, $useAttempt = false)
     {
-        // TODO: Implement updateStatus() method.
+        return;
     }
 
     /**
@@ -164,12 +183,43 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
     public function buildRequestForResellSell($invoice): RequestInterface
     {
-        // TODO: Implement buildRequestForResellSell() method.
+        $request = $this->requestBuilder->buildRequest($invoice);
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+
+        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
+
+        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
+            ?? $this->requestHelper->generateExternalId($invoice);
+        $externalId .= '_resell';
+
+        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
+
+        $request->setExternalId($externalId);
+        $request->setOperationType(RequestInterface::RESELL_SELL_OPERATION_TYPE);
+
+        return $request;
     }
 
     public function buildRequestForResellRefund($invoice): RequestInterface
     {
-        // TODO: Implement buildRequestForResellRefund() method.
+        $request = $this->requestBuilder->buildRequest($invoice);
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+        $lastRefundTransaction = $this->transactionHelper->getLastResellRefundTransaction($invoice);
+
+        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
+            ?? $this->requestHelper->generateExternalId($invoice);
+        $externalId .= '_refund';
+
+        $externalId = $this->transactionHelper->getExternalId($lastRefundTransaction) ?? $externalId;
+
+        $request->setExternalId($externalId);
+        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
+
+        return $request;
     }
 
 
@@ -199,14 +249,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @inheritDoc
      */
-    private function scheduleRetry($request)
+    public function isNeedUpdateStatus()
     {
-        if (!$this->kkmHelper->isMessageQueueEnabled($request->getEntityStoreId())) {
-            return;
-        }
-
-
+        return false;
     }
 }

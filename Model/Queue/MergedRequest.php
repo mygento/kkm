@@ -14,7 +14,7 @@ use Mygento\Kkm\Api\Queue\MergedRequestInterface;
 class MergedRequest implements MergedRequestInterface
 {
     /**
-     * @var RequestInterface[]
+     * @var \Mygento\Kkm\Api\Queue\QueueMessageInterface[]
      */
     private $requests;
 

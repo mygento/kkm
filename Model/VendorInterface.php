@@ -110,4 +110,9 @@ interface VendorInterface
      * @param string $operation
      */
     public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '');
+
+    /**
+     * @return bool
+     */
+    public function isNeedUpdateStatus();
 }

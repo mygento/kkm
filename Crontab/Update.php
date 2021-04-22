@@ -42,25 +42,33 @@ class Update
     private $updateProcessor;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * Update constructor.
      * @param UpdateRequestInterfaceFactory $updateRequestFactory
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     public function __construct(
         UpdateRequestInterfaceFactory $updateRequestFactory,
         \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+        \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->updateRequestFactory = $updateRequestFactory;
         $this->attemptHelper = $attemptHelper;
         $this->kkmHelper = $kkmHelper;
         $this->transactionHelper = $transactionHelper;
         $this->updateProcessor = $updateProcessor;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -68,20 +76,34 @@ class Update
      */
     public function execute()
     {
-        //Проверка включения Cron
-        if (!$this->kkmHelper->getConfig('general/update_cron')) {
+        foreach ($this->storeManager->getStores() as $store) {
+            $this->proceed($store->getId());
+        }
+    }
+
+    /**
+     * @param string|int $storeId
+     * @throws \Exception
+     */
+    private function proceed($storeId)
+    {
+        //Проверка включения Cron и необходимость выполнять операцию обновления статуса для вендора
+        if (!$this->kkmHelper->getConfig('general/update_cron', $storeId)
+            || !$this->kkmHelper->isVendorNeedUpdateStatus($storeId)
+        ) {
             return;
         }
 
         $this->kkmHelper->info('KKM Update statuses Cron START');
 
-        $uuids = $this->transactionHelper->getAllWaitUuids();
+
+        $uuids = $this->transactionHelper->getAllWaitUuids($storeId);
 
         $result = [];
         $i = 0;
         foreach ($uuids as $uuid) {
             try {
-                if (!$this->kkmHelper->isMessageQueueEnabled()) {
+                if (!$this->kkmHelper->isMessageQueueEnabled($storeId)) {
                     $response = $this->updateProcessor->proceedSync($uuid);
 
                     $result[] = "UUID {$uuid} new status: {$response->getStatus()}";
@@ -89,7 +111,7 @@ class Update
                     continue;
                 }
 
-                $this->createUpdateAttempt($uuid);
+                $this->createUpdateAttempt($uuid, $storeId);
                 $result[] = "UUID {$uuid} update queued";
                 $i++;
             } catch (\Exception $e) {
@@ -104,9 +126,10 @@ class Update
 
     /**
      * @param string $uuid
+     * @param string|int $storeId
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function createUpdateAttempt($uuid)
+    private function createUpdateAttempt($uuid, $storeId)
     {
         /** @var TransactionInterface $transaction */
         $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
@@ -122,7 +145,10 @@ class Update
 
         /** @var UpdateRequestInterface $updateRequest */
         $updateRequest = $this->updateRequestFactory->create();
-        $updateRequest->setUuid($uuid);
+        $updateRequest
+            ->setUuid($uuid)
+            ->setEntityStoreId($storeId)
+        ;
 
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);

@@ -30,7 +30,7 @@ class Report extends Command
     . self::TODAY_PERIOD . ', '
     . self::YESTERDAY_PERIOD . ', '
     . self::WEEK_PERIOD;
-    const COMMAND = 'mygento:atol:report';
+    const COMMAND = 'mygento:kkm:report';
     const COMMAND_DESCRIPTION = 'Show report of kkm transaction for period.';
 
     const WEEK_PERIOD = 'week';

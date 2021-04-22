@@ -234,9 +234,10 @@
                 <field id="max_update_trials" translate="label" type="text" sortOrder="186" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Max trials to update status</label>
                 </field>
-                <field id="update_cron" translate="label" type="select" sortOrder="190" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="update_cron" translate="label comment" type="select" sortOrder="190" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Update by cron</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Update status. Process scheduled attempts</comment>
                 </field>
                 <field id="update_cron_expr" translate="label" type="text" sortOrder="193" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Update frequency</label>

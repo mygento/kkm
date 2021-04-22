@@ -26,6 +26,7 @@
     <!--Queue-->
     <preference for="Mygento\Kkm\Api\Queue\MergedRequestInterface" type="Mygento\Kkm\Model\Queue\MergedRequest"/>
     <preference for="Mygento\Kkm\Api\Queue\MergedUpdateRequestInterface" type="Mygento\Kkm\Model\Queue\MergedUpdateRequest"/>
+    <preference for="Mygento\Kkm\Api\Queue\QueueMessageInterface" type="Mygento\Kkm\Model\Queue\QueueMessage"/>
     <type name="Magento\Framework\MessageQueue\MergerFactory">
         <arguments>
             <argument name="mergers" xsi:type="array">

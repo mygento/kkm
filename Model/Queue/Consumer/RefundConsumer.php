@@ -21,12 +21,11 @@ class RefundConsumer extends AbstractConsumer
      */
     public function sendMergedRequest($mergedRequest)
     {
-        $requests = $mergedRequest->getRequests();
-        $this->helper->debug(count($requests) . ' RefundRequests received to process.');
+        $messages = $mergedRequest->getRequests();
+        $this->helper->debug(count($messages) . ' RefundRequests received to process.');
 
-        foreach ($requests as $request) {
-            //todo unserialize
-            $this->getConsumerProcessor($request->getEntityStoreId())->processRefund($request);
+        foreach ($messages as $message) {
+            $this->getConsumerProcessor($message->getEntityStoreId())->processRefund($message);
         }
     }
 }

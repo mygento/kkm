@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
@@ -21,13 +22,10 @@ class SellConsumer extends AbstractConsumer
      */
     public function sendMergedRequest($mergedRequest)
     {
-        //todo remove this log
-        $this->helper->error('TEST: in sell');
-        $requests = $mergedRequest->getRequests();
-        $this->helper->debug(count($requests) . ' SellRequests received to process.');
-        foreach ($requests as $request) {
-            $request = unserialize($request);
-            $this->getConsumerProcessor($request->getEntityStoreId())->processSell($request);
+        $messages = $mergedRequest->getRequests();
+        $this->helper->debug(count($messages) . ' SellRequests received to process.');
+        foreach ($messages as $message) {
+            $this->getConsumerProcessor($message->getEntityStoreId())->processSell($message);
         }
     }
 }

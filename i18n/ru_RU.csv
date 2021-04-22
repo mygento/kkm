@@ -42,7 +42,8 @@ Custom shipping name,Имя доставки
 Async processing,Асинхронная отправка
 Through queue (Magento Queue Framework),Через механизм очередей (Magento Queue Framework)
 Max trials to resend,Макс кол-во попыток отправки
-Update by cron,Обновлять статусы по CRON
+Update by cron,Выполнять CRON операции
+"Update status. Process scheduled attempts","Обработка запланированных попыток, обновление статуса."
 Update frequency,Частота обновления
 Show notifications in Dashboard,Показывать уведомления в панели управления
 Report Settings,Настройки отчетов

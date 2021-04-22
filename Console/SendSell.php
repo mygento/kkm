@@ -26,7 +26,7 @@ class SendSell extends Command
 {
     const ARGUMENT_ENTITY_ID = 'id';
     const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
-    const COMMAND_SEND_SELL = 'mygento:atol:sell';
+    const COMMAND_SEND_SELL = 'mygento:kkm:sell';
     const COMMAND_DESCRIPTION = 'Sends sell to Atol.';
 
     /**
@@ -104,16 +104,16 @@ class SendSell extends Command
                 ? $additional[Transaction::ERROR_MESSAGE_KEY]
                 : $additional[Transaction::RAW_RESPONSE_KEY];
 
-            if ($status != Response::STATUS_DONE || $status != Response::STATUS_WAIT) {
+            if ($status != Response::STATUS_DONE && $status != Response::STATUS_WAIT) {
                 $output->writeln("<error>Status: {$status}</error>");
-                $output->writeln("<error>Uuid: {$transaction->getTxnId()}</error>");
+                $output->writeln("<error>Transaction ID: {$transaction->getTxnId()}</error>");
                 $output->writeln("<error>Text: {$message}</error>");
 
                 return \Magento\Framework\Console\Cli::RETURN_FAILURE;
             }
 
             $output->writeln("<info>Status: {$status}</info>");
-            $output->writeln("<info>Uuid: {$transaction->getTxnId()}</info>");
+            $output->writeln("<info>Transaction ID {$transaction->getTxnId()}</info>");
         }
 
         return \Magento\Framework\Console\Cli::RETURN_SUCCESS;

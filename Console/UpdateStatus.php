@@ -17,12 +17,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\Request;
 
 class UpdateStatus extends Command
 {
     public const ARGUMENT = 'param';
     public const ARGUMENT_DESCRIPTION = 'UUID (Transaction id) or "all" to update all';
-    public const COMMAND = 'mygento:atol:update';
+    public const COMMAND = 'mygento:kkm:update';
     public const COMMAND_DESCRIPTION = 'Get status from Atol and save it.';
 
     public const RUN_ALL_PARAM = 'all';
@@ -43,21 +45,37 @@ class UpdateStatus extends Command
     private $updateProcessor;
 
     /**
+     * @var \Mygento\Kkm\Helper\Data
+     */
+    private $kkmHelper;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Request
+     */
+    private $requestHelper;
+
+    /**
      * UpdateStatus constructor.
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
      * @param \Magento\Framework\App\State $state
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Helper\Request $requestHelper
      */
     public function __construct(
         UpdateInterface $updateProcessor,
         Proxy $transactionHelper,
-        State $state
+        State $state,
+        Data $kkmHelper,
+        Request $requestHelper
     ) {
         parent::__construct();
 
         $this->appState = $state;
         $this->updateProcessor = $updateProcessor;
         $this->transactionHelper = $transactionHelper;
+        $this->kkmHelper = $kkmHelper;
+        $this->requestHelper = $requestHelper;
     }
 
     /**
@@ -120,6 +138,17 @@ HELP
      */
     private function updateOne($output, $uuid)
     {
+        $entityStoreId = $this->getEntityStoreId($uuid);
+        if (!$this->isNeedProcess($entityStoreId)) {
+            $output->writeln(
+                "<info>Vendor '{$this->kkmHelper->getCurrentVendorCode($entityStoreId)}'"
+                . " does not need update status.</info>"
+            );
+            $output->writeln("<info>Store ID: {$entityStoreId}</info>");
+
+            return Cli::RETURN_SUCCESS;
+        }
+
         //Обновление статуса
         $response = $this->updateProcessor->proceedSync($uuid);
 
@@ -135,5 +164,25 @@ HELP
         $output->writeln("<info>Uuid: {$response->getIdForTransaction()}</info>");
 
         return Cli::RETURN_SUCCESS;
+    }
+
+    /**
+     * @param string $uuid
+     * @return int|null
+     * @throws \Exception
+     */
+    private function getEntityStoreId($uuid)
+    {
+        return $this->requestHelper->getEntityByUuid($uuid)->getStoreId();
+    }
+
+    /**
+     * @param string|int|null $storeId
+     * @return bool
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
+     */
+    private function isNeedProcess($storeId)
+    {
+        return $this->kkmHelper->isVendorNeedUpdateStatus($storeId);
     }
 }

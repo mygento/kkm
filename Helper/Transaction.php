@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Helper;
 
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\DB\Adapter\Pdo\Mysql;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
@@ -530,10 +531,11 @@ class Transaction
     }
 
     /**
+     * @param string|int|null $storeId filter uuids by store
      * @throws \Exception
      * @return string[]
      */
-    public function getAllWaitUuids()
+    public function getAllWaitUuids($storeId = null)
     {
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter('kkm_status', Response::STATUS_WAIT)
@@ -541,6 +543,26 @@ class Transaction
 
         /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList($searchCriteria);
+
+        if ($storeId) {
+            $salesOrderAlias = 't_sales_order';
+            $orderTableConditions[] = sprintf(
+                'main_table.%s = %s.%s',
+                TransactionInterface::ORDER_ID,
+                $salesOrderAlias,
+                OrderInterface::ENTITY_ID
+            );
+
+            $transactions->getSelect()
+                ->join(
+                    [$salesOrderAlias => $transactions->getTable('sales_order')],
+                    implode(' AND ', $orderTableConditions),
+                    [OrderInterface::STORE_ID]
+                );
+
+            $transactions->getSelect()
+                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $storeId));
+        }
 
         if ($this->kkmHelper->isMessageQueueEnabled()) {
             // если используются очереди, получаем только те транзации, для которых нет активных

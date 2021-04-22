@@ -860,4 +860,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         return $hex;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function isNeedUpdateStatus()
+    {
+        return true;
+    }
 }

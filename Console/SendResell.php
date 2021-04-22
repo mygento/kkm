@@ -28,7 +28,7 @@ class SendResell extends Command
 {
     public const ARGUMENT_ENTITY_ID = 'id';
     public const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
-    public const COMMAND_SEND_SELL = 'mygento:atol:resell';
+    public const COMMAND_SEND_SELL = 'mygento:kkm:resell';
     public const COMMAND_DESCRIPTION = 'Sends resell to Atol. Resell means refund and then sell.';
     public const FORCE_INCREASE_EXT_ID = 'force';
 
@@ -98,7 +98,7 @@ class SendResell extends Command
         $output->writeln("<comment>1. Sending refund of the invoice {$incrementId} ...</comment>");
 
         try {
-            $this->processor->proceedResellRefund($invoice, true, true, $forceIncreaseExtId);
+            $this->processor->proceedCommonResell($invoice, true, true, $forceIncreaseExtId);
         } catch (CreateDocumentFailedException $e) {
             $error = $e->getMessage();
             $error .= $e->getResponse() ? ' ' . $e->getResponse()->getErrorMessage() : '';
@@ -153,8 +153,8 @@ class SendResell extends Command
 
         $this->setHelp(
             <<<HELP
-This command makes resell operation. 
-1. The command sends 'refund' of the previous invoice 
+This command makes resell operation.
+1. The command sends 'refund' of the previous invoice
 2. new 'sell' operation will be sent automatically if 'refund' is done.
 
 To send:

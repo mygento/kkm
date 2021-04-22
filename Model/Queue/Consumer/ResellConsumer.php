@@ -22,12 +22,11 @@ class ResellConsumer extends AbstractConsumer
      */
     public function sendMergedRequest($mergedRequest)
     {
-        $requests = $mergedRequest->getRequests();
-        $this->helper->debug(count($requests) . ' ResellRequests received to process.');
+        $messages = $mergedRequest->getRequests();
+        $this->helper->debug(count($messages) . ' ResellRequests received to process.');
 
-        foreach ($requests as $request) {
-            //todo unserialize
-            $this->getConsumerProcessor($request->getEntityStoreId())->processResell($request);
+        foreach ($messages as $message) {
+            $this->getConsumerProcessor($message->getEntityStoreId())->processResell($message);
         }
     }
 }

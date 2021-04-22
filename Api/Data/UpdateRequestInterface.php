@@ -13,6 +13,7 @@ interface UpdateRequestInterface
     const UPDATE_OPERATION_TYPE = 3;
 
     const UUID = 'uuid';
+    const ENTITY_STORE_ID = 'entity_store_id';
 
     /**
      * Get uuid
@@ -26,4 +27,15 @@ interface UpdateRequestInterface
      * @return $this
      */
     public function setUuid($uuid);
+
+    /**
+     * @return string|int
+     */
+    public function getEntityStoreId();
+
+    /**
+     * @param string|int $storeId
+     * @return $this
+     */
+    public function setEntityStoreId($storeId);
 }

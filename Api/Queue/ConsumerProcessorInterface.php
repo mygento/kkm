@@ -11,22 +11,22 @@ namespace Mygento\Kkm\Api\Queue;
 interface ConsumerProcessorInterface
 {
     /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
      */
-    public function processSell($request);
+    public function processSell($queueMessage);
 
     /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
      */
-    public function processRefund($request);
+    public function processRefund($queueMessage);
 
     /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
      */
-    public function processResell($request);
+    public function processResell($queueMessage);
 
     /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface|\Mygento\Kkm\Api\Data\UpdateRequestInterface $request
+     * @param \Mygento\Kkm\Api\Data\UpdateRequestInterface $updateRequest
      */
-    public function processUpdate($request);
+    public function processUpdate($updateRequest);
 }
