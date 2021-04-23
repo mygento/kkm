@@ -131,7 +131,7 @@ class ProceedScheduledAttempt
     private function publishRequest(TransactionAttemptInterface $attempt)
     {
         $topic = $this->getTopic($attempt);
-        /** @var QueueMessageInterface $request */
+        /** @var QueueMessageInterface $message */
         $message = $this->messageEncoder->decode($topic, $attempt->getRequestJson());
         $this->publisher->publish($topic, $message);
     }

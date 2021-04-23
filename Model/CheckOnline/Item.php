@@ -43,7 +43,7 @@ class Item extends \Mygento\Kkm\Model\Request\Item
         ];
 
         if ($this->isMarkingRequired()) {
-            $item['CGNRaw'] = $this->getMarking();
+            $item['CGNFloat'] = $this->getMarking();
         }
 
         return $item;

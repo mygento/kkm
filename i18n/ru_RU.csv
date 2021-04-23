@@ -81,3 +81,4 @@ Split items allowed,Разделять позицию на 2
 Ability to split 1 item to 2 with different prices (if needed),Возможность разделять товарную позицию на 2, если цена не делится с точностью до копеек
 "Limit when processing scheduled attempts","Лимит при обработки очередей с задержкой"
 "Service used","Используемый сервис"
+"Current vendor ""%1"" does not need update status.","Для используемого сервиса ""%1"" не нужно проверять статус."

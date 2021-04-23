@@ -13,6 +13,7 @@ use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 
 class Request
 {
@@ -42,25 +43,41 @@ class Request
     private $queueMessageFactory;
 
     /**
+     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     */
+    private $productRepository;
+
+    /**
+     * @var \Mygento\Kkm\Helper\Data
+     */
+    private $kkmHelper;
+
+    /**
      * Request constructor.
      * @param Transaction $transactionHelper
      * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
      * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
      * @param \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory $queueMessageFactory
+     * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
      */
     public function __construct(
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory $queueMessageFactory
+        \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory $queueMessageFactory,
+        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
+        \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
         $this->transactionHelper = $transactionHelper;
         $this->creditmemoRepository = $creditmemoRepository;
         $this->invoiceRepository = $invoiceRepository;
         $this->orderRepository = $orderRepository;
         $this->queueMessageFactory = $queueMessageFactory;
+        $this->productRepository = $productRepository;
+        $this->kkmHelper = $kkmHelper;
     }
 
     /**
@@ -163,5 +180,112 @@ class Request
             default:
                 return $this->orderRepository->get($entityId);
         }
+    }
+
+    /**
+     * Check does the item works as gift card. For Magento Commerce only
+     * @param CreditmemoInterface|InvoiceInterface $salesEntity
+     * @param string $itemName
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return bool
+     */
+    public function isGiftCard($salesEntity, $itemName)
+    {
+        $items = $salesEntity->getAllVisibleItems() ?? $salesEntity->getAllItems();
+
+        if (!defined('ProductType::TYPE_GIFTCARD')) {
+            return false;
+        }
+
+        foreach ($items as $item) {
+            $productType = $item->getProductType()
+                ?? $this->productRepository->getById($item->getProductId())->getTypeId();
+
+            $giftCardType = ProductType::TYPE_GIFTCARD;
+            if (strpos($item->getName(), $itemName) !== false && $productType == $giftCardType) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param string $marking
+     * @param string|null $storeId
+     * @return string
+     */
+    public function convertMarkingToHex(string $marking, $storeId = null): string
+    {
+        $unformattedHex = $this->getUnformattedHex($marking, $storeId);
+
+        return trim(chunk_split($unformattedHex, 2, ' '));
+    }
+
+    /**
+     * @param string $marking
+     * @param string|null $storeId
+     * @return string
+     */
+    public function convertMarkingToHexAndEncodeToBase64(string $marking, $storeId = null): string
+    {
+        $unformattedHex = $this->getUnformattedHex($marking, $storeId);
+
+        return base64_encode(pack('H*',$unformattedHex));
+    }
+
+    /**
+     * @param string $marking
+     * @param string|null $storeId
+     * @return string
+     */
+    private function getUnformattedHex(string $marking, $storeId = null): string
+    {
+        $productCode = '444D';
+        $gtin = substr($marking, 2, $this->kkmHelper->getConfig('marking/gtin_length', $storeId));
+        $serialNumber = substr(
+            $marking,
+            2 + $this->kkmHelper->getConfig('marking/gtin_length', $storeId) + 2
+        );
+        $gtinHex = $this->normalizeHex(dechex($gtin));
+        $serialHex = $this->normalizeHex(bin2hex($serialNumber));
+
+        return strtoupper($productCode . $gtinHex . $serialHex);
+    }
+
+    /**
+     * @param string $hex
+     * @return string
+     */
+    private function normalizeHex(string $hex): string
+    {
+        if (strlen($hex) % 2 > 0) {
+            $hex = '0' . $hex;
+        }
+
+        return $hex;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    public function isGiftCardApplied($entity)
+    {
+        $giftCardAmnt = $entity->getGiftCardsAmount() ?? $entity->getOrder()->getGiftCardsAmount();
+
+        return $giftCardAmnt > 0.00;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    public function isCustomerBalanceApplied($entity)
+    {
+        $customerBalanceAmount = $entity->getCustomerBalanceAmount()
+            ?? $entity->getOrder()->getCustomerBalanceAmount();
+
+        return $customerBalanceAmount > 0.00;
     }
 }

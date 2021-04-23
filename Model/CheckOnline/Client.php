@@ -53,6 +53,7 @@ class Client
      */
     private $file;
 
+    private $apiUrlPath = 'fr/api/v2/Complex';
 
     /**
      * Client constructor.
@@ -176,7 +177,7 @@ class Client
         $configPath = $this->kkmHelper->isCheckonlineTestMode($storeId)
             ? 'checkonline/test_api_url' : 'checkonline/api_url';
 
-        return $this->kkmHelper->getConfig($configPath, $storeId);
+        return rtrim($this->kkmHelper->getConfig($configPath, $storeId), '/') . '/' . $this->apiUrlPath;
     }
 
     /**

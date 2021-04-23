@@ -16,13 +16,18 @@
 
     <preference for="Mygento\Kkm\Api\Processor\SendInterface" type="Mygento\Kkm\Model\Processor\Send"/>
     <preference for="Mygento\Kkm\Api\Processor\UpdateInterface" type="Mygento\Kkm\Model\Processor\Update"/>
-
-<!--    <preference for="Mygento\Kkm\Api\Data\RequestInterface" type="Mygento\Kkm\Model\Atol\RequestForVersion4"/>-->
     <preference for="Mygento\Kkm\Api\Data\UpdateRequestInterface" type="Mygento\Kkm\Model\Atol\UpdateRequest"/>
-    <preference for="Mygento\Kkm\Api\Data\ItemInterface" type="Mygento\Kkm\Model\Atol\Item"/>
     <preference for="Mygento\Kkm\Api\Data\UserPropInterface" type="Mygento\Kkm\Model\Atol\UserProp"/>
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
-    <preference for="Mygento\Kkm\Model\VendorInterface" type="Mygento\Kkm\Model\Atol\Vendor"/>
+    <type name="Mygento\Kkm\Model\VendorFactory">
+        <arguments>
+            <argument name="vendorFactories" xsi:type="array">
+                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Atol\VendorFactory</item>
+                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\CheckOnline\VendorFactory</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!--Queue-->
     <preference for="Mygento\Kkm\Api\Queue\MergedRequestInterface" type="Mygento\Kkm\Model\Queue\MergedRequest"/>
     <preference for="Mygento\Kkm\Api\Queue\MergedUpdateRequestInterface" type="Mygento\Kkm\Model\Queue\MergedUpdateRequest"/>

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -16,14 +16,10 @@ use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Request;
 use Mygento\Kkm\Helper\Resell as ResellHelper;
 use Mygento\Kkm\Model\VendorInterface;
+use Mygento\Kkm\Helper\Data as KkmHelper;
 
 class Update implements UpdateInterface
 {
-    /**
-     * @var \Mygento\Kkm\Model\VendorInterface
-     */
-    private $vendor;
-
     /**
      * @var \Magento\Framework\MessageQueue\PublisherInterface
      */
@@ -45,25 +41,30 @@ class Update implements UpdateInterface
     private $processor;
 
     /**
+     * @var \Mygento\Kkm\Helper\Data
+     */
+    private $kkmHelper;
+
+    /**
      * Processor constructor.
-     * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param \Mygento\Kkm\Helper\Resell $resellHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
+     * @param \Mygento\Kkm\Helper\Data $kkmHelper
      */
     public function __construct(
-        VendorInterface $vendor,
         SendInterface $processor,
         ResellHelper $resellHelper,
         Request $requestHelper,
-        PublisherInterface $publisher
+        PublisherInterface $publisher,
+        KkmHelper $kkmHelper
     ) {
-        $this->vendor = $vendor;
         $this->publisher = $publisher;
         $this->resellHelper = $resellHelper;
         $this->requestHelper = $requestHelper;
         $this->processor = $processor;
+        $this->kkmHelper = $kkmHelper;
     }
 
     /**
@@ -102,8 +103,9 @@ class Update implements UpdateInterface
      */
     protected function proceed($uuid, $useAttempt = false): ResponseInterface
     {
-        $response = $this->vendor->updateStatus($uuid, $useAttempt);
         $entity = $this->requestHelper->getEntityByUuid($uuid);
+        $vendor = $this->kkmHelper->getCurrentVendor($entity->getStoreId());
+        $response = $vendor->updateStatus($uuid, $useAttempt);
 
         //Если был совершен refund по инвойсу - следовательно, это коррекция чека
         //и нужно заново отправить инвойс в АТОЛ

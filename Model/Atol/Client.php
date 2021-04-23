@@ -58,6 +58,11 @@ class Client
     private $jsonSerializer;
 
     /**
+     * @var string|null
+     */
+    private $storeId;
+
+    /**
      * Client constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param ResponseFactory $responseFactory
@@ -86,8 +91,8 @@ class Client
             return $this->token;
         }
         $helper = $this->kkmHelper;
-        $login = $helper->getAtolLogin();
-        $password = $helper->decrypt($helper->getAtolPassword());
+        $login = $helper->getAtolLogin($this->storeId);
+        $password = $helper->decrypt($helper->getAtolPassword($this->storeId));
 
         $dataBody = $this->jsonSerializer->serialize(
             [
@@ -121,12 +126,15 @@ class Client
 
     /**
      * @param string $uuid
+     * @param string|null $storeId
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Exception
      * @return ResponseInterface
      */
-    public function receiveStatus(string $uuid): ResponseInterface
+    public function receiveStatus(string $uuid, $storeId = null): ResponseInterface
     {
+        $this->storeId = $storeId;
+
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
         $groupCode = $this->getGroupCode();
@@ -223,7 +231,7 @@ class Client
      */
     public function getApiVersion()
     {
-        $apiVersion = $this->kkmHelper->getConfig('atol/api_version');
+        $apiVersion = $this->kkmHelper->getConfig('atol/api_version', $this->storeId);
         $this->apiVersion = in_array($apiVersion, ApiVersion::getAllVersions())
             ? $apiVersion
             : ApiVersion::API_VERSION_4;
@@ -237,7 +245,7 @@ class Client
      */
     protected function getBaseUrl()
     {
-        $url = $this->kkmHelper->isTestMode()
+        $url = $this->kkmHelper->isTestMode($this->storeId)
             ? self::REQUEST_TEST_URL
             : self::REQUEST_URL;
 
@@ -312,7 +320,7 @@ class Client
      */
     private function getGroupCode()
     {
-        $groupCode = $this->kkmHelper->getConfig('atol/group_code');
+        $groupCode = $this->kkmHelper->getConfig('atol/group_code', $this->storeId);
         if (!$groupCode) {
             throw new \Exception(
                 'No groupCode. Please set up the module properly.'

@@ -53,11 +53,12 @@ class RequestFactory
     /**
      * Create class instance
      *
+     * @param string|null
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
-    public function create()
+    public function create($storeId = null)
     {
-        $version = $this->kkmHelper->getConfig('atol/api_version');
+        $version = $this->kkmHelper->getConfig('atol/api_version', $storeId);
 
         return $version == 3
             ? $this->request3Factory->create()

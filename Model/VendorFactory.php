@@ -9,27 +9,18 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Exception\InvalidArgumentException;
-use Mygento\Kkm\Model\Atol\VendorFactory as AtolVendorFactory;
-use Mygento\Kkm\Model\CheckOnline\VendorFactory as CheckOnlineVendorFactory;
 
 class VendorFactory
 {
     /**
-     * @var \Mygento\Kkm\Model\Atol\VendorFactory
+     * @var array
      */
-    private $atolFactory;
-
-    /**
-     * @var \Mygento\Kkm\Model\CheckOnline\VendorFactory
-     */
-    private $checkOnlineFactory;
+    private $vendorFactories;
 
     public function __construct(
-        AtolVendorFactory $atolFactory,
-        CheckOnlineVendorFactory $checkOnlineFactory
+        $vendorFactories = []
     ) {
-        $this->atolFactory = $atolFactory;
-        $this->checkOnlineFactory = $checkOnlineFactory;
+        $this->vendorFactories = $vendorFactories;
     }
 
     /**
@@ -39,13 +30,10 @@ class VendorFactory
      */
     public function create($vendorCode)
     {
-        switch ($vendorCode) {
-            case \Mygento\Kkm\Model\Source\Vendors::ATOL_VENDOR_CODE:
-                return $this->atolFactory->create();
-            case \Mygento\Kkm\Model\Source\Vendors::CHECKONLINE_VENDOR_CODE:
-                return $this->checkOnlineFactory->create();
+        if (!isset($this->vendorFactories[$vendorCode])) {
+            throw new InvalidArgumentException(__('No such Kkm vendor: %1', $vendorCode));
         }
 
-        throw new InvalidArgumentException(__('No such Kkm vendor: %1', $vendorCode));
+        return $this->vendorFactories[$vendorCode]->create();
     }
 }

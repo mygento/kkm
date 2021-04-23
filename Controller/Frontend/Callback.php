@@ -41,16 +41,16 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     private $processor;
 
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
+     * @var \Magento\Store\Model\StoreManagerInterface
      */
-    private $vendor;
+    private $storeManager;
 
     /**
      * Callback constructor.
      * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Mygento\Kkm\Helper\Resell $resellHelper
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param \Magento\Framework\App\Action\Context $context
@@ -59,7 +59,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
-        \Mygento\Kkm\Model\VendorInterface $vendor,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Mygento\Kkm\Helper\Resell $resellHelper,
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Magento\Framework\App\Action\Context $context
@@ -67,7 +67,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
         parent::__construct($context);
         $this->responseFactory = $responseFactory;
         $this->kkmHelper = $kkmHelper;
-        $this->vendor = $vendor;
+        $this->storeManager = $storeManager;
         $this->errorHelper = $errorHelper;
         $this->resellHelper = $resellHelper;
         $this->processor = $processor;
@@ -101,7 +101,8 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
             //Sometimes callback is received when transaction is not saved yet. In order to avoid this
             sleep(3);
 
-            $entity = $this->vendor->saveCallback($response);
+            $vendor = $this->kkmHelper->getCurrentVendor($this->storeManager->getStore()->getId());
+            $entity = $vendor->saveCallback($response);
 
             //Если был совершен refund по инвойсу - следовательно, это коррекция чека
             //и нужно заново отправить инвойс в АТОЛ

@@ -13,6 +13,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\EntityInterface;
+use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Helper\Data;
@@ -27,7 +28,7 @@ class RequestBuilder
     /**
      * @var Data
      */
-    protected $helper;
+    protected $kkmHelper;
 
     /**
      * @var RequestFactory
@@ -50,13 +51,13 @@ class RequestBuilder
     private $requestHelper;
 
     public function __construct(
-        Data $helper,
+        Data $kkmHelper,
         RequestFactory $requestFactory,
         GetRecalculated $getRecalculated,
         ItemFactory $itemFactory,
         RequestHelper $requestHelper
     ) {
-        $this->helper = $helper;
+        $this->kkmHelper = $kkmHelper;
         $this->requestFactory = $requestFactory;
         $this->getRecalculated = $getRecalculated;
         $this->itemFactory = $itemFactory;
@@ -92,17 +93,36 @@ class RequestBuilder
         $request
             ->setEntityStoreId($storeId)
             ->setSalesEntityId($salesEntity->getEntityId())
-            ->setClientId($this->helper->getConfig('checkonline/client_id', $storeId))
-            ->setGroup($this->helper->getConfig('checkonline/group', $storeId))
+            ->setClientId($this->kkmHelper->getConfig('checkonline/client_id', $storeId))
+            ->setGroup($this->kkmHelper->getConfig('checkonline/group', $storeId))
             ->setExternalId($this->requestHelper->generateExternalId($salesEntity))
             ->setNonCash(array((int) round($order->getGrandTotal() * 100, 0)))
-            ->setSno((int) $this->helper->getConfig('checkonline/sno', $storeId))
+            ->setSno((int) $this->kkmHelper->getConfig('checkonline/sno', $storeId))
             ->setPhone($telephone)
             ->setEmail($order->getCustomerEmail())
             ->setPlace($order->getStore()->getBaseUrl(UrlInterface::URL_TYPE_LINK, true))
-            ->setItems($this->buildItems($salesEntity))
-            ->setFullResponse((bool) $this->helper->getConfig('checkonline/full_response', $storeId))
+            ->setItems($this->buildItems($salesEntity, $storeId))
+            ->setFullResponse((bool) $this->kkmHelper->getConfig('checkonline/full_response', $storeId))
         ;
+
+        $advancePayment = 0;
+        //"GiftCard applied" payment
+        if ($this->requestHelper->isGiftCardApplied($salesEntity)) {
+            $giftCardsAmount = $salesEntity->getGiftCardsAmount()
+                ?? $salesEntity->getOrder()->getGiftCardsAmount();
+
+            $advancePayment += (int) round($giftCardsAmount * 100, 0);
+        }
+
+        //"CustomerBalance applied" payment
+        if ($this->requestHelper->isCustomerBalanceApplied($salesEntity)) {
+            $customerBalanceAmount = $salesEntity->getCustomerBalanceAmount()
+                ?? $salesEntity->getOrder()->getCustomerBalanceAmount();
+
+            $advancePayment += (int) round($customerBalanceAmount * 100, 0);
+        }
+
+        $request->setAdvancePayment($advancePayment);
 
         return $request;
     }
@@ -111,6 +131,7 @@ class RequestBuilder
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
      * @param string|null $storeId
      * @return array
+     * @throws \Exception
      */
     private function buildItems($salesEntity, $storeId = null)
     {
@@ -123,15 +144,17 @@ class RequestBuilder
                 continue;
             }
 
-            //todo validation
-//            $this->validateItem($itemData);
+            $this->validateItem($itemData);
 
-            //todo process giftcard
-            $itemPaymentMethod = Item::PAYMENT_METHOD_FULL_PAYMENT;
-            $itemPaymentObject = $key == Discount::SHIPPING ? Item::PAYMENT_OBJECT_SERVICE : Item::PAYMENT_OBJECT_BASIC;
+            $itemPaymentMethod = $this->requestHelper->isGiftCard($salesEntity, $itemData[Discount::NAME])
+                ? Item::PAYMENT_METHOD_ADVANCE
+                : Item::PAYMENT_METHOD_FULL_PAYMENT;
+            $itemPaymentObject = $this->requestHelper->isGiftCard($salesEntity, $itemData[Discount::NAME])
+                ? Item::PAYMENT_OBJECT_PAYMENT
+                : Item::PAYMENT_OBJECT_BASIC;
+
             $itemQty = $itemData[Discount::QUANTITY] ?? 1;
 
-            //todo process marking
             /** @var Item $item */
             $item = $this->itemFactory->create();
             $item
@@ -143,9 +166,46 @@ class RequestBuilder
                 ->setPaymentObject($itemPaymentObject)
             ;
 
+            if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
+                $item->setMarkingRequired(true);
+                $item->setMarking(
+                    $this->requestHelper->convertMarkingToHexAndEncodeToBase64($itemData[Discount::MARKING], $storeId)
+                );
+            }
+
             $items[] = $item;
         }
 
         return $items;
+    }
+
+    /**
+     * @param RecalculateResultItemInterface $item
+     * @throws \Exception
+     */
+    private function validateItem($item)
+    {
+        $reason = false;
+        if (!isset($item['name']) || $item['name'] === null || $item['name'] === '') {
+            $reason = __('One of items has undefined name.');
+        }
+
+        if (!isset($item['tax']) || $item['tax'] === null) {
+            $reason = __('Item %1 has undefined tax.', $item['name']);
+        }
+
+        if (!isset($item['price']) || $item['price'] === null) {
+            $reason = __('Item %1 has undefined price.', $item['name']);
+        }
+
+        if (!isset($item['quantity']) || $item['quantity'] === null) {
+            $reason = __('Item %1 has undefined quantity.', $item['name']);
+        }
+
+        if ($reason) {
+            throw new \Exception(
+                __('Can not send data to Checkonline. Reason: %1', $reason)
+            );
+        }
     }
 }

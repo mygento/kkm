@@ -59,6 +59,11 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     private $entityType;
 
     /**
+     * @var int
+     */
+    private $advancePayment;
+
+    /**
      * @inheritDoc
      */
     public function getSno()
@@ -216,6 +221,25 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
+     * @return int
+     */
+    public function getAdvancePayment(): int
+    {
+        return $this->advancePayment;
+    }
+
+    /**
+     * @param int $advancePayment
+     * @return RequestInterface
+     */
+    public function setAdvancePayment($advancePayment): RequestInterface
+    {
+        $this->advancePayment = $advancePayment;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize(): array
@@ -232,6 +256,10 @@ class Request extends \Mygento\Kkm\Model\Request\Request
             'Place' => $this->getPlace(),
             'FullResponse' => $this->getFullResponse(),
         ];
+
+        if ($this->getAdvancePayment() > 0) {
+            $data['AdvancePayment'] = $this->getAdvancePayment();
+        }
 
         if ($this->getClientId()) {
             $data['ClientId'] = $this->getClientId();
