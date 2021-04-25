@@ -11,6 +11,12 @@ namespace Mygento\Kkm\Model\CheckOnline;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Helper\Transaction;
 
+/**
+ * Class Response
+ * @package Mygento\Kkm\Model\CheckOnline
+ *
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 class Response implements ResponseInterface
 {
     const NON_FATAL_DEVICE_ERROR_CODES = [

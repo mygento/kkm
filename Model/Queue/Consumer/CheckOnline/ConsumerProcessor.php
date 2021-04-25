@@ -15,6 +15,12 @@ use Mygento\Kkm\Api\Queue\ConsumerProcessorInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 
+/**
+ * Class ConsumerProcessor
+ * @package Mygento\Kkm\Model\Queue\Consumer\CheckOnline
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ConsumerProcessor implements ConsumerProcessorInterface
 {
     /**

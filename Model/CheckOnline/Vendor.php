@@ -21,6 +21,12 @@ use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\TransactionAttempt;
 
+/**
+ * Class Vendor
+ * @package Mygento\Kkm\Model\CheckOnline
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
     /**

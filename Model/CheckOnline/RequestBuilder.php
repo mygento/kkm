@@ -20,6 +20,12 @@ use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\GetRecalculated;
 
+/**
+ * Class RequestBuilder
+ * @package Mygento\Kkm\Model\CheckOnline
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class RequestBuilder
 {
     /**
@@ -235,24 +241,27 @@ class RequestBuilder
     /**
      * @param RecalculateResultItemInterface $item
      * @throws \Exception
+     *
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function validateItem($item)
     {
-        $reason = false;
+        $reason = '';
         if (!isset($item['name']) || $item['name'] === null || $item['name'] === '') {
-            $reason = __('One of items has undefined name.');
+            $reason .= __('One of items has undefined name. ');
         }
 
         if (!isset($item['tax']) || $item['tax'] === null) {
-            $reason = __('Item %1 has undefined tax.', $item['name']);
+            $reason .= __('Item %1 has undefined tax. ', $item['name']);
         }
 
         if (!isset($item['price']) || $item['price'] === null) {
-            $reason = __('Item %1 has undefined price.', $item['name']);
+            $reason .= __('Item %1 has undefined price. ', $item['name']);
         }
 
         if (!isset($item['quantity']) || $item['quantity'] === null) {
-            $reason = __('Item %1 has undefined quantity.', $item['name']);
+            $reason .= __('Item %1 has undefined quantity. ', $item['name']);
         }
 
         if ($reason) {

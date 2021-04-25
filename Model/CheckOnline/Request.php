@@ -187,6 +187,8 @@ class Request extends \Mygento\Kkm\Model\Request\Request
 
     /**
      * @return bool
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getFullResponse(): bool
     {
@@ -196,6 +198,8 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     /**
      * @param bool $fullResponse
      * @return RequestInterface
+     *
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function setFullResponse($fullResponse): RequestInterface
     {

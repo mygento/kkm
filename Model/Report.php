@@ -16,6 +16,12 @@ use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Helper\Transaction;
 use Mygento\Kkm\Model\Atol\Response;
 
+/**
+ * Class Report
+ * @package Mygento\Kkm\Model
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Report
 {
     /**

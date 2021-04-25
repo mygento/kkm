@@ -176,7 +176,7 @@ class Client
      */
     private function validateVendorAnswer($rawResponse)
     {
-        if (!$json = json_decode($rawResponse)) {
+        if (!json_decode($rawResponse)) {
             throw new VendorBadServerAnswerException(
                 __('Response from Checkonline is not valid. Response: %1', (string) $rawResponse)
             );

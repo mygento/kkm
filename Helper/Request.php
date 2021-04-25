@@ -15,6 +15,12 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 
+/**
+ * Class Request
+ * @package Mygento\Kkm\Helper
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Request
 {
     /**
