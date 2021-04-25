@@ -107,7 +107,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            if ($this->helper->isUseCustomRetryIntervals($request->getEntityStoreId())) {
+            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
             } else {
@@ -156,7 +156,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            if ($this->helper->isUseCustomRetryIntervals($request->getEntityStoreId())) {
+            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
                 if ($topicName === SendInterface::TOPIC_NAME_SELL) {
                     // помечаем заказ, как KKM Fail
                     $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
@@ -170,7 +170,9 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             }
         } catch (\Throwable $e) {
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-            if ($topicName === SendInterface::TOPIC_NAME_SELL && $this->helper->isRetrySendingEndlessly()) {
+            if ($topicName === SendInterface::TOPIC_NAME_SELL
+                && $this->helper->isRetrySendingEndlessly($entity->getStoreId())
+            ) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
                 $this->attemptHelper->scheduleNextAttempt(
                     $request,

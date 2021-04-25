@@ -531,11 +531,11 @@ class Transaction
     }
 
     /**
-     * @param string|int|null $storeId filter uuids by store
+     * @param string|int $storeId filter uuids by store
      * @throws \Exception
      * @return string[]
      */
-    public function getAllWaitUuids($storeId = null)
+    public function getAllWaitUuids($storeId)
     {
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter('kkm_status', Response::STATUS_WAIT)
@@ -558,13 +558,12 @@ class Transaction
                     [$salesOrderAlias => $transactions->getTable('sales_order')],
                     implode(' AND ', $orderTableConditions),
                     [OrderInterface::STORE_ID]
-                );
-
-            $transactions->getSelect()
-                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $storeId));
+                )
+                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $storeId))
+            ;
         }
 
-        if ($this->kkmHelper->isMessageQueueEnabled()) {
+        if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {
             // если используются очереди, получаем только те транзации, для которых нет активных
             // заданий на обновление статуса
             $alias = 't_mygento_kkm_transaction_attempt';

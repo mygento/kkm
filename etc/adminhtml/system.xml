@@ -15,21 +15,21 @@
             <resource>Mygento_Kkm::config</resource>
             <group id="atol" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Atol Settings</label>
-                <field id="login" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="login" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Kkm login</label>
                 </field>
-                <field id="password" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="password" translate="label" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Kkm password</label>
                     <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                 </field>
                 <field id="group_code" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Atol Group Code</label>
                 </field>
-                <field id="inn" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="inn" translate="label" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>INN</label>
                     <validate>validate-digits</validate>
                 </field>
-                <field id="payment_address" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="payment_address" translate="label" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Payment Address</label>
                     <comment>
                         <![CDATA[Адрес расчётов]]>
@@ -123,12 +123,12 @@
 
             <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General Settings</label>
-                <field id="service" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="service" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Service used</label>
                     <source_model>Mygento\Kkm\Model\Source\Vendors</source_model>
                 </field>
 
-                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
@@ -186,7 +186,7 @@
                         <![CDATA[Shipping name]]>
                     </comment>
                 </field>
-                <field id="custom_shipping_name" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="custom_shipping_name" translate="label" type="text" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Custom shipping name</label>
                     <comment>
                         <![CDATA[Custom shipping name]]>
@@ -260,7 +260,7 @@
 
             <group id="company" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Extended Company Settings</label>
-                <field id="is_enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="is_enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
@@ -274,7 +274,7 @@
                     </depends>
                 </field>
 
-                <field id="jur_type_attribute_value_map" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="jur_type_attribute_value_map" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Company Type Attribute Value Map</label>
                     <frontend_model>Mygento\Kkm\Block\Adminhtml\Form\Field\JurTypeValues</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
@@ -283,7 +283,7 @@
                     </depends>
                 </field>
 
-                <field id="default_jur_type" translate="label" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="default_jur_type" translate="label" type="select" sortOrder="31" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Company Type</label>
                     <source_model>Mygento\Kkm\Model\Source\JurType</source_model>
                     <depends>
@@ -330,7 +330,7 @@
                     </depends>
                 </field>
 
-                <field id="default_country_code" translate="label" type="text" sortOrder="71" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="default_country_code" translate="label" type="text" sortOrder="71" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Country Code</label>
                     <depends>
                         <field id="is_enabled">1</field>
@@ -347,7 +347,7 @@
                     </depends>
                 </field>
 
-                <field id="default_custom_declaration" translate="label" type="text" sortOrder="81" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="default_custom_declaration" translate="label" type="text" sortOrder="81" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Custom Declaration</label>
                     <depends>
                         <field id="is_enabled">1</field>
@@ -357,20 +357,20 @@
             </group>
 
             <!--REPORT HANDLING-->
-            <group id="report" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+            <group id="report" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Report Settings</label>
-                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
-                <field id="template" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="template" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Email template</label>
                     <source_model>Magento\Config\Model\Config\Source\Email\Template</source_model>
                     <depends>
                         <field id="*/*/enabled">1</field>
                     </depends>
                 </field>
-                <field id="email" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="email" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Email</label>
                     <validate>validate-emails</validate>
                     <comment>You can specify several emails separated by comma</comment>
@@ -378,14 +378,14 @@
                         <field id="*/*/enabled">1</field>
                     </depends>
                 </field>
-                <field id="sender_email" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="sender_email" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Sender email</label>
                     <validate>validate-email</validate>
                     <depends>
                         <field id="*/*/enabled">1</field>
                     </depends>
                 </field>
-                <field id="period" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="period" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Period</label>
                     <source_model>Mygento\Kkm\Model\Source\Period</source_model>
                     <comment><![CDATA[Отчеты за какой период будут отправлены на email]]></comment>
@@ -393,7 +393,7 @@
                         <field id="*/*/enabled">1</field>
                     </depends>
                 </field>
-                <field id="cron_expr_to_send" translate="label" type="text"  sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
+                <field id="cron_expr_to_send" translate="label" type="text"  sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Frequency (Cron expression)</label>
                     <comment><![CDATA[Используйте Cron формат (н-р "7 0 * * *" раз в сутки в 00:07)]]></comment>
                     <depends>

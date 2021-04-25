@@ -501,7 +501,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         $trials = $this->attemptHelper->getTrials($entity, UpdateRequestInterface::UPDATE_OPERATION_TYPE);
-        $maxUpdateTrials = $this->kkmHelper->getMaxUpdateTrials();
+        $maxUpdateTrials = $this->kkmHelper->getMaxUpdateTrials($entity->getStoreId());
 
         //Don't send if trials number exceeded
         if ($trials >= $maxUpdateTrials) {

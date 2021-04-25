@@ -90,11 +90,11 @@ class OrderComment
 
         if ($response->getStatus() == Response::STATUS_DONE
             && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
-            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone()
+            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($entity->getStoreId())
         ) {
             $order->addCommentToStatusHistory(
                 $comment,
-                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone()
+                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($entity->getStoreId())
             );
         } else {
             $order->addCommentToStatusHistory($comment);

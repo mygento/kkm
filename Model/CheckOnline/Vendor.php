@@ -98,7 +98,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     protected function sendRequest($request, $entity = null)
     {
         $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
-        $this->attemptHelper->processTrials($request, $entity);
+
+        $trials = $this->attemptHelper->getTrials($entity, $request->getOperationType());
+        $maxTrials = $this->kkmHelper->getMaxTrials($entity->getStoreId());
+
+        //Don't send if trials number exceeded
+        if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {
+            $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded');
+            $this->attemptHelper->resetNumberOfTrials($request, $entity);
+
+            throw new \Exception(__('Request is skipped. Max num of trials exceeded'));
+        }
+
+        if ($request->isIgnoreTrialsNum()) {
+            $this->attemptHelper->decreaseByOneTrial($request, $entity);
+            $request->setIgnoreTrialsNum(false);
+        }
 
         $attempt = $this->attemptHelper->registerAttempt($request, $entity);
 
@@ -181,45 +196,20 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return $this->requestBuilder->buildRequest($salesEntity);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function buildRequestForResellSell($invoice): RequestInterface
     {
-        $request = $this->requestBuilder->buildRequest($invoice);
-
-        //Check is there a done transaction among entity transactions.
-        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-
-        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
-
-        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
-            ?? $this->requestHelper->generateExternalId($invoice);
-        $externalId .= '_resell';
-
-        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
-
-        $request->setExternalId($externalId);
-        $request->setOperationType(RequestInterface::RESELL_SELL_OPERATION_TYPE);
-
-        return $request;
+        return $this->requestBuilder->buildRequestForResellSell($invoice);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function buildRequestForResellRefund($invoice): RequestInterface
     {
-        $request = $this->requestBuilder->buildRequest($invoice);
-
-        //Check is there a done transaction among entity transactions.
-        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-        $lastRefundTransaction = $this->transactionHelper->getLastResellRefundTransaction($invoice);
-
-        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
-            ?? $this->requestHelper->generateExternalId($invoice);
-        $externalId .= '_refund';
-
-        $externalId = $this->transactionHelper->getExternalId($lastRefundTransaction) ?? $externalId;
-
-        $request->setExternalId($externalId);
-        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
-
-        return $request;
+        return $this->requestBuilder->buildRequestForResellRefund($invoice);
     }
 
 

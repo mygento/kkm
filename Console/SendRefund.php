@@ -27,7 +27,7 @@ class SendRefund extends Command
     const ARGUMENT_ENTITY_ID = 'id';
     const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Creditmemo IncrementId';
     const COMMAND_SEND_REFUND = 'mygento:kkm:refund';
-    const COMMAND_DESCRIPTION = 'Sends refund to Atol.';
+    const COMMAND_DESCRIPTION = 'Sends refund to Kkm.';
 
     /**
      * @var \Magento\Framework\App\State

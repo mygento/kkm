@@ -88,8 +88,8 @@ class Send implements ObserverInterface
      */
     protected function canProceed($entity)
     {
-        if (!$this->kkmHelper->getConfig('general/enabled')
-            || !$this->kkmHelper->getConfig('general/auto_send_after_invoice')
+        if (!$this->kkmHelper->getConfig('general/enabled', $entity->getStoreId())
+            || !$this->kkmHelper->getConfig('general/auto_send_after_invoice', $entity->getStoreId())
             || $entity->getOrderCurrencyCode() != 'RUB'
             || $this->isAlreadySent($entity)
             || !$this->isStateAllowed($entity)
@@ -100,7 +100,7 @@ class Send implements ObserverInterface
         if (!$entity->getData(VendorInterface::SKIP_PAYMENT_METHOD_VALIDATION)) {
             $order = $entity->getOrder();
             $paymentMethod = $order->getPayment()->getMethod();
-            $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods');
+            $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods', $entity->getStoreId());
             $paymentMethods = explode(',', $paymentMethods);
 
             if (!in_array($paymentMethod, $paymentMethods)) {

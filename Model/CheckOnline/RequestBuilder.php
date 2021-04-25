@@ -18,6 +18,7 @@ use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\Request as RequestHelper;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\CheckOnline\RequestFactory;
 use Mygento\Kkm\Model\GetRecalculated;
 use Mygento\Kkm\Model\CheckOnline\Item;
@@ -50,18 +51,25 @@ class RequestBuilder
      */
     private $requestHelper;
 
+    /**
+     * @var TransactionHelper
+     */
+    private $transactionHelper;
+
     public function __construct(
         Data $kkmHelper,
         RequestFactory $requestFactory,
         GetRecalculated $getRecalculated,
         ItemFactory $itemFactory,
-        RequestHelper $requestHelper
+        RequestHelper $requestHelper,
+        TransactionHelper $transactionHelper
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->requestFactory = $requestFactory;
         $this->getRecalculated = $getRecalculated;
         $this->itemFactory = $itemFactory;
         $this->requestHelper = $requestHelper;
+        $this->transactionHelper = $transactionHelper;
     }
 
     /**
@@ -123,6 +131,57 @@ class RequestBuilder
         }
 
         $request->setAdvancePayment($advancePayment);
+
+        return $request;
+    }
+
+    /**
+     * @param InvoiceInterface $invoice
+     * @return RequestInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function buildRequestForResellRefund($invoice): RequestInterface
+    {
+        $request = $this->buildRequest($invoice);
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+        $lastRefundTransaction = $this->transactionHelper->getLastResellRefundTransaction($invoice);
+
+        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
+            ?? $this->requestHelper->generateExternalId($invoice);
+        $externalId .= '_refund';
+
+        $externalId = $this->transactionHelper->getExternalId($lastRefundTransaction) ?? $externalId;
+
+        $request->setExternalId($externalId);
+        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
+
+        return $request;
+    }
+
+    /**
+     * @param InvoiceInterface $invoice
+     * @return RequestInterface
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function buildRequestForResellSell($invoice): RequestInterface
+    {
+        $request = $this->buildRequest($invoice);
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+
+        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
+
+        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
+            ?? $this->requestHelper->generateExternalId($invoice);
+        $externalId .= '_resell';
+
+        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
+
+        $request->setExternalId($externalId);
+        $request->setOperationType(RequestInterface::RESELL_SELL_OPERATION_TYPE);
 
         return $request;
     }

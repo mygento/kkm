@@ -5,10 +5,11 @@
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="sendSellToAtol" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
-                <item name="sendSellRefundToAtol" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
-                <item name="updateStatusAtol" xsi:type="object">Mygento\Kkm\Console\UpdateStatus</item>
-                <item name="sendResellToAtol" xsi:type="object">Mygento\Kkm\Console\SendResell</item>
+                <item name="sendSellToKkm" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
+                <item name="sendSellRefundToKkm" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
+                <item name="updateStatusAll" xsi:type="object">Mygento\Kkm\Console\UpdateAll</item>
+                <item name="updateStatusOne" xsi:type="object">Mygento\Kkm\Console\UpdateOne</item>
+                <item name="sendResellToKkm" xsi:type="object">Mygento\Kkm\Console\SendResell</item>
                 <item name="showReport" xsi:type="object">Mygento\Kkm\Console\Report</item>
             </argument>
         </arguments>

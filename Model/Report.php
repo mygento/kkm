@@ -9,9 +9,12 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
+use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Helper\Transaction;
 use Mygento\Kkm\Model\Atol\Response;
+use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 
 class Report
 {
@@ -39,6 +42,11 @@ class Report
      * @var \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface
      */
     private $attemptRepository;
+
+    /**
+     * @var string|null
+     */
+    private $storeId = null;
 
     /**
      * Report constructor.
@@ -119,17 +127,48 @@ class Report
     }
 
     /**
+     * @param string|null $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId)
+    {
+        $this->storeId = $storeId;
+
+        return $this;
+    }
+
+    /**
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Mygento\Kkm\Model\Statistics
      */
     private function collectStatistics($searchCriteriaBuilder)
     {
+        /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList(
             $searchCriteriaBuilder
                 ->addFilter('kkm_status', null, 'neq')
                 ->create()
         );
+
+        if ($this->storeId !== null) {
+            $salesOrderAlias = 't_sales_order';
+            $orderTableConditions[] = sprintf(
+                'main_table.%s = %s.%s',
+                TransactionInterface::ORDER_ID,
+                $salesOrderAlias,
+                OrderInterface::ENTITY_ID
+            );
+
+            $transactions->getSelect()
+                ->join(
+                    [$salesOrderAlias => $transactions->getTable('sales_order')],
+                    implode(' AND ', $orderTableConditions),
+                    [OrderInterface::STORE_ID]
+                )
+                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $this->storeId))
+            ;
+        }
 //        $transactionAttempts = $this->attemptRepository->getList(
 //            $searchCriteriaBuilder->create()
 //        );

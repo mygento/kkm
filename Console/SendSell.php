@@ -27,7 +27,7 @@ class SendSell extends Command
     const ARGUMENT_ENTITY_ID = 'id';
     const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
     const COMMAND_SEND_SELL = 'mygento:kkm:sell';
-    const COMMAND_DESCRIPTION = 'Sends sell to Atol.';
+    const COMMAND_DESCRIPTION = 'Sends sell to Kkm.';
 
     /**
      * @var \Magento\Framework\App\State

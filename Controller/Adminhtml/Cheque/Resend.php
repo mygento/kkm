@@ -101,7 +101,7 @@ class Resend extends \Magento\Backend\App\Action
                     break;
             }
 
-            $comment .= $this->kkmHelper->isMessageQueueEnabled()
+            $comment .= $this->kkmHelper->isMessageQueueEnabled($storeId)
                 ? 'was placed to queue for further sending.'
                 : 'was sent to KKM.';
 

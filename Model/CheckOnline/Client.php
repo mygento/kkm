@@ -81,16 +81,6 @@ class Client
     /**
      * @param RequestInterface $request
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     * @return ResponseInterface
-     */
-    public function sendSell($request): ResponseInterface
-    {
-        return $this->sendPostRequest($request);
-    }
-
-    /**
-     * @param RequestInterface $request
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
     public function sendPostRequest($request): ResponseInterface

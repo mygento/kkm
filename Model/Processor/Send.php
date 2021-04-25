@@ -98,7 +98,7 @@ class Send implements SendInterface
         $request = $vendor->buildRequest($invoice);
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $vendor->sendSellRequest($request);
 
@@ -126,7 +126,7 @@ class Send implements SendInterface
         $request = $vendor->buildRequest($creditmemo);
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        if ($sync || !$this->helper->isMessageQueueEnabled($creditmemo->getStoreId())) {
             $this->helper->debug('Sending request without Queue:', $request->__toArray());
             $vendor->sendRefundRequest($request);
 
@@ -163,7 +163,7 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $vendor->sendResellRequest($request, $invoice);
 
@@ -204,7 +204,7 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $vendor->sendSellRequest($request, $invoice);
 
@@ -247,7 +247,7 @@ class Send implements SendInterface
             if ((int) $attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {
                 return $this->proceedResellSell($invoice, $sync, false, true);
             }
-            if (!$this->helper->isMessageQueueEnabled()) {
+            if (!$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
                 throw new InputException(__('Can not proceed resell process.'));
             }
 

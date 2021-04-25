@@ -77,7 +77,7 @@ class Error
             $this->baseHelper->debug($exception->getTraceAsString());
 
             //Show Admin Messages
-            if ($this->baseHelper->getConfig('general/admin_notifications')) {
+            if ($this->baseHelper->getConfig('general/admin_notifications', $entity->getStoreId())) {
                 $this->adminNotifier->addMajor(
                     __(
                         'KKM Cheque sending error. Order: %1',
