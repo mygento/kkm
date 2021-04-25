@@ -19,6 +19,11 @@ use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 class ConsumerProcessor implements ConsumerProcessorInterface
 {
     /**
+     * @var \Mygento\Kkm\Model\Processor\Update
+     */
+    protected $updateProcessor;
+
+    /**
      * @var \Mygento\Kkm\Model\Atol\Vendor
      */
     private $vendor;
@@ -47,11 +52,6 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      * @var \Mygento\Kkm\Helper\TransactionAttempt
      */
     private $attemptHelper;
-
-    /**
-     * @var \Mygento\Kkm\Model\Processor\Update
-     */
-    protected $updateProcessor;
 
     /**
      * ConsumerProcessor constructor.
@@ -86,7 +86,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      */
     public function processSell($queueMessage)
     {
-        $this->processSellAndRefund($queueMessage, SendInterface::TOPIC_NAME_SELL,);
+        $this->processSellAndRefund($queueMessage, SendInterface::TOPIC_NAME_SELL);
     }
 
     /**

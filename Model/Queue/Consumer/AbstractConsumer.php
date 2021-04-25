@@ -48,14 +48,12 @@ abstract class AbstractConsumer
     abstract public function sendMergedRequest($mergedRequest);
 
     /**
-     * @param string|int|null $storeId
-     * @return \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface
+     * @param int|string|null $storeId
      * @throws \Magento\Framework\Exception\InvalidArgumentException
+     * @return \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface
      */
     protected function getConsumerProcessor($storeId = null)
     {
         return $this->consumerProcessorFactory->create($this->helper->getCurrentVendorCode($storeId));
     }
-
-
 }

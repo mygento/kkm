@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -23,12 +23,12 @@ interface RequestInterface
     public function __toArray();
 
     /**
-     * @return string|int
+     * @return int|string
      */
     public function getSno();
 
     /**
-     * @param string|int $sno
+     * @param int|string $sno
      * @return $this
      */
     public function setSno($sno): self;
@@ -259,12 +259,12 @@ interface RequestInterface
     public function setAdditionalCheckProps($checkProps): self;
 
     /**
-     * @return string|int
+     * @return int|string
      */
     public function getEntityStoreId();
 
     /**
-     * @param string|int $storeId
+     * @param int|string $storeId
      * @return $this
      */
     public function setEntityStoreId($storeId): self;

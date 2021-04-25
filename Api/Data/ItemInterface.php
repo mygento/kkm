@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -55,12 +55,12 @@ interface ItemInterface
     public function setSum($sum);
 
     /**
-     * @return string|int
+     * @return int|string
      */
     public function getTax();
 
     /**
-     * @param string|int $tax
+     * @param int|string $tax
      * @return $this
      */
     public function setTax($tax);

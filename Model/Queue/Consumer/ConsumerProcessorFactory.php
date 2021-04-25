@@ -28,8 +28,8 @@ class ConsumerProcessorFactory
 
     /**
      * @param string $vendorCode
-     * @return \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface
      * @throws InvalidArgumentException
+     * @return \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface
      */
     public function create($vendorCode)
     {

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -82,7 +82,7 @@ class Update
     }
 
     /**
-     * @param string|int $storeId
+     * @param int|string $storeId
      * @throws \Exception
      */
     private function proceed($storeId)
@@ -95,7 +95,6 @@ class Update
         }
 
         $this->kkmHelper->info('KKM Update statuses Cron START');
-
 
         $uuids = $this->transactionHelper->getAllWaitUuids($storeId);
 
@@ -126,7 +125,7 @@ class Update
 
     /**
      * @param string $uuid
-     * @param string|int $storeId
+     * @param int|string $storeId
      * @throws \Magento\Framework\Exception\LocalizedException
      */
     private function createUpdateAttempt($uuid, $storeId)
@@ -147,8 +146,7 @@ class Update
         $updateRequest = $this->updateRequestFactory->create();
         $updateRequest
             ->setUuid($uuid)
-            ->setEntityStoreId($storeId)
-        ;
+            ->setEntityStoreId($storeId);
 
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);

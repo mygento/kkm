@@ -9,12 +9,8 @@
 namespace Mygento\Kkm\Model\Queue\Consumer\CheckOnline;
 
 use Magento\Framework\Exception\InputException;
-use Magento\Sales\Api\Data\CreditmemoInterface;
-use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
-use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Api\Queue\ConsumerProcessorInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
@@ -128,7 +124,6 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      */
     public function processUpdate($updateRequest)
     {
-        return;
     }
 
     /**

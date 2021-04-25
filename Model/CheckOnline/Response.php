@@ -9,9 +9,7 @@
 namespace Mygento\Kkm\Model\CheckOnline;
 
 use Mygento\Kkm\Api\Data\ResponseInterface;
-use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Helper\Transaction;
-use Mygento\Kkm\Model\CheckOnline\Request;
 
 class Response implements ResponseInterface
 {

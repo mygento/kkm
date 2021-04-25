@@ -25,8 +25,8 @@ class VendorFactory
 
     /**
      * @param string $vendorCode
-     * @return \Mygento\Kkm\Model\VendorInterface
      * @throws \Magento\Framework\Exception\InvalidArgumentException
+     * @return \Mygento\Kkm\Model\VendorInterface
      */
     public function create($vendorCode)
     {

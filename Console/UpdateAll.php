@@ -14,7 +14,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-
 class UpdateAll extends AbstractUpdateStatus
 {
     public const COMMAND = 'mygento:kkm:update-all';
@@ -36,7 +35,7 @@ class UpdateAll extends AbstractUpdateStatus
         $paramStoreId = (int) $input->getArgument(self::ARGUMENT_STORE_ID);
 
         if ($paramStoreId <= 0) {
-            $output->writeln("<error>Store ID must be positive number</error>");
+            $output->writeln('<error>Store ID must be positive number</error>');
 
             return Cli::RETURN_FAILURE;
         }

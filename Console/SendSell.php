@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -100,9 +100,8 @@ class SendSell extends Command
             $status = $transaction->getKkmStatus();
             $additional = $transaction->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
 
-            $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
-                ? $additional[Transaction::ERROR_MESSAGE_KEY]
-                : $additional[Transaction::RAW_RESPONSE_KEY];
+            $message = $additional[Transaction::ERROR_MESSAGE_KEY]
+                ?? $additional[Transaction::RAW_RESPONSE_KEY];
 
             if ($status != Response::STATUS_DONE && $status != Response::STATUS_WAIT) {
                 $output->writeln("<error>Status: {$status}</error>");

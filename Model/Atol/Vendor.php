@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -480,6 +480,14 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function isNeedUpdateStatus()
+    {
+        return true;
+    }
+
+    /**
      * @param string $uuid
      * @throws LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -705,13 +713,5 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 __('Can not send data to Atol. Reason: %1', $reason)
             );
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isNeedUpdateStatus()
-    {
-        return true;
     }
 }

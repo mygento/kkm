@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
 
 namespace Mygento\Kkm\Model\Queue;
 
@@ -8,12 +13,12 @@ use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 class QueueMessage implements QueueMessageInterface
 {
     /**
-     * @var string|int
+     * @var int|string
      */
     private $entityId;
 
     /**
-     * @var string|int
+     * @var int|string
      */
     private $entityStoreId;
 

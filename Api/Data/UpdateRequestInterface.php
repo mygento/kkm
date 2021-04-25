@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -29,12 +29,12 @@ interface UpdateRequestInterface
     public function setUuid($uuid);
 
     /**
-     * @return string|int
+     * @return int|string
      */
     public function getEntityStoreId();
 
     /**
-     * @param string|int $storeId
+     * @param int|string $storeId
      * @return $this
      */
     public function setEntityStoreId($storeId);

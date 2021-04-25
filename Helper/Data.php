@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -225,8 +225,8 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string|null $storeId
-     * @return \Mygento\Kkm\Model\VendorInterface
      * @throws \Magento\Framework\Exception\InvalidArgumentException
+     * @return \Mygento\Kkm\Model\VendorInterface
      */
     public function getCurrentVendor($storeId = null)
     {
@@ -235,8 +235,8 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string|null $storeId
-     * @return bool
      * @throws \Magento\Framework\Exception\InvalidArgumentException
+     * @return bool
      */
     public function isVendorNeedUpdateStatus($storeId = null)
     {

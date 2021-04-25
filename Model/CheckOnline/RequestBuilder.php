@@ -12,17 +12,13 @@ use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\EntityInterface;
 use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
-use Mygento\Kkm\Model\CheckOnline\RequestFactory;
 use Mygento\Kkm\Model\GetRecalculated;
-use Mygento\Kkm\Model\CheckOnline\Item;
-use Mygento\Kkm\Model\CheckOnline\ItemFactory;
 
 class RequestBuilder
 {
@@ -104,14 +100,13 @@ class RequestBuilder
             ->setClientId($this->kkmHelper->getConfig('checkonline/client_id', $storeId))
             ->setGroup($this->kkmHelper->getConfig('checkonline/group', $storeId))
             ->setExternalId($this->requestHelper->generateExternalId($salesEntity))
-            ->setNonCash(array((int) round($order->getGrandTotal() * 100, 0)))
+            ->setNonCash([(int) round($order->getGrandTotal() * 100, 0)])
             ->setSno((int) $this->kkmHelper->getConfig('checkonline/sno', $storeId))
             ->setPhone($telephone)
             ->setEmail($order->getCustomerEmail())
             ->setPlace($order->getStore()->getBaseUrl(UrlInterface::URL_TYPE_LINK, true))
             ->setItems($this->buildItems($salesEntity, $storeId))
-            ->setFullResponse((bool) $this->kkmHelper->getConfig('checkonline/full_response', $storeId))
-        ;
+            ->setFullResponse((bool) $this->kkmHelper->getConfig('checkonline/full_response', $storeId));
 
         $advancePayment = 0;
         //"GiftCard applied" payment
@@ -137,8 +132,8 @@ class RequestBuilder
 
     /**
      * @param InvoiceInterface $invoice
-     * @return RequestInterface
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return RequestInterface
      */
     public function buildRequestForResellRefund($invoice): RequestInterface
     {
@@ -162,8 +157,8 @@ class RequestBuilder
 
     /**
      * @param InvoiceInterface $invoice
-     * @return RequestInterface
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return RequestInterface
      */
     public function buildRequestForResellSell($invoice): RequestInterface
     {
@@ -189,8 +184,8 @@ class RequestBuilder
     /**
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
      * @param string|null $storeId
-     * @return array
      * @throws \Exception
+     * @return array
      */
     private function buildItems($salesEntity, $storeId = null)
     {
@@ -222,8 +217,7 @@ class RequestBuilder
                 ->setQuantity($itemQty * 1000)
                 ->setTax(Item::TAX_MAPPING[$itemData[Discount::TAX]])
                 ->setPaymentMethod($itemPaymentMethod)
-                ->setPaymentObject($itemPaymentObject)
-            ;
+                ->setPaymentObject($itemPaymentObject);
 
             if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
                 $item->setMarkingRequired(true);

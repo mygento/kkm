@@ -12,10 +12,16 @@ class Sno extends \Mygento\Kkm\Model\Source\Sno
 {
     // phpcs:disable
     protected $osnValue = 1;
+
     protected $usnIncomeValue = 2;
+
     protected $usnIncomeOutcomeValue = 4;
+
     protected $envdValue = 8;
+
     protected $esnValue = 16;
+
     protected $patentValue = 32;
+
     // phpcs:enable
 }

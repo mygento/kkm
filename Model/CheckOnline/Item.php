@@ -28,7 +28,9 @@ class Item extends \Mygento\Kkm\Model\Request\Item
     ];
 
     protected $price = 1;
+
     protected $quantity = 1000;
+
     protected $sum = 0;
 
     public function jsonSerialize(): array

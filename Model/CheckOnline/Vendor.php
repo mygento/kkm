@@ -15,15 +15,11 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
-use Mygento\Kkm\Helper\Transaction as TransactionHelper;
-use Mygento\Kkm\Model\CheckOnline\RequestBuilder;
-use Mygento\Kkm\Model\CheckOnline\Client;
-use Mygento\Kkm\Helper\TransactionAttempt;
-use Mygento\Kkm\Helper\Request as RequestHelper;
-use Mygento\Kkm\Helper\OrderComment;
-use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Helper\Data as KkmHelper;
-use Magento\Framework\MessageQueue\PublisherInterface;
+use Mygento\Kkm\Helper\OrderComment;
+use Mygento\Kkm\Helper\Request as RequestHelper;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
+use Mygento\Kkm\Helper\TransactionAttempt;
 
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
@@ -88,6 +84,90 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return $this->sendRequest($request, $invoice);
     }
 
+    public function sendRefundRequest($request, $creditmemo = null)
+    {
+        return $this->sendRequest($request, $creditmemo);
+    }
+
+    public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface
+    {
+        $invoice = $invoice ?? $this->requestHelper->getEntityByRequest($request);
+
+        //Check is there a done transaction among entity transactions.
+        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
+
+        if (!$doneTransaction->getId()) {
+            throw new InputException(
+                __(
+                    'Invoice %1 does not have transaction with status DONE.',
+                    $invoice->getIncrementId()
+                )
+            );
+        }
+
+        //Stop sending if there is 'wait' resell_refund transaction
+        if ($this->transactionHelper->isResellOpened($invoice)) {
+            throw new InputException(
+                __(
+                    'Invoice %1 has opened refund transaction.',
+                    $invoice->getIncrementId()
+                )
+            );
+        }
+
+        return $this->sendRequest($request, $invoice);
+    }
+
+    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
+    {
+        $this->orderCommentHelper->addCommentToOrder($entity, $response, $txnId, $operation);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function updateStatus($uuid, $useAttempt = false)
+    {
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildRequest(
+        $salesEntity,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = '',
+        $clientInn = ''
+    ): RequestInterface {
+        return $this->requestBuilder->buildRequest($salesEntity);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildRequestForResellSell($invoice): RequestInterface
+    {
+        return $this->requestBuilder->buildRequestForResellSell($invoice);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function buildRequestForResellRefund($invoice): RequestInterface
+    {
+        return $this->requestBuilder->buildRequestForResellRefund($invoice);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isNeedUpdateStatus()
+    {
+        return false;
+    }
+
     /**
      * @param RequestInterface $request
      * @param CreditmemoInterface|InvoiceInterface $entity
@@ -135,84 +215,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return $response;
     }
 
-    public function sendRefundRequest($request, $creditmemo = null)
-    {
-        return $this->sendRequest($request, $creditmemo);
-    }
-
-    public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface
-    {
-        $invoice = $invoice ?? $this->requestHelper->getEntityByRequest($request);
-
-        //Check is there a done transaction among entity transactions.
-        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-
-        if (!$doneTransaction->getId()) {
-            throw new InputException(
-                __(
-                    'Invoice %1 does not have transaction with status DONE.',
-                    $invoice->getIncrementId()
-                )
-            );
-        }
-
-        //Stop sending if there is 'wait' resell_refund transaction
-        if ($this->transactionHelper->isResellOpened($invoice)) {
-            throw new InputException(
-                __(
-                    'Invoice %1 has opened refund transaction.',
-                    $invoice->getIncrementId()
-                )
-            );
-        }
-
-        return $this->sendRequest($request, $invoice);
-    }
-
-    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
-    {
-        $this->orderCommentHelper->addCommentToOrder($entity, $response, $txnId, $operation);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function updateStatus($uuid, $useAttempt = false)
-    {
-        return;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function buildRequest(
-        $salesEntity,
-        $paymentMethod = null,
-        $shippingPaymentObject = null,
-        array $receiptData = [],
-        $clientName = '',
-        $clientInn = ''
-    ): RequestInterface {
-        return $this->requestBuilder->buildRequest($salesEntity);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function buildRequestForResellSell($invoice): RequestInterface
-    {
-        return $this->requestBuilder->buildRequestForResellSell($invoice);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function buildRequestForResellRefund($invoice): RequestInterface
-    {
-        return $this->requestBuilder->buildRequestForResellRefund($invoice);
-    }
-
-
     /**
      * @param \Mygento\Kkm\Api\Data\ResponseInterface $response
      */
@@ -220,6 +222,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     {
         if ($response->isFailed()) {
             $errorType = $response->getErrorType() ?? 'Error';
+
             throw new CreateDocumentFailedException(
                 __('%1 response from Checkonline with code %2.', $errorType, $response->getErrorCode()),
                 $response
@@ -228,6 +231,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         if ($response->isWait()) {
             $errorType = $response->getErrorType() ?? 'Error';
+
             throw new VendorNonFatalErrorException(
                 __(
                     '%1 response from Checkonline with code %2. Need to resend.',
@@ -236,13 +240,5 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 )
             );
         }
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isNeedUpdateStatus()
-    {
-        return false;
     }
 }

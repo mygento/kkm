@@ -2,16 +2,13 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
-use Mygento\Kkm\Api\Processor\UpdateInterface;
-use Mygento\Kkm\Exception\VendorBadServerAnswerException;
-use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 
 class UpdateConsumer extends AbstractConsumer
 {

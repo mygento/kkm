@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -174,8 +174,7 @@ class TransactionAttempt
                 ->setSalesEntityId($entity->getEntityId())
                 ->setSalesEntityIncrementId($entity->getIncrementId())
                 ->setNumberOfTrials(0)
-                ->setStoreId($entity->getStoreId())
-            ;
+                ->setStoreId($entity->getStoreId());
         }
 
         $attempt
@@ -219,8 +218,7 @@ class TransactionAttempt
                     ? $attempt->getTotalNumberOfTrials() + 1
                     : $attempt->getTotalNumberOfTrials()
             )
-            ->setStoreId($entity->getStoreId())
-        ;
+            ->setStoreId($entity->getStoreId());
 
         return $this->attemptRepository->save($attempt);
     }

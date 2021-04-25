@@ -2,14 +2,14 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Model\Atol;
 
-use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Helper\Transaction;
 

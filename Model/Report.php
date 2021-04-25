@@ -2,19 +2,19 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Model;
 
+use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Helper\Transaction;
 use Mygento\Kkm\Model\Atol\Response;
-use Magento\Sales\Api\Data\TransactionInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 
 class Report
 {
@@ -166,8 +166,7 @@ class Report
                     implode(' AND ', $orderTableConditions),
                     [OrderInterface::STORE_ID]
                 )
-                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $this->storeId))
-            ;
+                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $this->storeId));
         }
 //        $transactionAttempts = $this->attemptRepository->getList(
 //            $searchCriteriaBuilder->create()

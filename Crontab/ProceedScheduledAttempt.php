@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -13,11 +13,11 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\MessageQueue\MessageEncoder;
 use Magento\Framework\Stdlib\DateTime\DateTime;
 use Mygento\Kkm\Api\Data\RequestInterface;
-use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
 /**

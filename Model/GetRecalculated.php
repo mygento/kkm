@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -218,6 +218,7 @@ class GetRecalculated
     /**
      * @param OrderItemInterface $itemMock
      * @param CreditmemoItemInterface|InvoiceItemInterface $item
+     * @param mixed $storeId
      */
     private function updateMarking($itemMock, $item, $storeId): void
     {

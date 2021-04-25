@@ -1,10 +1,13 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
 
 namespace Mygento\Kkm\Model\CheckOnline;
 
-
-use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 
 class Request extends \Mygento\Kkm\Model\Request\Request
@@ -145,7 +148,7 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
-     * @return string|int
+     * @return int|string
      */
     public function getEntityStoreId()
     {
@@ -153,7 +156,7 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
-     * @param string|int $storeId
+     * @param int|string $storeId
      * @return RequestInterface
      */
     public function setEntityStoreId($storeId): RequestInterface

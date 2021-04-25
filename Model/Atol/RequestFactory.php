@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -54,6 +54,7 @@ class RequestFactory
      * Create class instance
      *
      * @param string|null
+     * @param mixed|null $storeId
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
     public function create($storeId = null)

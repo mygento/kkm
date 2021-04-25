@@ -13,10 +13,9 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Helper\Data as KkmHelper;
 use Mygento\Kkm\Helper\Request;
 use Mygento\Kkm\Helper\Resell as ResellHelper;
-use Mygento\Kkm\Model\VendorInterface;
-use Mygento\Kkm\Helper\Data as KkmHelper;
 
 class Update implements UpdateInterface
 {

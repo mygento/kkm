@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -27,7 +27,6 @@ use Mygento\Kkm\Model\VendorInterface;
  */
 class Send implements SendInterface
 {
-
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -277,12 +276,12 @@ class Send implements SendInterface
      * @param bool $sync
      * @param bool $ignoreTrials
      * @param bool $incrExtId
-     * @return bool
      * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @return bool
      */
     public function proceedCommonResell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {

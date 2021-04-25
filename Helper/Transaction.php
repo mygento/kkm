@@ -2,18 +2,18 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Helper;
 
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Framework\DB\Adapter\Pdo\Mysql;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\EntityInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
@@ -531,7 +531,7 @@ class Transaction
     }
 
     /**
-     * @param string|int $storeId filter uuids by store
+     * @param int|string $storeId filter uuids by store
      * @throws \Exception
      * @return string[]
      */
@@ -559,8 +559,7 @@ class Transaction
                     implode(' AND ', $orderTableConditions),
                     [OrderInterface::STORE_ID]
                 )
-                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $storeId))
-            ;
+                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $storeId));
         }
 
         if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {

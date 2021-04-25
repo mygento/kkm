@@ -129,8 +129,8 @@ class Client
     /**
      * @param $fileType
      * @param null $storeId
-     * @return string
      * @throws \Magento\Framework\Exception\FileSystemException
+     * @return string
      */
     private function getFilePath($fileType, $storeId = null): string
     {

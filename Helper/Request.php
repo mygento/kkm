@@ -2,18 +2,18 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Helper;
 
+use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Model\EntityInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
-use Magento\GiftCard\Model\Catalog\Product\Type\Giftcard as ProductType;
 
 class Request
 {
@@ -156,17 +156,16 @@ class Request
         $message
             ->setEntityId($request->getSalesEntityId())
             ->setEntityStoreId($request->getEntityStoreId())
-            ->setOperationType($request->getOperationType())
-        ;
+            ->setOperationType($request->getOperationType());
 
         return $message;
     }
 
     /**
-     * @param string|int $entityId
-     * @param string|int $operationType
-     * @return CreditmemoInterface|InvoiceInterface|OrderInterface
+     * @param int|string $entityId
+     * @param int|string $operationType
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return CreditmemoInterface|InvoiceInterface|OrderInterface
      */
     public function getEntityByIdAndOperationType($entityId, $operationType)
     {
@@ -231,7 +230,30 @@ class Request
     {
         $unformattedHex = $this->getUnformattedHex($marking, $storeId);
 
-        return base64_encode(pack('H*',$unformattedHex));
+        return base64_encode(pack('H*', $unformattedHex));
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    public function isGiftCardApplied($entity)
+    {
+        $giftCardAmnt = $entity->getGiftCardsAmount() ?? $entity->getOrder()->getGiftCardsAmount();
+
+        return $giftCardAmnt > 0.00;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    public function isCustomerBalanceApplied($entity)
+    {
+        $customerBalanceAmount = $entity->getCustomerBalanceAmount()
+            ?? $entity->getOrder()->getCustomerBalanceAmount();
+
+        return $customerBalanceAmount > 0.00;
     }
 
     /**
@@ -264,28 +286,5 @@ class Request
         }
 
         return $hex;
-    }
-
-    /**
-     * @param CreditmemoInterface|InvoiceInterface $entity
-     * @return bool
-     */
-    public function isGiftCardApplied($entity)
-    {
-        $giftCardAmnt = $entity->getGiftCardsAmount() ?? $entity->getOrder()->getGiftCardsAmount();
-
-        return $giftCardAmnt > 0.00;
-    }
-
-    /**
-     * @param CreditmemoInterface|InvoiceInterface $entity
-     * @return bool
-     */
-    public function isCustomerBalanceApplied($entity)
-    {
-        $customerBalanceAmount = $entity->getCustomerBalanceAmount()
-            ?? $entity->getOrder()->getCustomerBalanceAmount();
-
-        return $customerBalanceAmount > 0.00;
     }
 }

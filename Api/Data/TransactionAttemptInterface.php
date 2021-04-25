@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -254,7 +254,7 @@ interface TransactionAttemptInterface
     public function getStoreId();
 
     /**
-     * @param string|int $storeId
+     * @param int|string $storeId
      * @return $this
      */
     public function setStoreId($storeId);

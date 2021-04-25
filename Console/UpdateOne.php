@@ -9,16 +9,11 @@
 namespace Mygento\Kkm\Console;
 
 use Magento\Framework\App\Area;
-use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
-use Mygento\Kkm\Api\Processor\UpdateInterface;
-use Mygento\Kkm\Helper\Transaction\Proxy;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Mygento\Kkm\Helper\Data;
-use Mygento\Kkm\Helper\Request;
 
 class UpdateOne extends AbstractUpdateStatus
 {
@@ -76,8 +71,8 @@ HELP
 
     /**
      * @param string $uuid
-     * @return int|null
      * @throws \Exception
+     * @return int|null
      */
     private function getEntityStoreId($uuid)
     {
