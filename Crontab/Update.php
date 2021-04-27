@@ -152,7 +152,7 @@ class Update
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);
 
         if ($updateRequest instanceof DataObject) {
-            $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
+            $this->kkmHelper->debug('Publish update request: ', $updateRequest->toArray());
         }
 
         $this->updateProcessor->proceedAsync($updateRequest);

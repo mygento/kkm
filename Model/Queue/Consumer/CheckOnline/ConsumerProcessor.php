@@ -54,6 +54,11 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     private $attemptHelper;
 
     /**
+     * @var \Mygento\Kkm\Helper\OrderComment
+     */
+    private $orderComment;
+
+    /**
      * ConsumerProcessor constructor.
      * @param \Mygento\Kkm\Model\CheckOnline\Vendor $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
@@ -61,6 +66,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
+     * @param \Mygento\Kkm\Helper\OrderComment $orderComment
      */
     public function __construct(
         \Mygento\Kkm\Model\CheckOnline\Vendor $vendor,
@@ -68,7 +74,8 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         \Magento\Framework\MessageQueue\PublisherInterface $publisher,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
-        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
+        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
+        \Mygento\Kkm\Helper\OrderComment $orderComment
     ) {
         $this->vendor = $vendor;
         $this->helper = $helper;
@@ -76,6 +83,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         $this->requestHelper = $requestHelper;
         $this->errorHelper = $errorHelper;
         $this->attemptHelper = $attemptHelper;
+        $this->orderComment = $orderComment;
     }
 
     /**
@@ -83,7 +91,46 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      */
     public function processSell($queueMessage)
     {
-        $this->processSellAndRefund($queueMessage, SendInterface::TOPIC_NAME_SELL);
+        try {
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
+
+            if ($queueMessage->getOperationType() === RequestInterface::RESELL_SELL_OPERATION_TYPE) {
+                $request = $this->vendor->buildRequestForResellSell($entity);
+            } else {
+                $request = $this->vendor->buildRequest($entity);
+            }
+
+            $this->vendor->sendSellRequest($request, $entity);
+        } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
+            $this->helper->info($e->getMessage());
+
+            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
+                // помечаем заказ, как KKM Fail
+                $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+
+                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
+                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_SELL);
+            } else {
+                $request->setIgnoreTrialsNum(false);
+                $this->publisher->publish(
+                    SendInterface::TOPIC_NAME_SELL,
+                    $this->requestHelper->getQueueMessage($request)
+                );
+            }
+        } catch (\Throwable $e) {
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            if ($this->helper->isRetrySendingEndlessly($entity->getStoreId())) {
+                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
+                $this->attemptHelper->scheduleNextAttempt(
+                    $request,
+                    SendInterface::TOPIC_NAME_SELL,
+                    (new \DateTime('+1 day'))->format('Y-m-d H:i:s')
+                );
+            }
+        }
     }
 
     /**
@@ -91,7 +138,34 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      */
     public function processRefund($queueMessage)
     {
-        $this->processSellAndRefund($queueMessage, SendInterface::TOPIC_NAME_REFUND);
+        try {
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
+
+            $request = $this->vendor->buildRequest($entity);
+            $this->vendor->sendRefundRequest($request, $entity);
+        } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
+            $this->helper->info($e->getMessage());
+
+            if ($e instanceof VendorBadServerAnswerException) {
+                $this->orderComment->addCommentToOrderNoChangeStatus($entity, $e->getMessage());
+            }
+
+            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
+                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
+                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_REFUND);
+            } else {
+                $request->setIgnoreTrialsNum(false);
+                $this->publisher->publish(
+                    SendInterface::TOPIC_NAME_REFUND,
+                    $this->requestHelper->getQueueMessage($request)
+                );
+            }
+        } catch (\Throwable $e) {
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+        }
     }
 
     /**
@@ -130,57 +204,5 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      */
     public function processUpdate($updateRequest)
     {
-    }
-
-    /**
-     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
-     * @param string $topicName
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     */
-    private function processSellAndRefund($queueMessage, $topicName)
-    {
-        try {
-            $entity = $this->requestHelper->getEntityByIdAndOperationType(
-                $queueMessage->getEntityId(),
-                $queueMessage->getOperationType()
-            );
-
-            if ($queueMessage->getOperationType() === RequestInterface::RESELL_SELL_OPERATION_TYPE) {
-                $request = $this->vendor->buildRequestForResellSell($entity);
-            } else {
-                $request = $this->vendor->buildRequest($entity);
-            }
-
-            $this->vendor->sendSellRequest($request, $entity);
-        } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
-                if ($topicName === SendInterface::TOPIC_NAME_SELL) {
-                    // помечаем заказ, как KKM Fail
-                    $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-                }
-
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
-                $this->attemptHelper->scheduleNextAttempt($request, $topicName);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish($topicName, $this->requestHelper->getQueueMessage($request));
-            }
-        } catch (\Throwable $e) {
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-            if ($topicName === SendInterface::TOPIC_NAME_SELL
-                && $this->helper->isRetrySendingEndlessly($entity->getStoreId())
-            ) {
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
-                $this->attemptHelper->scheduleNextAttempt(
-                    $request,
-                    SendInterface::TOPIC_NAME_SELL,
-                    (new \DateTime('+1 day'))->format('Y-m-d H:i:s')
-                );
-            }
-        }
     }
 }

@@ -16,6 +16,7 @@ use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\OrderComment;
 use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\GetRecalculated;
@@ -95,6 +96,7 @@ class RequestBuilder
         }
 
         $order = $salesEntity->getOrder() ?? $salesEntity;
+        $order->setData(OrderComment::COMMENT_ADDED_TO_ORDER_FLAG, false);
         $storeId = $order->getStoreId();
         $telephone = $order->getBillingAddress()
             ? (string) $order->getBillingAddress()->getTelephone()

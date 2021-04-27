@@ -11,6 +11,11 @@ namespace Mygento\Kkm\Api\Queue;
 interface QueueMessageInterface
 {
     /**
+     * @return array
+     */
+    public function __toArray();
+
+    /**
      * @return int|string
      */
     public function getEntityId();

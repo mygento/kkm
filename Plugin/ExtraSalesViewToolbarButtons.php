@@ -10,6 +10,7 @@ namespace Mygento\Kkm\Plugin;
 
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Mygento\Kkm\Model\Atol\Response;
+use Mygento\Kkm\Model\Source\Vendors;
 
 class ExtraSalesViewToolbarButtons
 {
@@ -69,7 +70,7 @@ class ExtraSalesViewToolbarButtons
 
         $transactions = $this->transactionHelper->getTransactionsByEntity($entity, true);
 
-        if ($this->canBeShownResendButton($transactions)) {
+        if ($this->canBeShownResendButton($transactions, $entity->getStoreId())) {
             $url = $this->urlBuilder->getUrl(
                 'kkm/cheque/resend',
                 [
@@ -85,7 +86,7 @@ class ExtraSalesViewToolbarButtons
             ];
 
             $buttonList->add('resend_to_kkm', $data);
-        } elseif ($this->canBeShownCheckStatusButton($transactions)) {
+        } elseif ($this->canBeShownCheckStatusButton($transactions, $entity->getStoreId())) {
             $url = $this->urlBuilder->getUrl(
                 'kkm/cheque/checkStatus',
                 [
@@ -132,10 +133,15 @@ class ExtraSalesViewToolbarButtons
 
     /**
      * @param array $transactions
+     * @param string $storeId
      * @return bool
      */
-    private function canBeShownResendButton($transactions)
+    private function canBeShownResendButton($transactions, $storeId)
     {
+        if ($this->kkmHelper->getCurrentVendorCode($storeId) === Vendors::CHECKONLINE_VENDOR_CODE) {
+            return $this->isShowResendForCheckOnline($transactions);
+        }
+
         //Есть ли хоть одна Done || Wait - то нельзя отправить снова
         foreach ($transactions as $transaction) {
             $status = $transaction->getKkmStatus();
@@ -169,10 +175,15 @@ class ExtraSalesViewToolbarButtons
 
     /**
      * @param array $transactions
+     * @param string $storeId
      * @return bool
      */
-    private function canBeShownCheckStatusButton($transactions)
+    private function canBeShownCheckStatusButton($transactions, $storeId)
     {
+        if (!$this->kkmHelper->isVendorNeedUpdateStatus($storeId)) {
+            return false;
+        }
+
         // Если есть Done || нет Wait - то нельзя спросить статус
         $isWait = false;
         foreach ($transactions as $transaction) {
@@ -190,5 +201,18 @@ class ExtraSalesViewToolbarButtons
         $checkStatusAllowed = $this->authorization->isAllowed('Mygento_Kkm::cheque_checkstatus');
 
         return $checkStatusAllowed && $isWait;
+    }
+
+    /**
+     * @param array $transactions
+     * @return bool
+     */
+    private function isShowResendForCheckOnline($transactions)
+    {
+        $doneTransactions = array_filter($transactions, function ($txn) {
+            return $txn->getKkmStatus() === Response::STATUS_DONE;
+        });
+
+        return !count($doneTransactions);
     }
 }

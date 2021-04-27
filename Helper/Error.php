@@ -65,13 +65,13 @@ class Error
 
             $uuid =
                 method_exists($exception, 'getResponse') && $exception->getResponse()
-                    ? $exception->getResponse()->getUuid()
+                    ? $exception->getResponse()->getIdForTransaction()
                     : null;
 
             if ($exception instanceof CreateDocumentFailedException) {
                 $this->baseHelper->error('Params:', $exception->getDebugData());
                 $this->baseHelper->error('Response: ' . $exception->getResponse());
-                $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
+                $fullMessage .= $uuid ? ". Transaction Id: {$uuid}" : '';
             }
             $this->baseHelper->error($fullMessage);
             $this->baseHelper->debug($exception->getTraceAsString());

@@ -27,6 +27,15 @@ class QueueMessage implements QueueMessageInterface
      */
     private $operationType;
 
+    public function __toArray()
+    {
+        return [
+            'entityId' => $this->getEntityId(),
+            'entityStoreId' => $this->getEntityStoreId(),
+            'operationType' => $this->getOperationType(),
+        ];
+    }
+
     /**
      * @inheritDoc
      */

@@ -149,6 +149,17 @@ class Response implements ResponseInterface
     }
 
     /**
+     * @param string $requestId
+     * @return $this
+     */
+    public function setRequestId($requestId)
+    {
+        $this->requestId = $requestId;
+
+        return $this;
+    }
+
+    /**
      * @return int|null
      */
     public function getFceError()
@@ -351,7 +362,8 @@ class Response implements ResponseInterface
         $fceError = $this->getFceError();
 
         if ($fceError) {
-            $message = 'Cloud Error. ' . $this->getFatal() ? 'Fatal. ' : '';
+            $message = 'Cloud Error. ';
+            $message .= $this->getFatal() ? ' Fatal. ' : '';
             $message .= $this->getErrorDescription();
             $message .= '. FCEError: ' . $this->getLogRequestId();
             $message .= '. LogRequestId: ' . $this->getLogRequestId();
@@ -408,7 +420,7 @@ class Response implements ResponseInterface
     public function getMessage()
     {
         $message = 'Status: ';
-        $message .= ucfirst($this->getStatus());
+        $message .= ucfirst($this->getStatus()) . '. ';
         $message .= $this->getErrorMessage() ?? '';
 
         return $message;

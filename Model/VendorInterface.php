@@ -20,8 +20,7 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
  */
 interface VendorInterface
 {
-    const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
-    const ALREADY_SENT_FLAG = 'kkm_already_sent_to_atol';
+    const ALREADY_SENT_FLAG = 'kkm_already_sent';
     const SKIP_PAYMENT_METHOD_VALIDATION = 'kkm_skip_payment_method_validation';
 
     /**

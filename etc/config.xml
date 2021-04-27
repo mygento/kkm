@@ -13,6 +13,9 @@
                 <!--<api_version>4</api_version>-->
                 <test_mode>1</test_mode>
             </atol>
+            <checkonline>
+                <test_mode>1</test_mode>
+            </checkonline>
             <report>
                 <enabled>0</enabled>
                 <template>mygento_kkm_report_template</template>

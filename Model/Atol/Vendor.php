@@ -26,6 +26,7 @@ use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Helper\Error;
+use Mygento\Kkm\Helper\OrderComment;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 
 /**
@@ -324,6 +325,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function buildRequestForResellSell($invoice): RequestInterface
     {
+        //Reset flag in order to add one more comment. For case when consumer works as daemon.
+        $invoice->getOrder()->setData(OrderComment::COMMENT_ADDED_TO_ORDER_FLAG, false);
+
         $request = $this->buildRequest($invoice);
 
         //Check is there a done transaction among entity transactions.
@@ -507,6 +511,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         if (!$entity->getEntityId()) {
             throw new \Exception("Entity not found. Uuid: {$uuid}");
         }
+
+        //Reset flag in order to add one more comment. For case when consumer works as daemon.
+        $entity->getOrder()->setData(OrderComment::COMMENT_ADDED_TO_ORDER_FLAG, false);
 
         $trials = $this->attemptHelper->getTrials($entity, UpdateRequestInterface::UPDATE_OPERATION_TYPE);
         $maxUpdateTrials = $this->kkmHelper->getMaxUpdateTrials($entity->getStoreId());

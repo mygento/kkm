@@ -12,6 +12,8 @@ use Magento\Backend\Model\UrlInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
+use Magento\Sales\Model\Order\Config as OrderConfig;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Model\Atol\Response;
@@ -35,14 +37,21 @@ class OrderComment
      */
     private $urlBuilder;
 
+    /**
+     * @var OrderConfig
+     */
+    private $orderConfig;
+
     public function __construct(
         OrderRepositoryInterface $orderRepository,
         Data $kkmHelper,
-        UrlInterface $urlBuilder
+        UrlInterface $urlBuilder,
+        OrderConfig $orderConfig
     ) {
         $this->orderRepository = $orderRepository;
         $this->kkmHelper = $kkmHelper;
         $this->urlBuilder = $urlBuilder;
+        $this->orderConfig = $orderConfig;
     }
 
     /**
@@ -59,8 +68,49 @@ class OrderComment
             return;
         }
 
+        $comment = $this->buildComment($entity, $response->getMessage(), $txnId, $operation);
+
+        if ($response->getStatus() == Response::STATUS_DONE
+            && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
+            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($entity->getStoreId())
+        ) {
+            $order->addCommentToStatusHistory(
+                $comment,
+                $this->resolveOrderStatus($order->getState(), $entity->getStoreId())
+            );
+        } else {
+            $order->addCommentToStatusHistory($comment);
+            $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
+        }
+
+        $this->orderRepository->save($order);
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param string $text
+     * @param mixed|null $txnId
+     * @param string $operation
+     */
+    public function addCommentToOrderNoChangeStatus($entity, $text, $txnId = null, $operation = '')
+    {
+        $order = $entity->getOrder();
+        $comment = $this->buildComment($entity, $text, $txnId, $operation);
+        $order->addCommentToStatusHistory($comment);
+        $this->orderRepository->save($order);
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param string $text
+     * @param mixed|null $txnId
+     * @param string $operation
+     * @return \Magento\Framework\Phrase
+     */
+    private function buildComment($entity, $text, $txnId = null, $operation = '')
+    {
         $message = ucfirst($entity->getEntityType()) . ': ' . $entity->getIncrementId() . '. ';
-        $message .= $response->getMessage();
+        $message .= $text;
 
         if ($txnId) {
             $href =
@@ -86,19 +136,18 @@ class OrderComment
                 $comment = __('[%1] Cheque was sent. %2', $vendorCode, $message);
         }
 
-        if ($response->getStatus() == Response::STATUS_DONE
-            && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
-            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($entity->getStoreId())
-        ) {
-            $order->addCommentToStatusHistory(
-                $comment,
-                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($entity->getStoreId())
-            );
-        } else {
-            $order->addCommentToStatusHistory($comment);
-            $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
-        }
+        return $comment;
+    }
 
-        $this->orderRepository->save($order);
+    /**
+     * @param string $orderState
+     * @param string $storeId
+     * @return string
+     */
+    private function resolveOrderStatus($orderState, $storeId)
+    {
+        return $orderState === Order::STATE_CLOSED
+            ? $this->orderConfig->getStateDefaultStatus(Order::STATE_CLOSED)
+            : $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($storeId);
     }
 }

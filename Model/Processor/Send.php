@@ -16,11 +16,11 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\OrderComment;
 use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\TransactionAttempt as TransactionAttemptHelper;
 use Mygento\Kkm\Model\Atol\Response;
-use Mygento\Kkm\Model\VendorInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -104,8 +104,9 @@ class Send implements SendInterface
             return true;
         }
 
-        $this->helper->debug('Publish request: ', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_SELL, $this->requestHelper->getQueueMessage($request));
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request message: ', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_SELL, $queueMessage);
 
         return true;
     }
@@ -132,8 +133,9 @@ class Send implements SendInterface
             return true;
         }
 
-        $this->helper->debug('Publish request to queue:', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_REFUND, $this->requestHelper->getQueueMessage($request));
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request message to queue:', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_REFUND, $queueMessage);
 
         return true;
     }
@@ -169,8 +171,9 @@ class Send implements SendInterface
             return true;
         }
 
-        $this->helper->debug('Publish request: ', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_RESELL, $this->requestHelper->getQueueMessage($request));
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request message: ', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_RESELL, $queueMessage);
 
         return true;
     }
@@ -197,7 +200,7 @@ class Send implements SendInterface
 
         //Reset flag in order to add one more comment.
         $order = $invoice->getOrder();
-        $order->setData(VendorInterface::COMMENT_ADDED_TO_ORDER_FLAG, false);
+        $order->setData(OrderComment::COMMENT_ADDED_TO_ORDER_FLAG, false);
 
         $this->attemptHelper->resetNumberOfTrials($request, $invoice);
 
@@ -210,8 +213,9 @@ class Send implements SendInterface
             return true;
         }
 
-        $this->helper->debug('Publish request: ', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_SELL, $this->requestHelper->getQueueMessage($request));
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request: ', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_SELL, $queueMessage);
 
         return true;
     }

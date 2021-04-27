@@ -268,7 +268,9 @@ class Client
             $curl->post($url, $params);
             $response = $curl->getBody();
         } catch (\Exception $e) {
-            throw new VendorBadServerAnswerException('No response from Atol. ' . $url);
+            throw new VendorBadServerAnswerException(
+                sprintf('No response from Atol: %s; Url: %s', $e->getMessage(), $url)
+            );
         }
 
         if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
@@ -299,7 +301,7 @@ class Client
             $curl->get($url);
             $response = $curl->getBody();
         } catch (\Exception $e) {
-            throw new VendorBadServerAnswerException('No response from Atol.');
+            throw new VendorBadServerAnswerException('No response from Atol: ' . $e->getMessage());
         }
 
         if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {

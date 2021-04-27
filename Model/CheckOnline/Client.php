@@ -109,7 +109,13 @@ class Client
             $this->validateVendorAnswer($responseRaw);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-            $this->kkmHelper->info(__('%1 is sent. RequestId: %2', $request->getEntityType(), $response->getIdForTransaction()));
+            if (!$response->getRequestId()) {
+                $response->setRequestId($request->getExternalId());
+            }
+
+            $this->kkmHelper->info(
+                __('%1 is sent. RequestId: %2', $request->getEntityType(), $response->getIdForTransaction())
+            );
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (FileSystemException $e) {
             throw new CreateDocumentFailedException(
@@ -127,7 +133,7 @@ class Client
     }
 
     /**
-     * @param $fileType
+     * @param string $fileType
      * @param null $storeId
      * @throws \Magento\Framework\Exception\FileSystemException
      * @return string

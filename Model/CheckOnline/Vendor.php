@@ -90,11 +90,17 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         return $this->sendRequest($request, $invoice);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function sendRefundRequest($request, $creditmemo = null)
     {
         return $this->sendRequest($request, $creditmemo);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface
     {
         $invoice = $invoice ?? $this->requestHelper->getEntityByRequest($request);
@@ -111,19 +117,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             );
         }
 
-        //Stop sending if there is 'wait' resell_refund transaction
-        if ($this->transactionHelper->isResellOpened($invoice)) {
-            throw new InputException(
-                __(
-                    'Invoice %1 has opened refund transaction.',
-                    $invoice->getIncrementId()
-                )
-            );
-        }
-
         return $this->sendRequest($request, $invoice);
     }
 
+    /**
+     * @inheritDoc
+     */
     public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
     {
         $this->orderCommentHelper->addCommentToOrder($entity, $response, $txnId, $operation);
