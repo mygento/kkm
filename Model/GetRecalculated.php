@@ -127,6 +127,10 @@ class GetRecalculated
     {
         /** @var OrderInterface $orderMock */
         $orderMock = $this->orderFactory->create(['data' => $salesEntity->getData()]);
+        $orderMock->setId($salesEntity->getOrder()->getId());
+        $orderMock->setEntityId($salesEntity->getOrder()->getId());
+        $orderMock->setIncrementId($salesEntity->getOrder()->getIncrementId());
+
         $orderMock->setShippingDescription($salesEntity->getOrder()->getShippingDescription());
 
         $newTotal = 0;
