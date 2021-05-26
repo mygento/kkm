@@ -115,7 +115,7 @@ class ExtraSalesViewToolbarButtons
             $buttonList->add('resell_to_kkm', $data);
         }
 
-        if ($this->canBeShownResendWithIncrExtIdButton($transactions)) {
+        if ($this->isVisibleResendWithIncrExtIdButton($transactions)) {
             $url = $this->urlBuilder->getUrl(
                 'kkm/cheque/resend',
                 [
@@ -190,7 +190,7 @@ class ExtraSalesViewToolbarButtons
      * @param array $transactions
      * @return bool
      */
-    private function canBeShownResendWithIncrExtIdButton($transactions)
+    private function isVisibleResendWithIncrExtIdButton($transactions)
     {
         //Check ACL
         return false === empty($transactions) &&
