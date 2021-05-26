@@ -88,15 +88,17 @@ class Resend extends \Magento\Backend\App\Action
             $entityType = strtolower($this->_request->getParam('entity'));
             $id = $this->getRequest()->getParam('id');
 
+            $incrExtId = (bool) $this->getRequest()->getParam('incr_ext_id');
+
             switch ($entityType) {
                 case 'invoice':
                     $entity = $this->invoiceRepository->get($id);
-                    $this->processor->proceedSell($entity, true, true);
+                    $this->processor->proceedSell($entity, true, true, $incrExtId);
                     $comment = 'Cheque ';
                     break;
                 case 'creditmemo':
                     $entity = $this->creditmemoRepository->get($id);
-                    $this->processor->proceedRefund($entity, true, true);
+                    $this->processor->proceedRefund($entity, true, true, $incrExtId);
                     $comment = 'Refund ';
                     break;
             }
