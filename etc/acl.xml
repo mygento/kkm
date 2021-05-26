@@ -14,6 +14,7 @@
                 <resource id="Mygento_Kkm::root" title="Kkm" translate="title">
                     <resource id="Mygento_Kkm::cheque_resend" title="Mygento Kkm - Cheque Resend" sortOrder="100"/>
                     <resource id="Mygento_Kkm::cheque_checkstatus" title="Mygento Kkm - Cheque Check Status" sortOrder="110"/>
+                    <resource id="Mygento_Kkm::cheque_resend_with_incr_ext_id" title="Mygento Kkm - Cheque Resend With Increase Ext id" sortOrder="120"/>
                 </resource>
                 <resource id="Magento_Backend::stores">
                     <resource id="Magento_Backend::stores_settings">
