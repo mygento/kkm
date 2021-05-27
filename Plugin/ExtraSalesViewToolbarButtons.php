@@ -131,7 +131,7 @@ class ExtraSalesViewToolbarButtons
                 'onclick' => 'setLocation(\'' . $url . '\')',
             ];
 
-            $buttonList->add('resend_to_kkm', $data);
+            $buttonList->add('resend_to_kkm_with_incr_ext_id', $data);
         }
     }
 
