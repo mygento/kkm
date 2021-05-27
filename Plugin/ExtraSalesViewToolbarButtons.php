@@ -114,6 +114,25 @@ class ExtraSalesViewToolbarButtons
 
             $buttonList->add('resell_to_kkm', $data);
         }
+
+        if ($this->isVisibleResendWithIncrExtIdButton($transactions)) {
+            $url = $this->urlBuilder->getUrl(
+                'kkm/cheque/resend',
+                [
+                    'entity' => $entity->getEntityType(),
+                    'id' => $entity->getId(),
+                    'store_id' => $entity->getStoreId(),
+                    'incr_ext_id' => true,
+                ]
+            );
+            $data = [
+                'label' => __('Send to KKM with incr ext id'),
+                'class' => '',
+                'onclick' => 'setLocation(\'' . $url . '\')',
+            ];
+
+            $buttonList->add('resend_to_kkm_with_incr_ext_id', $data);
+        }
     }
 
     /**
@@ -165,6 +184,17 @@ class ExtraSalesViewToolbarButtons
 
         //Check ACL
         return $isDone && $this->authorization->isAllowed('Mygento_Kkm::cheque_resend');
+    }
+
+    /**
+     * @param array $transactions
+     * @return bool
+     */
+    private function isVisibleResendWithIncrExtIdButton($transactions)
+    {
+        //Check ACL
+        return false === empty($transactions) &&
+            $this->authorization->isAllowed('Mygento_Kkm::cheque_resend_with_incr_ext_id');
     }
 
     /**
