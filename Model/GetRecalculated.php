@@ -9,9 +9,12 @@
 namespace Mygento\Kkm\Model;
 
 use Magento\Sales\Api\Data\CreditmemoInterface;
+use Magento\Sales\Api\Data\CreditmemoItemInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\InvoiceItemInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\OrderInterfaceFactory;
+use Magento\Sales\Api\Data\OrderItemInterface;
 use Magento\Sales\Api\Data\OrderItemInterfaceFactory;
 use Mygento\Base\Service\RecalculatorFacade;
 use Mygento\Kkm\Helper\Data;
@@ -124,22 +127,33 @@ class GetRecalculated
     {
         /** @var OrderInterface $orderMock */
         $orderMock = $this->orderFactory->create(['data' => $salesEntity->getData()]);
+        $orderMock->setId($salesEntity->getOrder()->getId());
+        $orderMock->setEntityId($salesEntity->getOrder()->getId());
+        $orderMock->setIncrementId($salesEntity->getOrder()->getIncrementId());
+
         $orderMock->setShippingDescription($salesEntity->getOrder()->getShippingDescription());
 
         $newTotal = 0;
         $newItems = [];
         foreach ($salesEntity->getItems() as $item) {
             $orderItem = $salesEntity->getOrder()->getItemById($item->getOrderItemId());
+            if ($orderItem->isDummy()) {
+                continue;
+            }
 
             $giftCardAmount = $orderItem->getData('gift_cards_amount');
             $customerBalanceAmount = $orderItem->getData('customer_balance_amount');
 
             $add = static function ($val) use ($giftCardAmount, $customerBalanceAmount) {
-                return bcadd($val, bcadd($giftCardAmount, $customerBalanceAmount, 4), 4);
+                return $val === null
+                    ? $val
+                    : bcadd($val, bcadd($giftCardAmount, $customerBalanceAmount, 4), 4);
             };
 
             /** @var \Magento\Sales\Api\Data\OrderItemInterface $itemMock */
             $itemMock = $this->orderItemFactory->create(['data' => $item->getData()]);
+
+            $this->updateMarking($itemMock, $item);
 
             $qty = $item->getQty();
             $newPriceAdd = round(($giftCardAmount + $customerBalanceAmount) / $qty, 2);
@@ -203,5 +217,20 @@ class GetRecalculated
             $markingListAttribute,
             $markingRefundAttribute,
         ];
+    }
+
+    /**
+     * @param OrderItemInterface $itemMock
+     * @param CreditmemoItemInterface|InvoiceItemInterface $item
+     */
+    private function updateMarking($itemMock, $item): void
+    {
+        $markingAttribute = $this->configHelper->getMarkingShouldField();
+        $markingListAttribute = $this->configHelper->getMarkingField();
+        $markingRefundAttribute = $this->configHelper->getMarkingRefundField();
+
+        $itemMock->setData($markingAttribute, $item->getOrderItem()->getData($markingAttribute));
+        $itemMock->setData($markingListAttribute, $item->getOrderItem()->getData($markingListAttribute));
+        $itemMock->setData($markingRefundAttribute, $item->getOrderItem()->getData($markingRefundAttribute));
     }
 }

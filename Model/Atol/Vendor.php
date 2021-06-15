@@ -429,16 +429,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setCallbackUrl($this->getCallbackUrl($storeId))
             ->setItems($items);
 
-        //Basic payment
-        if ($salesEntity->getGrandTotal() > 0.00) {
-            $request
-                ->addPayment(
-                    $this->paymentFactory->create()
-                        ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
-                        ->setSum(round($salesEntity->getGrandTotal(), 2))
-                );
-        }
-
         //"GiftCard applied" payment
         if ($this->isGiftCardApplied($salesEntity)) {
             $giftCardsAmount = $salesEntity->getGiftCardsAmount()
@@ -462,6 +452,16 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
                         ->setSum(round($customerBalanceAmount, 2))
+                );
+        }
+
+        //Basic payment
+        if ($salesEntity->getGrandTotal() > 0.00 || $request->getPayments() === []) {
+            $request
+                ->addPayment(
+                    $this->paymentFactory->create()
+                        ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
+                        ->setSum(round($salesEntity->getGrandTotal(), 2))
                 );
         }
 

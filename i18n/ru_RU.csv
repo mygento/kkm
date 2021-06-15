@@ -21,6 +21,7 @@ Without VAT,Без НДС
 Cheque has not been successfully registered on KKM vendor side. Reason: %1,Чек не был зарегистрирован ККМ вендором. Причина: %1
 Cheque has not been successfully registered on KKM vendor side. See log.,Чек не был зарегистрирован ККМ вендором. См.логи.
 Send to KKM,Отправить в ККМ
+Send to KKM with incr ext id,Отправить в ККМ с увеличением ext id
 Check status in KKM,Проверить ККМ статус
 Kkm Integration,Kkm Интеграция
 Atol Settings,Настройки Atol
