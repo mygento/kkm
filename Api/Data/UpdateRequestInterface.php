@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -16,6 +16,11 @@ interface UpdateRequestInterface
     public const STORE_ID = 'store_id';
 
     /**
+     * @return string
+     */
+    public function __toString();
+
+    /**
      * Get uuid
      * @return string|null
      */
@@ -27,21 +32,4 @@ interface UpdateRequestInterface
      * @return $this
      */
     public function setUuid($uuid);
-
-    /**
-     * @return int
-     */
-    public function getStoreId(): ?int;
-
-    /**
-     * Set storeId
-     * @param int|string $id
-     * @return $this
-     */
-    public function setStoreId($id): self;
-
-    /**
-     * @return string
-     */
-    public function __toString();
 }

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -17,7 +17,7 @@ class RefundConsumer extends AbstractConsumer
 {
     /**
      * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException|\Magento\Framework\Exception\NoSuchEntityException
      */
     public function sendMergedRequest($mergedRequest)
     {
@@ -34,7 +34,7 @@ class RefundConsumer extends AbstractConsumer
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    private function sendRefundRequest($request)
+    private function sendRefundRequest(RequestInterface $request): void
     {
         try {
             $this->vendor->sendRefundRequest($request);
@@ -46,8 +46,8 @@ class RefundConsumer extends AbstractConsumer
             $this->publisher->publish(SendInterface::TOPIC_NAME_REFUND, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals()) {
+            $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+            if ($this->helper->isUseCustomRetryIntervals($storeId)) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_REFUND);
             } else {

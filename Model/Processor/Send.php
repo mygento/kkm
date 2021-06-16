@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -10,6 +10,7 @@ namespace Mygento\Kkm\Model\Processor;
 
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\MessageQueue\PublisherInterface;
+use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Mygento\Base\Model\Payment\Transaction as TransactionBase;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
@@ -63,6 +64,11 @@ class Send implements SendInterface
     private $attemptRepository;
 
     /**
+     * @var \Magento\Sales\Api\InvoiceRepositoryInterface
+     */
+    private $invoiceRepository;
+
+    /**
      * Processor constructor.
      * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
@@ -71,6 +77,7 @@ class Send implements SendInterface
      * @param RequestHelper $requestHelper
      * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
+     * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
      */
     public function __construct(
         VendorInterface $vendor,
@@ -79,7 +86,8 @@ class Send implements SendInterface
         TransactionHelper $transactionHelper,
         RequestHelper $requestHelper,
         TransactionAttemptRepositoryInterface $attemptRepository,
-        PublisherInterface $publisher
+        PublisherInterface $publisher,
+        InvoiceRepositoryInterface $invoiceRepository
     ) {
         $this->vendor = $vendor;
         $this->helper = $helper;
@@ -88,6 +96,7 @@ class Send implements SendInterface
         $this->requestHelper = $requestHelper;
         $this->transactionHelper = $transactionHelper;
         $this->attemptRepository = $attemptRepository;
+        $this->invoiceRepository = $invoiceRepository;
     }
 
     /**
@@ -110,7 +119,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendSellRequest($request);
 
@@ -142,7 +152,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue:', $request->__toArray());
             $this->vendor->sendRefundRequest($request);
 
@@ -178,7 +189,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendResellRequest($request, $invoice);
 
@@ -218,7 +230,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendSellRequest($request, $invoice);
 
@@ -261,7 +274,9 @@ class Send implements SendInterface
             if ((int) $attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {
                 return $this->proceedResellSell($invoice, $sync, false, true);
             }
-            if (!$this->helper->isMessageQueueEnabled()) {
+
+            $storeId = $this->invoiceRepository->get($invoice->getEntityId());
+            if (!$this->helper->isMessageQueueEnabled($storeId)) {
                 throw new InputException(__('Can not proceed resell process.'));
             }
 

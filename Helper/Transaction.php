@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -13,6 +13,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\EntityInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
@@ -21,6 +22,7 @@ use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as Cred
 use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollection;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory as InvoiceCollectionFactory;
 use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
+use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Base\Model\Payment\Transaction as TransactionBase;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
@@ -85,6 +87,11 @@ class Transaction
     private $sortOrderBuilder;
 
     /**
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
+    private $storeRepository;
+
+    /**
      * Transaction constructor.
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
@@ -94,6 +101,7 @@ class Transaction
      * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
      * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
      * @param Data $kkmHelper
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
@@ -103,7 +111,8 @@ class Transaction
         InvoiceCollectionFactory $invoiceCollectionFactory,
         CreditmemoCollectionFactory $creditmemoCollectionFactory,
         \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
-        \Mygento\Kkm\Helper\Data $kkmHelper
+        \Mygento\Kkm\Helper\Data $kkmHelper,
+        StoreRepositoryInterface $storeRepository
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
@@ -113,6 +122,7 @@ class Transaction
         $this->kkmHelper = $kkmHelper;
         $this->jsonSerializer = $jsonSerializer;
         $this->sortOrderBuilder = $sortOrderBuilder;
+        $this->storeRepository = $storeRepository;
     }
 
     /**
@@ -530,10 +540,10 @@ class Transaction
     }
 
     /**
-     * @throws \Exception
+     * @param int|string|null $storeId
      * @return string[]
      */
-    public function getAllWaitUuids()
+    public function getAllWaitUuids($storeId = null): array
     {
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter('kkm_status', Response::STATUS_WAIT)
@@ -542,7 +552,7 @@ class Transaction
         /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
-        if ($this->kkmHelper->isMessageQueueEnabled()) {
+        if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {
             // если используются очереди, получаем только те транзации, для которых нет активных
             // заданий на обновление статуса
             $alias = 't_mygento_kkm_transaction_attempt';
@@ -576,8 +586,42 @@ class Transaction
                     implode(' AND ', $conditions),
                     []
                 )
-                ->where(sprintf('%s.%s IS NULL', $alias, TransactionAttemptInterface::ID))
+                ->joinLeft(
+                    'sales_order',
+                    sprintf(
+                        'main_table.%s = sales_order.%s',
+                        TransactionInterface::ORDER_ID,
+                        OrderInterface::ENTITY_ID
+                    ),
+                    []
+                )
+                ->where(sprintf(
+                    '%s.%s IS NULL',
+                    $alias,
+                    TransactionAttemptInterface::ID
+                ))
+                ->where(sprintf(
+                    'sales_order.%s = %s',
+                    OrderInterface::ENTITY_ID,
+                    $storeId
+                ))
                 ->group(TransactionInterface::TXN_ID);
+        } else {
+            $transactions->getSelect()
+                ->joinLeft(
+                    'sales_order',
+                    sprintf(
+                        'main_table.%s = sales_order.%s',
+                        TransactionInterface::ORDER_ID,
+                        OrderInterface::ENTITY_ID
+                    ),
+                    []
+                )
+                ->where(sprintf(
+                    'sales_order.%s = %s',
+                    OrderInterface::STORE_ID,
+                    $storeId
+                ))->group(TransactionInterface::TXN_ID);
         }
 
         return $transactions->getColumnValues(TransactionInterface::TXN_ID);

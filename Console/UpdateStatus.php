@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -11,6 +11,7 @@ namespace Mygento\Kkm\Console;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
+use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Transaction\Proxy;
 use Symfony\Component\Console\Command\Command;
@@ -43,6 +44,11 @@ class UpdateStatus extends Command
     private $updateProcessor;
 
     /**
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
+    private $storeRepository;
+
+    /**
      * UpdateStatus constructor.
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
@@ -51,18 +57,21 @@ class UpdateStatus extends Command
     public function __construct(
         UpdateInterface $updateProcessor,
         Proxy $transactionHelper,
-        State $state
+        State $state,
+        StoreRepositoryInterface $storeRepository
     ) {
         parent::__construct();
 
         $this->appState = $state;
         $this->updateProcessor = $updateProcessor;
         $this->transactionHelper = $transactionHelper;
+        $this->storeRepository = $storeRepository;
     }
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @throws \Exception
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return int|null
      */
@@ -72,9 +81,14 @@ class UpdateStatus extends Command
 
         $param = $input->getArgument('param');
 
-        $uuids = ($param === self::RUN_ALL_PARAM)
-            ? $this->transactionHelper->getAllWaitUuids()
-            : [$param];
+        if ($param === self::RUN_ALL_PARAM) {
+            $uuids = [];
+            foreach ($this->storeRepository->getList() as $store) {
+                $uuids = $this->transactionHelper->getAllWaitUuids($store->getId());
+            }
+        } else {
+            $uuids = [$param];
+        }
 
         $i = 1;
         foreach ($uuids as $uuid) {

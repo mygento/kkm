@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -223,11 +223,12 @@ class GetRecalculated
      * @param OrderItemInterface $itemMock
      * @param CreditmemoItemInterface|InvoiceItemInterface $item
      */
-    private function updateMarking($itemMock, $item): void
+    private function updateMarking(OrderItemInterface $itemMock, $item): void
     {
-        $markingAttribute = $this->configHelper->getMarkingShouldField();
-        $markingListAttribute = $this->configHelper->getMarkingField();
-        $markingRefundAttribute = $this->configHelper->getMarkingRefundField();
+        $storeId = $itemMock->getStoreId();
+        $markingAttribute = $this->configHelper->getMarkingShouldField($storeId);
+        $markingListAttribute = $this->configHelper->getMarkingField($storeId);
+        $markingRefundAttribute = $this->configHelper->getMarkingRefundField($storeId);
 
         $itemMock->setData($markingAttribute, $item->getOrderItem()->getData($markingAttribute));
         $itemMock->setData($markingListAttribute, $item->getOrderItem()->getData($markingListAttribute));

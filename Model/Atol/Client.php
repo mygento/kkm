@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -16,16 +16,16 @@ use Mygento\Kkm\Model\Source\ApiVersion;
 
 class Client
 {
-    public const REQUEST_URL = 'https://online.atol.ru/possystem/v%u/';
-    public const REQUEST_TEST_URL = 'https://testonline.atol.ru/possystem/v%u/';
+    private const REQUEST_URL = 'https://online.atol.ru/possystem/v%u/';
+    private const REQUEST_TEST_URL = 'https://testonline.atol.ru/possystem/v%u/';
 
     //see Atol Documentation
-    public const ALLOWED_HTTP_STATUSES = [100, 200, 400, 401];
+    private const ALLOWED_HTTP_STATUSES = [100, 200, 400, 401];
 
-    public const GET_TOKEN_URL_APPNX = 'getToken';
-    public const SELL_URL_APPNX = 'sell';
-    public const SELL_REFUND_URL_APPNX = 'sell_refund';
-    public const REPORT_URL_APPNX = 'report';
+    private const GET_TOKEN_URL_APPNX = 'getToken';
+    private const SELL_URL_APPNX = 'sell';
+    private const SELL_REFUND_URL_APPNX = 'sell_refund';
+    private const REPORT_URL_APPNX = 'report';
 
     /**
      * @var int
@@ -77,7 +77,7 @@ class Client
     }
 
     /**
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @throws \Exception
      * @return string
      */
@@ -238,10 +238,10 @@ class Client
 
     /**
      * Returns Atol Url depends on is test mode on/off
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @return string
      */
-    protected function getBaseUrl(?int $storeId = null)
+    protected function getBaseUrl(?int $storeId = null): string
     {
         $url = $this->kkmHelper->isTestMode($storeId)
             ? self::REQUEST_TEST_URL
@@ -253,11 +253,11 @@ class Client
     /**
      * @param string $url
      * @param array|string $params - use $params as a string in case of JSON POST request.
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
-    protected function sendPostRequest($url, $params = [], ?int $storeId = null): string
+    protected function sendPostRequest(string $url, $params = [], ?int $storeId = null): string
     {
         try {
             $curl = $this->curlClientFactory->create();
@@ -289,7 +289,7 @@ class Client
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
-    protected function sendGetRequest($url, ?int $storeId = null): string
+    protected function sendGetRequest(string $url, ?int $storeId = null): string
     {
         try {
             $curl = $this->curlClientFactory->create();

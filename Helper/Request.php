@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -12,6 +12,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 
 class Request
 {
@@ -56,10 +57,9 @@ class Request
 
     /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @return CreditmemoInterface|InvoiceInterface|OrderInterface
      */
-    public function getEntityByRequest($request)
+    public function getEntityByRequest(RequestInterface $request)
     {
         switch ($request->getOperationType()) {
             case RequestInterface::SELL_OPERATION_TYPE:
@@ -75,20 +75,20 @@ class Request
 
     /**
      * @param \Mygento\Kkm\Api\Data\UpdateRequestInterface $updateRequest
-     * @throws \Exception
+     *@throws \Exception
      * @return CreditmemoInterface|InvoiceInterface|OrderInterface
      */
-    public function getEntityByUpdateRequest($updateRequest)
+    public function getEntityByUpdateRequest(UpdateRequestInterface $updateRequest)
     {
         return $this->getEntityByUuid($updateRequest->getUuid());
     }
 
     /**
      * @param string $uuid
-     * @throws \Exception
-     * @return CreditmemoInterface|InvoiceInterface|OrderInterface
+     *@throws \Exception
+     * @return CreditmemoInterface|InvoiceInterface
      */
-    public function getEntityByUuid($uuid)
+    public function getEntityByUuid(string $uuid)
     {
         $transaction = $this->transactionHelper->getTransactionByTxnId($uuid);
         if (!$transaction->getTransactionId()) {
@@ -107,7 +107,7 @@ class Request
     /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      */
-    public function increaseExternalId($request)
+    public function increaseExternalId(RequestInterface $request): void
     {
         if (preg_match('/^(.*)__(\d+)$/', $request->getExternalId(), $matches)) {
             $request->setExternalId($matches[1] . '__' . ($matches[2] + 1));

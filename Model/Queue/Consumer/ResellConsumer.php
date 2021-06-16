@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -47,8 +47,8 @@ class ResellConsumer extends AbstractConsumer
             $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals()) {
+            $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+            if ($this->helper->isUseCustomRetryIntervals($storeId)) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
             } else {

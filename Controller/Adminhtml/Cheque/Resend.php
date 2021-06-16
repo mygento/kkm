@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -103,7 +103,7 @@ class Resend extends \Magento\Backend\App\Action
                     break;
             }
 
-            $comment .= $this->kkmHelper->isMessageQueueEnabled()
+            $comment .= $this->kkmHelper->isMessageQueueEnabled($storeId)
                 ? 'was placed to queue for further sending.'
                 : 'was sent to KKM.';
 

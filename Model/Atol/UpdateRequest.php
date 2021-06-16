@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -12,6 +12,14 @@ use Magento\Framework\DataObject;
 
 class UpdateRequest extends DataObject implements \Mygento\Kkm\Api\Data\UpdateRequestInterface
 {
+    /**
+     * @inheritDoc
+     */
+    public function __toString()
+    {
+        return (string) $this->getUuid();
+    }
+
     /**
      * Get uuid
      * @return string|null
@@ -45,13 +53,5 @@ class UpdateRequest extends DataObject implements \Mygento\Kkm\Api\Data\UpdateRe
     public function setStoreId($id): \Mygento\Kkm\Api\Data\UpdateRequestInterface
     {
         return $this->setData(self::STORE_ID, $id);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function __toString()
-    {
-        return (string) $this->getUuid();
     }
 }
