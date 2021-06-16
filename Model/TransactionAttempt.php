@@ -56,6 +56,25 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * Get store id
+     * @return int|string|null
+     */
+    public function getStoreId()
+    {
+        return $this->getData(self::STORE_ID);
+    }
+
+    /**
+     * Set order id
+     * @param int|string|null $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId)
+    {
+        return $this->setData(self::STORE_ID, $storeId);
+    }
+
+    /**
      * Get txn type
      * @return string|null
      */

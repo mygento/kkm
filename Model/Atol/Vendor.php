@@ -38,22 +38,17 @@ use Mygento\Kkm\Helper\Transaction as TransactionHelper;
  */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface
 {
-    const CLIENT_NAME = 'client_name';
-    const CLIENT_INN = 'client_inn';
+    public const CLIENT_NAME = 'client_name';
+    public const CLIENT_INN = 'client_inn';
 
-    const TAX_SUM = 'tax_sum';
-    const CUSTOM_DECLARATION = 'custom_declaration';
-    const COUNTRY_CODE = 'country_code';
+    public const TAX_SUM = 'tax_sum';
+    public const CUSTOM_DECLARATION = 'custom_declaration';
+    public const COUNTRY_CODE = 'country_code';
 
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
-
-    /**
-     * @var \Mygento\Base\Helper\Discount
-     */
-    private $kkmDiscount;
 
     /**
      * @var \Mygento\Kkm\Model\Atol\RequestFactory
@@ -112,7 +107,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private $getRecalculated;
 
     /**
-     * @param \Mygento\Base\Helper\Discount $kkmDiscount
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
@@ -128,7 +122,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Mygento\Base\Helper\Discount $kkmDiscount,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Mygento\Kkm\Helper\Request $requestHelper,
@@ -143,7 +136,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         \Mygento\Kkm\Model\GetRecalculated $getRecalculated
     ) {
         $this->kkmHelper = $kkmHelper;
-        $this->kkmDiscount = $kkmDiscount;
         $this->requestFactory = $requestFactory;
         $this->itemFactory = $itemFactory;
         $this->apiClient = $apiClient;
@@ -231,7 +223,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
 
         //TODO: Validate response
-        $response = $this->apiClient->receiveStatus($uuid);
+        $response = $this->apiClient->receiveStatus($uuid, $entity->getStoreId());
 
         $operation = '';
         switch ($entity->getEntityType()) {
@@ -392,7 +384,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $items = [];
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
             //For orders without Shipping (Virtual products)
-            if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
+            if ($key === Discount::SHIPPING && $itemData[Discount::NAME] === null) {
                 continue;
             }
 
@@ -481,10 +473,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     }
 
     /**
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @return string
      */
-    public function getCallbackUrl($storeId = null)
+    public function getCallbackUrl($storeId = null): string
     {
         return $this->kkmHelper->getConfig('atol/callback_url', $storeId)
             ?? $this->urlHelper->setScope($storeId)->getUrl('kkm/frontend/callback', [
@@ -499,6 +491,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
     {
         $order = $entity->getOrder();
+
+        $storeId = $order->getStoreId();
 
         if ($order->getData(self::COMMENT_ADDED_TO_ORDER_FLAG)) {
             return;
@@ -521,13 +515,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         $comment = $this->buildOrderComment($operation, $message);
 
-        if ($response->getStatus() == Response::STATUS_DONE
-            && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
-            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone()
+        if ($response->getStatus() === Response::STATUS_DONE
+            && $order->getStatus() === Error::ORDER_KKM_FAILED_STATUS
+            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($storeId)
         ) {
             $order->addCommentToStatusHistory(
                 $comment,
-                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone()
+                $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($storeId)
             );
         } else {
             $order->addCommentToStatusHistory($comment);
@@ -576,7 +570,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         $trials = $this->attemptHelper->getTrials($entity, UpdateRequestInterface::UPDATE_OPERATION_TYPE);
-        $maxUpdateTrials = $this->kkmHelper->getMaxUpdateTrials();
+        $maxUpdateTrials = $this->kkmHelper->getMaxUpdateTrials($entity->getStoreId());
 
         //Don't send if trials number exceeded
         if ($trials >= $maxUpdateTrials) {
@@ -591,7 +585,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         try {
             //Make Request to Vendor's API
-            $response = $this->apiClient->receiveStatus($uuid);
+            $response = $this->apiClient->receiveStatus($uuid, $entity->getStoreId());
 
             //Save transaction data
             $txn = $this->transactionHelper->registerTransaction($entity, $response);
@@ -616,7 +610,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param RecalculateResultItemInterface $itemData
      * @param string $itemPaymentMethod
      * @param string $itemPaymentObject
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @return ItemInterface
      */
     private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
@@ -634,7 +628,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
             ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
             ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
-        if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
+        if (!empty($itemData[Discount::MARKING]) && $this->kkmHelper->isMarkingEnabled($storeId)) {
             $item->setMarkingRequired(true);
             $item->setMarking(
                 $this->convertMarkingToHex($itemData[Discount::MARKING])
@@ -658,9 +652,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private function sendRequest($request, $callback, $entity = null): ResponseInterface
     {
         $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
+        $request->setStoreId($entity->getStoreId());
 
         $trials = $this->attemptHelper->getTrials($entity, $request->getOperationType());
-        $maxTrials = $this->kkmHelper->getMaxTrials();
+        $maxTrials = $this->kkmHelper->getMaxTrials($entity->getStoreId());
 
         //Don't send if trials number exceeded
         if ($trials >= $maxTrials && !$request->isIgnoreTrialsNum()) {

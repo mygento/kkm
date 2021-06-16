@@ -27,21 +27,4 @@ interface UpdateRequestInterface
      * @return $this
      */
     public function setUuid($uuid);
-
-    /**
-     * @return int
-     */
-    public function getStoreId(): ?int;
-
-    /**
-     * Set storeId
-     * @param int|string $id
-     * @return $this
-     */
-    public function setStoreId($id): self;
-
-    /**
-     * @return string
-     */
-    public function __toString();
 }

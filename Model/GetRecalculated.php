@@ -187,10 +187,10 @@ class GetRecalculated
     }
 
     /**
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @return array
      */
-    private function collectArguments(?int $storeId): array
+    private function collectArguments($storeId = null): array
     {
         $shippingTax = $this->configHelper->getConfig('general/shipping_tax', $storeId);
         $taxValue = $this->configHelper->getConfig('general/tax_options', $storeId);
@@ -223,11 +223,12 @@ class GetRecalculated
      * @param OrderItemInterface $itemMock
      * @param CreditmemoItemInterface|InvoiceItemInterface $item
      */
-    private function updateMarking($itemMock, $item): void
+    private function updateMarking(OrderItemInterface $itemMock, $item): void
     {
-        $markingAttribute = $this->configHelper->getMarkingShouldField();
-        $markingListAttribute = $this->configHelper->getMarkingField();
-        $markingRefundAttribute = $this->configHelper->getMarkingRefundField();
+        $storeId = $itemMock->getStoreId();
+        $markingAttribute = $this->configHelper->getMarkingShouldField($storeId);
+        $markingListAttribute = $this->configHelper->getMarkingField($storeId);
+        $markingRefundAttribute = $this->configHelper->getMarkingRefundField($storeId);
 
         $itemMock->setData($markingAttribute, $item->getOrderItem()->getData($markingAttribute));
         $itemMock->setData($markingListAttribute, $item->getOrderItem()->getData($markingListAttribute));
