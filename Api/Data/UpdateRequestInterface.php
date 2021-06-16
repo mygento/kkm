@@ -16,11 +16,6 @@ interface UpdateRequestInterface
     public const STORE_ID = 'store_id';
 
     /**
-     * @return string
-     */
-    public function __toString();
-
-    /**
      * Get uuid
      * @return string|null
      */
