@@ -48,4 +48,33 @@
             </argument>
         </arguments>
     </type>
+    <virtualType name="Mygento\Kkm\Model\SearchCriteria\TransactionAttemptCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor</item>
+                <item name="sorting" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\SortingProcessor</item>
+                <item name="pagination" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\PaginationProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Mygento\Kkm\Model\TransactionAttemptRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">Mygento\Kkm\Model\SearchCriteria\TransactionAttemptCollectionProcessor</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="kkm_transactionattempt_listing_data_source" xsi:type="string">Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mygento_kkm_transaction_attempt</argument>
+            <argument name="eventPrefix" xsi:type="string">kkm_transactionattempt_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">transactionattempt_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">Mygento\Kkm\Model\ResourceModel\TransactionAttempt</argument>
+        </arguments>
+    </type>
 </config>

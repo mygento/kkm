@@ -246,4 +246,30 @@ interface TransactionAttemptInterface
      * @return $this
      */
     public function setParentId($id);
+
+    /**
+     * Get error code
+     * @return int|null
+     */
+    public function getErrorCode();
+
+    /**
+     * Set error code
+     * @param int $errorCode
+     * @return $this
+     */
+    public function setErrorCode($errorCode);
+
+    /**
+     * Get error type
+     * @return string|null
+     */
+    public function getErrorType();
+
+    /**
+     * Set error type
+     * @param string $errorType
+     * @return $this
+     */
+    public function setErrorType($errorType);
 }

@@ -319,6 +319,44 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * Get error code
+     * @return int|null
+     */
+    public function getErrorCode()
+    {
+        return $this->getData(self::ERROR_CODE);
+    }
+
+    /**
+     * Set error code
+     * @param int $errorCode
+     * @return $this
+     */
+    public function setErrorCode($errorCode)
+    {
+        return $this->setData(self::ERROR_CODE, $errorCode);
+    }
+
+    /**
+     * Get error type
+     * @return string|null
+     */
+    public function getErrorType()
+    {
+        return $this->getData(self::ERROR_TYPE);
+    }
+
+    /**
+     * Set error type
+     * @param string $errorType
+     * @return $this
+     */
+    public function setErrorType($errorType)
+    {
+        return $this->setData(self::ERROR_TYPE, $errorType);
+    }
+
+    /**
      * @return void
      */
     protected function _construct()
