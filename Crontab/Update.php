@@ -140,7 +140,7 @@ class Update
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);
 
-        if ($updateRequest instanceof DataObject) {
+        if ($updateRequest instanceof UpdateRequestInterface) {
             $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
         }
 
