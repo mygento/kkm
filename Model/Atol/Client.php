@@ -123,10 +123,11 @@ class Client
     /**
      * @param string $uuid
      * @param int|null $storeId
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return ResponseInterface
+     * @throws \Exception
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      */
-    public function receiveStatus(string $uuid, $storeId = null): ResponseInterface
+    public function receiveStatus(string $uuid, int $storeId = null): ResponseInterface
     {
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
@@ -226,9 +227,9 @@ class Client
     /**
      * @return int
      */
-    public function getApiVersion()
+    public function getApiVersion($storeId = null)
     {
-        $apiVersion = $this->kkmHelper->getConfig('atol/api_version');
+        $apiVersion = $this->kkmHelper->getConfig('atol/api_version', $storeId);
         $this->apiVersion = in_array($apiVersion, ApiVersion::getAllVersions())
             ? $apiVersion
             : ApiVersion::API_VERSION_4;
@@ -247,7 +248,7 @@ class Client
             ? self::REQUEST_TEST_URL
             : self::REQUEST_URL;
 
-        return sprintf($url, $this->getApiVersion());
+        return sprintf($url, $this->getApiVersion($storeId));
     }
 
     /**

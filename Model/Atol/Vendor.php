@@ -223,7 +223,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $entity = $this->transactionHelper->getEntityByTransaction($transaction);
 
         //TODO: Validate response
-        $response = $this->apiClient->receiveStatus($uuid);
+        $response = $this->apiClient->receiveStatus($uuid, $entity->getStoreId());
 
         $operation = '';
         switch ($entity->getEntityType()) {
@@ -585,7 +585,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         try {
             //Make Request to Vendor's API
-            $response = $this->apiClient->receiveStatus($uuid);
+            $response = $this->apiClient->receiveStatus($uuid, $entity->getStoreId());
 
             //Save transaction data
             $txn = $this->transactionHelper->registerTransaction($entity, $response);

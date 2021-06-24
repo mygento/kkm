@@ -82,22 +82,23 @@ class UpdateStatus extends Command
         $param = $input->getArgument('param');
 
         if ($param === self::RUN_ALL_PARAM) {
-            $uuids = [];
+            $i = 1;
             foreach ($this->storeRepository->getList() as $store) {
                 $uuids = $this->transactionHelper->getAllWaitUuids($store->getId());
+
+                foreach ($uuids as $uuid) {
+                    $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
+                    $this->updateOne($output, $uuid);
+                    $i++;
+                }
             }
-        } else {
-            $uuids = [$param];
+
+            return Cli::RETURN_SUCCESS;
         }
 
-        $i = 1;
-        foreach ($uuids as $uuid) {
-            $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
-            $this->updateOne($output, $uuid);
-            $i++;
-        }
+        $output->writeln("<comment>Updating {$param} ...</comment>");
 
-        return Cli::RETURN_SUCCESS;
+        return $this->updateOne($output, $param);
     }
 
     /**
@@ -128,8 +129,6 @@ HELP
     /**
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @param string $uuid
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return int
      */
     private function updateOne($output, $uuid)

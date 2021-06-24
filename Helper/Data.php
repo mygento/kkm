@@ -25,12 +25,12 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string $param
-     * @param string|null $scopeCode
+     * @param null $scopeCode
      * @return string
      */
-    public function getConfig($param, $scopeCode = null): string
+    public function getConfig($param, $scopeCode = null)
     {
-        return parent::getConfig($this->getCode() . '/' . $param, $scopeCode) ?? '';
+        return parent::getConfig($this->getCode() . '/' . $param, $scopeCode);
     }
 
     /**
@@ -38,7 +38,7 @@ class Data extends \Mygento\Base\Helper\Data
      * @throws \Exception
      * @return string
      */
-    public function getAtolLogin($storeId = null): string
+    public function getAtolLogin($storeId = null)
     {
         $login = $this->getConfig('atol/login', $storeId);
 
@@ -54,7 +54,7 @@ class Data extends \Mygento\Base\Helper\Data
      * @throws \Exception
      * @return string
      */
-    public function getAtolPassword($storeId = null): string
+    public function getAtolPassword($storeId = null)
     {
         $passwd = $this->getConfig('atol/password', $storeId);
 
@@ -69,7 +69,7 @@ class Data extends \Mygento\Base\Helper\Data
      * @param int|string|null $storeId
      * @return string|null
      */
-    public function getStoreEmail($storeId = null): ?string
+    public function getStoreEmail($storeId = null)
     {
         return parent::getConfig('trans_email/ident_general/email', $storeId);
     }

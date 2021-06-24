@@ -140,8 +140,8 @@ class Update
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);
 
-        if ($uuid instanceof DataObject) {
-            $this->kkmHelper->debug('Publish request: ', $uuid->toArray());
+        if ($updateRequest instanceof DataObject) {
+            $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
         }
 
         $this->updateProcessor->proceedAsync($updateRequest);
