@@ -320,7 +320,7 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
 
     /**
      * Get error code
-     * @return int|null
+     * @return string|null
      */
     public function getErrorCode()
     {
@@ -329,7 +329,7 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
 
     /**
      * Set error code
-     * @param int $errorCode
+     * @param string $errorCode
      * @return $this
      */
     public function setErrorCode($errorCode)

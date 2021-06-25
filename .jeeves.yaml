@@ -78,9 +78,9 @@ Mygento:
           nullable: true
           comment: 'Request Json'
         error_code:
-          type: int
+          type: varchar
+          length: 15
           nullable: true
-          unsigned: true
           comment: 'Error Code'
         error_type:
           type: varchar

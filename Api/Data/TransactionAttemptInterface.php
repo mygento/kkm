@@ -26,6 +26,8 @@ interface TransactionAttemptInterface
     public const IS_SCHEDULED = 'is_scheduled';
     public const REQUEST_JSON = 'request_json';
     public const PARENT_ID = 'parent_id';
+    public const ERROR_CODE = 'error_code';
+    public const ERROR_TYPE = 'error_type';
 
     const OPERATION_LABEL = [
         1 => 'Payment',
@@ -249,13 +251,13 @@ interface TransactionAttemptInterface
 
     /**
      * Get error code
-     * @return int|null
+     * @return string|null
      */
     public function getErrorCode();
 
     /**
      * Set error code
-     * @param int $errorCode
+     * @param string $errorCode
      * @return $this
      */
     public function setErrorCode($errorCode);
