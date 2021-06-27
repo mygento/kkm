@@ -30,6 +30,7 @@ use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
+use Mygento\Kkm\Model\Source\ErrorType;
 
 /**
  * Class Vendor
@@ -691,19 +692,15 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
         } catch (VendorBadServerAnswerException $e) {
-
-        } catch (CreateDocumentFailedException $e) {
-            $response = $e->getResponse();
+            $attempt->setErrorType(Error::BAD_SERVER_ANSWER_ERROR_TYPE);
+        } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
+            $attempt->setErrorType(ErrorType::UNDEFINED);
 
             if ($response) {
                 $attempt
                     ->setErrorCode($response->getErrorCode())
                     ->setErrorType($response->getErrorType());
             }
-        } catch (VendorNonFatalErrorException $e) {
-            $attempt
-                ->setErrorCode($response->getErrorCode())
-                ->setErrorType($response->getErrorType());
         } catch (\Throwable $e) {
             //Mark attempt as Error
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
