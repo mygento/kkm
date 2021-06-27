@@ -27,6 +27,7 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
+use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 
@@ -673,9 +674,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt($request, $entity);
+        $response = null;
 
         try {
             //Make Request to Vendor's API
+            /** @var \Mygento\Kkm\Api\Data\ResponseInterface $response */
             $response = $this->apiClient->{$callback}($request);
 
             //Save transaction data
@@ -687,6 +690,20 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
+        } catch (VendorBadServerAnswerException $e) {
+
+        } catch (CreateDocumentFailedException $e) {
+            $response = $e->getResponse();
+
+            if ($response) {
+                $attempt
+                    ->setErrorCode($response->getErrorCode())
+                    ->setErrorType($response->getErrorType());
+            }
+        } catch (VendorNonFatalErrorException $e) {
+            $attempt
+                ->setErrorCode($response->getErrorCode())
+                ->setErrorType($response->getErrorType());
         } catch (\Throwable $e) {
             //Mark attempt as Error
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
