@@ -189,7 +189,7 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+        $storeId = $request->getStoreId();
         if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendResellRequest($request, $invoice);

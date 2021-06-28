@@ -131,11 +131,12 @@ class Client
     {
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
+        $token = $this->getToken($storeId);
         $groupCode = $this->getGroupCode($storeId);
         $url = $this->getBaseUrl($storeId) . $groupCode . '/' . self::REPORT_URL_APPNX . '/' . $uuid;
         $this->kkmHelper->debug('URL: ' . $url);
 
-        $responseRaw = $this->sendGetRequest($url, $storeId);
+        $responseRaw = $this->sendGetRequest($url, $token);
         $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
         $this->kkmHelper->info('New status: ' . $response->getStatus());
@@ -146,9 +147,10 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return ResponseInterface
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException*@throws \Exception
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Exception
      */
     public function sendRefund($request): ResponseInterface
     {
@@ -157,16 +159,16 @@ class Client
         $this->kkmHelper->debug('Request', $request->__toArray());
 
         $storeId = $request->getStoreId();
-
         $request = $debugData['request'] = $this->jsonSerializer->serialize($request);
 
         try {
+            $token = $this->getToken($storeId);
             $groupCode = $this->getGroupCode($storeId);
             $url = $this->getBaseUrl($storeId) . $groupCode . '/' . self::SELL_REFUND_URL_APPNX;
             $debugData['url'] = $url;
             $this->kkmHelper->debug('URL: ' . $url);
 
-            $responseRaw = $this->sendPostRequest($url, $request, $storeId);
+            $responseRaw = $this->sendPostRequest($url, $token, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
             $this->kkmHelper->info(__('Refund is sent. Uuid: %1', $response->getUuid()));
@@ -201,12 +203,13 @@ class Client
         $request = $debugData['request'] = $this->jsonSerializer->serialize($request);
 
         try {
+            $token = $this->getToken($storeId);
             $groupCode = $this->getGroupCode($storeId);
             $url = $this->getBaseUrl($storeId) . $groupCode . '/' . self::SELL_URL_APPNX;
             $debugData['url'] = $url;
             $this->kkmHelper->debug('URL: ' . $url);
 
-            $responseRaw = $this->sendPostRequest($url, $request, $storeId);
+            $responseRaw = $this->sendPostRequest($url, $token, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
             $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getUuid()));
@@ -253,17 +256,17 @@ class Client
 
     /**
      * @param string $url
+     * @param string $token
      * @param array|string $params - use $params as a string in case of JSON POST request.
-     * @param int|string|null $storeId
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
-    protected function sendPostRequest(string $url, $params = [], ?int $storeId = null): string
+    protected function sendPostRequest(string $url, string $token, $params = []): string
     {
         try {
             $curl = $this->curlClientFactory->create();
             $curl->addHeader('Content-Type', 'application/json; charset=utf-8');
-            $curl->addHeader('Token', $this->getToken($storeId));
+            $curl->addHeader('Token', $token);
             $curl->post($url, $params);
             $response = $curl->getBody();
         } catch (\Exception $e) {
@@ -286,15 +289,15 @@ class Client
 
     /**
      * @param string $url
-     * @param int|null $storeId
+     * @param string $token
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
      */
-    protected function sendGetRequest(string $url, ?int $storeId = null): string
+    protected function sendGetRequest(string $url, string $token): string
     {
         try {
             $curl = $this->curlClientFactory->create();
-            $curl->addHeader('Token', $this->getToken($storeId));
+            $curl->addHeader('Token', $token);
             $curl->get($url);
             $response = $curl->getBody();
         } catch (\Exception $e) {

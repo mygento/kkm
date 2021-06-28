@@ -188,7 +188,7 @@ class TransactionAttempt
 
         $attempt
             ->setIsScheduled(true)
-            ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt))
+            ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt, $request->getStoreId()))
             ->setRequestJson($this->messageEncoder->encode($topic, $request));
 
         return $this->attemptRepository->save($attempt);
@@ -305,16 +305,14 @@ class TransactionAttempt
 
     /**
      * @param TransactionAttemptInterface $attempt
-     * @throws \Exception
+     * @param int|string|null $storeId
      * @return string
      */
-    private function resolveScheduledAt(TransactionAttemptInterface $attempt): string
+    private function resolveScheduledAt(TransactionAttemptInterface $attempt, $storeId): string
     {
         $numberOfTrials = $attempt->getNumberOfTrials();
 
         $scheduledAt = new \DateTime();
-
-        $storeId = $this->orderRepository->get($attempt->getOrderId())->getStoreId();
 
         $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals($storeId);
         if ($customRetryIntervals && isset($customRetryIntervals[$numberOfTrials])) {
