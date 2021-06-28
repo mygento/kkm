@@ -25,7 +25,7 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string $param
-     * @param null $scopeCode
+     * @param string|int|null $scopeCode
      * @return string
      */
     public function getConfig($param, $scopeCode = null)

@@ -12,12 +12,14 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 
 class RefundConsumer extends AbstractConsumer
 {
     /**
      * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
-     * @throws \Magento\Framework\Exception\LocalizedException|\Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException|NoSuchEntityException
      */
     public function sendMergedRequest($mergedRequest)
     {
@@ -31,8 +33,8 @@ class RefundConsumer extends AbstractConsumer
 
     /**
      * @param RequestInterface $request
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
     private function sendRefundRequest(RequestInterface $request): void
     {

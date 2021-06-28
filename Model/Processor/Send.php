@@ -275,7 +275,7 @@ class Send implements SendInterface
                 return $this->proceedResellSell($invoice, $sync, false, true);
             }
 
-            $storeId = $this->invoiceRepository->get($invoice->getEntityId());
+            $storeId = $invoice->getStoreId();
             if (!$this->helper->isMessageQueueEnabled($storeId)) {
                 throw new InputException(__('Can not proceed resell process.'));
             }

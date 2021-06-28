@@ -46,7 +46,7 @@ class SellConsumer extends AbstractConsumer
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            $storeId = $this->requestHelper->getEntityByRequest($request)->getStoreId();
+            $storeId = $request->getStoreId();
             if ($this->helper->isUseCustomRetryIntervals($storeId)) {
                 // помечаем заказ, как KKM Fail
                 // далее находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at

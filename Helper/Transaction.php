@@ -602,7 +602,7 @@ class Transaction
                 ))
                 ->where(sprintf(
                     'sales_order.%s = %s',
-                    OrderInterface::ENTITY_ID,
+                    OrderInterface::STORE_ID,
                     $storeId
                 ))
                 ->group(TransactionInterface::TXN_ID);

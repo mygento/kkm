@@ -8,13 +8,16 @@
 
 namespace Mygento\Kkm\Crontab;
 
-use Magento\Framework\DataObject;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterfaceFactory;
+use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\Transaction\Proxy;
+use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\Atol\Response;
 
 class Update
@@ -58,10 +61,10 @@ class Update
      */
     public function __construct(
         UpdateRequestInterfaceFactory $updateRequestFactory,
-        \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
-        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
+        UpdateInterface $updateProcessor,
+        TransactionAttempt $attemptHelper,
+        Data $kkmHelper,
+        Proxy $transactionHelper,
         StoreRepositoryInterface $storeRepository
     ) {
         $this->updateRequestFactory = $updateRequestFactory;
@@ -83,8 +86,6 @@ class Update
         }
 
         $this->kkmHelper->info('KKM Update statuses Cron START');
-
-        $uuids = [];
 
         $result = [];
         $i = 0;
@@ -121,7 +122,6 @@ class Update
      */
     private function createUpdateAttempt(string $uuid): void
     {
-        /** @var TransactionInterface $transaction */
         $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
         if (!$transaction->getTransactionId()) {
             throw new \Exception("Transaction not found. Uuid: {$uuid}");
@@ -133,16 +133,13 @@ class Update
             throw new \Exception("Entity not found. Uuid: {$uuid}");
         }
 
-        /** @var UpdateRequestInterface $updateRequest */
         $updateRequest = $this->updateRequestFactory->create();
         $updateRequest->setUuid($uuid);
 
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);
 
-        if ($updateRequest instanceof UpdateRequestInterface) {
-            $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
-        }
+        $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
 
         $this->updateProcessor->proceedAsync($updateRequest);
     }
