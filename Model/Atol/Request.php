@@ -434,12 +434,6 @@ abstract class Request implements \JsonSerializable, RequestInterface
      */
     public function getStoreId(): ?int
     {
-        if (!isset($this->storeId)) {
-            $parts = explode('_', $this->getExternalId());
-
-            $this->storeId = $parts[1] ?? null;
-        }
-
         return $this->storeId;
     }
 
