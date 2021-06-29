@@ -123,9 +123,9 @@ class Client
     /**
      * @param string $uuid
      * @param int|null $storeId
-     * @return ResponseInterface
      * @throws \Exception
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return ResponseInterface
      */
     public function receiveStatus(string $uuid, int $storeId = null): ResponseInterface
     {
@@ -147,10 +147,10 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @return ResponseInterface
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException*@throws \Exception
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Exception
+     * @return ResponseInterface
      */
     public function sendRefund($request): ResponseInterface
     {
@@ -228,6 +228,7 @@ class Client
     }
 
     /**
+     * @param int|string|null $storeId
      * @return int
      */
     public function getApiVersion($storeId = null)

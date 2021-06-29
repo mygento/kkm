@@ -46,30 +46,22 @@ class TransactionAttempt
     private $attemptRepository;
 
     /**
-     * @var \Magento\Sales\Api\OrderRepositoryInterface;
-     */
-    private $orderRepository;
-
-    /**
      * TransactionAttempt constructor.
      * @param MessageEncoder $messageEncoder
      * @param Request $requestHelper
      * @param Data $kkmHelper
      * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
-     * @param \Magento\Sales\Api\OrderRepositoryInterface
      */
     public function __construct(
         MessageEncoder $messageEncoder,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        TransactionAttemptRepositoryInterface $attemptRepository,
-        OrderRepositoryInterface $orderRepository
+        TransactionAttemptRepositoryInterface $attemptRepository
     ) {
         $this->messageEncoder = $messageEncoder;
         $this->requestHelper = $requestHelper;
         $this->kkmHelper = $kkmHelper;
         $this->attemptRepository = $attemptRepository;
-        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -163,7 +155,7 @@ class TransactionAttempt
      * @param RequestInterface $request
      * @param string $topic
      * @param string|null $scheduledAt
-     *@throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
@@ -199,7 +191,7 @@ class TransactionAttempt
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @param TransactionInterface $transaction
      * @param bool $increaseTrials
-     *@throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
     public function registerUpdateAttempt(
@@ -252,7 +244,7 @@ class TransactionAttempt
      * Mark attempt as Failed
      * @param TransactionAttemptInterface $attempt
      * @param string $message
-     *@throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
     public function failAttempt(TransactionAttemptInterface $attempt, string $message = ''): TransactionAttemptInterface

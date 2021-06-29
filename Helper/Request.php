@@ -75,7 +75,7 @@ class Request
 
     /**
      * @param \Mygento\Kkm\Api\Data\UpdateRequestInterface $updateRequest
-     *@throws \Exception
+     * @throws \Exception
      * @return CreditmemoInterface|InvoiceInterface|OrderInterface
      */
     public function getEntityByUpdateRequest(UpdateRequestInterface $updateRequest)
@@ -85,7 +85,7 @@ class Request
 
     /**
      * @param string $uuid
-     *@throws \Exception
+     * @throws \Exception
      * @return CreditmemoInterface|InvoiceInterface
      */
     public function getEntityByUuid(string $uuid)

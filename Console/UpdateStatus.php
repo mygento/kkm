@@ -53,6 +53,7 @@ class UpdateStatus extends Command
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
      * @param \Magento\Framework\App\State $state
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
         UpdateInterface $updateProcessor,

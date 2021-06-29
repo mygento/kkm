@@ -10,9 +10,7 @@ namespace Mygento\Kkm\Crontab;
 
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Store\Api\StoreRepositoryInterface;
-use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterfaceFactory;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Data;

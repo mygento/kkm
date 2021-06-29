@@ -8,12 +8,12 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 
 class RefundConsumer extends AbstractConsumer
 {
