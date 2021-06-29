@@ -122,12 +122,12 @@ class Client
 
     /**
      * @param string $uuid
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @throws \Exception
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return ResponseInterface
      */
-    public function receiveStatus(string $uuid, int $storeId = null): ResponseInterface
+    public function receiveStatus(string $uuid, $storeId = null): ResponseInterface
     {
         $this->kkmHelper->info("START updating status for uuid {$uuid}");
 
@@ -246,7 +246,7 @@ class Client
      * @param int|string|null $storeId
      * @return string
      */
-    protected function getBaseUrl(?int $storeId = null): string
+    protected function getBaseUrl($storeId = null): string
     {
         $url = $this->kkmHelper->isTestMode($storeId)
             ? self::REQUEST_TEST_URL
@@ -320,11 +320,11 @@ class Client
     }
 
     /**
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @throws \Exception
      * @return string
      */
-    private function getGroupCode(?int $storeId = null)
+    private function getGroupCode($storeId = null)
     {
         $groupCode = $this->kkmHelper->getConfig('atol/group_code', $storeId);
         if (!$groupCode) {

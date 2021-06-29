@@ -610,7 +610,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @param RecalculateResultItemInterface $itemData
      * @param string $itemPaymentMethod
      * @param string $itemPaymentObject
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @return ItemInterface
      */
     private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)

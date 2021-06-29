@@ -187,10 +187,10 @@ class GetRecalculated
     }
 
     /**
-     * @param int|null $storeId
+     * @param int|string|null $storeId
      * @return array
      */
-    private function collectArguments(?int $storeId): array
+    private function collectArguments($storeId = null): array
     {
         $shippingTax = $this->configHelper->getConfig('general/shipping_tax', $storeId);
         $taxValue = $this->configHelper->getConfig('general/tax_options', $storeId);
