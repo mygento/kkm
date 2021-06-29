@@ -14,7 +14,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterfaceFactory;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Data;
-use Mygento\Kkm\Helper\Transaction\Proxy;
+use Mygento\Kkm\Helper\Transaction\Proxy as TransactionHelper;
 use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\Atol\Response;
 
@@ -62,7 +62,7 @@ class Update
         UpdateInterface $updateProcessor,
         TransactionAttempt $attemptHelper,
         Data $kkmHelper,
-        Proxy $transactionHelper,
+        TransactionHelper $transactionHelper,
         StoreRepositoryInterface $storeRepository
     ) {
         $this->updateRequestFactory = $updateRequestFactory;

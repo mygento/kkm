@@ -13,7 +13,7 @@ use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
-use Mygento\Kkm\Helper\Transaction\Proxy;
+use Mygento\Kkm\Helper\Transaction\Proxy as TransactionHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -57,7 +57,7 @@ class UpdateStatus extends Command
      */
     public function __construct(
         UpdateInterface $updateProcessor,
-        Proxy $transactionHelper,
+        TransactionHelper $transactionHelper,
         State $state,
         StoreRepositoryInterface $storeRepository
     ) {
