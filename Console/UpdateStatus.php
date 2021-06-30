@@ -82,24 +82,24 @@ class UpdateStatus extends Command
 
         $param = $input->getArgument('param');
 
-        if ($param === self::RUN_ALL_PARAM) {
-            $i = 1;
-            foreach ($this->storeRepository->getList() as $store) {
-                $uuids = $this->transactionHelper->getAllWaitUuids($store->getId());
+        if ($param !== self::RUN_ALL_PARAM) {
+            $output->writeln("<comment>Updating {$param} ...</comment>");
 
-                foreach ($uuids as $uuid) {
-                    $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
-                    $this->updateOne($output, $uuid);
-                    $i++;
-                }
-            }
-
-            return Cli::RETURN_SUCCESS;
+            return $this->updateOne($output, $param);
         }
 
-        $output->writeln("<comment>Updating {$param} ...</comment>");
+        $i = 1;
+        foreach ($this->storeRepository->getList() as $store) {
+            $uuids = $this->transactionHelper->getAllWaitUuids($store->getId());
 
-        return $this->updateOne($output, $param);
+            foreach ($uuids as $uuid) {
+                $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
+                $this->updateOne($output, $uuid);
+                $i++;
+            }
+        }
+
+        return Cli::RETURN_SUCCESS;
     }
 
     /**
