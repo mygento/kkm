@@ -552,7 +552,7 @@ class Transaction
         /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
-        $query = $transactions->getSelect()
+        $transactions->getSelect()
             ->joinLeft(
                 'sales_order',
                 sprintf(
@@ -561,7 +561,12 @@ class Transaction
                     OrderInterface::ENTITY_ID
                 ),
                 []
-            );
+            )
+            ->where(sprintf(
+                'sales_order.%s = %s',
+                OrderInterface::STORE_ID,
+                $storeId
+            ));
 
         if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {
             // если используются очереди, получаем только те транзации, для которых нет активных
@@ -592,7 +597,8 @@ class Transaction
                 $transactions->getConnection()->quote((new \DateTime('-1 hour'))->format(Mysql::TIMESTAMP_FORMAT))
             );
 
-            $query->joinLeft(
+            $transactions->getSelect()
+                ->joinLeft(
                     [$alias => $transactions->getTable('mygento_kkm_transaction_attempt')],
                     implode(' AND ', $conditions),
                     []
@@ -601,20 +607,10 @@ class Transaction
                     '%s.%s IS NULL',
                     $alias,
                     TransactionAttemptInterface::ID
-                ))
-                ->where(sprintf(
-                    'sales_order.%s = %s',
-                    OrderInterface::STORE_ID,
-                    $storeId
-                ))
-                ->group(TransactionInterface::TXN_ID);
-        } else {
-            $query->where(sprintf(
-                    'sales_order.%s = %s',
-                    OrderInterface::STORE_ID,
-                    $storeId
-                ))->group(TransactionInterface::TXN_ID);
+                ));
         }
+        $transactions->getSelect()
+            ->group(TransactionInterface::TXN_ID);
 
         return $transactions->getColumnValues(TransactionInterface::TXN_ID);
     }

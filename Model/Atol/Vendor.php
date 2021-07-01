@@ -652,6 +652,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private function sendRequest($request, $callback, $entity = null): ResponseInterface
     {
         $entity = $entity ?? $this->requestHelper->getEntityByRequest($request);
+        $request->setStoreId($entity->getStoreId());
 
         $trials = $this->attemptHelper->getTrials($entity, $request->getOperationType());
         $maxTrials = $this->kkmHelper->getMaxTrials($entity->getStoreId());
