@@ -540,10 +540,10 @@ class Transaction
     }
 
     /**
-     * @param int|string|null $storeId
+     * @param int|string $storeId
      * @return string[]
      */
-    public function getAllWaitUuids($storeId = null): array
+    public function getAllWaitUuids($storeId): array
     {
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter('kkm_status', Response::STATUS_WAIT)
@@ -551,6 +551,17 @@ class Transaction
 
         /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList($searchCriteria);
+
+        $query = $transactions->getSelect()
+            ->joinLeft(
+                'sales_order',
+                sprintf(
+                    'main_table.%s = sales_order.%s',
+                    TransactionInterface::ORDER_ID,
+                    OrderInterface::ENTITY_ID
+                ),
+                []
+            );
 
         if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {
             // если используются очереди, получаем только те транзации, для которых нет активных
@@ -580,19 +591,10 @@ class Transaction
                 TransactionAttemptInterface::UPDATED_AT,
                 $transactions->getConnection()->quote((new \DateTime('-1 hour'))->format(Mysql::TIMESTAMP_FORMAT))
             );
-            $transactions->getSelect()
-                ->joinLeft(
+
+            $query->joinLeft(
                     [$alias => $transactions->getTable('mygento_kkm_transaction_attempt')],
                     implode(' AND ', $conditions),
-                    []
-                )
-                ->joinLeft(
-                    'sales_order',
-                    sprintf(
-                        'main_table.%s = sales_order.%s',
-                        TransactionInterface::ORDER_ID,
-                        OrderInterface::ENTITY_ID
-                    ),
                     []
                 )
                 ->where(sprintf(
@@ -607,17 +609,7 @@ class Transaction
                 ))
                 ->group(TransactionInterface::TXN_ID);
         } else {
-            $transactions->getSelect()
-                ->joinLeft(
-                    'sales_order',
-                    sprintf(
-                        'main_table.%s = sales_order.%s',
-                        TransactionInterface::ORDER_ID,
-                        OrderInterface::ENTITY_ID
-                    ),
-                    []
-                )
-                ->where(sprintf(
+            $query->where(sprintf(
                     'sales_order.%s = %s',
                     OrderInterface::STORE_ID,
                     $storeId
