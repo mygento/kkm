@@ -87,9 +87,15 @@ class Error
                 );
             }
 
+            $failStatus = $this->baseHelper->getOrderStatusAfterKkmFail();
+
+            if (!$failStatus) {
+                return;
+            }
+
             $order = $entity->getOrder();
             $order->addStatusToHistory(
-                self::ORDER_KKM_FAILED_STATUS,
+                $failStatus,
                 $fullMessage
             );
             $this->orderRepository->save($order);

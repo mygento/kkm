@@ -12,6 +12,7 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
+use Mygento\Kkm\Exception\AuthorizationException;
 use Mygento\Kkm\Model\Source\ApiVersion;
 
 class Client
@@ -106,9 +107,10 @@ class Client
         $decodedResult = $this->jsonSerializer->unserialize($response);
 
         if (!$decodedResult || !isset($decodedResult['token']) || $decodedResult['token'] == '') {
-            throw new \Exception(
-                __('Response from Atol does not contain valid token value. Response: ')
-                . (string) $response
+            throw new AuthorizationException(
+                __('Response from Atol does not contain valid token value. Response: ') . (string) $response,
+                $decodedResult['error']['code'] ?? null,
+                $decodedResult['error']['type'] ?? null
             );
         }
 
@@ -144,9 +146,10 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return ResponseInterface
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws AuthorizationException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      */
     public function sendRefund($request): ResponseInterface
     {
@@ -167,7 +170,7 @@ class Client
 
             $this->kkmHelper->info(__('Refund is sent. Uuid: %1', $response->getUuid()));
             $this->kkmHelper->debug('Response:', [$response]);
-        } catch (VendorBadServerAnswerException $exc) {
+        } catch (AuthorizationException | VendorBadServerAnswerException $exc) {
             throw $exc;
         } catch (\Throwable $exc) {
             throw new CreateDocumentFailedException(
@@ -182,9 +185,10 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return ResponseInterface
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws AuthorizationException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      */
     public function sendSell($request): ResponseInterface
     {
@@ -205,7 +209,7 @@ class Client
 
             $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getUuid()));
             $this->kkmHelper->debug('Response:', [$response]);
-        } catch (VendorBadServerAnswerException $exc) {
+        } catch (AuthorizationException | VendorBadServerAnswerException $exc) {
             throw $exc;
         } catch (\Exception $exc) {
             throw new CreateDocumentFailedException(
@@ -247,8 +251,9 @@ class Client
     /**
      * @param string $url
      * @param array|string $params - use $params as a string in case of JSON POST request.
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return string
+     * @throws AuthorizationException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      */
     protected function sendPostRequest($url, $params = []): string
     {
@@ -258,6 +263,8 @@ class Client
             $curl->addHeader('Token', $this->getToken());
             $curl->post($url, $params);
             $response = $curl->getBody();
+        } catch (AuthorizationException $e) {
+             throw $e;
         } catch (\Exception $e) {
             throw new VendorBadServerAnswerException('No response from Atol. ' . $url);
         }

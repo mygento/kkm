@@ -25,6 +25,7 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Mygento\Kkm\Exception\AuthorizationException;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
@@ -691,8 +692,20 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
+        } catch (AuthorizationException $e) {
+            if ($e->getErrorCode() && $e->getErrorType()) {
+                $attempt->setErrorCode($e->getErrorCode());
+                $attempt->setErrorType($e->getErrorType());
+            }
+
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
         } catch (VendorBadServerAnswerException $e) {
-            $attempt->setErrorType(Error::BAD_SERVER_ANSWER_ERROR_TYPE);
+            $attempt->setErrorType(ErrorType::BAD_SERVER_ANSWER);
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
         } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
             $attempt->setErrorType(ErrorType::UNDEFINED);
 
@@ -701,6 +714,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     ->setErrorCode($response->getErrorCode())
                     ->setErrorType($response->getErrorType());
             }
+
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
         } catch (\Throwable $e) {
             //Mark attempt as Error
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
