@@ -48,4 +48,10 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Mygento\Kkm\Console\UpdateStatus">
+        <arguments>
+            <argument name="transactionHelper" xsi:type="object">Mygento\Kkm\Helper\Transaction\Proxy</argument>
+        </arguments>
+    </type>
 </config>
