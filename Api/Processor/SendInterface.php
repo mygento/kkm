@@ -18,17 +18,19 @@ interface SendInterface
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
      * @param bool $sync
      * @param bool $ignoreTrials
+     * @param bool $incrExtId
      * @return bool
      */
-    public function proceedSell($invoice, $sync = false, $ignoreTrials = false);
+    public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false);
 
     /**
      * @param \Magento\Sales\Api\Data\CreditmemoInterface $creditmemo
      * @param bool $sync
      * @param bool $ignoreTrials
+     * @param bool $incrExtId
      * @return bool
      */
-    public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false);
+    public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false, $incrExtId = false);
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice

@@ -15,6 +15,7 @@ use Mygento\Kkm\Model\Atol\Response;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -26,6 +27,7 @@ class SendRefund extends Command
 {
     const ARGUMENT_ENTITY_ID = 'id';
     const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Creditmemo IncrementId';
+    const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
     const COMMAND_SEND_REFUND = 'mygento:kkm:refund';
     const COMMAND_DESCRIPTION = 'Sends refund to Kkm.';
 
@@ -102,7 +104,9 @@ class SendRefund extends Command
         //Oтправка
         $output->writeln("<comment>1. Sending creditmemo {$incrementId} ...</comment>");
 
-        $this->processor->proceedRefund($creditmemo, true, true);
+        $incrExtId = (bool) $input->getOption(self::OPTION_INCREASE_EXTERNAL_ID);
+
+        $this->processor->proceedRefund($creditmemo, true, true, $incrExtId);
 
         $transactions = $this->transactionHelper->getTransactionsByCreditmemo($creditmemo);
 
@@ -139,6 +143,12 @@ class SendRefund extends Command
             self::ARGUMENT_ENTITY_ID,
             InputArgument::REQUIRED,
             self::ARGUMENT_ENTITY_ID_DESCRIPTION
+        );
+        $this->addOption(
+            self::OPTION_INCREASE_EXTERNAL_ID,
+            'i',
+            InputOption::VALUE_NONE,
+            'Increase External id'
         );
         $this->setHelp(
             <<<HELP

@@ -1,0 +1,47 @@
+name: Static Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - v2.3
+  push:
+    branches:
+      - v2.3
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['7.2','7.3', '7.4']
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup PHP, with composer and extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring, xml, ctype, iconv, intl, mysql
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - name: Cache composer dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          # Use composer.json for key, if composer.lock is not committed.
+          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+      - run: composer self-update --1
+      - run: echo "{\"http-basic\":{\"repo.magento.com\":{\"username\":\"${MAGE_LOGIN}\",\"password\":\"${MAGE_PWD}\"}}}" > auth.json
+        env:
+          MAGE_LOGIN: ${{ secrets.MAGE_LOGIN }}
+          MAGE_PWD: ${{ secrets.MAGE_PWD }}
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+      - run: php vendor/bin/phpcs --config-set ignore_warnings_on_exit 1
+      - run: php vendor/bin/phpcs --config-set show_warnings 0
+      - name: Run Tests
+        run: php vendor/bin/grumphp run
