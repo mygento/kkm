@@ -10,9 +10,9 @@ namespace Mygento\Kkm\Model\Atol;
 
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Exception\AuthorizationException;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
-use Mygento\Kkm\Exception\AuthorizationException;
 use Mygento\Kkm\Model\Source\ApiVersion;
 
 class Client
@@ -146,10 +146,10 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @return ResponseInterface
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws AuthorizationException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @return ResponseInterface
      */
     public function sendRefund($request): ResponseInterface
     {
@@ -185,10 +185,10 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @return ResponseInterface
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws AuthorizationException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @return ResponseInterface
      */
     public function sendSell($request): ResponseInterface
     {
@@ -251,9 +251,9 @@ class Client
     /**
      * @param string $url
      * @param array|string $params - use $params as a string in case of JSON POST request.
-     * @return string
      * @throws AuthorizationException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @return string
      */
     protected function sendPostRequest($url, $params = []): string
     {
@@ -264,7 +264,7 @@ class Client
             $curl->post($url, $params);
             $response = $curl->getBody();
         } catch (AuthorizationException $e) {
-             throw $e;
+            throw $e;
         } catch (\Exception $e) {
             throw new VendorBadServerAnswerException('No response from Atol. ' . $url);
         }

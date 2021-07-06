@@ -27,8 +27,8 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\AuthorizationException;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
-use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
+use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\Source\ErrorType;
@@ -653,6 +653,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws \Throwable
      * @throws CreateDocumentFailedException
      * @return ResponseInterface
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function sendRequest($request, $callback, $entity = null): ResponseInterface
     {
