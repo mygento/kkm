@@ -720,6 +720,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw $e;
         } catch (\Throwable $e) {
             //Mark attempt as Error
+            $attempt->setErrorType(ErrorType::UNDEFINED);
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
 
             throw $e;

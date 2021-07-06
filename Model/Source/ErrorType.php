@@ -16,6 +16,8 @@ class ErrorType implements OptionSourceInterface
     public const BAD_SERVER_ANSWER = 'bad_answer';
     public const SYSTEM = 'system';
     public const TIMEOUT = 'timeout';
+    public const AGENT = 'agent';
+    public const DRIVER = 'driver';
 
     /**
      * Get options
@@ -40,6 +42,14 @@ class ErrorType implements OptionSourceInterface
             [
                 'value' => self::TIMEOUT,
                 'label' => __('Timeout'),
+            ],
+            [
+                'value' => self::AGENT,
+                'label' => __('Agent'),
+            ],
+            [
+                'value' => self::DRIVER,
+                'label' => __('Driver'),
             ],
         ];
     }
