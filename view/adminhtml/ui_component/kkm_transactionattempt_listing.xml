@@ -47,8 +47,25 @@
             </settings>
         </filters>
         <paging name="listing_paging"/>
+        <massaction name="listing_massaction">
+            <action name="mygento_kkm_mass_resend" sortOrder="1">
+                <argument name="data" xsi:type="array">
+                    <item name="sortOrder" xsi:type="string">1</item>
+                </argument>
+                <settings>
+                    <url path="kkm/cheque/massResend"/>
+                    <type>mygento_kkm_mass_resend</type>
+                    <label translate="true">Resend</label>
+                </settings>
+            </action>
+        </massaction>
     </listingToolbar>
     <columns name="kkm_transactionattempt_columns">
+        <selectionsColumn name="ids">
+            <settings>
+                <indexField>id</indexField>
+            </settings>
+        </selectionsColumn>
         <column name="id">
             <settings>
                 <filter>textRange</filter>
