@@ -22,20 +22,20 @@ interface ItemInterface
     public function setName(string $name);
 
     /**
-     * @return float
+     * @return float|int
      */
-    public function getPrice(): float;
+    public function getPrice();
 
     /**
-     * @param float|string $price
+     * @param float|int|string $price
      * @return $this
      */
     public function setPrice($price);
 
     /**
-     * @return float
+     * @return float|int
      */
-    public function getQuantity(): float;
+    public function getQuantity();
 
     /**
      * @param float|int|string $quantity
@@ -44,9 +44,9 @@ interface ItemInterface
     public function setQuantity($quantity);
 
     /**
-     * @return float
+     * @return float|int
      */
-    public function getSum(): float;
+    public function getSum();
 
     /**
      * @param float|string $sum
@@ -55,20 +55,20 @@ interface ItemInterface
     public function setSum($sum);
 
     /**
-     * @return string
+     * @return int|string
      */
-    public function getTax(): string;
+    public function getTax();
 
     /**
-     * @param string $tax
+     * @param int|string $tax
      * @return $this
      */
     public function setTax($tax);
 
     /**
-     * @return float
+     * @return float|int
      */
-    public function getTaxSum(): float;
+    public function getTaxSum();
 
     /**
      * @param float|string $taxSum

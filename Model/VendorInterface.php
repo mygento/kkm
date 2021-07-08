@@ -20,8 +20,7 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
  */
 interface VendorInterface
 {
-    const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
-    const ALREADY_SENT_FLAG = 'kkm_already_sent_to_atol';
+    const ALREADY_SENT_FLAG = 'kkm_already_sent';
     const SKIP_PAYMENT_METHOD_VALIDATION = 'kkm_skip_payment_method_validation';
 
     /**
@@ -64,16 +63,6 @@ interface VendorInterface
     public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface;
 
     /**
-     * @param string $uuid It is Transaction Id on Magento side
-     * @param bool $useAttempt
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
-     * @return \Mygento\Kkm\Api\Data\ResponseInterface
-     */
-    public function updateStatus($uuid, $useAttempt = false);
-
-    /**
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
      * @param string $paymentMethod
      * @param string $shippingPaymentObject
@@ -102,12 +91,4 @@ interface VendorInterface
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
     public function buildRequestForResellSell($invoice): RequestInterface;
-
-    /**
-     * @param CreditmemoInterface|InvoiceInterface $entity
-     * @param \Mygento\Kkm\Api\Data\ResponseInterface $response
-     * @param mixed|null $txnId
-     * @param string $operation
-     */
-    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '');
 }

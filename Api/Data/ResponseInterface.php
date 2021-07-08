@@ -22,7 +22,7 @@ interface ResponseInterface
     /**
      * @return string
      */
-    public function getUuid();
+    public function getIdForTransaction();
 
     /**
      * @return string|null
@@ -40,12 +40,7 @@ interface ResponseInterface
     public function getStatus();
 
     /**
-     * @return string
-     */
-    public function getExternalId();
-
-    /**
-     * @return string
+     * @return string|null
      */
     public function getTimestamp();
 
@@ -63,4 +58,14 @@ interface ResponseInterface
      * @return bool
      */
     public function isWait();
+
+    /**
+     * @return array
+     */
+    public function getVendorSpecificTxnData();
+
+    /**
+     * @return string
+     */
+    public function getRawResponse();
 }

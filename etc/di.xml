@@ -5,10 +5,11 @@
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
             <argument name="commands" xsi:type="array">
-                <item name="sendSellToAtol" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
-                <item name="sendSellRefundToAtol" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
-                <item name="updateStatusAtol" xsi:type="object">Mygento\Kkm\Console\UpdateStatus</item>
-                <item name="sendResellToAtol" xsi:type="object">Mygento\Kkm\Console\SendResell</item>
+                <item name="sendSellToKkm" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
+                <item name="sendSellRefundToKkm" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
+                <item name="updateStatusAll" xsi:type="object">Mygento\Kkm\Console\UpdateAll</item>
+                <item name="updateStatusOne" xsi:type="object">Mygento\Kkm\Console\UpdateOne</item>
+                <item name="sendResellToKkm" xsi:type="object">Mygento\Kkm\Console\SendResell</item>
                 <item name="showReport" xsi:type="object">Mygento\Kkm\Console\Report</item>
             </argument>
         </arguments>
@@ -16,16 +17,22 @@
 
     <preference for="Mygento\Kkm\Api\Processor\SendInterface" type="Mygento\Kkm\Model\Processor\Send"/>
     <preference for="Mygento\Kkm\Api\Processor\UpdateInterface" type="Mygento\Kkm\Model\Processor\Update"/>
-
-    <preference for="Mygento\Kkm\Api\Data\RequestInterface" type="Mygento\Kkm\Model\Atol\RequestForVersion4"/>
     <preference for="Mygento\Kkm\Api\Data\UpdateRequestInterface" type="Mygento\Kkm\Model\Atol\UpdateRequest"/>
-    <preference for="Mygento\Kkm\Api\Data\ItemInterface" type="Mygento\Kkm\Model\Atol\Item"/>
     <preference for="Mygento\Kkm\Api\Data\UserPropInterface" type="Mygento\Kkm\Model\Atol\UserProp"/>
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
-    <preference for="Mygento\Kkm\Model\VendorInterface" type="Mygento\Kkm\Model\Atol\Vendor"/>
+    <type name="Mygento\Kkm\Model\VendorFactory">
+        <arguments>
+            <argument name="vendorFactories" xsi:type="array">
+                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Atol\VendorFactory</item>
+                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\CheckOnline\VendorFactory</item>
+            </argument>
+        </arguments>
+    </type>
+
     <!--Queue-->
     <preference for="Mygento\Kkm\Api\Queue\MergedRequestInterface" type="Mygento\Kkm\Model\Queue\MergedRequest"/>
     <preference for="Mygento\Kkm\Api\Queue\MergedUpdateRequestInterface" type="Mygento\Kkm\Model\Queue\MergedUpdateRequest"/>
+    <preference for="Mygento\Kkm\Api\Queue\QueueMessageInterface" type="Mygento\Kkm\Model\Queue\QueueMessage"/>
     <type name="Magento\Framework\MessageQueue\MergerFactory">
         <arguments>
             <argument name="mergers" xsi:type="array">
@@ -33,6 +40,14 @@
                 <item name="mygento.kkm.refund" xsi:type="string">Mygento\Kkm\Model\Queue\Merger</item>
                 <item name="mygento.kkm.resell" xsi:type="string">Mygento\Kkm\Model\Queue\Merger</item>
                 <item name="mygento.kkm.update" xsi:type="string">Mygento\Kkm\Model\Queue\UpdateMerger</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory">
+        <arguments>
+            <argument name="processorFactories" xsi:type="array">
+                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\Atol\ConsumerProcessorFactory</item>
+                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\CheckOnline\ConsumerProcessorFactory</item>
             </argument>
         </arguments>
     </type>

@@ -319,6 +319,22 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getStoreId()
+    {
+        return $this->getData(self::STORE_ID);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setStoreId($storeId)
+    {
+        return $this->setData(self::STORE_ID, $storeId);
+    }
+
+    /**
      * @return void
      */
     protected function _construct()

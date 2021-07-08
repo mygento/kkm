@@ -64,6 +64,11 @@ class CheckStatus extends Action
     {
         $storeId = $this->_request->getParam('store_id');
         $uuid = strtolower($this->_request->getParam('uuid'));
+
+        if (!$this->kkmHelper->isVendorNeedUpdateStatus($storeId)) {
+            return $this->exitWithoutUpdateStatus($this->kkmHelper->getCurrentVendorCode($storeId));
+        }
+
         if (!$uuid) {
             $this->getMessageManager()->addErrorMessage(__('Invalid request. No uuid specified.'));
             $this->kkmHelper->error(
@@ -115,5 +120,18 @@ class CheckStatus extends Action
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error($exc->getMessage());
         }
+    }
+
+    /**
+     * @param string $currentVendorCode
+     * @return Redirect
+     */
+    private function exitWithoutUpdateStatus($currentVendorCode)
+    {
+        $this->getMessageManager()->addNoticeMessage(
+            __('Current vendor "%1" does not need update status.', $currentVendorCode)
+        );
+
+        return $this->redirect();
     }
 }

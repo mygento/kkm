@@ -13,6 +13,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\EntityInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
@@ -158,7 +159,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Invoice %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $invoice->getIncrementId()
             )
         );
@@ -178,7 +179,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Resell (refund) Invoice %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $invoice->getIncrementId()
             )
         );
@@ -200,7 +201,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Resell (sell) Invoice %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $invoice->getIncrementId()
             )
         );
@@ -328,7 +329,7 @@ class Transaction
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Creditmemo %2',
-                $response->getUuid(),
+                $response->getIdForTransaction(),
                 $creditmemo->getIncrementId()
             )
         );
@@ -530,10 +531,11 @@ class Transaction
     }
 
     /**
+     * @param int|string $storeId filter uuids by store
      * @throws \Exception
      * @return string[]
      */
-    public function getAllWaitUuids()
+    public function getAllWaitUuids($storeId)
     {
         $searchCriteria = $this->searchCriteriaBuilder
             ->addFilter('kkm_status', Response::STATUS_WAIT)
@@ -542,7 +544,25 @@ class Transaction
         /** @var TransactionCollection $transactions */
         $transactions = $this->transactionRepo->getList($searchCriteria);
 
-        if ($this->kkmHelper->isMessageQueueEnabled()) {
+        if ($storeId) {
+            $salesOrderAlias = 't_sales_order';
+            $orderTableConditions[] = sprintf(
+                'main_table.%s = %s.%s',
+                TransactionInterface::ORDER_ID,
+                $salesOrderAlias,
+                OrderInterface::ENTITY_ID
+            );
+
+            $transactions->getSelect()
+                ->join(
+                    [$salesOrderAlias => $transactions->getTable('sales_order')],
+                    implode(' AND ', $orderTableConditions),
+                    [OrderInterface::STORE_ID]
+                )
+                ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $storeId));
+        }
+
+        if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {
             // если используются очереди, получаем только те транзации, для которых нет активных
             // заданий на обновление статуса
             $alias = 't_mygento_kkm_transaction_attempt';
@@ -627,21 +647,16 @@ class Transaction
      */
     protected function saveTransaction($entity, ResponseInterface $response, $type, $parentTransaction = null)
     {
-        $txnId = $response->getUuid();
+        $txnId = $response->getIdForTransaction();
         $order = $entity->getOrder();
         $payment = $entity->getOrder()->getPayment();
         $isClosed = ($response->isDone() || $response->isFailed()) ? 1 : 0;
-        $rawResponse = json_encode(json_decode((string) $response), JSON_UNESCAPED_UNICODE);
         $additional = [
             self::ENTITY_KEY => $entity->getEntityType(),
             self::INCREMENT_ID_KEY => $entity->getIncrementId(),
-            RequestInterface::EXTERNAL_ID_KEY => $response->getExternalId(),
-            self::UUID_KEY => $txnId,
-            self::STATUS_KEY => $response->getStatus(),
-            self::ERROR_MESSAGE_KEY => $response->getErrorMessage(),
-            self::RAW_RESPONSE_KEY => $rawResponse,
         ];
-        $additional = array_merge($additional, (array) $response->getPayload());
+
+        $additional = array_merge($additional, $response->getVendorSpecificTxnData());
 
         //Update
         if ($this->isTransactionExists($txnId, $payment->getId(), $order->getId())) {

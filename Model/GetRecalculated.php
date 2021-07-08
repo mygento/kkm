@@ -153,7 +153,7 @@ class GetRecalculated
             /** @var \Magento\Sales\Api\Data\OrderItemInterface $itemMock */
             $itemMock = $this->orderItemFactory->create(['data' => $item->getData()]);
 
-            $this->updateMarking($itemMock, $item);
+            $this->updateMarking($itemMock, $item, $salesEntity->getStoreId());
 
             $qty = $item->getQty();
             $newPriceAdd = round(($giftCardAmount + $customerBalanceAmount) / $qty, 2);
@@ -203,10 +203,10 @@ class GetRecalculated
         $markingListAttribute = '';
         $markingRefundAttribute = '';
 
-        if ($this->configHelper->isMarkingEnabled()) {
-            $markingAttribute = $this->configHelper->getMarkingShouldField();
-            $markingListAttribute = $this->configHelper->getMarkingField();
-            $markingRefundAttribute = $this->configHelper->getMarkingRefundField();
+        if ($this->configHelper->isMarkingEnabled($storeId)) {
+            $markingAttribute = $this->configHelper->getMarkingShouldField($storeId);
+            $markingListAttribute = $this->configHelper->getMarkingField($storeId);
+            $markingRefundAttribute = $this->configHelper->getMarkingRefundField($storeId);
         }
 
         return [
@@ -222,12 +222,13 @@ class GetRecalculated
     /**
      * @param OrderItemInterface $itemMock
      * @param CreditmemoItemInterface|InvoiceItemInterface $item
+     * @param mixed $storeId
      */
-    private function updateMarking($itemMock, $item): void
+    private function updateMarking($itemMock, $item, $storeId): void
     {
-        $markingAttribute = $this->configHelper->getMarkingShouldField();
-        $markingListAttribute = $this->configHelper->getMarkingField();
-        $markingRefundAttribute = $this->configHelper->getMarkingRefundField();
+        $markingAttribute = $this->configHelper->getMarkingShouldField($storeId);
+        $markingListAttribute = $this->configHelper->getMarkingField($storeId);
+        $markingRefundAttribute = $this->configHelper->getMarkingRefundField($storeId);
 
         $itemMock->setData($markingAttribute, $item->getOrderItem()->getData($markingAttribute));
         $itemMock->setData($markingListAttribute, $item->getOrderItem()->getData($markingListAttribute));

@@ -15,6 +15,7 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -30,12 +31,16 @@ class Report extends Command
     . self::TODAY_PERIOD . ', '
     . self::YESTERDAY_PERIOD . ', '
     . self::WEEK_PERIOD;
-    const COMMAND = 'mygento:atol:report';
+    const COMMAND = 'mygento:kkm:report';
     const COMMAND_DESCRIPTION = 'Show report of kkm transaction for period.';
 
     const WEEK_PERIOD = 'week';
     const YESTERDAY_PERIOD = 'yesterday';
     const TODAY_PERIOD = 'today';
+
+    const STORE_ID_OPTION = 'store_id';
+    const STORE_ID_OPTION_SHORTCUT = 's';
+    const STORE_ID_OPTION_DESCRIPTION = 'Filter transactions by Store ID. By default outputs transaction of all stores.';
 
     /**
      * @var \Magento\Framework\App\State
@@ -80,6 +85,11 @@ class Report extends Command
 
         $this->appState->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
         $param = $input->getArgument(self::ARGUMENT);
+        $storeId = $input->getOption(self::STORE_ID_OPTION)
+            ? (int) $input->getOption(self::STORE_ID_OPTION)
+            : null;
+
+        $this->report->setStoreId($storeId);
         switch ($param) {
             case self::WEEK_PERIOD:
                 $statistics = $this->report->getWeekStatistics();
@@ -109,6 +119,12 @@ class Report extends Command
             self::ARGUMENT,
             InputArgument::OPTIONAL,
             self::ARGUMENT_DESCRIPTION
+        );
+        $this->addOption(
+            self::STORE_ID_OPTION,
+            self::STORE_ID_OPTION_SHORTCUT,
+            InputOption::VALUE_REQUIRED,
+            self::STORE_ID_OPTION_DESCRIPTION
         );
         $this->setHelp(
             <<<HELP
@@ -157,9 +173,8 @@ HELP
             $additional = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
 
-            $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
-                ? $additional[Transaction::ERROR_MESSAGE_KEY]
-                : ($additional[Transaction::RAW_RESPONSE_KEY] ?? '');
+            $message = $additional[Transaction::ERROR_MESSAGE_KEY]
+                ?? ($additional[Transaction::RAW_RESPONSE_KEY] ?? '');
 
             $message = wordwrap($message, 30);
 

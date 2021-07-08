@@ -108,7 +108,8 @@ class TransactionAttempt
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($numberOfTrials)
-            ->setTotalNumberOfTrials($totalNumberOfTrials);
+            ->setTotalNumberOfTrials($totalNumberOfTrials)
+            ->setStoreId($entity->getStoreId());
 
         return $this->attemptRepository->save($attempt);
     }
@@ -140,7 +141,7 @@ class TransactionAttempt
         $attempt = $this->getAttemptByRequest($request, $entity);
 
         $trials = $attempt->getNumberOfTrials();
-        $maxTrials = $this->kkmHelper->getMaxTrials();
+        $maxTrials = $this->kkmHelper->getMaxTrials($entity->getStoreId());
 
         if ($trials >= $maxTrials) {
             $attempt->setNumberOfTrials($maxTrials - 1);
@@ -172,13 +173,14 @@ class TransactionAttempt
                 ->setOrderId($entity->getOrderId())
                 ->setSalesEntityId($entity->getEntityId())
                 ->setSalesEntityIncrementId($entity->getIncrementId())
-                ->setNumberOfTrials(0);
+                ->setNumberOfTrials(0)
+                ->setStoreId($entity->getStoreId());
         }
 
         $attempt
             ->setIsScheduled(true)
             ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt))
-            ->setRequestJson($this->messageEncoder->encode($topic, $request));
+            ->setRequestJson($this->messageEncoder->encode($topic, $this->requestHelper->getQueueMessage($request)));
 
         return $this->attemptRepository->save($attempt);
     }
@@ -215,7 +217,8 @@ class TransactionAttempt
                 $increaseTrials
                     ? $attempt->getTotalNumberOfTrials() + 1
                     : $attempt->getTotalNumberOfTrials()
-            );
+            )
+            ->setStoreId($entity->getStoreId());
 
         return $this->attemptRepository->save($attempt);
     }
@@ -301,7 +304,7 @@ class TransactionAttempt
         $numberOfTrials = $attempt->getNumberOfTrials();
 
         $scheduledAt = new \DateTime();
-        $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals();
+        $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals($attempt->getStoreId());
         if ($customRetryIntervals && isset($customRetryIntervals[$numberOfTrials])) {
             $scheduledAt->modify("+{$customRetryIntervals[$numberOfTrials]} minute");
         }

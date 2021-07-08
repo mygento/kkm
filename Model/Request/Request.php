@@ -6,7 +6,7 @@
  * @package Mygento_Kkm
  */
 
-namespace Mygento\Kkm\Model\Atol;
+namespace Mygento\Kkm\Model\Request;
 
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -38,7 +38,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
 
     protected $payments = [];
 
-    protected $total = 0.0;
+    protected $total = 0;
 
     protected $inn = '';
 
@@ -55,6 +55,8 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $additionalUserProps = null;
 
     protected $additionalCheckProps = '';
+
+    protected $entityStoreId;
 
     // phpcs:enable
 
@@ -92,7 +94,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritdoc
      */
-    public function getSno(): string
+    public function getSno()
     {
         return $this->sno;
     }
@@ -100,7 +102,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     /**
      * @inheritdoc
      */
-    public function setSno(string $sno): RequestInterface
+    public function setSno($sno): RequestInterface
     {
         $this->sno = $sno;
 
@@ -481,6 +483,25 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setAdditionalCheckProps($checkProps): RequestInterface
     {
         $this->additionalCheckProps = $checkProps;
+
+        return $this;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getEntityStoreId()
+    {
+        return $this->entityStoreId;
+    }
+
+    /**
+     * @param int|string $storeId
+     * @return RequestInterface
+     */
+    public function setEntityStoreId($storeId): RequestInterface
+    {
+        $this->entityStoreId = $storeId;
 
         return $this;
     }

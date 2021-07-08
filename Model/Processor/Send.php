@@ -16,22 +16,17 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\OrderComment;
 use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\TransactionAttempt as TransactionAttemptHelper;
 use Mygento\Kkm\Model\Atol\Response;
-use Mygento\Kkm\Model\VendorInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Send implements SendInterface
 {
-    /**
-     * @var \Mygento\Kkm\Model\VendorInterface
-     */
-    private $vendor;
-
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -64,7 +59,6 @@ class Send implements SendInterface
 
     /**
      * Processor constructor.
-     * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param TransactionAttemptHelper $attemptHelper
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
@@ -73,7 +67,6 @@ class Send implements SendInterface
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
     public function __construct(
-        VendorInterface $vendor,
         Data $helper,
         TransactionAttemptHelper $attemptHelper,
         TransactionHelper $transactionHelper,
@@ -81,7 +74,6 @@ class Send implements SendInterface
         TransactionAttemptRepositoryInterface $attemptRepository,
         PublisherInterface $publisher
     ) {
-        $this->vendor = $vendor;
         $this->helper = $helper;
         $this->publisher = $publisher;
         $this->attemptHelper = $attemptHelper;
@@ -102,7 +94,8 @@ class Send implements SendInterface
      */
     public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
-        $request = $this->vendor->buildRequest($invoice);
+        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
+        $request = $vendor->buildRequest($invoice);
 
         if ($incrExtId) {
             $this->requestHelper->increaseExternalId($request);
@@ -110,15 +103,16 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $this->vendor->sendSellRequest($request);
+            $vendor->sendSellRequest($request);
 
             return true;
         }
 
-        $this->helper->debug('Publish request: ', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_SELL, $request);
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request message: ', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_SELL, $queueMessage);
 
         return true;
     }
@@ -135,58 +129,25 @@ class Send implements SendInterface
      */
     public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
-        $request = $this->vendor->buildRequest($creditmemo);
+        $vendor = $this->helper->getCurrentVendor($creditmemo->getStoreId());
+        $request = $vendor->buildRequest($creditmemo);
+
         if ($incrExtId) {
             $this->requestHelper->increaseExternalId($request);
         }
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        if ($sync || !$this->helper->isMessageQueueEnabled($creditmemo->getStoreId())) {
             $this->helper->debug('Sending request without Queue:', $request->__toArray());
-            $this->vendor->sendRefundRequest($request);
+            $vendor->sendRefundRequest($request);
 
             return true;
         }
 
-        $this->helper->debug('Publish request to queue:', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_REFUND, $request);
-
-        return true;
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
-     * @param bool $sync
-     * @param bool $ignoreTrials
-     * @param bool $incrExtId
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
-     * @return bool
-     */
-    public function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
-    {
-        $request = $this->vendor->buildRequestForResellRefund($invoice);
-
-        if ($incrExtId) {
-            $this->requestHelper->increaseExternalId($request);
-        }
-
-        $this->attemptHelper->resetNumberOfTrials($request, $invoice);
-
-        $request->setIgnoreTrialsNum($ignoreTrials);
-
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
-            $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $this->vendor->sendResellRequest($request, $invoice);
-
-            return true;
-        }
-
-        $this->helper->debug('Publish request: ', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_RESELL, $request);
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request message to queue:', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_REFUND, $queueMessage);
 
         return true;
     }
@@ -204,7 +165,8 @@ class Send implements SendInterface
      */
     public function proceedResellSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
-        $request = $this->vendor->buildRequestForResellSell($invoice);
+        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
+        $request = $vendor->buildRequestForResellSell($invoice);
 
         if ($incrExtId) {
             $this->requestHelper->increaseExternalId($request);
@@ -212,21 +174,22 @@ class Send implements SendInterface
 
         //Reset flag in order to add one more comment.
         $order = $invoice->getOrder();
-        $order->setData(VendorInterface::COMMENT_ADDED_TO_ORDER_FLAG, false);
+        $order->setData(OrderComment::COMMENT_ADDED_TO_ORDER_FLAG, false);
 
         $this->attemptHelper->resetNumberOfTrials($request, $invoice);
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $this->vendor->sendSellRequest($request, $invoice);
+            $vendor->sendSellRequest($request, $invoice);
 
             return true;
         }
 
-        $this->helper->debug('Publish request: ', $request->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_SELL, $request);
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request: ', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_SELL, $queueMessage);
 
         return true;
     }
@@ -247,7 +210,7 @@ class Send implements SendInterface
         $lastRefundTxn = $this->transactionHelper->getLastResellRefundTransaction($invoice);
 
         if ($lastRefundTxn->getKkmStatus() === Response::STATUS_FAIL) {
-            return $this->proceedResellRefund($invoice, $sync, false, true);
+            return $this->proceedResell($invoice, $sync, false, true);
         }
 
         //Это может означать, что эта отправка еще висит в очереди.
@@ -261,7 +224,7 @@ class Send implements SendInterface
             if ((int) $attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {
                 return $this->proceedResellSell($invoice, $sync, false, true);
             }
-            if (!$this->helper->isMessageQueueEnabled()) {
+            if (!$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
                 throw new InputException(__('Can not proceed resell process.'));
             }
 
@@ -284,5 +247,69 @@ class Send implements SendInterface
         }
 
         return $this->proceedResellSell($invoice, $sync, false, true);
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param bool $sync
+     * @param bool $ignoreTrials
+     * @param bool $incrExtId
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @return bool
+     */
+    public function proceedResell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
+    {
+        $storeId = $invoice->getStoreId();
+        $this->proceedResellRefund($invoice, $sync, $ignoreTrials, $incrExtId);
+
+        if (!$this->helper->isVendorNeedUpdateStatus($storeId)
+            && ($sync || !$this->helper->isMessageQueueEnabled($storeId))
+        ) {
+            $this->proceedResellSell($invoice, $sync, $ignoreTrials, $incrExtId);
+        }
+
+        return true;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param bool $sync
+     * @param bool $ignoreTrials
+     * @param bool $incrExtId
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @return bool
+     */
+    private function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
+    {
+        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
+        $request = $vendor->buildRequestForResellRefund($invoice);
+
+        if ($incrExtId) {
+            $this->requestHelper->increaseExternalId($request);
+        }
+
+        $this->attemptHelper->resetNumberOfTrials($request, $invoice);
+
+        $request->setIgnoreTrialsNum($ignoreTrials);
+
+        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
+            $this->helper->debug('Sending request without Queue: ', $request->__toArray());
+            $vendor->sendResellRequest($request, $invoice);
+
+            return true;
+        }
+
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request message: ', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_RESELL, $queueMessage);
+
+        return true;
     }
 }

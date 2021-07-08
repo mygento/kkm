@@ -23,15 +23,15 @@ interface RequestInterface
     public function __toArray();
 
     /**
-     * @return string
+     * @return int|string
      */
-    public function getSno(): string;
+    public function getSno();
 
     /**
-     * @param string $sno
+     * @param int|string $sno
      * @return $this
      */
-    public function setSno(string $sno): self;
+    public function setSno($sno): self;
 
     /**
      * @return string
@@ -257,4 +257,15 @@ interface RequestInterface
      * @return $this
      */
     public function setAdditionalCheckProps($checkProps): self;
+
+    /**
+     * @return int|string
+     */
+    public function getEntityStoreId();
+
+    /**
+     * @param int|string $storeId
+     * @return $this
+     */
+    public function setEntityStoreId($storeId): self;
 }

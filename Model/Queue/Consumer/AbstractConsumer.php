@@ -11,24 +11,14 @@ namespace Mygento\Kkm\Model\Queue\Consumer;
 abstract class AbstractConsumer
 {
     /**
-     * @var \Mygento\Kkm\Helper\TransactionAttempt
-     */
-    protected $attemptHelper;
-
-    /**
-     * @var \Mygento\Kkm\Model\VendorInterface
-     */
-    protected $vendor;
-
-    /**
-     * @var \Magento\Framework\MessageQueue\PublisherInterface
-     */
-    protected $publisher;
-
-    /**
      * @var \Mygento\Kkm\Helper\Data
      */
     protected $helper;
+
+    /**
+     * @var \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory
+     */
+    protected $consumerProcessorFactory;
 
     /**
      * @var \Mygento\Kkm\Helper\Request
@@ -36,41 +26,19 @@ abstract class AbstractConsumer
     protected $requestHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error\Proxy
-     */
-    protected $errorHelper;
-
-    /**
-     * @var \Mygento\Kkm\Api\Processor\UpdateInterface
-     */
-    protected $updateProcessor;
-
-    /**
      * Consumer constructor.
-     * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
-     * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Data $helper
-     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory $consumerProcessorFactory
      * @param \Mygento\Kkm\Helper\Request $requestHelper
-     * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
     public function __construct(
-        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
-        \Mygento\Kkm\Model\VendorInterface $vendor,
-        \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
-        \Mygento\Kkm\Helper\Request $requestHelper,
-        \Magento\Framework\MessageQueue\PublisherInterface $publisher
+        \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory $consumerProcessorFactory,
+        \Mygento\Kkm\Helper\Request $requestHelper
     ) {
-        $this->attemptHelper = $attemptHelper;
-        $this->vendor = $vendor;
-        $this->publisher = $publisher;
         $this->helper = $helper;
+        $this->consumerProcessorFactory = $consumerProcessorFactory;
         $this->requestHelper = $requestHelper;
-        $this->errorHelper = $errorHelper;
-        $this->updateProcessor = $updateProcessor;
     }
 
     /**
@@ -80,10 +48,12 @@ abstract class AbstractConsumer
     abstract public function sendMergedRequest($mergedRequest);
 
     /**
-     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @param int|string|null $storeId
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
+     * @return \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface
      */
-    protected function increaseExternalId($request)
+    protected function getConsumerProcessor($storeId = null)
     {
-        $this->requestHelper->increaseExternalId($request);
+        return $this->consumerProcessorFactory->create($this->helper->getCurrentVendorCode($storeId));
     }
 }

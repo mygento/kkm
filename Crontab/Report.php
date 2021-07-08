@@ -32,19 +32,27 @@ class Report
     private $emailHelper;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * Report constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Model\Report $report
      * @param \Mygento\Kkm\Helper\Email $emailHelper
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Report $report,
-        \Mygento\Kkm\Helper\Email $emailHelper
+        \Mygento\Kkm\Helper\Email $emailHelper,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->report = $report;
         $this->emailHelper = $emailHelper;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -53,17 +61,29 @@ class Report
      */
     public function execute()
     {
-        if (!$this->kkmHelper->getConfig('report/enabled')) {
+        foreach ($this->storeManager->getStores() as $store) {
+            $this->proceed($store);
+        }
+    }
+
+    /**
+     * @param \Magento\Store\Api\Data\StoreInterface $store
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     */
+    private function proceed($store)
+    {
+        if (!$this->kkmHelper->getConfig('report/enabled', $store->getId())) {
             return;
         }
         $this->kkmHelper->info('KKM Report Cron START');
 
-        $senderEmail = $this->kkmHelper->getConfig('report/sender_email');
+        $senderEmail = $this->kkmHelper->getConfig('report/sender_email', $store->getId());
         $senderName = self::EMAIL_SENDER_NAME;
-        $recipient = $this->kkmHelper->getConfig('report/email');
-        $template = $this->kkmHelper->getConfig('report/template');
-        $period = $this->kkmHelper->getConfig('report/period');
+        $recipient = $this->kkmHelper->getConfig('report/email', $store->getId());
+        $template = $this->kkmHelper->getConfig('report/template', $store->getId());
+        $period = $this->kkmHelper->getConfig('report/period', $store->getId());
 
+        $this->report->setStoreId($store->getId());
         switch ($period) {
             case Period::WEEKLY_NAME:
                 $statistics = $this->report->getWeekStatistics();
@@ -78,7 +98,7 @@ class Report
         }
 
         $fields = [
-            'subject' => self::EMAIL_SUBJECT,
+            'subject' => self::EMAIL_SUBJECT . '. Store: ' . $store->getName(),
             'statistics' => $statistics,
         ];
 

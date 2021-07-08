@@ -70,7 +70,8 @@ class Send implements ObserverInterface
             return;
         }
 
-        $this->kkmHelper->info("Auto send {$entity->getEntityType()} to Atol");
+        $vendorCode = $this->kkmHelper->getCurrentVendorCode($entity->getStoreId());
+        $this->kkmHelper->info("Auto send {$entity->getEntityType()} to {$vendorCode}");
 
         //Set Flag, in order to avoid loop
         $entity->setData(VendorInterface::ALREADY_SENT_FLAG, 1);
@@ -87,8 +88,8 @@ class Send implements ObserverInterface
      */
     protected function canProceed($entity)
     {
-        if (!$this->kkmHelper->getConfig('general/enabled')
-            || !$this->kkmHelper->getConfig('general/auto_send_after_invoice')
+        if (!$this->kkmHelper->getConfig('general/enabled', $entity->getStoreId())
+            || !$this->kkmHelper->getConfig('general/auto_send_after_invoice', $entity->getStoreId())
             || $entity->getOrderCurrencyCode() != 'RUB'
             || $this->isAlreadySent($entity)
             || !$this->isStateAllowed($entity)
@@ -99,7 +100,7 @@ class Send implements ObserverInterface
         if (!$entity->getData(VendorInterface::SKIP_PAYMENT_METHOD_VALIDATION)) {
             $order = $entity->getOrder();
             $paymentMethod = $order->getPayment()->getMethod();
-            $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods');
+            $paymentMethods = $this->kkmHelper->getConfig('general/payment_methods', $entity->getStoreId());
             $paymentMethods = explode(',', $paymentMethods);
 
             if (!in_array($paymentMethod, $paymentMethods)) {

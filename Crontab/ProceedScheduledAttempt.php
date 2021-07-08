@@ -17,6 +17,7 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
 /**
@@ -53,6 +54,11 @@ class ProceedScheduledAttempt
     private $dateTime;
 
     /**
+     * @var \Magento\Store\Model\StoreManagerInterface
+     */
+    private $storeManager;
+
+    /**
      * Update constructor.
      * @param TransactionAttemptRepositoryInterface $attemptRepository
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
@@ -60,6 +66,7 @@ class ProceedScheduledAttempt
      * @param MessageEncoder $messageEncoder
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param DateTime $dateTime
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     public function __construct(
         TransactionAttemptRepositoryInterface $attemptRepository,
@@ -67,7 +74,8 @@ class ProceedScheduledAttempt
         \Magento\Framework\MessageQueue\PublisherInterface $publisher,
         MessageEncoder $messageEncoder,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        DateTime $dateTime
+        DateTime $dateTime,
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->attemptRepository = $attemptRepository;
         $this->kkmHelper = $kkmHelper;
@@ -75,6 +83,7 @@ class ProceedScheduledAttempt
         $this->messageEncoder = $messageEncoder;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->dateTime = $dateTime;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -82,8 +91,15 @@ class ProceedScheduledAttempt
      */
     public function execute()
     {
+        foreach ($this->storeManager->getStores() as $store) {
+            $this->proceed($store->getId());
+        }
+    }
+
+    private function proceed($storeId)
+    {
         //Проверка включения Cron
-        if (!$this->kkmHelper->getConfig('general/update_cron')) {
+        if (!$this->kkmHelper->getConfig('general/update_cron', $storeId)) {
             return;
         }
 
@@ -91,7 +107,8 @@ class ProceedScheduledAttempt
             $this->searchCriteriaBuilder
                 ->addFilter(TransactionAttemptInterface::IS_SCHEDULED, true)
                 ->addFilter(TransactionAttemptInterface::SCHEDULED_AT, $this->dateTime->gmtDate(), 'lteq')
-                ->setPageSize($this->kkmHelper->getConfig('general/retry_limit'))
+                ->addFilter(TransactionAttemptInterface::STORE_ID, $storeId)
+                ->setPageSize($this->kkmHelper->getConfig('general/retry_limit', $storeId))
                 ->create()
         )->getItems();
 
@@ -114,9 +131,9 @@ class ProceedScheduledAttempt
     private function publishRequest(TransactionAttemptInterface $attempt)
     {
         $topic = $this->getTopic($attempt);
-        /** @var RequestInterface $request */
-        $request = $this->messageEncoder->decode($topic, $attempt->getRequestJson());
-        $this->publisher->publish($topic, $request);
+        /** @var QueueMessageInterface $message */
+        $message = $this->messageEncoder->decode($topic, $attempt->getRequestJson());
+        $this->publisher->publish($topic, $message);
     }
 
     /**
