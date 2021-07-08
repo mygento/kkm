@@ -14,6 +14,8 @@ use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Collection as ParentColle
 
 class Collection extends ParentCollection implements SearchResultInterface
 {
+    private const IS_CLOSED_COLUMN_NAME = 'is_closed';
+
     /** @var \Magento\Framework\Api\Search\AggregationInterface */
     protected $aggregations;
 
@@ -120,6 +122,35 @@ class Collection extends ParentCollection implements SearchResultInterface
      */
     public function setItems(array $items = null)
     {
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    protected function _initSelect()
+    {
+        parent::_initSelect();
+
+        $successfulKkmAttemptsAlias = 'successful_kkm_attempts';
+        $isClosedExpression = new \Zend_Db_Expr("({$successfulKkmAttemptsAlias}.id IS NOT NULL)");
+        $this->getSelect()
+            ->joinLeft(
+                [$successfulKkmAttemptsAlias => $this->getMainTable()],
+                implode(
+                    ' AND ',
+                    [
+                        "main_table.order_id = {$successfulKkmAttemptsAlias}.order_id",
+                        "main_table.operation = {$successfulKkmAttemptsAlias}.operation",
+                        "main_table.sales_entity_id = {$successfulKkmAttemptsAlias}.sales_entity_id",
+                        "{$successfulKkmAttemptsAlias}.status != 3"
+                    ]
+                ),
+                [self::IS_CLOSED_COLUMN_NAME => $isClosedExpression]
+            );
+
+        $this->addFilterToMap(self::IS_CLOSED_COLUMN_NAME, $isClosedExpression);
+
         return $this;
     }
 }
