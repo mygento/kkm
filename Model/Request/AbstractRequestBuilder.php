@@ -25,11 +25,6 @@ use Mygento\Kkm\Model\GetRecalculated;
 abstract class AbstractRequestBuilder
 {
     /**
-     * @var ProductRepositoryInterface
-     */
-    private $productRepository;
-
-    /**
      * @var KkmHelperData
      */
     protected $kkmHelper;
@@ -43,6 +38,11 @@ abstract class AbstractRequestBuilder
      * @var TransactionHelper
      */
     protected $transactionHelper;
+
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private $productRepository;
 
     /**
      * AbstractRequestBuilder constructor.

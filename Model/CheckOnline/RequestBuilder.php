@@ -68,8 +68,8 @@ class RequestBuilder extends AbstractRequestBuilder
      * @param array $receiptData
      * @param string $clientName
      * @param string $clientInn
-     * @return RequestInterface
      * @throws \Exception
+     * @return RequestInterface
      */
     public function buildRequest(
         $salesEntity,
@@ -78,8 +78,7 @@ class RequestBuilder extends AbstractRequestBuilder
         array $receiptData = [],
         $clientName = '',
         $clientInn = ''
-    ): RequestInterface
-    {
+    ): RequestInterface {
         /** @var \Mygento\Kkm\Model\CheckOnline\Request $request */
         $request = $this->requestFactory->create();
 

@@ -163,44 +163,6 @@ class Send implements SendInterface
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return bool
      */
-    private function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
-    {
-        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
-        $request = $vendor->buildRequestForResellRefund($invoice);
-
-        if ($incrExtId) {
-            $this->requestHelper->increaseExternalId($request);
-        }
-
-        $this->attemptHelper->resetNumberOfTrials($request, $invoice);
-
-        $request->setIgnoreTrialsNum($ignoreTrials);
-
-        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
-            $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $vendor->sendResellRequest($request, $invoice);
-
-            return true;
-        }
-
-        $queueMessage = $this->requestHelper->getQueueMessage($request);
-        $this->helper->debug('Publish request message: ', $queueMessage->__toArray());
-        $this->publisher->publish(self::TOPIC_NAME_RESELL, $queueMessage);
-
-        return true;
-    }
-
-    /**
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
-     * @param bool $sync
-     * @param bool $ignoreTrials
-     * @param bool $incrExtId
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
-     * @return bool
-     */
     public function proceedResellSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
         $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
@@ -309,6 +271,44 @@ class Send implements SendInterface
         ) {
             $this->proceedResellSell($invoice, $sync, $ignoreTrials, $incrExtId);
         }
+
+        return true;
+    }
+
+    /**
+     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
+     * @param bool $sync
+     * @param bool $ignoreTrials
+     * @param bool $incrExtId
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @return bool
+     */
+    private function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
+    {
+        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
+        $request = $vendor->buildRequestForResellRefund($invoice);
+
+        if ($incrExtId) {
+            $this->requestHelper->increaseExternalId($request);
+        }
+
+        $this->attemptHelper->resetNumberOfTrials($request, $invoice);
+
+        $request->setIgnoreTrialsNum($ignoreTrials);
+
+        if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
+            $this->helper->debug('Sending request without Queue: ', $request->__toArray());
+            $vendor->sendResellRequest($request, $invoice);
+
+            return true;
+        }
+
+        $queueMessage = $this->requestHelper->getQueueMessage($request);
+        $this->helper->debug('Publish request message: ', $queueMessage->__toArray());
+        $this->publisher->publish(self::TOPIC_NAME_RESELL, $queueMessage);
 
         return true;
     }

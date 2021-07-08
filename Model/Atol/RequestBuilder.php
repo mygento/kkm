@@ -1,8 +1,12 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2021 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
 
 namespace Mygento\Kkm\Model\Atol;
-
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Url;
@@ -15,8 +19,8 @@ use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Helper\Data;
-use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\OrderComment;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\GetRecalculated;
 use Mygento\Kkm\Model\Request\AbstractRequestBuilder;
 
@@ -46,7 +50,6 @@ class RequestBuilder extends AbstractRequestBuilder
      * @var Url
      */
     private $urlHelper;
-
 
     public function __construct(
         ProductRepositoryInterface $productRepository,
@@ -78,8 +81,8 @@ class RequestBuilder extends AbstractRequestBuilder
      * @param array $receiptData
      * @param string $clientName
      * @param string $clientInn
-     * @return RequestInterface
      * @throws \Exception
+     * @return RequestInterface
      */
     public function buildRequest(
         $salesEntity,

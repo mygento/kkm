@@ -241,6 +241,7 @@ class Data extends \Mygento\Base\Helper\Data
     public function isVendorNeedUpdateStatus($storeId = null)
     {
         $vendor = $this->getCurrentVendor($storeId);
+
         return $vendor instanceof \Mygento\Kkm\Model\StatusUpdatable;
     }
 
