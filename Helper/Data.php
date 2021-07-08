@@ -21,6 +21,15 @@ class Data extends \Mygento\Base\Helper\Data
     const CFG_ATTRIBUTE_VALUE = 'attribute_value';
     const CFG_JUR_TYPE = 'jur_type';
 
+    private const CONFIG_PATH_TEST_MODE = 'general/test_mode';
+
+    private const CONFIG_PATH_TEST_CLIENT_CERT = 'checkonline/test_cert';
+    private const CONFIG_PATH_PROD_CLIENT_CERT = 'checkonline/cert';
+    private const CONFIG_PATH_TEST_CLIENT_PRIVATE_KEY = 'checkonline/test_private_key';
+    private const CONFIG_PATH_PROD_CLIENT_PRIVATE_KEY = 'checkonline/private_key';
+    private const CONFIG_PATH_TEST_API_URL = 'checkonline/test_api_url';
+    private const CONFIG_PATH_PROD_API_URL = 'checkonline/api_url';
+
     /** @var string */
     protected $code = self::CONFIG_CODE;
 
@@ -95,9 +104,9 @@ class Data extends \Mygento\Base\Helper\Data
      * @param string|null $storeId
      * @return bool
      */
-    public function isTestMode($storeId = null)
+    public function isTestMode(?string $storeId = null): bool
     {
-        return (bool) $this->getConfig('atol/test_mode', $storeId);
+        return (bool) $this->getConfig(self::CONFIG_PATH_TEST_MODE, $storeId);
     }
 
     /**
@@ -209,15 +218,6 @@ class Data extends \Mygento\Base\Helper\Data
      * @param string|null $storeId
      * @return string
      */
-    public function isCheckonlineTestMode($storeId = null)
-    {
-        return $this->getConfig('checkonline/test_mode', $storeId);
-    }
-
-    /**
-     * @param string|null $storeId
-     * @return string
-     */
     public function getCurrentVendorCode($storeId = null)
     {
         return $this->getConfig('general/service', $storeId);
@@ -240,6 +240,42 @@ class Data extends \Mygento\Base\Helper\Data
      */
     public function isVendorNeedUpdateStatus($storeId = null)
     {
-        return $this->getCurrentVendor($storeId)->isNeedUpdateStatus();
+        $vendor = $this->getCurrentVendor($storeId);
+        return $vendor instanceof \Mygento\Kkm\Model\StatusUpdatable;
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return string|null
+     */
+    public function getClientCertFileName(?string $storeId = null): ?string
+    {
+        if ($this->isTestMode($storeId)) {
+            return $this->getConfig(self::CONFIG_PATH_TEST_CLIENT_CERT, $storeId);
+        }
+
+        return $this->getConfig(self::CONFIG_PATH_PROD_CLIENT_CERT, $storeId);
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return string|null
+     */
+    public function getClientPrivateKeyFileName(?string $storeId = null): ?string
+    {
+        if ($this->isTestMode($storeId)) {
+            return $this->getConfig(self::CONFIG_PATH_TEST_CLIENT_PRIVATE_KEY, $storeId);
+        }
+
+        return $this->getConfig(self::CONFIG_PATH_PROD_CLIENT_PRIVATE_KEY, $storeId);
+    }
+
+    public function getCheckonlineApiUrl(?string $storeId = null): ?string
+    {
+        if ($this->isTestMode($storeId)) {
+            return $this->getConfig(self::CONFIG_PATH_TEST_API_URL, $storeId);
+        }
+
+        return $this->getConfig(self::CONFIG_PATH_PROD_API_URL, $storeId);
     }
 }

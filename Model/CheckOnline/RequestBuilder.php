@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model\CheckOnline;
 
+use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
@@ -17,9 +18,9 @@ use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\OrderComment;
-use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\GetRecalculated;
+use Mygento\Kkm\Model\Request\AbstractRequestBuilder;
 
 /**
  * Class RequestBuilder
@@ -27,59 +28,57 @@ use Mygento\Kkm\Model\GetRecalculated;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class RequestBuilder
+class RequestBuilder extends AbstractRequestBuilder
 {
-    /**
-     * @var Data
-     */
-    protected $kkmHelper;
-
     /**
      * @var RequestFactory
      */
     private $requestFactory;
 
     /**
-     * @var GetRecalculated
-     */
-    private $getRecalculated;
-
-    /**
      * @var ItemFactory
      */
     private $itemFactory;
 
-    /**
-     * @var RequestHelper
-     */
-    private $requestHelper;
-
-    /**
-     * @var TransactionHelper
-     */
-    private $transactionHelper;
-
     public function __construct(
+        ProductRepositoryInterface $productRepository,
         Data $kkmHelper,
-        RequestFactory $requestFactory,
         GetRecalculated $getRecalculated,
-        ItemFactory $itemFactory,
-        RequestHelper $requestHelper,
-        TransactionHelper $transactionHelper
+        TransactionHelper $transactionHelper,
+        RequestFactory $requestFactory,
+        ItemFactory $itemFactory
     ) {
-        $this->kkmHelper = $kkmHelper;
+        parent::__construct(
+            $productRepository,
+            $kkmHelper,
+            $getRecalculated,
+            $transactionHelper
+        );
+
         $this->requestFactory = $requestFactory;
         $this->getRecalculated = $getRecalculated;
         $this->itemFactory = $itemFactory;
-        $this->requestHelper = $requestHelper;
         $this->transactionHelper = $transactionHelper;
     }
 
     /**
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param string $paymentMethod
+     * @param string $shippingPaymentObject
+     * @param array $receiptData
+     * @param string $clientName
+     * @param string $clientInn
      * @return RequestInterface
+     * @throws \Exception
      */
-    public function buildRequest($salesEntity): RequestInterface
+    public function buildRequest(
+        $salesEntity,
+        $paymentMethod = null,
+        $shippingPaymentObject = null,
+        array $receiptData = [],
+        $clientName = '',
+        $clientInn = ''
+    ): RequestInterface
     {
         /** @var \Mygento\Kkm\Model\CheckOnline\Request $request */
         $request = $this->requestFactory->create();
@@ -107,7 +106,7 @@ class RequestBuilder
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setClientId($this->kkmHelper->getConfig('checkonline/client_id', $storeId))
             ->setGroup($this->kkmHelper->getConfig('checkonline/group', $storeId))
-            ->setExternalId($this->requestHelper->generateExternalId($salesEntity))
+            ->setExternalId($this->generateExternalId($salesEntity))
             ->setNonCash([(int) round($order->getGrandTotal() * 100, 0)])
             ->setSno((int) $this->kkmHelper->getConfig('checkonline/sno', $storeId))
             ->setPhone($telephone)
@@ -118,7 +117,7 @@ class RequestBuilder
 
         $advancePayment = 0;
         //"GiftCard applied" payment
-        if ($this->requestHelper->isGiftCardApplied($salesEntity)) {
+        if ($this->isGiftCardApplied($salesEntity)) {
             $giftCardsAmount = $salesEntity->getGiftCardsAmount()
                 ?? $salesEntity->getOrder()->getGiftCardsAmount();
 
@@ -126,7 +125,7 @@ class RequestBuilder
         }
 
         //"CustomerBalance applied" payment
-        if ($this->requestHelper->isCustomerBalanceApplied($salesEntity)) {
+        if ($this->isCustomerBalanceApplied($salesEntity)) {
             $customerBalanceAmount = $salesEntity->getCustomerBalanceAmount()
                 ?? $salesEntity->getOrder()->getCustomerBalanceAmount();
 
@@ -134,57 +133,6 @@ class RequestBuilder
         }
 
         $request->setAdvancePayment($advancePayment);
-
-        return $request;
-    }
-
-    /**
-     * @param InvoiceInterface $invoice
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @return RequestInterface
-     */
-    public function buildRequestForResellRefund($invoice): RequestInterface
-    {
-        $request = $this->buildRequest($invoice);
-
-        //Check is there a done transaction among entity transactions.
-        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-        $lastRefundTransaction = $this->transactionHelper->getLastResellRefundTransaction($invoice);
-
-        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
-            ?? $this->requestHelper->generateExternalId($invoice);
-        $externalId .= '_refund';
-
-        $externalId = $this->transactionHelper->getExternalId($lastRefundTransaction) ?? $externalId;
-
-        $request->setExternalId($externalId);
-        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
-
-        return $request;
-    }
-
-    /**
-     * @param InvoiceInterface $invoice
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @return RequestInterface
-     */
-    public function buildRequestForResellSell($invoice): RequestInterface
-    {
-        $request = $this->buildRequest($invoice);
-
-        //Check is there a done transaction among entity transactions.
-        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-
-        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
-
-        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
-            ?? $this->requestHelper->generateExternalId($invoice);
-        $externalId .= '_resell';
-
-        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
-
-        $request->setExternalId($externalId);
-        $request->setOperationType(RequestInterface::RESELL_SELL_OPERATION_TYPE);
 
         return $request;
     }
@@ -208,10 +156,10 @@ class RequestBuilder
 
             $this->validateItem($itemData);
 
-            $itemPaymentMethod = $this->requestHelper->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_METHOD_ADVANCE
                 : Item::PAYMENT_METHOD_FULL_PAYMENT;
-            $itemPaymentObject = $this->requestHelper->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
                 ? Item::PAYMENT_OBJECT_PAYMENT
                 : Item::PAYMENT_OBJECT_BASIC;
 
@@ -230,7 +178,7 @@ class RequestBuilder
             if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
                 $item->setMarkingRequired(true);
                 $item->setMarking(
-                    $this->requestHelper->convertMarkingToHexAndEncodeToBase64($itemData[Discount::MARKING], $storeId)
+                    $this->convertMarkingToHexAndEncodeToBase64($itemData[Discount::MARKING], $storeId)
                 );
             }
 

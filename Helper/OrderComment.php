@@ -70,19 +70,19 @@ class OrderComment
 
         $comment = $this->buildComment($entity, $response->getMessage(), $txnId, $operation);
 
-        if ($response->getStatus() == Response::STATUS_DONE
-            && $order->getStatus() == Error::ORDER_KKM_FAILED_STATUS
-            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($entity->getStoreId())
-        ) {
+        if ($this->isNeedChangeStatusFromFailedToDone($response, $entity)) {
             $order->addCommentToStatusHistory(
                 $comment,
                 $this->resolveOrderStatus($order->getState(), $entity->getStoreId())
             );
-        } else {
-            $order->addCommentToStatusHistory($comment);
-            $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
+
+            $this->orderRepository->save($order);
+
+            return;
         }
 
+        $order->addCommentToStatusHistory($comment);
+        $order->setData(self::COMMENT_ADDED_TO_ORDER_FLAG, true);
         $this->orderRepository->save($order);
     }
 
@@ -149,5 +149,19 @@ class OrderComment
         return $orderState === Order::STATE_CLOSED
             ? $this->orderConfig->getStateDefaultStatus(Order::STATE_CLOSED)
             : $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($storeId);
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @return bool
+     */
+    private function isNeedChangeStatusFromFailedToDone(ResponseInterface $response, $entity): bool
+    {
+        $order = $entity->getOrder();
+
+        return $response->getStatus() === Response::STATUS_DONE
+            && $order->getStatus() === Error::ORDER_KKM_FAILED_STATUS
+            && $this->kkmHelper->getOrderStatusAfterKkmTransactionDone($entity->getStoreId());
     }
 }

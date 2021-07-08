@@ -18,10 +18,9 @@ use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 
 class Client
 {
-    const CERT_STORAGE_DIR = [
-        'prod' => 'kkm/certs/prod',
-        'test' => 'kkm/certs/test',
-    ];
+    private const TEST_CERT_STORAGE_DIR = 'kkm/certs/test';
+    private const PROD_CERT_STORAGE_DIR = 'kkm/certs/prod';
+    private const DIRECTORY_VAR = 'var';
 
     /**
      * @var \Mygento\Kkm\Helper\Data
@@ -61,6 +60,8 @@ class Client
      * @param \Mygento\Kkm\Model\CheckOnline\ResponseFactory $responseFactory
      * @param \Magento\Framework\HTTP\Client\CurlFactory $curlFactory
      * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
+     * @param DirectoryList $directoryList
+     * @param File $file
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
@@ -106,8 +107,8 @@ class Client
             }
 
             $responseRaw = $curl->getBody();
-            $this->validateVendorAnswer($responseRaw);
-            $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
+            $decodedResponse = json_decode($responseRaw, false, 512, JSON_THROW_ON_ERROR);
+            $response = $this->responseFactory->create(['decodedResponse' => $decodedResponse]);
 
             if (!$response->getRequestId()) {
                 $response->setRequestId($request->getExternalId());
@@ -122,6 +123,10 @@ class Client
                 $e->getMessage(),
                 $response ?? null,
                 $debugData
+            );
+        } catch (\JsonException $e) {
+            throw new VendorBadServerAnswerException(
+                __('Response from Checkonline is not valid. Response: %1', $responseRaw ?? '')
             );
         } catch (\Exception $e) {
             throw new VendorBadServerAnswerException(
@@ -138,26 +143,31 @@ class Client
      * @throws \Magento\Framework\Exception\FileSystemException
      * @return string
      */
-    private function getFilePath($fileType, $storeId = null): string
+    private function getFilePath(string $fileType, $storeId = null): string
     {
-        $isTestMode = $this->kkmHelper->isCheckonlineTestMode($storeId);
-        $mode = $isTestMode ? 'test' : 'prod';
+        $isTestMode = $this->kkmHelper->isTestMode($storeId);
 
         switch ($fileType) {
-            case 'certificate':
-                $configPath = $isTestMode ? 'checkonline/test_cert' : 'checkonline/cert';
-                break;
             case 'key':
-                $configPath = $isTestMode ? 'checkonline/test_private_key' : 'checkonline/private_key';
+                $fileName = $this->kkmHelper->getClientPrivateKeyFileName($storeId);
                 break;
+            case 'certificate':
+            default:
+                $fileName = $this->kkmHelper->getClientCertFileName($storeId);
         }
 
-        $filePathInVar = self::CERT_STORAGE_DIR[$mode] . '/' . $this->kkmHelper->getConfig($configPath, $storeId);
-        $fileAbsolutePath = $this->directoryList->getPath('var') . '/' . $filePathInVar;
+        $currentCertStorageDir = $isTestMode ? self::TEST_CERT_STORAGE_DIR : self::PROD_CERT_STORAGE_DIR;
+        $filePathInVar = $currentCertStorageDir . '/' . $fileName;
+        $fileAbsolutePath = $this->directoryList->getPath(self::DIRECTORY_VAR) . '/' . $filePathInVar;
 
-        if (!$this->file->isFile($fileAbsolutePath) || !$this->file->isExists($fileAbsolutePath)) {
+        if (!$this->file->isExists($fileAbsolutePath) || !$this->file->isFile($fileAbsolutePath)) {
             throw new FileSystemException(
-                __(sprintf('The %s file does not exists in var/%s directory', $fileType, $filePathInVar))
+                __(sprintf(
+                    'The %s file \'%s\' does not exists in \'var/%s\' directory',
+                    $fileType,
+                    $fileName,
+                    $currentCertStorageDir
+                ))
             );
         }
 
@@ -168,24 +178,8 @@ class Client
      * @param string|null $storeId
      * @return string
      */
-    private function getUrl($storeId = null): string
+    private function getUrl(?string $storeId = null): string
     {
-        $configPath = $this->kkmHelper->isCheckonlineTestMode($storeId)
-            ? 'checkonline/test_api_url' : 'checkonline/api_url';
-
-        return rtrim($this->kkmHelper->getConfig($configPath, $storeId), '/') . '/' . $this->apiUrlPath;
-    }
-
-    /**
-     * @param string $rawResponse
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     */
-    private function validateVendorAnswer($rawResponse)
-    {
-        if (!json_decode($rawResponse)) {
-            throw new VendorBadServerAnswerException(
-                __('Response from Checkonline is not valid. Response: %1', (string) $rawResponse)
-            );
-        }
+        return rtrim($this->kkmHelper->getCheckonlineApiUrl($storeId), '/') . '/' . $this->apiUrlPath;
     }
 }

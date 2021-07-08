@@ -27,7 +27,7 @@ interface ItemInterface
     public function getPrice();
 
     /**
-     * @param float|string $price
+     * @param float|int|string $price
      * @return $this
      */
     public function setPrice($price);

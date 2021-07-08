@@ -96,7 +96,7 @@ class Resell extends \Magento\Backend\App\Action
             }
 
             //Кнопка в админке должна отправлять сразу же $sync=true
-            $this->processor->proceedCommonResell($invoice, true, true);
+            $this->processor->proceedResell($invoice, true, true);
 
             $comment = 'Resell started. Refund was sent to KKM.';
 

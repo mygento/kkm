@@ -123,21 +123,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     /**
      * @inheritDoc
      */
-    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
-    {
-        $this->orderCommentHelper->addCommentToOrder($entity, $response, $txnId, $operation);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function updateStatus($uuid, $useAttempt = false)
-    {
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function buildRequest(
         $salesEntity,
         $paymentMethod = null,
@@ -163,14 +148,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     public function buildRequestForResellRefund($invoice): RequestInterface
     {
         return $this->requestBuilder->buildRequestForResellRefund($invoice);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isNeedUpdateStatus()
-    {
-        return false;
     }
 
     /**
@@ -206,7 +183,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $response = $this->apiClient->sendPostRequest($request);
 
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
-            $this->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
+            $this->orderCommentHelper->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
 
             $this->validateResponse($response);
 

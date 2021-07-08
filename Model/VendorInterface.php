@@ -63,16 +63,6 @@ interface VendorInterface
     public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface;
 
     /**
-     * @param string $uuid It is Transaction Id on Magento side
-     * @param bool $useAttempt
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
-     * @return \Mygento\Kkm\Api\Data\ResponseInterface
-     */
-    public function updateStatus($uuid, $useAttempt = false);
-
-    /**
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
      * @param string $paymentMethod
      * @param string $shippingPaymentObject
@@ -101,17 +91,4 @@ interface VendorInterface
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
     public function buildRequestForResellSell($invoice): RequestInterface;
-
-    /**
-     * @param CreditmemoInterface|InvoiceInterface $entity
-     * @param \Mygento\Kkm\Api\Data\ResponseInterface $response
-     * @param mixed|null $txnId
-     * @param string $operation
-     */
-    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '');
-
-    /**
-     * @return bool
-     */
-    public function isNeedUpdateStatus();
 }

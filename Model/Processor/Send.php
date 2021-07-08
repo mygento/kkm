@@ -163,7 +163,7 @@ class Send implements SendInterface
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return bool
      */
-    public function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
+    private function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
         $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
         $request = $vendor->buildRequestForResellRefund($invoice);
@@ -248,7 +248,7 @@ class Send implements SendInterface
         $lastRefundTxn = $this->transactionHelper->getLastResellRefundTransaction($invoice);
 
         if ($lastRefundTxn->getKkmStatus() === Response::STATUS_FAIL) {
-            return $this->proceedCommonResell($invoice, $sync, false, true);
+            return $this->proceedResell($invoice, $sync, false, true);
         }
 
         //Это может означать, что эта отправка еще висит в очереди.
@@ -299,13 +299,12 @@ class Send implements SendInterface
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return bool
      */
-    public function proceedCommonResell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
+    public function proceedResell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
         $storeId = $invoice->getStoreId();
-        $vendor = $this->helper->getCurrentVendor($storeId);
         $this->proceedResellRefund($invoice, $sync, $ignoreTrials, $incrExtId);
 
-        if (!$vendor->isNeedUpdateStatus()
+        if (!$this->helper->isVendorNeedUpdateStatus($storeId)
             && ($sync || !$this->helper->isMessageQueueEnabled($storeId))
         ) {
             $this->proceedResellSell($invoice, $sync, $ignoreTrials, $incrExtId);

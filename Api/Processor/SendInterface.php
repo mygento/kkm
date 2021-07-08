@@ -39,7 +39,7 @@ interface SendInterface
      * @param bool $incrExtId
      * @return bool
      */
-    public function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false);
+    public function proceedResell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false);
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
@@ -57,16 +57,4 @@ interface SendInterface
      * @return bool
      */
     public function proceedFailedResell($invoice, $sync = false, $ignoreTrials = false);
-
-    /**
-     * Для совместимости с вендормами, которые работают по синхронному принципу и не имеют операций по обновлению
-     * статуса документа. В этом случае в этом методе после refund операции нужно сразу выполнять sell операцию
-     *
-     * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice
-     * @param bool $sync
-     * @param bool $ignoreTrials
-     * @param bool $incrExtId
-     * @return bool
-     */
-    public function proceedCommonResell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false);
 }

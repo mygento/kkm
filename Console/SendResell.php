@@ -98,7 +98,7 @@ class SendResell extends Command
         $output->writeln("<comment>1. Sending refund of the invoice {$incrementId} ...</comment>");
 
         try {
-            $this->processor->proceedCommonResell($invoice, true, true, $forceIncreaseExtId);
+            $this->processor->proceedResell($invoice, true, true, $forceIncreaseExtId);
         } catch (CreateDocumentFailedException $e) {
             $error = $e->getMessage();
             $error .= $e->getResponse() ? ' ' . $e->getResponse()->getErrorMessage() : '';

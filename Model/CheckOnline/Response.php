@@ -88,38 +88,36 @@ class Response implements ResponseInterface
 
     /**
      * ReportResponse constructor.
-     * @param string $jsonRaw
+     * @param \stdClass $decodedResponse
      * @throws \Exception
      */
-    public function __construct($jsonRaw)
+    public function __construct(\stdClass $decodedResponse)
     {
-        $json = json_decode($jsonRaw);
-
         // phpcs:disable
-        $this->fceError = $json->FCEError ?? null;
-        $this->errorDescription = $json->ErrorDescription ?? null;
-        $this->fatal = $json->Fatal ?? null;
-        $this->logRequestId = $json->LogRequestId ?? null;
-        $this->cloudErrorTimestamp = $json->Timestamp ?? null;
-        $this->requestId = $json->RequestId ?? null;
-        $this->clientId = $json->ClientId ?? null;
-        $this->date = $json->Date ?? null;
-        $this->device = $json->Device ?? null;
-        $this->deviceRegistrationNumber = $json->DeviceRegistrationNumber ?? null;
-        $this->deviceSerialNumber = $json->DeviceSerialNumber ?? null;
-        $this->docNumber = $json->DocNumber ?? null;
-        $this->documentType = $json->DocumentType ?? null;
-        $this->fnSerialNumber = $json->FNSerialNumber ?? null;
-        $this->fiscalDocNumber = $json->FiscalDocNumber ?? null;
-        $this->fiscalSign = $json->FiscalSign ?? null;
-        $this->grandTotal = $json->GrandTotal ?? null;
-        $this->path = $json->Path ?? null;
-        $this->qr = $json->QR ?? null;
-        $this->response = $json->Response ?? null;
-        $this->responses = $json->Responses ?? null;
-        $this->text = $json->Text ?? null;
-        $this->turnNumber = $json->TurnNumber ?? null;
-        $this->jsonResponse = json_encode($json);
+        $this->fceError = $decodedResponse->FCEError ?? null;
+        $this->errorDescription = $decodedResponse->ErrorDescription ?? null;
+        $this->fatal = $decodedResponse->Fatal ?? null;
+        $this->logRequestId = $decodedResponse->LogRequestId ?? null;
+        $this->cloudErrorTimestamp = $decodedResponse->Timestamp ?? null;
+        $this->requestId = $decodedResponse->RequestId ?? null;
+        $this->clientId = $decodedResponse->ClientId ?? null;
+        $this->date = $decodedResponse->Date ?? null;
+        $this->device = $decodedResponse->Device ?? null;
+        $this->deviceRegistrationNumber = $decodedResponse->DeviceRegistrationNumber ?? null;
+        $this->deviceSerialNumber = $decodedResponse->DeviceSerialNumber ?? null;
+        $this->docNumber = $decodedResponse->DocNumber ?? null;
+        $this->documentType = $decodedResponse->DocumentType ?? null;
+        $this->fnSerialNumber = $decodedResponse->FNSerialNumber ?? null;
+        $this->fiscalDocNumber = $decodedResponse->FiscalDocNumber ?? null;
+        $this->fiscalSign = $decodedResponse->FiscalSign ?? null;
+        $this->grandTotal = $decodedResponse->GrandTotal ?? null;
+        $this->path = $decodedResponse->Path ?? null;
+        $this->qr = $decodedResponse->QR ?? null;
+        $this->response = $decodedResponse->Response ?? null;
+        $this->responses = $decodedResponse->Responses ?? null;
+        $this->text = $decodedResponse->Text ?? null;
+        $this->turnNumber = $decodedResponse->TurnNumber ?? null;
+        $this->jsonResponse = json_encode($decodedResponse);
         $this->status = $this->calculateStatus();
         // phpcs:enable
     }

@@ -14,18 +14,13 @@ use Magento\Framework\Exception\NotFoundException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
-use Mygento\Base\Api\Data\RecalculateResultItemInterface;
-use Mygento\Base\Helper\Discount;
 use Mygento\Base\Model\Payment\Transaction;
-use Mygento\Kkm\Api\Data\ItemInterface;
-use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
-use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Helper\OrderComment;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 
@@ -35,34 +30,15 @@ use Mygento\Kkm\Helper\Transaction as TransactionHelper;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
-class Vendor implements \Mygento\Kkm\Model\VendorInterface
+class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\StatusUpdatable
 {
     const CLIENT_NAME = 'client_name';
     const CLIENT_INN = 'client_inn';
-
-    const TAX_SUM = 'tax_sum';
-    const CUSTOM_DECLARATION = 'custom_declaration';
-    const COUNTRY_CODE = 'country_code';
 
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
-
-    /**
-     * @var \Mygento\Base\Helper\Discount
-     */
-    private $kkmDiscount;
-
-    /**
-     * @var \Mygento\Kkm\Model\Atol\RequestFactory
-     */
-    private $requestFactory;
-
-    /**
-     * @var \Mygento\Kkm\Model\Atol\ItemFactory
-     */
-    private $itemFactory;
 
     /**
      * @var \Mygento\Kkm\Model\Atol\Client
@@ -85,67 +61,41 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
     private $attemptHelper;
 
     /**
-     * @var PaymentFactory
-     */
-    private $paymentFactory;
-
-    /**
-     * To get Frontend URL in backend scope
-     * @var \Magento\Framework\Url
-     */
-    private $urlHelper;
-
-    /**
-     * @var \Mygento\Kkm\Model\GetRecalculated
-     */
-    private $getRecalculated;
-
-    /**
      * @var \Mygento\Kkm\Helper\OrderComment
      */
     private $orderCommentHelper;
 
     /**
-     * @param \Mygento\Base\Helper\Discount $kkmDiscount
+     * @var RequestBuilder
+     */
+    private $requestBuilder;
+
+    /**
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
-     * @param \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory
-     * @param \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory
-     * @param \Mygento\Kkm\Model\Atol\PaymentFactory $paymentFactory
      * @param \Mygento\Kkm\Model\Atol\Client $apiClient
-     * @param \Magento\Framework\Url $urlHelper
-     * @param \Mygento\Kkm\Model\GetRecalculated $getRecalculated
      * @param \Mygento\Kkm\Helper\OrderComment $orderCommentHelper
+     * @param \Mygento\Kkm\Model\Atol\RequestBuilder $requestBuilder
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        \Mygento\Base\Helper\Discount $kkmDiscount,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
-        \Mygento\Kkm\Model\Atol\RequestFactory $requestFactory,
-        \Mygento\Kkm\Model\Atol\ItemFactory $itemFactory,
-        \Mygento\Kkm\Model\Atol\PaymentFactory $paymentFactory,
         \Mygento\Kkm\Model\Atol\Client $apiClient,
-        \Magento\Framework\Url $urlHelper,
-        \Mygento\Kkm\Model\GetRecalculated $getRecalculated,
-        \Mygento\Kkm\Helper\OrderComment $orderCommentHelper
+        \Mygento\Kkm\Helper\OrderComment $orderCommentHelper,
+        \Mygento\Kkm\Model\Atol\RequestBuilder $requestBuilder
     ) {
         $this->kkmHelper = $kkmHelper;
-        $this->kkmDiscount = $kkmDiscount;
-        $this->requestFactory = $requestFactory;
-        $this->itemFactory = $itemFactory;
         $this->apiClient = $apiClient;
         $this->transactionHelper = $transactionHelper;
         $this->requestHelper = $requestHelper;
         $this->attemptHelper = $attemptHelper;
-        $this->paymentFactory = $paymentFactory;
-        $this->urlHelper = $urlHelper;
-        $this->getRecalculated = $getRecalculated;
         $this->orderCommentHelper = $orderCommentHelper;
+        $this->requestBuilder = $requestBuilder;
     }
 
     /**
@@ -240,7 +190,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 break;
         }
 
-        $this->addCommentToOrder($entity, $response, $txn->getId(), $operation);
+        $this->orderCommentHelper->addCommentToOrder($entity, $response, $txn->getId(), $operation);
 
         return $response;
     }
@@ -289,7 +239,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 break;
         }
 
-        $this->addCommentToOrder($entity, $response, $txn->getId(), $operation);
+        $this->orderCommentHelper->addCommentToOrder($entity, $response, $txn->getId(), $operation);
 
         return $entity;
     }
@@ -299,25 +249,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function buildRequestForResellRefund($invoice): RequestInterface
     {
-        $request = $this->buildRequest($invoice);
-
-        //Check is there a done transaction among entity transactions.
-        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-        $lastRefundTransaction = $this->transactionHelper->getLastResellRefundTransaction($invoice);
-
-        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
-            ?? $this->requestHelper->generateExternalId($invoice);
-        $externalId .= '_refund';
-
-        $externalId = $this->transactionHelper->getExternalId($lastRefundTransaction) ?? $externalId;
-
-        //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
-        //set ФПД for resell requests.
-        $request->setAdditionalCheckProps($this->transactionHelper->getFpd($doneTransaction));
-        $request->setExternalId($externalId);
-        $request->setOperationType(RequestInterface::RESELL_REFUND_OPERATION_TYPE);
-
-        return $request;
+        return $this->requestBuilder->buildRequestForResellRefund($invoice);
     }
 
     /**
@@ -325,29 +257,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     public function buildRequestForResellSell($invoice): RequestInterface
     {
-        //Reset flag in order to add one more comment. For case when consumer works as daemon.
-        $invoice->getOrder()->setData(OrderComment::COMMENT_ADDED_TO_ORDER_FLAG, false);
-
-        $request = $this->buildRequest($invoice);
-
-        //Check is there a done transaction among entity transactions.
-        $doneTransaction = $this->transactionHelper->getDoneTransaction($invoice);
-
-        $lastResellTransaction = $this->transactionHelper->getLastResellSellTransaction($invoice);
-
-        $externalId = $this->transactionHelper->getExternalId($doneTransaction)
-            ?? $this->requestHelper->generateExternalId($invoice);
-        $externalId .= '_resell';
-
-        $externalId = $this->transactionHelper->getExternalId($lastResellTransaction) ?? $externalId;
-
-        //Accordingly to letter from ФНС от 06.08.2018 № ЕД-4-20/15240
-        //set ФПД for resell requests.
-        $request->setAdditionalCheckProps($this->transactionHelper->getFpd($doneTransaction));
-        $request->setExternalId($externalId);
-        $request->setOperationType(RequestInterface::RESELL_SELL_OPERATION_TYPE);
-
-        return $request;
+        return $this->requestBuilder->buildRequestForResellSell($invoice);
     }
 
     /**
@@ -366,129 +276,14 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $clientName = '',
         $clientInn = ''
     ): RequestInterface {
-        $order = $salesEntity->getOrder() ?? $salesEntity;
-        $storeId = $order->getStoreId();
-
-        /** @var RequestInterface $request */
-        $request = $this->requestFactory->create($storeId);
-        switch ($salesEntity->getEntityType()) {
-            case 'invoice':
-                $request->setOperationType(RequestInterface::SELL_OPERATION_TYPE);
-                break;
-            case 'creditmemo':
-                $request->setOperationType(RequestInterface::REFUND_OPERATION_TYPE);
-                break;
-        }
-
-        $recalculatedReceiptData = $this->getRecalculated->execute($salesEntity);
-
-        $items = [];
-        foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
-            //For orders without Shipping (Virtual products)
-            if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
-                continue;
-            }
-
-            $this->validateItem($itemData);
-
-            //How to handle GiftCards - see Atol API documentation
-            $itemPaymentMethod = $this->requestHelper->isGiftCard($salesEntity, $itemData[Discount::NAME])
-                ? Item::PAYMENT_METHOD_ADVANCE
-                : ($paymentMethod ?: Item::PAYMENT_METHOD_FULL_PAYMENT);
-            $itemPaymentObject = $this->requestHelper->isGiftCard($salesEntity, $itemData[Discount::NAME])
-                ? Item::PAYMENT_OBJECT_PAYMENT
-                : ($key == Discount::SHIPPING && $shippingPaymentObject
-                    ? $shippingPaymentObject
-                    : Item::PAYMENT_OBJECT_BASIC);
-
-            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId);
-        }
-
-        $telephone = $order->getBillingAddress()
-            ? (string) $order->getBillingAddress()->getTelephone()
-            : '';
-
-        $request
-            ->setEntityStoreId($storeId)
-            ->setExternalId($this->requestHelper->generateExternalId($salesEntity))
-            ->setSalesEntityId($salesEntity->getEntityId())
-            ->setEmail($order->getCustomerEmail())
-            ->setClientName($clientName)
-            ->setClientInn($clientInn)
-            ->setPhone($telephone)
-            ->setCompanyEmail($this->kkmHelper->getStoreEmail($storeId))
-            ->setPaymentAddress($this->kkmHelper->getConfig('atol/payment_address', $storeId))
-            ->setSno($this->kkmHelper->getConfig('atol/sno', $storeId))
-            ->setInn($this->kkmHelper->getConfig('atol/inn', $storeId))
-            ->setCallbackUrl($this->getCallbackUrl($storeId))
-            ->setItems($items);
-
-        //"GiftCard applied" payment
-        if ($this->requestHelper->isGiftCardApplied($salesEntity)) {
-            $giftCardsAmount = $salesEntity->getGiftCardsAmount()
-                ?? $salesEntity->getOrder()->getGiftCardsAmount();
-
-            $request
-                ->addPayment(
-                    $this->paymentFactory->create()
-                        ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
-                        ->setSum(round($giftCardsAmount, 2))
-                );
-        }
-
-        //"CustomerBalance applied" payment
-        if ($this->requestHelper->isCustomerBalanceApplied($salesEntity)) {
-            $customerBalanceAmount = $salesEntity->getCustomerBalanceAmount()
-                ?? $salesEntity->getOrder()->getCustomerBalanceAmount();
-
-            $request
-                ->addPayment(
-                    $this->paymentFactory->create()
-                        ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
-                        ->setSum(round($customerBalanceAmount, 2))
-                );
-        }
-
-        //Basic payment
-        if ($salesEntity->getGrandTotal() > 0.00 || $request->getPayments() === []) {
-            $request
-                ->addPayment(
-                    $this->paymentFactory->create()
-                        ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
-                        ->setSum(round($salesEntity->getGrandTotal(), 2))
-                );
-        }
-
-        return $request;
-    }
-
-    /**
-     * @param string|null $storeId
-     * @return string
-     */
-    public function getCallbackUrl($storeId = null)
-    {
-        return $this->kkmHelper->getConfig('atol/callback_url', $storeId)
-            ?? $this->urlHelper->setScope($storeId)->getUrl('kkm/frontend/callback', [
-                '_secure' => true,
-                '_nosid' => true,
-            ]);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function addCommentToOrder($entity, ResponseInterface $response, $txnId = null, $operation = '')
-    {
-        $this->orderCommentHelper->addCommentToOrder($entity, $response, $txnId, $operation);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isNeedUpdateStatus()
-    {
-        return true;
+        return $this->requestBuilder->buildRequest(
+            $salesEntity,
+            $paymentMethod,
+            $shippingPaymentObject,
+            $receiptData,
+            $clientName,
+            $clientInn
+        );
     }
 
     /**
@@ -535,7 +330,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             //Save transaction data
             $txn = $this->transactionHelper->registerTransaction($entity, $response);
-            $this->addCommentToOrder($entity, $response, $txn->getTransactionId() ?? null);
+            $this->orderCommentHelper->addCommentToOrder($entity, $response, $txn->getTransactionId() ?? null);
 
             //Check response.
             $this->validateResponse($response);
@@ -550,38 +345,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         }
 
         return $response;
-    }
-
-    /**
-     * @param RecalculateResultItemInterface $itemData
-     * @param string $itemPaymentMethod
-     * @param string $itemPaymentObject
-     * @param string|null $storeId
-     * @return ItemInterface
-     */
-    private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
-    {
-        /** @var ItemInterface $item */
-        $item = $this->itemFactory->create();
-        $item
-            ->setName($itemData[Discount::NAME])
-            ->setPrice($itemData[Discount::PRICE])
-            ->setSum($itemData[Discount::SUM])
-            ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
-            ->setTax($itemData[Discount::TAX])
-            ->setPaymentMethod($itemPaymentMethod)
-            ->setPaymentObject($itemPaymentObject)
-            ->setTaxSum($itemData[self::TAX_SUM] ?? 0.0)
-            ->setCustomsDeclaration($itemData[self::CUSTOM_DECLARATION] ?? '')
-            ->setCountryCode($itemData[self::COUNTRY_CODE] ?? '');
-        if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
-            $item->setMarkingRequired(true);
-            $item->setMarking(
-                $this->requestHelper->convertMarkingToHex($itemData[Discount::MARKING], $storeId)
-            );
-        }
-
-        return $item;
     }
 
     /**
@@ -624,7 +387,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             //Save transaction data
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
-            $this->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
+            $this->orderCommentHelper->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
 
             //Check response.
             $this->validateResponse($response);
@@ -697,28 +460,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     __('Error response from ATOL with code %1.', $response->getErrorCode()),
                     $response
                 );
-        }
-    }
-
-    /**
-     * @param RecalculateResultItemInterface $item
-     * @throws \Exception
-     */
-    private function validateItem(RecalculateResultItemInterface $item)
-    {
-        $reason = false;
-        if (!isset($item['name']) || $item['name'] === null || $item['name'] === '') {
-            $reason = __('One of items has undefined name.');
-        }
-
-        if (!isset($item['tax']) || $item['tax'] === null) {
-            $reason = __('Item %1 has undefined tax.', $item['name']);
-        }
-
-        if ($reason) {
-            throw new \Exception(
-                __('Can not send data to Atol. Reason: %1', $reason)
-            );
         }
     }
 }

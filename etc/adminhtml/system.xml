@@ -46,13 +46,6 @@
                     <label>API Version</label>
                     <source_model>Mygento\Kkm\Model\Source\ApiVersion</source_model>
                 </field>
-                <field id="test_mode" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Test mode</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <depends>
-                        <field id="*/*/api_version">4</field>
-                    </depends>
-                </field>
                 <field id="callback_url" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Callback URL</label>
                 </field>
@@ -93,31 +86,18 @@
                         <![CDATA[Система налогообложения]]>
                     </comment>
                 </field>
-                <field id="test_mode" translate="label" type="select" sortOrder="100" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Test mode</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                </field>
                 <field id="test_api_url" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Test Api URL</label>
-                    <depends>
-                        <field id="*/*/test_mode">1</field>
-                    </depends>
                 </field>
                 <field id="test_cert" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Test Client Certificate</label>
                     <backend_model>Mygento\Kkm\Model\Config\Backend\CertFile</backend_model>
                     <upload_dir>kkm/certs/test</upload_dir>
-                    <depends>
-                        <field id="*/*/test_mode">1</field>
-                    </depends>
                 </field>
                 <field id="test_private_key" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="130" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Test Private Key</label>
                     <backend_model>Mygento\Kkm\Model\Config\Backend\CertFile</backend_model>
                     <upload_dir>kkm/certs/test</upload_dir>
-                    <depends>
-                        <field id="*/*/test_mode">1</field>
-                    </depends>
                 </field>
             </group>
 
@@ -130,6 +110,11 @@
 
                 <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+
+                <field id="test_mode" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Test mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
 
