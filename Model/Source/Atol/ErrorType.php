@@ -6,7 +6,7 @@
  * @package Mygento_Kkm
  */
 
-namespace Mygento\Kkm\Model\Source;
+namespace Mygento\Kkm\Model\Source\Atol;
 
 use Magento\Framework\Data\OptionSourceInterface;
 

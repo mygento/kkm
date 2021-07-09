@@ -31,7 +31,7 @@ use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
-use Mygento\Kkm\Model\Source\ErrorType;
+use Mygento\Kkm\Model\Source\Atol\ErrorType;
 
 /**
  * Class Vendor
