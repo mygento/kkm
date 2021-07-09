@@ -228,7 +228,7 @@
                     <editorType>select</editorType>
                 </editor>
                 <label translate="true">Error Type</label>
-                <options class="Mygento\Kkm\Model\Source\ErrorType"/>
+                <options class="Mygento\Kkm\Model\Source\Atol\ErrorType"/>
             </settings>
         </column>
     </columns>

@@ -87,7 +87,7 @@ Mygento:
           length: 50
           nullable: true
           comment: 'Error Type'
-          source: 'Mygento\Kkm\Model\Source\ErrorType'
+          source: 'Mygento\Kkm\Model\Source\Atol\ErrorType'
       indexes:
         IX_STATUS:
           columns: ['status']
