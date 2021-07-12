@@ -54,4 +54,31 @@
             <argument name="transactionHelper" xsi:type="object">Mygento\Kkm\Helper\Transaction\Proxy</argument>
         </arguments>
     </type>
+
+    <virtualType name="Mygento\Kkm\Model\Transaction\Api\SearchCriteria\TransactionCollectionProcessor\FilterProcessor"
+                 type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
+        <arguments>
+            <argument name="customFilters" xsi:type="array">
+                <item name="store" xsi:type="object">Mygento\Kkm\Model\Transaction\Api\SearchCriteria\FilterProcessor\StoreFilter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Mygento\Kkm\Model\Api\SearchCriteria\TransactionCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">Mygento\Kkm\Model\Transaction\Api\SearchCriteria\TransactionCollectionProcessor\FilterProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Mygento\Kkm\Api\TransactionRepositoryInterface" type="Magento\Sales\Api\TransactionRepositoryInterface">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">Mygento\Kkm\Model\Api\SearchCriteria\TransactionCollectionProcessor</argument>
+        </arguments>
+    </virtualType>
+    <type name="Mygento\Kkm\Helper\Transaction">
+        <arguments>
+            <argument name="transactionRepository" xsi:type="object">Mygento\Kkm\Api\TransactionRepositoryInterface</argument>
+        </arguments>
+    </type>
+
 </config>
