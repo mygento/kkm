@@ -16,6 +16,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 
 /**
  * Class Transaction
@@ -44,22 +45,29 @@ class TransactionAttempt
     private $attemptRepository;
 
     /**
-     * TransactionAttempt constructor.
+     * @var SearchCriteriaBuilder
+     */
+    private $searchCriteriaBuilder;
+
+    /**
      * @param MessageEncoder $messageEncoder
      * @param Request $requestHelper
      * @param Data $kkmHelper
      * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
+     * @param SearchCriteriaBuilder $searchCriteriaBuilder
      */
     public function __construct(
         MessageEncoder $messageEncoder,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
+        \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository,
+        SearchCriteriaBuilder $searchCriteriaBuilder
     ) {
         $this->messageEncoder = $messageEncoder;
         $this->requestHelper = $requestHelper;
         $this->kkmHelper = $kkmHelper;
         $this->attemptRepository = $attemptRepository;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**
@@ -249,6 +257,50 @@ class TransactionAttempt
             ->setMessage($message);
 
         return $this->attemptRepository->save($attempt);
+    }
+
+    /**
+     * @param $orderId
+     * @param $operation
+     * @param $salesEntityId
+     * @return bool
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
+    public function hasSuccessfulAttempt($orderId, $operation, $salesEntityId)
+    {
+        $successfulAttemptsSearchResult = $this->attemptRepository->getList(
+            $this->searchCriteriaBuilder
+                ->addFilter(TransactionAttemptInterface::ORDER_ID, $orderId)
+                ->addFilter(TransactionAttemptInterface::OPERATION, $operation)
+                ->addFilter(TransactionAttemptInterface::SALES_ENTITY_ID, $salesEntityId)
+                ->addFilter(
+                    TransactionAttemptInterface::STATUS,
+                    TransactionAttemptInterface::STATUS_ERROR,
+                    'neq'
+                )->create()
+        );
+
+        return $successfulAttemptsSearchResult->getTotalCount() > 0;
+    }
+
+    /**
+     * @param TransactionAttemptInterface $attempt
+     * @return string
+     */
+    public function getEntityType(TransactionAttemptInterface $attempt)
+    {
+        $operationType = $attempt->getOperation();
+
+        switch ($operationType) {
+            case RequestInterface::SELL_OPERATION_TYPE:
+            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
+            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
+                return 'invoice';
+            case RequestInterface::REFUND_OPERATION_TYPE:
+                return 'creditmemo';
+            default:
+                return 'order';
+        }
     }
 
     /**

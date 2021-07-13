@@ -19,6 +19,9 @@ interface SendInterface
      * @param bool $sync
      * @param bool $ignoreTrials
      * @param bool $incrExtId
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return bool
      */
     public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false);
@@ -28,6 +31,9 @@ interface SendInterface
      * @param bool $sync
      * @param bool $ignoreTrials
      * @param bool $incrExtId
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return bool
      */
     public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false, $incrExtId = false);
