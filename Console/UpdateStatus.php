@@ -34,7 +34,7 @@ class UpdateStatus extends Command
     protected $appState;
 
     /**
-     * @var \Mygento\Kkm\Helper\Transaction\Proxy
+     * @var TransactionHelper
      */
     private $transactionHelper;
 
@@ -51,7 +51,7 @@ class UpdateStatus extends Command
     /**
      * UpdateStatus constructor.
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
-     * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
+     * @param TransactionHelper $transactionHelper
      * @param \Magento\Framework\App\State $state
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
@@ -90,8 +90,7 @@ class UpdateStatus extends Command
 
         $i = 1;
         foreach ($this->storeRepository->getList() as $store) {
-            $uuids = $this->transactionHelper->getAllWaitUuids($store->getId());
-
+            $uuids = $this->transactionHelper->getWaitUuidsByStore($store->getId());
             foreach ($uuids as $uuid) {
                 $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
                 $this->updateOne($output, $uuid);

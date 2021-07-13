@@ -13,7 +13,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\EntityInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
@@ -22,12 +21,9 @@ use Magento\Sales\Model\ResourceModel\Order\Creditmemo\CollectionFactory as Cred
 use Magento\Sales\Model\ResourceModel\Order\Invoice\Collection as InvoiceCollection;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\CollectionFactory as InvoiceCollectionFactory;
 use Magento\Sales\Model\ResourceModel\Order\Payment\Transaction\Collection as TransactionCollection;
-use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Base\Model\Payment\Transaction as TransactionBase;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
-use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
-use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Model\Atol\Response;
 
 /**
@@ -47,7 +43,7 @@ class Transaction
     public const FPD_KEY = 'fiscal_document_attribute';
 
     /**
-     * @var \Magento\Sales\Api\TransactionRepositoryInterface
+     * @var \Mygento\Kkm\Model\TransactionRepository
      */
     protected $transactionRepo;
 
@@ -87,13 +83,8 @@ class Transaction
     private $sortOrderBuilder;
 
     /**
-     * @var \Magento\Store\Api\StoreRepositoryInterface
-     */
-    private $storeRepository;
-
-    /**
      * Transaction constructor.
-     * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
+     * @param \Mygento\Kkm\Model\TransactionRepository $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @param \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder
@@ -104,15 +95,14 @@ class Transaction
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
-        \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
+        \Mygento\Kkm\Model\TransactionRepository $transactionRepo,
         \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder,
         InvoiceCollectionFactory $invoiceCollectionFactory,
         CreditmemoCollectionFactory $creditmemoCollectionFactory,
         \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
-        StoreRepositoryInterface $storeRepository
+        \Mygento\Kkm\Helper\Data $kkmHelper
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
@@ -122,7 +112,6 @@ class Transaction
         $this->kkmHelper = $kkmHelper;
         $this->jsonSerializer = $jsonSerializer;
         $this->sortOrderBuilder = $sortOrderBuilder;
-        $this->storeRepository = $storeRepository;
     }
 
     /**
@@ -543,76 +532,26 @@ class Transaction
      * @param int|string $storeId
      * @return string[]
      */
-    public function getAllWaitUuids($storeId): array
+    public function getWaitUuidsByStore($storeId): array
     {
-        $searchCriteria = $this->searchCriteriaBuilder
+        $storeCriteria = $this->searchCriteriaBuilder
+            ->addFilter('store', $storeId)
             ->addFilter('kkm_status', Response::STATUS_WAIT)
             ->create();
 
         /** @var TransactionCollection $transactions */
-        $transactions = $this->transactionRepo->getList($searchCriteria);
-
-        $transactions->getSelect()
-            ->joinLeft(
-                'sales_order',
-                sprintf(
-                    'main_table.%s = sales_order.%s',
-                    TransactionInterface::ORDER_ID,
-                    OrderInterface::ENTITY_ID
-                ),
-                []
-            )
-            ->where(sprintf(
-                'sales_order.%s = %s',
-                OrderInterface::STORE_ID,
-                $storeId
-            ));
+        $storeUuids = $this->transactionRepo->getList($storeCriteria)->getColumnValues(TransactionInterface::TXN_ID);
 
         if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {
-            // если используются очереди, получаем только те транзации, для которых нет активных
-            // заданий на обновление статуса
-            $alias = 't_mygento_kkm_transaction_attempt';
-            $conditions[] = sprintf(
-                'main_table.%s = %s.%s',
-                TransactionInterface::ORDER_ID,
-                $alias,
-                TransactionAttemptInterface::ORDER_ID
-            );
-            $conditions[] = sprintf(
-                'main_table.%s = %s.%s',
-                TransactionInterface::TXN_TYPE,
-                $alias,
-                TransactionAttemptInterface::TXN_TYPE
-            );
-            $conditions[] = sprintf(
-                '%s.%s = %s',
-                $alias,
-                TransactionAttemptInterface::OPERATION,
-                UpdateRequestInterface::UPDATE_OPERATION_TYPE
-            );
-            $conditions[] = sprintf(
-                '%s.%s > %s',
-                $alias,
-                TransactionAttemptInterface::UPDATED_AT,
-                $transactions->getConnection()->quote((new \DateTime('-1 hour'))->format(Mysql::TIMESTAMP_FORMAT))
-            );
-
-            $transactions->getSelect()
-                ->joinLeft(
-                    [$alias => $transactions->getTable('mygento_kkm_transaction_attempt')],
-                    implode(' AND ', $conditions),
-                    []
-                )
-                ->where(sprintf(
-                    '%s.%s IS NULL',
-                    $alias,
-                    TransactionAttemptInterface::ID
-                ));
+            return $storeUuids;
         }
-        $transactions->getSelect()
-            ->group(TransactionInterface::TXN_ID);
 
-        return $transactions->getColumnValues(TransactionInterface::TXN_ID);
+        $timeoutCriteria = $this->searchCriteriaBuilder
+            ->addFilter('txn_id', $storeUuids, 'in')
+            ->addFilter('updateTimeout', (new \DateTime('-1 hour'))->format(Mysql::TIMESTAMP_FORMAT))
+            ->create();
+
+        return $this->transactionRepo->getList($timeoutCriteria)->getColumnValues(TransactionInterface::TXN_ID);
     }
 
     /**

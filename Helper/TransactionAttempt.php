@@ -105,6 +105,7 @@ class TransactionAttempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
             ->setOperation($request->getOperationType())
             ->setOrderId($entity->getOrderId())
+            ->setStoreId($entity->getStoreId())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($numberOfTrials)
@@ -172,6 +173,7 @@ class TransactionAttempt
                 ->setStatus(TransactionAttemptInterface::STATUS_NEW)
                 ->setOperation($request->getOperationType())
                 ->setOrderId($entity->getOrderId())
+                ->setStoreId($entity->getStoreId())
                 ->setSalesEntityId($entity->getEntityId())
                 ->setSalesEntityIncrementId($entity->getIncrementId())
                 ->setNumberOfTrials(0);
@@ -207,6 +209,7 @@ class TransactionAttempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
             ->setOperation(UpdateRequestInterface::UPDATE_OPERATION_TYPE)
             ->setOrderId($entity->getOrderId())
+            ->setStoreId($entity->getStoreId())
             ->setTxnType($transaction->getTxnType())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
