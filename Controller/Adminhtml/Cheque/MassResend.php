@@ -105,12 +105,12 @@ class MassResend extends Action implements HttpPostActionInterface
         $collection = $this->filter->getCollection($this->collectionFactory->create());
         $collectionSize = $collection->getSize();
 
-        /** @var TransactionAttemptInterface $entity */
-        foreach ($collection as $entity) {
+        /** @var TransactionAttemptInterface $attempt */
+        foreach ($collection as $attempt) {
             $isClosed = $this->transactionAttemptHelper->hasSuccessfulAttempt(
-                $entity->getOrderId(),
-                $entity->getOperation(),
-                $entity->getSalesEntityId()
+                $attempt->getOrderId(),
+                $attempt->getOperation(),
+                $attempt->getSalesEntityId()
             );
 
             if ($isClosed) {
@@ -118,14 +118,13 @@ class MassResend extends Action implements HttpPostActionInterface
             }
 
             try {
-                $entityType = $this->transactionAttemptHelper->getEntityType($entity);
-                $incrExtId = $this->configHelper->isAtolNonFatalError($entity->getErrorCode(), $entity->getErrorType());
-                $salesEntityId = $entity->getSalesEntityId();
+                $entityType = $this->transactionAttemptHelper->getEntityType($attempt);
+                $incrExtId = $this->configHelper->isAtolNonFatalError($attempt->getErrorCode(), $attempt->getErrorType());
+                $salesEntityId = $attempt->getSalesEntityId();
 
                 switch ($entityType) {
                     case 'invoice':
                         $entity = $this->invoiceRepository->get($salesEntityId);
-
                         $this->sendProcessor->proceedSell($entity, true, true, $incrExtId);
                         $comment = 'Cheque ';
                         break;
