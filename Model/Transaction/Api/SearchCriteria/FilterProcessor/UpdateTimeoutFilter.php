@@ -2,8 +2,8 @@
 
 /**
  * @author Mygento Team
- * @copyright 2020-2021 Mygento (https://www.mygento.ru)
- * @package Mygento_LorealShipping
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Model\Transaction\Api\SearchCriteria\FilterProcessor;

@@ -2,8 +2,8 @@
 
 /**
  * @author Mygento Team
- * @copyright 2020-2021 Mygento (https://www.mygento.ru)
- * @package Mygento_LorealShipping
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Model\Transaction\Api\SearchCriteria\FilterProcessor;
@@ -12,8 +12,6 @@ use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Sales\Api\Data\TransactionInterface;
-use Mygento\Base\Model\Payment\Transaction;
-use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
 class StoreFilter implements CustomFilterInterface

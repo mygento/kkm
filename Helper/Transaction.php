@@ -92,7 +92,6 @@ class Transaction
      * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
      * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
      * @param Data $kkmHelper
-     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
         \Mygento\Kkm\Model\TransactionRepository $transactionRepo,
