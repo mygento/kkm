@@ -12,6 +12,8 @@ use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Mygento\Base\Model\Payment\Transaction;
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
 class StoreFilter implements CustomFilterInterface
@@ -25,12 +27,15 @@ class StoreFilter implements CustomFilterInterface
     {
         $storeId = $filter->getValue();
 
+        $attemptTable = $collection->getTable('mygento_kkm_transaction_attempt');
+
         $collection->getSelect()
             ->join(
-                $collection->getTable('mygento_kkm_transaction_attempt'),
+                $attemptTable,
                 sprintf(
-                    'main_table.%s = mygento_kkm_transaction_attempt.%s',
+                    'main_table.%s = %s.%s',
                     TransactionInterface::ORDER_ID,
+                    $attemptTable,
                     TransactionAttemptInterface::ORDER_ID
                 ),
                 []
@@ -39,7 +44,8 @@ class StoreFilter implements CustomFilterInterface
                 'mygento_kkm_transaction_attempt.%s = %s',
                 TransactionAttemptInterface::STORE_ID,
                 $storeId
-            ));
+            ))
+            ->group(TransactionInterface::TXN_ID);
 
         return true;
     }

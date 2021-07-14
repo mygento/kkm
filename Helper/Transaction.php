@@ -542,7 +542,7 @@ class Transaction
         /** @var TransactionCollection $transactions */
         $storeUuids = $this->transactionRepo->getList($storeCriteria)->getColumnValues(TransactionInterface::TXN_ID);
 
-        if ($this->kkmHelper->isMessageQueueEnabled($storeId)) {
+        if (!$this->kkmHelper->isMessageQueueEnabled($storeId)) {
             return $storeUuids;
         }
 
