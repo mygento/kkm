@@ -27,11 +27,6 @@ class UpdateStatus extends Command
     public const RUN_ALL_PARAM = 'all';
 
     /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $appState;
-
-    /**
      * @var TransactionHelper
      */
     private $transactionHelper;
