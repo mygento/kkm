@@ -8,8 +8,6 @@
 
 namespace Mygento\Kkm\Console;
 
-use Magento\Framework\App\Area;
-use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
@@ -52,18 +50,15 @@ class UpdateStatus extends Command
      * UpdateStatus constructor.
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param TransactionHelper $transactionHelper
-     * @param \Magento\Framework\App\State $state
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
         UpdateInterface $updateProcessor,
         TransactionHelper $transactionHelper,
-        State $state,
         StoreRepositoryInterface $storeRepository
     ) {
         parent::__construct();
 
-        $this->appState = $state;
         $this->updateProcessor = $updateProcessor;
         $this->transactionHelper = $transactionHelper;
         $this->storeRepository = $storeRepository;
@@ -78,8 +73,6 @@ class UpdateStatus extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->appState->setAreaCode(Area::AREA_GLOBAL);
-
         $param = $input->getArgument('param');
 
         if ($param !== self::RUN_ALL_PARAM) {
