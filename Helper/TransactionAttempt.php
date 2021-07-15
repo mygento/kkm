@@ -16,6 +16,7 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
 /**
  * Class Transaction
@@ -54,7 +55,7 @@ class TransactionAttempt
         MessageEncoder $messageEncoder,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
+        TransactionAttemptRepositoryInterface $attemptRepository
     ) {
         $this->messageEncoder = $messageEncoder;
         $this->requestHelper = $requestHelper;
@@ -68,9 +69,8 @@ class TransactionAttempt
      * @param int $operationType
      * @return int|null
      */
-    public function getTrials($entity, $operationType)
+    public function getTrials($entity, int $operationType): ?int
     {
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
             ->getByEntityId($operationType, $entity->getEntityId());
 
@@ -90,7 +90,7 @@ class TransactionAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function registerAttempt(RequestInterface $request, $entity)
+    public function registerAttempt(RequestInterface $request, $entity): TransactionAttemptInterface
     {
         $attempt = $this->getAttemptByRequest($request, $entity);
 
@@ -105,6 +105,7 @@ class TransactionAttempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
             ->setOperation($request->getOperationType())
             ->setOrderId($entity->getOrderId())
+            ->setStoreId($entity->getStoreId())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($numberOfTrials)
@@ -134,13 +135,12 @@ class TransactionAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function decreaseByOneTrial(RequestInterface $request, $entity)
+    public function decreaseByOneTrial(RequestInterface $request, $entity): TransactionAttemptInterface
     {
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->getAttemptByRequest($request, $entity);
 
         $trials = $attempt->getNumberOfTrials();
-        $maxTrials = $this->kkmHelper->getMaxTrials();
+        $maxTrials = $this->kkmHelper->getMaxTrials($entity->getStoreId());
 
         if ($trials >= $maxTrials) {
             $attempt->setNumberOfTrials($maxTrials - 1);
@@ -154,13 +154,16 @@ class TransactionAttempt
     /**
      * @param RequestInterface $request
      * @param string $topic
-     * @param string $scheduledAt
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @param string|null $scheduledAt
      * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function scheduleNextAttempt(RequestInterface $request, $topic, $scheduledAt = null)
-    {
+    public function scheduleNextAttempt(
+        RequestInterface $request,
+        string $topic,
+        string $scheduledAt = null
+    ): TransactionAttemptInterface {
         /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
         $entity = $this->requestHelper->getEntityByRequest($request);
 
@@ -170,6 +173,7 @@ class TransactionAttempt
                 ->setStatus(TransactionAttemptInterface::STATUS_NEW)
                 ->setOperation($request->getOperationType())
                 ->setOrderId($entity->getOrderId())
+                ->setStoreId($entity->getStoreId())
                 ->setSalesEntityId($entity->getEntityId())
                 ->setSalesEntityIncrementId($entity->getIncrementId())
                 ->setNumberOfTrials(0);
@@ -177,7 +181,7 @@ class TransactionAttempt
 
         $attempt
             ->setIsScheduled(true)
-            ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt))
+            ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt, $request->getStoreId()))
             ->setRequestJson($this->messageEncoder->encode($topic, $request));
 
         return $this->attemptRepository->save($attempt);
@@ -191,9 +195,11 @@ class TransactionAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function registerUpdateAttempt($entity, TransactionInterface $transaction, $increaseTrials = true)
-    {
-        /** @var TransactionAttemptInterface $attempt */
+    public function registerUpdateAttempt(
+        $entity,
+        TransactionInterface $transaction,
+        bool $increaseTrials = true
+    ): TransactionAttemptInterface {
         $attempt = $this->attemptRepository
             ->getByEntityId(UpdateRequestInterface::UPDATE_OPERATION_TYPE, $entity->getEntityId());
 
@@ -203,6 +209,7 @@ class TransactionAttempt
             ->setStatus(TransactionAttemptInterface::STATUS_NEW)
             ->setOperation(UpdateRequestInterface::UPDATE_OPERATION_TYPE)
             ->setOrderId($entity->getOrderId())
+            ->setStoreId($entity->getStoreId())
             ->setTxnType($transaction->getTxnType())
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
@@ -226,7 +233,7 @@ class TransactionAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function finishAttempt(TransactionAttemptInterface $attempt)
+    public function finishAttempt(TransactionAttemptInterface $attempt): TransactionAttemptInterface
     {
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_SENT)
@@ -242,7 +249,7 @@ class TransactionAttempt
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function failAttempt(TransactionAttemptInterface $attempt, $message = '')
+    public function failAttempt(TransactionAttemptInterface $attempt, string $message = ''): TransactionAttemptInterface
     {
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_ERROR)
@@ -256,7 +263,7 @@ class TransactionAttempt
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $entity
      * @return TransactionAttemptInterface
      */
-    private function getAttemptByRequest(RequestInterface $request, $entity)
+    private function getAttemptByRequest(RequestInterface $request, $entity): TransactionAttemptInterface
     {
         return $this->getAttemptByOperationType($request->getOperationType(), $entity);
     }
@@ -266,9 +273,8 @@ class TransactionAttempt
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $entity
      * @return TransactionAttemptInterface
      */
-    private function getAttemptByOperationType($operationType, $entity)
+    private function getAttemptByOperationType(string $operationType, $entity): TransactionAttemptInterface
     {
-        /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptRepository
             ->getByEntityId($operationType, $entity->getEntityId());
 
@@ -293,15 +299,16 @@ class TransactionAttempt
 
     /**
      * @param TransactionAttemptInterface $attempt
-     * @throws \Exception
+     * @param int|string|null $storeId
      * @return string
      */
-    private function resolveScheduledAt(TransactionAttemptInterface $attempt)
+    private function resolveScheduledAt(TransactionAttemptInterface $attempt, $storeId): string
     {
         $numberOfTrials = $attempt->getNumberOfTrials();
 
         $scheduledAt = new \DateTime();
-        $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals();
+
+        $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals($storeId);
         if ($customRetryIntervals && isset($customRetryIntervals[$numberOfTrials])) {
             $scheduledAt->modify("+{$customRetryIntervals[$numberOfTrials]} minute");
         }

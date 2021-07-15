@@ -12,6 +12,7 @@ interface TransactionAttemptInterface
 {
     public const ID = 'id';
     public const ORDER_ID = 'order_id';
+    public const STORE_ID = 'store_id';
     public const TXN_TYPE = 'txn_type';
     public const OPERATION = 'operation';
     public const SALES_ENTITY_ID = 'sales_entity_id';
@@ -64,6 +65,19 @@ interface TransactionAttemptInterface
      * @return $this
      */
     public function setOrderId($orderId);
+
+    /**
+     * Get store id
+     * @return int|string|null
+     */
+    public function getStoreId();
+
+    /**
+     * Set order id
+     * @param int|string|null $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId);
 
     /**
      * Get txn type

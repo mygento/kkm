@@ -98,6 +98,7 @@ class Send implements SendInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return bool
      */
     public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
@@ -110,7 +111,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $request->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendSellRequest($request);
 
@@ -142,7 +144,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $request->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue:', $request->__toArray());
             $this->vendor->sendRefundRequest($request);
 
@@ -178,7 +181,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $request->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendResellRequest($request, $invoice);
 
@@ -218,7 +222,8 @@ class Send implements SendInterface
 
         $request->setIgnoreTrialsNum($ignoreTrials);
 
-        if ($sync || !$this->helper->isMessageQueueEnabled()) {
+        $storeId = $request->getStoreId();
+        if ($sync || !$this->helper->isMessageQueueEnabled($storeId)) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
             $this->vendor->sendSellRequest($request, $invoice);
 
@@ -261,7 +266,9 @@ class Send implements SendInterface
             if ((int) $attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {
                 return $this->proceedResellSell($invoice, $sync, false, true);
             }
-            if (!$this->helper->isMessageQueueEnabled()) {
+
+            $storeId = $invoice->getStoreId();
+            if (!$this->helper->isMessageQueueEnabled($storeId)) {
                 throw new InputException(__('Can not proceed resell process.'));
             }
 

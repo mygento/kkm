@@ -47,8 +47,8 @@ class ResellConsumer extends AbstractConsumer
             $this->publisher->publish(SendInterface::TOPIC_NAME_RESELL, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals()) {
+            $storeId = $request->getStoreId();
+            if ($this->helper->isUseCustomRetryIntervals($storeId)) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
             } else {

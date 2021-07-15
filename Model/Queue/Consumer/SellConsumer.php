@@ -46,7 +46,8 @@ class SellConsumer extends AbstractConsumer
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->info($e->getMessage());
 
-            if ($this->helper->isUseCustomRetryIntervals()) {
+            $storeId = $request->getStoreId();
+            if ($this->helper->isUseCustomRetryIntervals($storeId)) {
                 // помечаем заказ, как KKM Fail
                 // далее находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
                 $entity = $this->requestHelper->getEntityByRequest($request);
@@ -59,7 +60,7 @@ class SellConsumer extends AbstractConsumer
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-            if ($this->helper->isRetrySendingEndlessly()) {
+            if ($this->helper->isRetrySendingEndlessly($entity->getStoreId())) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
                 $this->attemptHelper->scheduleNextAttempt(
                     $request,

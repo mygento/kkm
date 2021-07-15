@@ -8,11 +8,10 @@
 
 namespace Mygento\Kkm\Console;
 
-use Magento\Framework\App\Area;
-use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
+use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
-use Mygento\Kkm\Helper\Transaction\Proxy;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -28,12 +27,7 @@ class UpdateStatus extends Command
     public const RUN_ALL_PARAM = 'all';
 
     /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $appState;
-
-    /**
-     * @var \Mygento\Kkm\Helper\Transaction\Proxy
+     * @var TransactionHelper
      */
     private $transactionHelper;
 
@@ -43,44 +37,53 @@ class UpdateStatus extends Command
     private $updateProcessor;
 
     /**
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
+    private $storeRepository;
+
+    /**
      * UpdateStatus constructor.
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
-     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
-     * @param \Magento\Framework\App\State $state
+     * @param TransactionHelper $transactionHelper
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
         UpdateInterface $updateProcessor,
-        Proxy $transactionHelper,
-        State $state
+        TransactionHelper $transactionHelper,
+        StoreRepositoryInterface $storeRepository
     ) {
         parent::__construct();
 
-        $this->appState = $state;
         $this->updateProcessor = $updateProcessor;
         $this->transactionHelper = $transactionHelper;
+        $this->storeRepository = $storeRepository;
     }
 
     /**
      * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @throws \Exception
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return int|null
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->appState->setAreaCode(Area::AREA_GLOBAL);
+        $transactionUuid = $input->getArgument('param');
 
-        $param = $input->getArgument('param');
+        if ($transactionUuid !== self::RUN_ALL_PARAM) {
+            $output->writeln("<comment>Updating {$transactionUuid} ...</comment>");
 
-        $uuids = ($param === self::RUN_ALL_PARAM)
-            ? $this->transactionHelper->getAllWaitUuids()
-            : [$param];
+            return $this->updateOne($output, $transactionUuid);
+        }
 
         $i = 1;
-        foreach ($uuids as $uuid) {
-            $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
-            $this->updateOne($output, $uuid);
-            $i++;
+        foreach ($this->storeRepository->getList() as $store) {
+            $uuids = $this->transactionHelper->getWaitUuidsByStore($store->getId());
+            foreach ($uuids as $uuid) {
+                $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
+                $this->updateOne($output, $uuid);
+                $i++;
+            }
         }
 
         return Cli::RETURN_SUCCESS;
@@ -114,8 +117,6 @@ HELP
     /**
      * @param \Symfony\Component\Console\Output\OutputInterface $output
      * @param string $uuid
-     * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return int
      */
     private function updateOne($output, $uuid)
