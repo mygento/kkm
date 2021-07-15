@@ -68,12 +68,12 @@ class UpdateStatus extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $param = $input->getArgument('param');
+        $transactionUuid = $input->getArgument('param');
 
-        if ($param !== self::RUN_ALL_PARAM) {
-            $output->writeln("<comment>Updating {$param} ...</comment>");
+        if ($transactionUuid !== self::RUN_ALL_PARAM) {
+            $output->writeln("<comment>Updating {$transactionUuid} ...</comment>");
 
-            return $this->updateOne($output, $param);
+            return $this->updateOne($output, $transactionUuid);
         }
 
         $i = 1;
