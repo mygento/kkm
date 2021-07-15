@@ -147,10 +147,9 @@ class Client
 
     /**
      * @param RequestInterface $request
-     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException*@throws \Exception
+     * @return \Mygento\Kkm\Api\Data\ResponseInterface
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
-     * @throws \Exception
-     * @return ResponseInterface
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      */
     public function sendRefund($request): ResponseInterface
     {
