@@ -71,9 +71,14 @@
             </argument>
         </arguments>
     </virtualType>
-    <type name="Mygento\Kkm\Model\TransactionRepository">
+    <virtualType name="Mygento\Kkm\Model\TransactionRepository" type="Magento\Sales\Model\Order\Payment\Transaction\Repository">
         <arguments>
             <argument name="collectionProcessor" xsi:type="object">Mygento\Kkm\Model\Api\SearchCriteria\TransactionCollectionProcessor</argument>
+        </arguments>
+    </virtualType>
+    <type name="Mygento\Kkm\Helper\Transaction">
+        <arguments>
+            <argument name="transactionRepo" xsi:type="object">Mygento\Kkm\Model\TransactionRepository</argument>
         </arguments>
     </type>
 </config>

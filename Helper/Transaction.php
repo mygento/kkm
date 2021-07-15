@@ -43,7 +43,7 @@ class Transaction
     public const FPD_KEY = 'fiscal_document_attribute';
 
     /**
-     * @var \Mygento\Kkm\Model\TransactionRepository
+     * @var \Magento\Sales\Api\TransactionRepositoryInterface
      */
     protected $transactionRepo;
 
@@ -84,7 +84,7 @@ class Transaction
 
     /**
      * Transaction constructor.
-     * @param \Mygento\Kkm\Model\TransactionRepository $transactionRepo
+     * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @param \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder
@@ -94,7 +94,7 @@ class Transaction
      * @param Data $kkmHelper
      */
     public function __construct(
-        \Mygento\Kkm\Model\TransactionRepository $transactionRepo,
+        \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder,
