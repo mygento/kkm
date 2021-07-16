@@ -88,7 +88,15 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @return string
+     * @return string|bool
+     */
+    public function getOrderStatusAfterKkmFail()
+    {
+        return $this->getConfig('general/fail_status') ?: false;
+    }
+
+    /**
+     * @return string|bool
      */
     public function getOrderStatusAfterKkmTransactionDone()
     {
