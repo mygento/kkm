@@ -816,7 +816,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         //Ошибки при работе с ККТ (cash machine errors)
         if ($response->getErrorCode() < 0) {
             //increment EID and send it
-            throw new VendorNonFatalErrorException();
+            throw new VendorNonFatalErrorException(
+                __(
+                    'Error response from ATOL with code %1. Need to resend with new external_id.',
+                    $response->getErrorCode()
+                ),
+                $response
+            );
         }
 
         switch ($response->getErrorCode()) {
@@ -829,7 +835,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     __(
                         'Error response from ATOL with code %1. Need to resend with new external_id.',
                         $response->getErrorCode()
-                    )
+                    ),
+                    $response
                 );
 
             default:

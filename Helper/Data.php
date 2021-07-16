@@ -88,7 +88,7 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @return string
+     * @return string|bool
      */
     public function getOrderStatusAfterKkmFail()
     {
@@ -96,7 +96,7 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @return string
+     * @return string|bool
      */
     public function getOrderStatusAfterKkmTransactionDone()
     {
