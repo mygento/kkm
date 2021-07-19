@@ -54,10 +54,12 @@ class UpdateTimeoutFilter implements CustomFilterInterface
         );
 
         $collection->getSelect()
+            ->reset('columns')
+            ->columns(sprintf('main_table.%s', TransactionInterface::TXN_ID))
             ->joinLeft(
                 $attemptTable,
                 implode(' AND ', $conditions),
-                []
+                ''
             )
             ->where(sprintf(
                 '%s.%s IS NULL',

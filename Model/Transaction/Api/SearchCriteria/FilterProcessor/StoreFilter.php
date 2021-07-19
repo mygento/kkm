@@ -13,6 +13,7 @@ use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\Cus
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Model\Atol\Request;
 
 class StoreFilter implements CustomFilterInterface
 {
@@ -27,7 +28,22 @@ class StoreFilter implements CustomFilterInterface
 
         $attemptTable = $collection->getTable('mygento_kkm_transaction_attempt');
 
+        $conditions[] = sprintf(
+            'mygento_kkm_transaction_attempt.%s = %s',
+            TransactionAttemptInterface::STORE_ID,
+            $storeId
+        );
+        $conditions[] = sprintf(
+            '%s.%s in (%s, %s)',
+            $attemptTable,
+            TransactionAttemptInterface::OPERATION,
+            Request::SELL_OPERATION_TYPE,
+            Request::REFUND_OPERATION_TYPE
+        );
+
         $collection->getSelect()
+            ->reset('columns')
+            ->columns('main_table.txn_id')
             ->join(
                 $attemptTable,
                 sprintf(
@@ -36,13 +52,9 @@ class StoreFilter implements CustomFilterInterface
                     $attemptTable,
                     TransactionAttemptInterface::ORDER_ID
                 ),
-                []
+                ''
             )
-            ->where(sprintf(
-                'mygento_kkm_transaction_attempt.%s = %s',
-                TransactionAttemptInterface::STORE_ID,
-                $storeId
-            ))
+            ->where(implode(' AND ', $conditions))
             ->group(TransactionInterface::TXN_ID);
 
         return true;
