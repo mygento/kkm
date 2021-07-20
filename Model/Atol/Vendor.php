@@ -709,6 +709,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw $e;
         } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
             $attempt->setErrorType(ErrorType::UNDEFINED);
+            $response = $e->getResponse();
 
             if ($response) {
                 $attempt
