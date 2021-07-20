@@ -226,6 +226,18 @@ interface RequestInterface
     public function getSalesEntityId(): int;
 
     /**
+     * Set storeId
+     * @param int|string $id
+     * @return $this
+     */
+    public function setStoreId($id): self;
+
+    /**
+     * @return int
+     */
+    public function getStoreId(): ?int;
+
+    /**
      * @return bool
      */
     public function isIgnoreTrialsNum();
