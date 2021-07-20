@@ -13,7 +13,7 @@
         "magento/framework-message-queue": "100.3.*"
     },
     "require-dev": {
-        "mygento/coding-standard": "~2.13.5"
+        "mygento/coding-standard": "~2.13.6-beta2"
     },
     "autoload": {
         "files": [
