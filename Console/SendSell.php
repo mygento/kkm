@@ -15,6 +15,7 @@ use Mygento\Kkm\Model\Atol\Response;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -26,6 +27,7 @@ class SendSell extends Command
 {
     const ARGUMENT_ENTITY_ID = 'id';
     const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
+    const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
     const COMMAND_SEND_SELL = 'mygento:atol:sell';
     const COMMAND_DESCRIPTION = 'Sends sell to Atol.';
 
@@ -92,7 +94,9 @@ class SendSell extends Command
         //Oтправка
         $output->writeln("<comment>1. Sending invoice {$incrementId} ...</comment>");
 
-        $this->processor->proceedSell($invoice, true, true);
+        $incrExtId = (bool) $input->getOption(self::OPTION_INCREASE_EXTERNAL_ID);
+
+        $this->processor->proceedSell($invoice, true, true, $incrExtId);
 
         $transactions = $this->transactionHelper->getTransactionsByInvoice($invoice);
 
@@ -130,6 +134,12 @@ class SendSell extends Command
             self::ARGUMENT_ENTITY_ID,
             InputArgument::REQUIRED,
             self::ARGUMENT_ENTITY_ID_DESCRIPTION
+        );
+        $this->addOption(
+            self::OPTION_INCREASE_EXTERNAL_ID,
+            'i',
+            InputOption::VALUE_NONE,
+            'Increase External id'
         );
         $this->setHelp(
             <<<HELP
