@@ -14,6 +14,7 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Model\Atol\Request;
+use Zend\Db\Sql\Select;
 
 class StoreFilter implements CustomFilterInterface
 {
@@ -42,7 +43,7 @@ class StoreFilter implements CustomFilterInterface
         );
 
         $collection->getSelect()
-            ->reset('columns')
+            ->reset(Select::COLUMNS)
             ->columns('main_table.txn_id')
             ->join(
                 $attemptTable,
@@ -52,7 +53,7 @@ class StoreFilter implements CustomFilterInterface
                     $attemptTable,
                     TransactionAttemptInterface::ORDER_ID
                 ),
-                ''
+                []
             )
             ->where(implode(' AND ', $conditions))
             ->group(TransactionInterface::TXN_ID);

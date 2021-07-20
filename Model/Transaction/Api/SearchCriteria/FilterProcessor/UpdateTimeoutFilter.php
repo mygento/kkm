@@ -14,6 +14,7 @@ use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Zend\Db\Sql\Select;
 
 class UpdateTimeoutFilter implements CustomFilterInterface
 {
@@ -54,12 +55,12 @@ class UpdateTimeoutFilter implements CustomFilterInterface
         );
 
         $collection->getSelect()
-            ->reset('columns')
+            ->reset(Select::COLUMNS)
             ->columns(sprintf('main_table.%s', TransactionInterface::TXN_ID))
             ->joinLeft(
                 $attemptTable,
                 implode(' AND ', $conditions),
-                ''
+                []
             )
             ->where(sprintf(
                 '%s.%s IS NULL',
