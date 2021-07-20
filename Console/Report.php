@@ -157,9 +157,8 @@ HELP
             $additional = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
             $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
 
-            $message = isset($additional[Transaction::ERROR_MESSAGE_KEY])
-                ? $additional[Transaction::ERROR_MESSAGE_KEY]
-                : ($additional[Transaction::RAW_RESPONSE_KEY] ?? '');
+            $message = $additional[Transaction::ERROR_MESSAGE_KEY]
+                ?? ($additional[Transaction::RAW_RESPONSE_KEY] ?? '');
 
             $message = wordwrap($message, 30);
 
