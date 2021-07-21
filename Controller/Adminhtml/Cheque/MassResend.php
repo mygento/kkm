@@ -24,6 +24,9 @@ use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class MassResend extends Action implements HttpPostActionInterface
 {
     const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
@@ -123,43 +126,7 @@ class MassResend extends Action implements HttpPostActionInterface
                 continue;
             }
 
-            try {
-                $entityType = $this->transactionAttemptHelper->getEntityType($attempt);
-                $incrExtId = $this->configHelper->isAtolNonFatalError($attempt->getErrorCode(), $attempt->getErrorType());
-                $salesEntityId = $attempt->getSalesEntityId();
-
-                switch ($entityType) {
-                    case 'invoice':
-                        $entity = $this->invoiceRepository->get($salesEntityId);
-                        $this->sendProcessor->proceedSell($entity, true, true, $incrExtId);
-                        $comment = 'Cheque ';
-                        break;
-                    case 'creditmemo':
-                        $entity = $this->creditmemoRepository->get($salesEntityId);
-                        $this->sendProcessor->proceedRefund($entity, true, true, $incrExtId);
-                        $comment = 'Refund ';
-                        break;
-                }
-
-                $comment .= $this->configHelper->isMessageQueueEnabled()
-                    ? 'was placed to queue for further sending.'
-                    : 'was sent to KKM.';
-
-                $this->getMessageManager()->addSuccessMessage(__($comment));
-            } catch (NoSuchEntityException $exc) {
-                $this->getMessageManager()->addErrorMessage(
-                    __(ucfirst($entityType)) . " {$salesEntityId} " . __('not found')
-                );
-                $this->configHelper->error("Entity {$entityType} with Id {$salesEntityId} not found.");
-            } catch (\Exception $exc) {
-                $this->getMessageManager()->addErrorMessage($exc->getMessage());
-                $this->configHelper->error('Resend failed. Reason: ' . $exc->getMessage());
-                $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
-            } catch (\Throwable $thr) {
-                $this->getMessageManager()->addErrorMessage(__('Something went wrong. See log.'));
-                $this->configHelper->error('Resend failed. Reason: ' . $thr->getMessage());
-                $this->errorHelper->processKkmChequeRegistrationError($entity, $thr);
-            }
+            $this->resendAttempt($attempt);
         }
 
         $this->messageManager->addSuccessMessage(
@@ -170,5 +137,52 @@ class MassResend extends Action implements HttpPostActionInterface
         $redirectPath = $this->filter->getComponentRefererUrl() ?: 'kkm/transactionattempt/';
 
         return $resultRedirect->setPath($redirectPath);
+    }
+
+    /**
+     * @param TransactionAttemptInterface $attempt
+     */
+    private function resendAttempt($attempt)
+    {
+        try {
+            $entityType = $this->transactionAttemptHelper->getEntityType($attempt);
+            $incrExtId = $this->configHelper->isAtolNonFatalError(
+                $attempt->getErrorCode(),
+                $attempt->getErrorType()
+            );
+            $salesEntityId = $attempt->getSalesEntityId();
+
+            switch ($entityType) {
+                case 'invoice':
+                    $entity = $this->invoiceRepository->get($salesEntityId);
+                    $this->sendProcessor->proceedSell($entity, true, true, $incrExtId);
+                    $commentEntityType = 'Cheque ';
+                    break;
+                case 'creditmemo':
+                    $entity = $this->creditmemoRepository->get($salesEntityId);
+                    $this->sendProcessor->proceedRefund($entity, true, true, $incrExtId);
+                    $commentEntityType = 'Refund ';
+                    break;
+            }
+
+            $comment = $commentEntityType ?? 'Unknown entity' . $this->configHelper->isMessageQueueEnabled()
+                ? 'was placed to queue for further sending.'
+                : 'was sent to KKM.';
+
+            $this->getMessageManager()->addSuccessMessage(__($comment));
+        } catch (NoSuchEntityException $exc) {
+            $this->getMessageManager()->addErrorMessage(
+                __(ucfirst($entityType)) . " {$salesEntityId} " . __('not found')
+            );
+            $this->configHelper->error("Entity {$entityType} with Id {$salesEntityId} not found.");
+        } catch (\Exception $exc) {
+            $this->getMessageManager()->addErrorMessage($exc->getMessage());
+            $this->configHelper->error('Resend failed. Reason: ' . $exc->getMessage());
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
+        } catch (\Throwable $thr) {
+            $this->getMessageManager()->addErrorMessage(__('Something went wrong. See log.'));
+            $this->configHelper->error('Resend failed. Reason: ' . $thr->getMessage());
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $thr);
+        }
     }
 }
