@@ -143,7 +143,7 @@ class Update
                 }
 
                 $this->createUpdateAttempt($uuid);
-                $result[] = "UUID {$uuid} update queued";
+                $this->result[] = "UUID {$uuid} update queued";
                 $this->updatedTransactionsCount++;
             } catch (\Exception $e) {
                 $this->kkmHelper->critical($e);
