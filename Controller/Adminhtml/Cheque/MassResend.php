@@ -1,22 +1,28 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Controller\Adminhtml\Cheque;
 
 use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
-use Magento\Backend\App\Action\Context;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Ui\Component\MassAction\Filter;
-use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory;
-use Mygento\Kkm\Helper\TransactionAttempt;
-use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
-use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
-use Mygento\Kkm\Helper\Data;
+use Magento\Ui\Component\MassAction\Filter;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
+use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\Error;
+use Mygento\Kkm\Helper\TransactionAttempt;
+use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory;
 
 class MassResend extends Action implements HttpPostActionInterface
 {
@@ -97,8 +103,8 @@ class MassResend extends Action implements HttpPostActionInterface
     }
 
     /**
-     * @return Redirect
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return Redirect
      */
     public function execute()
     {

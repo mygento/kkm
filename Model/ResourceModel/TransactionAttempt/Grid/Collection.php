@@ -141,7 +141,7 @@ class Collection extends ParentCollection implements SearchResultInterface
                         "main_table.order_id = {$successfulKkmAttemptsAlias}.order_id",
                         "main_table.operation = {$successfulKkmAttemptsAlias}.operation",
                         "main_table.sales_entity_id = {$successfulKkmAttemptsAlias}.sales_entity_id",
-                        "{$successfulKkmAttemptsAlias}.status != 3"
+                        "{$successfulKkmAttemptsAlias}.status != 3",
                     ]
                 ),
                 ['is_closed' => $isClosedExpression]

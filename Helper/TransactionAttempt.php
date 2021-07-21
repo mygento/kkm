@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Helper;
 
 use DateTime;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\MessageQueue\MessageEncoder;
@@ -19,7 +20,6 @@ use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
-use Magento\Framework\Api\SearchCriteriaBuilder;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
 class TransactionAttempt
@@ -269,8 +269,8 @@ class TransactionAttempt
      * @param $orderId
      * @param $operation
      * @param $salesEntityId
-     * @return bool
      * @throws LocalizedException
+     * @return bool
      */
     public function hasSuccessfulAttempt($orderId, $operation, $salesEntityId)
     {

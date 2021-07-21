@@ -37,7 +37,7 @@ class ErrorCode implements OptionSourceInterface
                     ['value' => ErrorType::SYSTEM . '_34', 'label' => __('[34] - Состояние чека не найдено. Попробуйте позднее')],
                     ['value' => ErrorType::SYSTEM . '_40', 'label' => __('[40] - Некорректный запрос')],
                     ['value' => ErrorType::SYSTEM . '_41', 'label' => __('[41] - Некорректный ContentType')],
-                    ['value' => ErrorType::SYSTEM . '_50', 'label' => __('[50] - Ошибка сервера. Обратитесь к Администратору')]
+                    ['value' => ErrorType::SYSTEM . '_50', 'label' => __('[50] - Ошибка сервера. Обратитесь к Администратору')],
                 ],
             ],
             [
@@ -53,7 +53,6 @@ class ErrorCode implements OptionSourceInterface
                     ['value' => ErrorType::AGENT . '_2', 'label' => __('[2] - ККТ зарегистрирована с другим ИНН или адресом расчёта')],
                     ['value' => ErrorType::AGENT . '_3', 'label' => __('[3] - Дата/время ККТ не корректны')],
                     ['value' => ErrorType::AGENT . '_4', 'label' => __('[4] - Отсутствует возможность регистрации документа данного типа')],
-
                 ],
             ],
             [
