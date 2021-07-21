@@ -93,7 +93,7 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @return string|bool
+     * @return bool|string
      */
     public function getOrderStatusAfterKkmFail()
     {
