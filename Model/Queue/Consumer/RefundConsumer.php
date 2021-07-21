@@ -8,6 +8,8 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
@@ -17,7 +19,7 @@ class RefundConsumer extends AbstractConsumer
 {
     /**
      * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException|NoSuchEntityException
      */
     public function sendMergedRequest($mergedRequest)
     {
@@ -31,10 +33,10 @@ class RefundConsumer extends AbstractConsumer
 
     /**
      * @param RequestInterface $request
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
-    private function sendRefundRequest($request)
+    private function sendRefundRequest(RequestInterface $request): void
     {
         try {
             $this->vendor->sendRefundRequest($request);
@@ -46,8 +48,8 @@ class RefundConsumer extends AbstractConsumer
             $this->publisher->publish(SendInterface::TOPIC_NAME_REFUND, $request);
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals()) {
+            $storeId = $request->getStoreId();
+            if ($this->helper->isUseCustomRetryIntervals($storeId)) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_REFUND);
             } else {

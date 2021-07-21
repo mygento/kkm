@@ -89,13 +89,9 @@ class Error
 
             $failStatus = $this->baseHelper->getOrderStatusAfterKkmFail();
 
-            if (!$failStatus) {
-                return;
-            }
-
             $order = $entity->getOrder();
             $order->addStatusToHistory(
-                $failStatus,
+                $failStatus ?: false,
                 $fullMessage
             );
             $this->orderRepository->save($order);
