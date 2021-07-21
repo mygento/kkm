@@ -14,7 +14,7 @@ use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterfaceFactory;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Data;
-use Mygento\Kkm\Helper\Transaction\Proxy as TransactionHelper;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\Atol\Response;
 
@@ -53,12 +53,11 @@ class Update
     private $updatedTransactionsCount;
 
     /**
-     * Update constructor.
      * @param UpdateRequestInterfaceFactory $updateRequestFactory
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+     * @param TransactionHelper $transactionHelper
      * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
