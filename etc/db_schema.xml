@@ -18,6 +18,8 @@
         <column xsi:type="timestamp" name="scheduled_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Scheduled At"/>
         <column xsi:type="boolean" name="is_scheduled" nullable="false" default="0" comment="Is Scheduled"/>
         <column xsi:type="longtext" name="request_json" nullable="true" comment="Request Json"/>
+        <column xsi:type="varchar" name="error_code" nullable="true" length="15" comment="Error Code"/>
+        <column xsi:type="varchar" name="error_type" nullable="true" length="50" comment="Error Type"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>

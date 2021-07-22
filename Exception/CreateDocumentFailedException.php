@@ -10,7 +10,7 @@ namespace Mygento\Kkm\Exception;
 
 use Mygento\Kkm\Api\Data\ResponseInterface;
 
-class CreateDocumentFailedException extends \Exception
+class CreateDocumentFailedException extends ResponseValidationException
 {
     /**
      * @var array
@@ -18,29 +18,16 @@ class CreateDocumentFailedException extends \Exception
     private $debugData = [];
 
     /**
-     * @var ResponseInterface
-     */
-    private $response;
-
-    /**
-     * CreateDocumentFailedException constructor.
      * @param string $message
      * @param ResponseInterface|null $response
      * @param array $debugData
      */
     public function __construct($message, ResponseInterface $response = null, $debugData = [])
     {
-        $this->debugData = $debugData;
-        $this->response = $response;
-        parent::__construct($message, 0, null);
-    }
+        parent::__construct($message, $response);
 
-    /**
-     * @return ResponseInterface|null
-     */
-    public function getResponse()
-    {
-        return $this->response;
+        $this->response = $response;
+        $this->debugData = $debugData;
     }
 
     /**

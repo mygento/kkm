@@ -36,7 +36,7 @@ abstract class AbstractConsumer
     protected $requestHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error\Proxy
+     * @var \Mygento\Kkm\Helper\Error
      */
     protected $errorHelper;
 
@@ -51,7 +51,7 @@ abstract class AbstractConsumer
      * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\Data $helper
-     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Helper\Error $errorHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
@@ -60,7 +60,7 @@ abstract class AbstractConsumer
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Helper\Error $errorHelper,
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Magento\Framework\MessageQueue\PublisherInterface $publisher
     ) {

@@ -16,7 +16,9 @@
             "total_number_of_trials": true,
             "scheduled_at": true,
             "is_scheduled": true,
-            "request_json": true
+            "request_json": true,
+            "error_code": true,
+            "error_type": true
         },
         "index": {
             "MYGENTO_KKM_TRANSACTION_ATTEMPT_STATUS": true,
