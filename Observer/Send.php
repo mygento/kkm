@@ -29,27 +29,26 @@ class Send implements ObserverInterface
     private $processor;
 
     /**
-     * @var \Magento\Framework\Message\ManagerInterface\Proxy
+     * @var \Magento\Framework\Message\ManagerInterface
      */
     private $messageManager;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error\Proxy
+     * @var \Mygento\Kkm\Helper\Error
      */
     private $errorHelper;
 
     /**
-     * Send constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Helper\Error $errorHelper
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
-     * @param \Magento\Framework\Message\ManagerInterface\Proxy $messageManager
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Helper\Error $errorHelper,
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
-        \Magento\Framework\Message\ManagerInterface\Proxy $messageManager
+        \Magento\Framework\Message\ManagerInterface $messageManager
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->processor = $processor;

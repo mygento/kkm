@@ -8,6 +8,6 @@
 
 namespace Mygento\Kkm\Exception;
 
-class VendorNonFatalErrorException extends \Exception
+class VendorNonFatalErrorException extends ResponseValidationException
 {
 }

@@ -25,10 +25,13 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Mygento\Kkm\Exception\AuthorizationException;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
+use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
+use Mygento\Kkm\Model\Source\Atol\ErrorType;
 
 /**
  * Class Vendor
@@ -648,6 +651,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      * @throws \Throwable
      * @throws CreateDocumentFailedException
      * @return ResponseInterface
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function sendRequest($request, $callback, $entity = null): ResponseInterface
     {
@@ -672,9 +676,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt($request, $entity);
+        $response = null;
 
         try {
             //Make Request to Vendor's API
+            /** @var \Mygento\Kkm\Api\Data\ResponseInterface $response */
             $response = $this->apiClient->{$callback}($request);
 
             //Save transaction data
@@ -686,8 +692,36 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
+        } catch (AuthorizationException $e) {
+            if ($e->getErrorCode() && $e->getErrorType()) {
+                $attempt->setErrorCode($e->getErrorCode());
+                $attempt->setErrorType($e->getErrorType());
+            }
+
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        } catch (VendorBadServerAnswerException $e) {
+            $attempt->setErrorType(ErrorType::BAD_SERVER_ANSWER);
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
+            $attempt->setErrorType(ErrorType::UNDEFINED);
+            $response = $e->getResponse();
+
+            if ($response) {
+                $attempt
+                    ->setErrorCode($response->getErrorCode())
+                    ->setErrorType($response->getErrorType());
+            }
+
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
         } catch (\Throwable $e) {
             //Mark attempt as Error
+            $attempt->setErrorType(ErrorType::UNDEFINED);
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
 
             throw $e;
@@ -782,7 +816,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         //Ошибки при работе с ККТ (cash machine errors)
         if ($response->getErrorCode() < 0) {
             //increment EID and send it
-            throw new VendorNonFatalErrorException();
+            throw new VendorNonFatalErrorException(
+                __(
+                    'Error response from ATOL with code %1. Need to resend with new external_id.',
+                    $response->getErrorCode()
+                ),
+                $response
+            );
         }
 
         switch ($response->getErrorCode()) {
@@ -795,7 +835,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     __(
                         'Error response from ATOL with code %1. Need to resend with new external_id.',
                         $response->getErrorCode()
-                    )
+                    ),
+                    $response
                 );
 
             default:
