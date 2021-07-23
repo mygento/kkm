@@ -267,8 +267,8 @@ class TransactionAttempt
 
     /**
      * @param TransactionAttemptInterface $attempt
-     * @return bool
      * @throws LocalizedException
+     * @return bool
      */
     public function isResendAvailable(TransactionAttemptInterface $attempt)
     {
