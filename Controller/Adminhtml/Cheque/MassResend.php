@@ -112,25 +112,22 @@ class MassResend extends Action implements HttpPostActionInterface
     public function execute()
     {
         $collection = $this->filter->getCollection($this->collectionFactory->create());
-        $collectionSize = $collection->getSize();
+        $countOfResends = 0;
 
         /** @var TransactionAttemptInterface $attempt */
         foreach ($collection as $attempt) {
-            $isClosed = $this->transactionAttemptHelper->hasSuccessfulAttempt(
-                $attempt->getOrderId(),
-                $attempt->getOperation(),
-                $attempt->getSalesEntityId()
-            );
+            $isResendAvailable = $this->transactionAttemptHelper->isResendAvailable($attempt);
 
-            if ($isClosed) {
+            if (!$isResendAvailable) {
                 continue;
             }
 
             $this->resendAttempt($attempt);
+            $countOfResends++;
         }
 
         $this->messageManager->addSuccessMessage(
-            __('Cheques for %1 record(s) has been sent.', $collectionSize)
+            __('Cheques for %1 record(s) has been sent.', $countOfResends)
         );
 
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);

@@ -266,19 +266,17 @@ class TransactionAttempt
     }
 
     /**
-     * @param $orderId
-     * @param $operation
-     * @param $salesEntityId
-     * @throws LocalizedException
+     * @param TransactionAttemptInterface $attempt
      * @return bool
+     * @throws LocalizedException
      */
-    public function hasSuccessfulAttempt($orderId, $operation, $salesEntityId)
+    public function isResendAvailable(TransactionAttemptInterface $attempt)
     {
         $successfulAttemptsSearchResult = $this->attemptRepository->getList(
             $this->searchCriteriaBuilder
-                ->addFilter(TransactionAttemptInterface::ORDER_ID, $orderId)
-                ->addFilter(TransactionAttemptInterface::OPERATION, $operation)
-                ->addFilter(TransactionAttemptInterface::SALES_ENTITY_ID, $salesEntityId)
+                ->addFilter(TransactionAttemptInterface::ORDER_ID, $attempt->getOrderId())
+                ->addFilter(TransactionAttemptInterface::OPERATION, $attempt->getOperation())
+                ->addFilter(TransactionAttemptInterface::SALES_ENTITY_ID, $attempt->getSalesEntityId())
                 ->addFilter(
                     TransactionAttemptInterface::STATUS,
                     TransactionAttemptInterface::STATUS_ERROR,
@@ -286,7 +284,7 @@ class TransactionAttempt
                 )->create()
         );
 
-        return $successfulAttemptsSearchResult->getTotalCount() > 0;
+        return $successfulAttemptsSearchResult->getTotalCount() == 0;
     }
 
     /**
