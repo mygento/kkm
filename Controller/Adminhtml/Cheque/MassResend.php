@@ -162,7 +162,8 @@ class MassResend extends Action implements HttpPostActionInterface
                     break;
             }
 
-            $comment = $commentEntityType ?? 'Unknown entity' . $this->configHelper->isMessageQueueEnabled()
+            $comment = $commentEntityType ?? 'Unknown entity' .
+                $this->configHelper->isMessageQueueEnabled($entity->getStoreId())
                 ? 'was placed to queue for further sending.'
                 : 'was sent to KKM.';
 
