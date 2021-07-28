@@ -1,12 +1,18 @@
 <?php
 
+/**
+ * @author Mygento Team
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @package Mygento_Kkm
+ */
+
 namespace Mygento\Kkm\Model;
 
 use Magento\Framework\Exception\NoSuchEntityException;
-use Mygento\Kkm\Api\ResenderInterface;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
+use Mygento\Kkm\Api\ResenderInterface;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\Error;
 
