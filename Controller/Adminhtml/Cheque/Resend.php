@@ -23,55 +23,33 @@ class Resend extends \Magento\Backend\App\Action
      */
     private $emulation;
 
-    /** @var \Mygento\Kkm\Helper\Data */
+    /**
+     * @var \Mygento\Kkm\Helper\Data
+     */
     private $kkmHelper;
 
     /**
-     * @var \Magento\Sales\Model\Order\InvoiceFactory
+     * @var \Mygento\Kkm\Api\ResenderInterface
      */
-    private $invoiceRepository;
-
-    /**
-     * @var \Magento\Sales\Api\CreditmemoRepositoryInterface
-     */
-    private $creditmemoRepository;
-
-    /**
-     * @var \Mygento\Kkm\Api\Processor\SendInterface
-     */
-    private $processor;
-
-    /**
-     * @var \Mygento\Kkm\Helper\Error
-     */
-    private $errorHelper;
+    private $resender;
 
     /**
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Error $errorHelper
-     * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
-     * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
-     * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
      * @param \Magento\Store\Model\App\Emulation $emulation
      * @param \Magento\Backend\App\Action\Context $context
+     * @param \Mygento\Kkm\Api\ResenderInterface $resender
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Error $errorHelper,
-        \Mygento\Kkm\Api\Processor\SendInterface $processor,
-        \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
-        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Store\Model\App\Emulation $emulation,
-        \Magento\Backend\App\Action\Context $context
+        \Magento\Backend\App\Action\Context $context,
+        \Mygento\Kkm\Api\ResenderInterface $resender
     ) {
         parent::__construct($context);
 
         $this->kkmHelper = $kkmHelper;
-        $this->invoiceRepository = $invoiceRepository;
-        $this->creditmemoRepository = $creditmemoRepository;
-        $this->processor = $processor;
-        $this->errorHelper = $errorHelper;
         $this->emulation = $emulation;
+        $this->resender = $resender;
     }
 
     /**
@@ -87,23 +65,11 @@ class Resend extends \Magento\Backend\App\Action
 
             $entityType = strtolower($this->_request->getParam('entity'));
             $id = $this->getRequest()->getParam('id');
+            $incrExtId = (bool)$this->getRequest()->getParam('incr_ext_id');
 
-            $incrExtId = (bool) $this->getRequest()->getParam('incr_ext_id');
+            $this->resender->resend($id, $entityType, $incrExtId);
 
-            switch ($entityType) {
-                case 'invoice':
-                    $entity = $this->invoiceRepository->get($id);
-                    $this->processor->proceedSell($entity, true, true, $incrExtId);
-                    $comment = 'Cheque ';
-                    break;
-                case 'creditmemo':
-                    $entity = $this->creditmemoRepository->get($id);
-                    $this->processor->proceedRefund($entity, true, true, $incrExtId);
-                    $comment = 'Refund ';
-                    break;
-            }
-
-            $comment .= $this->kkmHelper->isMessageQueueEnabled($storeId)
+            $comment = 'Cheque' . $this->kkmHelper->isMessageQueueEnabled($storeId)
                 ? 'was placed to queue for further sending.'
                 : 'was sent to KKM.';
 
@@ -112,15 +78,10 @@ class Resend extends \Magento\Backend\App\Action
             $this->getMessageManager()->addErrorMessage(
                 __(ucfirst($entityType)) . " {$id} " . __('not found')
             );
-            $this->kkmHelper->error("Entity {$entityType} with Id {$id} not found.");
         } catch (\Exception $exc) {
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
-            $this->kkmHelper->error('Resend failed. Reason: ' . $exc->getMessage());
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
         } catch (\Throwable $thr) {
             $this->getMessageManager()->addErrorMessage(__('Something went wrong. See log.'));
-            $this->kkmHelper->error('Resend failed. Reason: ' . $thr->getMessage());
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $thr);
         } finally {
             $this->emulation->stopEnvironmentEmulation();
 
