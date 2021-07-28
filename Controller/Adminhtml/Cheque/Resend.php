@@ -35,21 +35,21 @@ class Resend extends \Magento\Backend\App\Action
 
     /**
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param \Mygento\Kkm\Api\ResenderInterface $resender
      * @param \Magento\Store\Model\App\Emulation $emulation
      * @param \Magento\Backend\App\Action\Context $context
-     * @param \Mygento\Kkm\Api\ResenderInterface $resender
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Mygento\Kkm\Api\ResenderInterface $resender,
         \Magento\Store\Model\App\Emulation $emulation,
-        \Magento\Backend\App\Action\Context $context,
-        \Mygento\Kkm\Api\ResenderInterface $resender
+        \Magento\Backend\App\Action\Context $context
     ) {
         parent::__construct($context);
 
         $this->kkmHelper = $kkmHelper;
-        $this->emulation = $emulation;
         $this->resender = $resender;
+        $this->emulation = $emulation;
     }
 
     /**
@@ -69,9 +69,9 @@ class Resend extends \Magento\Backend\App\Action
 
             $this->resender->resend($id, $entityType, $incrExtId);
 
-            $comment = 'Cheque' . $this->kkmHelper->isMessageQueueEnabled($storeId)
-                ? 'was placed to queue for further sending.'
-                : 'was sent to KKM.';
+            $comment = $this->kkmHelper->isMessageQueueEnabled($storeId)
+                ? __('Cheque was placed to queue for further sending')
+                : __('Cheque was sent to KKM');
 
             $this->getMessageManager()->addSuccessMessage(__($comment));
         } catch (NoSuchEntityException $exc) {

@@ -112,15 +112,19 @@ class MassResend extends Action implements HttpPostActionInterface
 
         if (count($attemptIdsWithFailedResend)) {
             $this->messageManager->addErrorMessage(
-                __('Failed resend for attempts with ids: ') .
-                implode(',', $attemptIdsWithFailedResend)
+                __(
+                    'Failed resend for attempts with ids: %1',
+                    implode(',', $attemptIdsWithFailedResend)
+                )
             );
         }
 
         if (count($attemptIdsWithSuccessfulResend)) {
             $this->messageManager->addSuccessMessage(
-                __('Successful resend for attempts with ids: ') .
-                implode(',', $attemptIdsWithSuccessfulResend)
+                __(
+                    'Successful resend for attempts with ids: %1',
+                    implode(',', $attemptIdsWithSuccessfulResend)
+                )
             );
         }
 

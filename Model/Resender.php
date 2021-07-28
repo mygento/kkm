@@ -91,7 +91,7 @@ class Resender implements ResenderInterface
             $this->configHelper->error("Entity {$entityType} with Id {$entityId} not found.");
 
             throw $exc;
-        } catch (\Exception | \Throwable $exc) {
+        } catch (\Throwable $exc) {
             $this->configHelper->error('Resend failed. Reason: ' . $exc->getMessage());
             $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
 
