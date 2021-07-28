@@ -12,7 +12,7 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class ErrorType implements OptionSourceInterface
 {
-    public const UNDEFINED = 'undefined';
+    public const UNKNOWN = 'unknown';
     public const BAD_SERVER_ANSWER = 'bad_answer';
     public const SYSTEM = 'system';
     public const TIMEOUT = 'timeout';
@@ -28,8 +28,8 @@ class ErrorType implements OptionSourceInterface
     {
         return [
             [
-                'value' => self::UNDEFINED,
-                'label' => __('Undefined'),
+                'value' => self::UNKNOWN,
+                'label' => __('Unknown'),
             ],
             [
                 'value' => self::BAD_SERVER_ANSWER,

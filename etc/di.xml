@@ -22,6 +22,7 @@
     <preference for="Mygento\Kkm\Api\Data\ItemInterface" type="Mygento\Kkm\Model\Atol\Item"/>
     <preference for="Mygento\Kkm\Api\Data\UserPropInterface" type="Mygento\Kkm\Model\Atol\UserProp"/>
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
+    <preference for="Mygento\Kkm\Api\ResenderInterface" type="Mygento\Kkm\Model\Resender"/>
     <preference for="Mygento\Kkm\Model\VendorInterface" type="Mygento\Kkm\Model\Atol\Vendor"/>
 
     <!--Proxies-->

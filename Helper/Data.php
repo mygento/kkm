@@ -84,6 +84,29 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
+     * @return array
+     */
+    public function getAtolNonFatalErrorCodes()
+    {
+        $atolNonFatalErrorCodes = $this->getConfig('atol/error_codes/non_fatal_error_codes');
+
+        return trim($atolNonFatalErrorCodes)
+            ? array_filter(array_map('trim', explode(',', $atolNonFatalErrorCodes)))
+            : [];
+    }
+
+    /**
+     * @param string $errorCode
+     * @param string $errorType
+     */
+    public function isAtolNonFatalError($errorCode, $errorType)
+    {
+        $atolNonFatalErrors = $this->getAtolNonFatalErrorCodes();
+
+        return in_array($errorType . '_' . $errorCode, $atolNonFatalErrors);
+    }
+
+    /**
      * @param int|string|null $storeId
      * @return bool
      */

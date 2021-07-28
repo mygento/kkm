@@ -12,4 +12,10 @@
         <plugin name="Mygento_Kkm::ExtraSalesViewToolbarButtons" type="Mygento\Kkm\Plugin\ExtraSalesViewToolbarButtons" />
     </type>
 
+    <type name="Mygento\Kkm\Controller\Adminhtml\Cheque\MassResend">
+        <arguments>
+            <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
+        </arguments>
+    </type>
+
 </config>

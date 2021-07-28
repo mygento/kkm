@@ -707,7 +707,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             throw $e;
         } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
-            $attempt->setErrorType(ErrorType::UNDEFINED);
+            $attempt->setErrorType(ErrorType::UNKNOWN);
             $response = $e->getResponse();
 
             if ($response) {
@@ -721,7 +721,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw $e;
         } catch (\Throwable $e) {
             //Mark attempt as Error
-            $attempt->setErrorType(ErrorType::UNDEFINED);
+            $attempt->setErrorType(ErrorType::UNKNOWN);
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
 
             throw $e;
@@ -813,9 +813,12 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private function validateErrorCode($response)
     {
-        //Ошибки при работе с ККТ (cash machine errors)
-        if ($response->getErrorCode() < 0) {
-            //increment EID and send it
+        $isNonFatalError = $this->kkmHelper->isAtolNonFatalError(
+            $response->getErrorCode(),
+            $response->getErrorType()
+        );
+
+        if ($isNonFatalError) {
             throw new VendorNonFatalErrorException(
                 __(
                     'Error response from ATOL with code %1. Need to resend with new external_id.',
@@ -825,26 +828,10 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             );
         }
 
-        switch ($response->getErrorCode()) {
-            case '1': //Timeout
-            case '2': //Incorrect INN (if type = agent) or incorrect Group_Code or Operation
-            case '3': //Incorrect Operation
-            case '8': //Validation error.
-            case '22': //Incorrect group_code
-                throw new VendorNonFatalErrorException(
-                    __(
-                        'Error response from ATOL with code %1. Need to resend with new external_id.',
-                        $response->getErrorCode()
-                    ),
-                    $response
-                );
-
-            default:
-                throw new CreateDocumentFailedException(
-                    __('Error response from ATOL with code %1.', $response->getErrorCode()),
-                    $response
-                );
-        }
+        throw new CreateDocumentFailedException(
+            __('Error response from ATOL with code %1.', $response->getErrorCode()),
+            $response
+        );
     }
 
     /**

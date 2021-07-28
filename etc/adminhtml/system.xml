@@ -56,6 +56,16 @@
                 <field id="callback_url" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Callback URL</label>
                 </field>
+                <group id="error_codes" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Error Codes</label>
+                    <field id="non_fatal_error_codes" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1"
+                           showInStore="1">
+                        <label>Non Fatal Error Codes</label>
+                        <source_model>Mygento\Kkm\Model\Source\Atol\ErrorCode</source_model>
+                        <frontend_class>validate-select</frontend_class>
+                        <comment>Attempts with these error codes will be sent with new external_id</comment>
+                    </field>
+                </group>
             </group>
 
             <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
