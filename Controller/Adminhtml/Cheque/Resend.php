@@ -65,7 +65,7 @@ class Resend extends \Magento\Backend\App\Action
 
             $entityType = strtolower($this->_request->getParam('entity'));
             $id = $this->getRequest()->getParam('id');
-            $incrExtId = (bool)$this->getRequest()->getParam('incr_ext_id');
+            $incrExtId = (bool) $this->getRequest()->getParam('incr_ext_id');
 
             $this->resender->resend($id, $entityType, $incrExtId);
 

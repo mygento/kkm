@@ -15,10 +15,10 @@ use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Ui\Component\MassAction\Filter;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Api\ResenderInterface;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory;
-use Mygento\Kkm\Api\ResenderInterface;
 
 class MassResend extends Action implements HttpPostActionInterface
 {
@@ -113,14 +113,14 @@ class MassResend extends Action implements HttpPostActionInterface
         if (count($attemptIdsWithFailedResend)) {
             $this->messageManager->addErrorMessage(
                 __('Failed resend for attempts with ids: ') .
-                implode(",", $attemptIdsWithFailedResend)
+                implode(',', $attemptIdsWithFailedResend)
             );
         }
 
         if (count($attemptIdsWithSuccessfulResend)) {
             $this->messageManager->addSuccessMessage(
                 __('Successful resend for attempts with ids: ') .
-                implode(",", $attemptIdsWithSuccessfulResend)
+                implode(',', $attemptIdsWithSuccessfulResend)
             );
         }
 
