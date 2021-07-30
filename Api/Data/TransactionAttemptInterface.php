@@ -271,7 +271,7 @@ interface TransactionAttemptInterface
 
     /**
      * Set error code
-     * @param string $errorCode
+     * @param string|null $errorCode
      * @return $this
      */
     public function setErrorCode($errorCode);
@@ -284,7 +284,7 @@ interface TransactionAttemptInterface
 
     /**
      * Set error type
-     * @param string $errorType
+     * @param string|null $errorType
      * @return $this
      */
     public function setErrorType($errorType);
