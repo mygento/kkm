@@ -25,48 +25,35 @@ class UpdateTimeoutFilter implements CustomFilterInterface
      */
     public function apply(Filter $filter, AbstractDb $collection): bool
     {
+        $connection = $collection->getConnection();
+
         $timeout = $filter->getValue();
 
         $attemptTable = $collection->getTable('mygento_kkm_transaction_attempt');
 
-        $conditions[] = sprintf(
-            'main_table.%s = %s.%s',
-            TransactionInterface::ORDER_ID,
-            $attemptTable,
-            TransactionAttemptInterface::ORDER_ID
-        );
-        $conditions[] = sprintf(
-            'main_table.%s = %s.%s',
-            TransactionInterface::TXN_TYPE,
-            $attemptTable,
-            TransactionAttemptInterface::TXN_TYPE
-        );
-        $conditions[] = sprintf(
-            '%s.%s = %s',
-            $attemptTable,
-            TransactionAttemptInterface::OPERATION,
-            UpdateRequestInterface::UPDATE_OPERATION_TYPE
-        );
-        $conditions[] = sprintf(
-            '%s.%s > %s',
-            $attemptTable,
-            TransactionAttemptInterface::UPDATED_AT,
-            $collection->getConnection()->quote($timeout)
-        );
+        $conditions[] = 'main_table.' . TransactionInterface::ORDER_ID .
+            ' = ' . $attemptTable . '.' . TransactionAttemptInterface::ORDER_ID;
+
+        $conditions[] = 'main_table.' . TransactionInterface::TXN_TYPE .
+            ' = ' . $attemptTable . '.' . TransactionAttemptInterface::TXN_TYPE;
+
+        $conditions[] = $connection->prepareSqlCondition(
+            $attemptTable . '.' . TransactionAttemptInterface::OPERATION,
+            UpdateRequestInterface::UPDATE_OPERATION_TYPE);
+
+        $conditions[] = $connection->prepareSqlCondition(
+            $attemptTable . '.' . TransactionAttemptInterface::UPDATED_AT,
+            ['gt' => $timeout]);
 
         $collection->getSelect()
             ->reset(Select::COLUMNS)
-            ->columns(sprintf('main_table.%s', TransactionInterface::TXN_ID))
+            ->columns('main_table.' . TransactionInterface::TXN_ID)
             ->joinLeft(
                 $attemptTable,
                 implode(' AND ', $conditions),
                 []
             )
-            ->where(sprintf(
-                '%s.%s IS NULL',
-                $attemptTable,
-                TransactionAttemptInterface::ID
-            ))
+            ->where($attemptTable . '.' . TransactionAttemptInterface::ID . ' IS NULL')
             ->group(TransactionInterface::TXN_ID);
 
         return true;

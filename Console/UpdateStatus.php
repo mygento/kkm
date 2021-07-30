@@ -19,12 +19,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class UpdateStatus extends Command
 {
-    public const ARGUMENT = 'param';
-    public const ARGUMENT_DESCRIPTION = 'UUID (Transaction id) or "all" to update all';
-    public const COMMAND = 'mygento:atol:update';
-    public const COMMAND_DESCRIPTION = 'Get status from Atol and save it.';
+    private const TRANSACTION_UUID_ARGUMENT = 'transaction_uuid';
+    private const TRANSACTION_UUID_ARGUMENT_DESCRIPTION = 'UUID (Transaction id) or "all" to update all';
+    private const COMMAND = 'mygento:atol:update';
+    private const COMMAND_DESCRIPTION = 'Get status from Atol and save it.';
 
-    public const RUN_ALL_PARAM = 'all';
+    private const RUN_ALL_PARAM = 'all';
 
     /**
      * @var TransactionHelper
@@ -68,7 +68,7 @@ class UpdateStatus extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $transactionUuid = $input->getArgument('param');
+        $transactionUuid = $input->getArgument(self::TRANSACTION_UUID_ARGUMENT);
 
         if ($transactionUuid !== self::RUN_ALL_PARAM) {
             $output->writeln("<comment>Updating {$transactionUuid} ...</comment>");
@@ -97,9 +97,9 @@ class UpdateStatus extends Command
         $this->setName(self::COMMAND);
         $this->setDescription(self::COMMAND_DESCRIPTION);
         $this->addArgument(
-            self::ARGUMENT,
+            self::TRANSACTION_UUID_ARGUMENT,
             InputArgument::REQUIRED,
-            self::ARGUMENT_DESCRIPTION
+            self::TRANSACTION_UUID_ARGUMENT_DESCRIPTION
         );
         $this->setHelp(
             <<<HELP
