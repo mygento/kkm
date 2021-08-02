@@ -676,6 +676,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt($request, $entity);
+        $attempt
+            ->setErrorCode(null)
+            ->setErrorType(null);
         $response = null;
 
         try {
@@ -710,7 +713,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $attempt->setErrorType(ErrorType::UNKNOWN);
             $response = $e->getResponse();
 
-            if ($response) {
+            if ($response && $response->getErrorCode() && $response->getErrorType()) {
                 $attempt
                     ->setErrorCode($response->getErrorCode())
                     ->setErrorType($response->getErrorType());
@@ -788,9 +791,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private function validateResponse($response)
     {
-        if ($response->isFailed()) {
+        if ($response->isFailed() || !$response->getUuid()) {
             throw new CreateDocumentFailedException(
-                __('Response is failed or invalid.'),
+                __('Response is failed or invalid. Message: %1', $response->getMessage()),
                 $response
             );
         }
