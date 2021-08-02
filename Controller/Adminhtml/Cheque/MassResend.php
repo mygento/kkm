@@ -25,14 +25,14 @@ class MassResend extends Action implements HttpPostActionInterface
     const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
 
     /**
-     * @var CollectionFactory
-     */
-    private $collectionFactory;
-
-    /**
      * @var Filter
      */
     private $filter;
+
+    /**
+     * @var CollectionFactory
+     */
+    private $collectionFactory;
 
     /**
      * @var TransactionAttempt
@@ -67,8 +67,8 @@ class MassResend extends Action implements HttpPostActionInterface
     ) {
         parent::__construct($context);
 
-        $this->collectionFactory = $collectionFactory;
         $this->filter = $filter;
+        $this->collectionFactory = $collectionFactory;
         $this->transactionAttemptHelper = $transactionAttemptHelper;
         $this->configHelper = $configHelper;
         $this->resender = $resender;
