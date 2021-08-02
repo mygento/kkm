@@ -39,11 +39,13 @@ class UpdateTimeoutFilter implements CustomFilterInterface
 
         $conditions[] = $connection->prepareSqlCondition(
             $attemptTable . '.' . TransactionAttemptInterface::OPERATION,
-            UpdateRequestInterface::UPDATE_OPERATION_TYPE);
+            UpdateRequestInterface::UPDATE_OPERATION_TYPE
+        );
 
         $conditions[] = $connection->prepareSqlCondition(
             $attemptTable . '.' . TransactionAttemptInterface::UPDATED_AT,
-            ['gt' => $timeout]);
+            ['gt' => $timeout]
+        );
 
         $collection->getSelect()
             ->reset(Select::COLUMNS)
