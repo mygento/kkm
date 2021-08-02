@@ -48,8 +48,14 @@ class Update
      */
     private $storeRepository;
 
+    /**
+     * @var array
+     */
     private $result;
 
+    /**
+     * @var int
+     */
     private $updatedTransactionsCount;
 
     /**
@@ -128,6 +134,9 @@ class Update
         $this->updateProcessor->proceedAsync($updateRequest);
     }
 
+    /**
+     * @param int|string $storeId
+     */
     private function updateStatusByStoreId($storeId)
     {
         $uuids = $this->transactionHelper->getWaitUuidsByStore($storeId);

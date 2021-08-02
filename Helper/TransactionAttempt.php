@@ -53,8 +53,8 @@ class TransactionAttempt
      * @param MessageEncoder $messageEncoder
      * @param Request $requestHelper
      * @param Data $kkmHelper
-     * @param TransactionAttemptRepositoryInterface $attemptRepository
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param TransactionAttemptRepositoryInterface $attemptRepository
      */
     public function __construct(
         MessageEncoder $messageEncoder,

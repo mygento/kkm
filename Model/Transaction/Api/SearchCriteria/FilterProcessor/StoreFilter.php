@@ -25,21 +25,20 @@ class StoreFilter implements CustomFilterInterface
      */
     public function apply(Filter $filter, AbstractDb $collection): bool
     {
+        $connection = $collection->getConnection();
+
         $storeId = $filter->getValue();
 
         $attemptTable = $collection->getTable('mygento_kkm_transaction_attempt');
 
-        $conditions[] = sprintf(
-            'mygento_kkm_transaction_attempt.%s = %s',
-            TransactionAttemptInterface::STORE_ID,
+        $conditions[] = $connection->prepareSqlCondition(
+            $attemptTable . '.' . TransactionAttemptInterface::STORE_ID,
             $storeId
         );
-        $conditions[] = sprintf(
-            '%s.%s in (%s, %s)',
-            $attemptTable,
-            TransactionAttemptInterface::OPERATION,
-            Request::SELL_OPERATION_TYPE,
-            Request::REFUND_OPERATION_TYPE
+
+        $conditions[] = $connection->prepareSqlCondition(
+            $attemptTable . '.' . TransactionAttemptInterface::OPERATION,
+            ['in' => [Request::SELL_OPERATION_TYPE, Request::REFUND_OPERATION_TYPE]]
         );
 
         $collection->getSelect()
@@ -47,12 +46,8 @@ class StoreFilter implements CustomFilterInterface
             ->columns('main_table.txn_id')
             ->join(
                 $attemptTable,
-                sprintf(
-                    'main_table.%s = %s.%s',
-                    TransactionInterface::ORDER_ID,
-                    $attemptTable,
-                    TransactionAttemptInterface::ORDER_ID
-                ),
+                'main_table.' . TransactionInterface::ORDER_ID .
+                ' = ' . $attemptTable . '.' . TransactionAttemptInterface::ORDER_ID,
                 []
             )
             ->where(implode(' AND ', $conditions))
