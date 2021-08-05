@@ -10,10 +10,6 @@ namespace Mygento\Kkm\Controller\Adminhtml\Logs;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 
-/**
- * Workaround Class to Download file with logs
- * @package Mygento\Kkm\Controller\Adminhtml\Logs
- */
 class Download extends \Magento\Backend\App\Action
 {
     /**

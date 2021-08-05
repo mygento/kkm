@@ -19,8 +19,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class SendRefund
- * @package Mygento\Kkm\Console
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SendRefund extends Command

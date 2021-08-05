@@ -19,8 +19,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class SendSell
- * @package Mygento\Kkm\Console
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SendSell extends Command

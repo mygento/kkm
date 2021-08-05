@@ -11,10 +11,6 @@ namespace Mygento\Kkm\Model;
 use Magento\Framework\Model\AbstractModel;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
-/**
- * Class TransactionAttempt
- * @package Mygento\Kkm\Model
- */
 class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface
 {
     /**

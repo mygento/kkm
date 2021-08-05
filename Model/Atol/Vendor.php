@@ -34,9 +34,6 @@ use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\Source\Atol\ErrorType;
 
 /**
- * Class Vendor
- * @package Mygento\Kkm\Model\Atol
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface

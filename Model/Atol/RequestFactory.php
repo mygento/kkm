@@ -8,14 +8,6 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-/**
- * Class RequestFactory
- * allows to support several formats of ATOL requests.
- * In order to add new format - create class extending abstract class Request
- * and add dependency to this class
- *
- * @package Mygento\Kkm\Model\Atol
- */
 class RequestFactory
 {
     /**

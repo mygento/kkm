@@ -10,9 +10,6 @@ namespace Mygento\Kkm\Helper;
 
 use Exception;
 
-/**
- * Class Data
- */
 class Data extends \Mygento\Base\Helper\Data
 {
     public const CONFIG_CODE = 'mygento_kkm';

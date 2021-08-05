@@ -10,10 +10,6 @@ namespace Mygento\Kkm\Helper;
 
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
-/**
- * Class Error to handle Atol flow errors and fails
- * @package Mygento\Kkm\Helper
- */
 class Error
 {
     const ORDER_KKM_FAILED_STATUS = 'kkm_failed';

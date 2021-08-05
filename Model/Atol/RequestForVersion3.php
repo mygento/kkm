@@ -9,9 +9,8 @@
 namespace Mygento\Kkm\Model\Atol;
 
 /**
- * Class RequestForVersion3 deprecated since 2019
  * @deprecated
- * @package Mygento\Kkm\Model\Atol
+ * @see RequestForVersion4
  */
 class RequestForVersion3 extends Request
 {

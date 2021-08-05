@@ -20,8 +20,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class SendSell
- * @package Mygento\Kkm\Console
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class SendResell extends Command
@@ -153,8 +151,8 @@ class SendResell extends Command
 
         $this->setHelp(
             <<<HELP
-This command makes resell operation. 
-1. The command sends 'refund' of the previous invoice 
+This command makes resell operation.
+1. The command sends 'refund' of the previous invoice
 2. new 'sell' operation will be sent automatically if 'refund' is done.
 
 To send:

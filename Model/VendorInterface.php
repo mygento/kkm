@@ -14,10 +14,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 
-/**
- * Class Vendor
- * @package Mygento\Kkm\Model\Atol
- */
 interface VendorInterface
 {
     const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
