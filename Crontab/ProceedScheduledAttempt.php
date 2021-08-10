@@ -12,6 +12,7 @@ use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\MessageQueue\MessageEncoder;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
@@ -53,13 +54,18 @@ class ProceedScheduledAttempt
     private $dateTime;
 
     /**
-     * Update constructor.
-     * @param TransactionAttemptRepositoryInterface $attemptRepository
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
+    private $storeRepository;
+
+    /**
+     * @param \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $attemptRepository
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
-     * @param MessageEncoder $messageEncoder
-     * @param SearchCriteriaBuilder $searchCriteriaBuilder
-     * @param DateTime $dateTime
+     * @param \Magento\Framework\MessageQueue\MessageEncoder $messageEncoder
+     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Framework\Stdlib\DateTime\DateTime $dateTime
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      */
     public function __construct(
         TransactionAttemptRepositoryInterface $attemptRepository,
@@ -67,7 +73,8 @@ class ProceedScheduledAttempt
         \Magento\Framework\MessageQueue\PublisherInterface $publisher,
         MessageEncoder $messageEncoder,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        DateTime $dateTime
+        DateTime $dateTime,
+        StoreRepositoryInterface $storeRepository
     ) {
         $this->attemptRepository = $attemptRepository;
         $this->kkmHelper = $kkmHelper;
@@ -75,6 +82,7 @@ class ProceedScheduledAttempt
         $this->messageEncoder = $messageEncoder;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
         $this->dateTime = $dateTime;
+        $this->storeRepository = $storeRepository;
     }
 
     /**
@@ -86,23 +94,28 @@ class ProceedScheduledAttempt
         if (!$this->kkmHelper->getConfig('general/update_cron')) {
             return;
         }
-
-        $attempts = $this->attemptRepository->getList(
-            $this->searchCriteriaBuilder
-                ->addFilter(TransactionAttemptInterface::IS_SCHEDULED, true)
-                ->addFilter(TransactionAttemptInterface::SCHEDULED_AT, $this->dateTime->gmtDate(), 'lteq')
-                ->setPageSize($this->kkmHelper->getConfig('general/retry_limit'))
-                ->create()
-        )->getItems();
-
-        /** @var TransactionAttemptInterface $attempt */
-        foreach ($attempts as $attempt) {
-            try {
-                $this->publishRequest($attempt);
-                $attempt->setIsScheduled(false);
-                $this->attemptRepository->save($attempt);
-            } catch (\Exception $e) {
-                $this->kkmHelper->critical($e);
+        foreach ($this->storeRepository->getList() as $store) {
+            $attempts = $this->attemptRepository->getList(
+                $this->searchCriteriaBuilder
+                    ->addFilter(TransactionAttemptInterface::IS_SCHEDULED, true)
+                    ->addFilter(TransactionAttemptInterface::SCHEDULED_AT, $this->dateTime->gmtDate(), 'lteq')
+                    ->addFilter(
+                        TransactionAttemptInterface::NUMBER_OF_TRIALS,
+                        $this->kkmHelper->getMaxTrials($store->getId()),
+                        'lt'
+                    )
+                    ->setPageSize($this->kkmHelper->getConfig('general/retry_limit', $store->getId()))
+                    ->create()
+            )->getItems();
+            /** @var TransactionAttemptInterface $attempt */
+            foreach ($attempts as $attempt) {
+                try {
+                    $this->publishRequest($attempt);
+                    $attempt->setIsScheduled(false);
+                    $this->attemptRepository->save($attempt);
+                } catch (\Exception $e) {
+                    $this->kkmHelper->critical($e);
+                }
             }
         }
     }
