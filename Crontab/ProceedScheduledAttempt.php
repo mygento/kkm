@@ -114,7 +114,7 @@ class ProceedScheduledAttempt
                     $attempt->setIsScheduled(false);
                     $this->attemptRepository->save($attempt);
                 } catch (\Exception $e) {
-                    $this->kkmHelper->critical($e);
+                    $this->kkmHelper->critical($e->getMessage(), ['exception' => $e]);
                 }
             }
         }
