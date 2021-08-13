@@ -619,6 +619,16 @@ class Transaction
     }
 
     /**
+     * @param \Magento\Sales\Api\Data\TransactionInterface $transaction
+     * @param string $status
+     */
+    public function setKkmStatus(TransactionInterface $transaction, string $status): void
+    {
+        $transaction->setKkmStatus($status);
+        $this->transactionRepo->save($transaction);
+    }
+
+    /**
      * @param CreditmemoInterface|EntityInterface|InvoiceInterface $entity
      * @param ResponseInterface $response
      * @param string $type
