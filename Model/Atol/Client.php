@@ -44,11 +44,6 @@ class Client
     private $curlClientFactory;
 
     /**
-     * @var string
-     */
-    private $token;
-
-    /**
      * @var \Mygento\Kkm\Model\Atol\ResponseFactory
      */
     private $responseFactory;
@@ -112,11 +107,11 @@ class Client
             );
         }
 
-        $this->token = $decodedResult['token'];
+        $token = $decodedResult['token'];
 
-        $this->kkmHelper->info('Token: ' . $this->token);
+        $this->kkmHelper->info('Token: ' . $token);
 
-        return $this->token;
+        return $token;
     }
 
     /**
