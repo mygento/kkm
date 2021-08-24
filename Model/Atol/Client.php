@@ -84,9 +84,6 @@ class Client
      */
     public function getToken($storeId = null): string
     {
-        if ($this->token) {
-            return $this->token;
-        }
         $helper = $this->kkmHelper;
         $login = $helper->getAtolLogin($storeId);
         $password = $helper->decrypt($helper->getAtolPassword($storeId));
