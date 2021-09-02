@@ -147,8 +147,13 @@ class Collection extends ParentCollection implements SearchResultInterface
                 ['is_closed' => $isClosedExpression]
             );
 
+        $tableDescription = $this->getConnection()->describeTable($this->getMainTable());
+
+        foreach ($tableDescription as $columnInfo) {
+            $this->addFilterToMap($columnInfo['COLUMN_NAME'], 'main_table.' . $columnInfo['COLUMN_NAME']);
+        }
+
         $this->addFilterToMap('is_closed', $isClosedExpression);
-        $this->addFilterToMap('id', 'main_table.id');
 
         return $this;
     }
