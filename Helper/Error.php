@@ -10,10 +10,6 @@ namespace Mygento\Kkm\Helper;
 
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
-/**
- * Class Error to handle Atol flow errors and fails
- * @package Mygento\Kkm\Helper
- */
 class Error
 {
     const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
@@ -87,9 +83,11 @@ class Error
                 );
             }
 
+            $failStatus = $this->baseHelper->getOrderStatusAfterKkmFail();
+
             $order = $entity->getOrder();
             $order->addStatusToHistory(
-                self::ORDER_KKM_FAILED_STATUS,
+                $failStatus ?: false,
                 $fullMessage
             );
             $this->orderRepository->save($order);

@@ -11,10 +11,6 @@ namespace Mygento\Kkm\Setup\Patch\Data;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Mygento\Kkm\Helper\Error as KkmHelper;
 
-/**
- * Class UpdateOrderStatuses
- * @package Mygento\Kkm\Setup\Patch\Data
- */
 class UpdateOrderStatuses implements DataPatchInterface
 {
     /**

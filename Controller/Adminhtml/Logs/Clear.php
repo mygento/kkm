@@ -10,10 +10,6 @@ namespace Mygento\Kkm\Controller\Adminhtml\Logs;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 
-/**
- * Crutch Class to Clear logs
- * @package Mygento\Kkm\Controller\Adminhtml\Logs
- */
 class Clear extends \Magento\Backend\App\Action
 {
     /**

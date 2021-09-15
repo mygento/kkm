@@ -17,15 +17,55 @@
 
     <preference for="Mygento\Kkm\Api\Processor\SendInterface" type="Mygento\Kkm\Model\Processor\Send"/>
     <preference for="Mygento\Kkm\Api\Processor\UpdateInterface" type="Mygento\Kkm\Model\Processor\Update"/>
+
     <preference for="Mygento\Kkm\Api\Data\UpdateRequestInterface" type="Mygento\Kkm\Model\Atol\UpdateRequest"/>
     <preference for="Mygento\Kkm\Api\Data\UserPropInterface" type="Mygento\Kkm\Model\Atol\UserProp"/>
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
+    <preference for="Mygento\Kkm\Api\ResenderInterface" type="Mygento\Kkm\Model\Resender"/>
     <type name="Mygento\Kkm\Model\VendorFactory">
         <arguments>
             <argument name="vendorFactories" xsi:type="array">
                 <item name="atol" xsi:type="object">Mygento\Kkm\Model\Atol\VendorFactory</item>
                 <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\CheckOnline\VendorFactory</item>
             </argument>
+        </arguments>
+    </type>
+
+    <!--Proxies-->
+    <type name="Mygento\Kkm\Console\UpdateStatus">
+        <arguments>
+            <argument name="transactionHelper" xsi:type="object">Mygento\Kkm\Helper\Transaction\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Controller\Adminhtml\Cheque\Resell">
+        <arguments>
+            <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Controller\Adminhtml\Cheque\Resend">
+        <arguments>
+            <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Controller\Frontend\Callback">
+        <arguments>
+            <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Crontab\Update">
+        <arguments>
+            <argument name="transactionHelper" xsi:type="object">Mygento\Kkm\Helper\Transaction\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\Queue\Consumer\AbstractConsumer">
+        <arguments>
+            <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Observer\Send">
+        <arguments>
+            <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
+            <argument name="messageManager" xsi:type="object">Magento\Framework\Message\ManagerInterface\Proxy</argument>
         </arguments>
     </type>
 
@@ -52,7 +92,6 @@
         </arguments>
     </type>
 
-    <!--Transaction Attempt entity-->
     <preference for="Mygento\Kkm\Api\TransactionAttemptRepositoryInterface" type="Mygento\Kkm\Model\TransactionAttemptRepository"/>
     <preference for="Mygento\Kkm\Api\Data\TransactionAttemptInterface" type="Mygento\Kkm\Model\TransactionAttempt"/>
     <preference for="Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
@@ -61,6 +100,62 @@
             <argument name="entities" xsi:type="array">
                 <item name="Mygento\Kkm\Api\Data\TransactionAttemptInterface" xsi:type="string">Mygento\Kkm\Api\TransactionAttemptRepositoryInterface</item>
             </argument>
+        </arguments>
+    </type>
+    <virtualType name="Mygento\Kkm\Model\SearchCriteria\TransactionAttemptCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor</item>
+                <item name="sorting" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\SortingProcessor</item>
+                <item name="pagination" xsi:type="object">Magento\Framework\Api\SearchCriteria\CollectionProcessor\PaginationProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Mygento\Kkm\Model\TransactionAttemptRepository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">Mygento\Kkm\Model\SearchCriteria\TransactionAttemptCollectionProcessor</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="kkm_transactionattempt_listing_data_source" xsi:type="string">Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">mygento_kkm_transaction_attempt</argument>
+            <argument name="eventPrefix" xsi:type="string">kkm_transactionattempt_grid_collection</argument>
+            <argument name="eventObject" xsi:type="string">transactionattempt_grid_collection</argument>
+            <argument name="resourceModel" xsi:type="string">Mygento\Kkm\Model\ResourceModel\TransactionAttempt</argument>
+        </arguments>
+    </type>
+
+    <virtualType name="Mygento\Kkm\Model\Transaction\Api\SearchCriteria\TransactionCollectionProcessor\FilterProcessor"
+                 type="Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor">
+        <arguments>
+            <argument name="customFilters" xsi:type="array">
+                <item name="store" xsi:type="object">Mygento\Kkm\Model\Transaction\Api\SearchCriteria\FilterProcessor\StoreFilter</item>
+                <item name="updateTimeout" xsi:type="object">Mygento\Kkm\Model\Transaction\Api\SearchCriteria\FilterProcessor\UpdateTimeoutFilter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Mygento\Kkm\Model\Api\SearchCriteria\TransactionCollectionProcessor" type="Magento\Framework\Api\SearchCriteria\CollectionProcessor">
+        <arguments>
+            <argument name="processors" xsi:type="array">
+                <item name="filters" xsi:type="object">Mygento\Kkm\Model\Transaction\Api\SearchCriteria\TransactionCollectionProcessor\FilterProcessor</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Mygento\Kkm\Model\TransactionRepository" type="Magento\Sales\Model\Order\Payment\Transaction\Repository">
+        <arguments>
+            <argument name="collectionProcessor" xsi:type="object">Mygento\Kkm\Model\Api\SearchCriteria\TransactionCollectionProcessor</argument>
+        </arguments>
+    </virtualType>
+    <type name="Mygento\Kkm\Helper\Transaction">
+        <arguments>
+            <argument name="transactionRepo" xsi:type="object">Mygento\Kkm\Model\TransactionRepository</argument>
         </arguments>
     </type>
 </config>

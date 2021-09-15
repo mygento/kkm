@@ -59,7 +59,6 @@ class ProceedScheduledAttempt
     private $storeManager;
 
     /**
-     * Update constructor.
      * @param TransactionAttemptRepositoryInterface $attemptRepository
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher

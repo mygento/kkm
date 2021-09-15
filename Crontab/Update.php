@@ -8,12 +8,15 @@
 
 namespace Mygento\Kkm\Crontab;
 
-use Magento\Framework\DataObject;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterfaceFactory;
+use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
+use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\Atol\Response;
 
 class Update
@@ -32,7 +35,7 @@ class Update
     private $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Transaction\Proxy
+     * @var TransactionHelper
      */
     private $transactionHelper;
 
@@ -47,12 +50,11 @@ class Update
     private $storeManager;
 
     /**
-     * Update constructor.
      * @param UpdateRequestInterfaceFactory $updateRequestFactory
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
+     * @param TransactionHelper $transactionHelper
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     public function __construct(
@@ -60,7 +62,7 @@ class Update
         \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper,
+        TransactionHelper $transactionHelper,
         \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->updateRequestFactory = $updateRequestFactory;
@@ -124,13 +126,12 @@ class Update
     }
 
     /**
-     * @param string $uuid
      * @param int|string $storeId
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Exception
      */
-    private function createUpdateAttempt($uuid, $storeId)
+    private function createUpdateAttempt(string $uuid, $storeId)
     {
-        /** @var TransactionInterface $transaction */
         $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
         if (!$transaction->getTransactionId()) {
             throw new \Exception("Transaction not found. Uuid: {$uuid}");
@@ -142,7 +143,6 @@ class Update
             throw new \Exception("Entity not found. Uuid: {$uuid}");
         }
 
-        /** @var UpdateRequestInterface $updateRequest */
         $updateRequest = $this->updateRequestFactory->create();
         $updateRequest
             ->setUuid($uuid)
@@ -151,9 +151,7 @@ class Update
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);
 
-        if ($updateRequest instanceof DataObject) {
-            $this->kkmHelper->debug('Publish update request: ', $updateRequest->toArray());
-        }
+        $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
 
         $this->updateProcessor->proceedAsync($updateRequest);
     }

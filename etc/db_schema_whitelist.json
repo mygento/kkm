@@ -18,6 +18,8 @@
             "is_scheduled": true,
             "request_json": true,
             "store_id": true
+            "error_code": true,
+            "error_type": true
         },
         "index": {
             "MYGENTO_KKM_TRANSACTION_ATTEMPT_STATUS": true,

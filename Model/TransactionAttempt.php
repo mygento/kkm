@@ -11,10 +11,6 @@ namespace Mygento\Kkm\Model;
 use Magento\Framework\Model\AbstractModel;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
-/**
- * Class TransactionAttempt
- * @package Mygento\Kkm\Model
- */
 class TransactionAttempt extends AbstractModel implements TransactionAttemptInterface
 {
     /**
@@ -53,6 +49,25 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     public function setOrderId($orderId)
     {
         return $this->setData(self::ORDER_ID, $orderId);
+    }
+
+    /**
+     * Get store id
+     * @return int|string|null
+     */
+    public function getStoreId()
+    {
+        return $this->getData(self::STORE_ID);
+    }
+
+    /**
+     * Set order id
+     * @param int|string|null $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId)
+    {
+        return $this->setData(self::STORE_ID, $storeId);
     }
 
     /**
@@ -319,19 +334,41 @@ class TransactionAttempt extends AbstractModel implements TransactionAttemptInte
     }
 
     /**
-     * @inheritDoc
+     * Get error code
+     * @return string|null
      */
-    public function getStoreId()
+    public function getErrorCode()
     {
-        return $this->getData(self::STORE_ID);
+        return $this->getData(self::ERROR_CODE);
     }
 
     /**
-     * @inheritDoc
+     * Set error code
+     * @param string $errorCode
+     * @return $this
      */
-    public function setStoreId($storeId)
+    public function setErrorCode($errorCode)
     {
-        return $this->setData(self::STORE_ID, $storeId);
+        return $this->setData(self::ERROR_CODE, $errorCode);
+    }
+
+    /**
+     * Get error type
+     * @return string|null
+     */
+    public function getErrorType()
+    {
+        return $this->getData(self::ERROR_TYPE);
+    }
+
+    /**
+     * Set error type
+     * @param string $errorType
+     * @return $this
+     */
+    public function setErrorType($errorType)
+    {
+        return $this->setData(self::ERROR_TYPE, $errorType);
     }
 
     /**

@@ -14,10 +14,6 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 
-/**
- * Class Vendor
- * @package Mygento\Kkm\Model\Atol
- */
 interface VendorInterface
 {
     const ALREADY_SENT_FLAG = 'kkm_already_sent';

@@ -12,6 +12,7 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 
 /**
  * Class Request
@@ -70,10 +71,9 @@ class Request
 
     /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @return CreditmemoInterface|InvoiceInterface|OrderInterface
      */
-    public function getEntityByRequest($request)
+    public function getEntityByRequest(RequestInterface $request)
     {
         return $this->getEntityByIdAndOperationType($request->getSalesEntityId(), $request->getOperationType());
     }
@@ -83,7 +83,7 @@ class Request
      * @throws \Exception
      * @return CreditmemoInterface|InvoiceInterface|OrderInterface
      */
-    public function getEntityByUpdateRequest($updateRequest)
+    public function getEntityByUpdateRequest(UpdateRequestInterface $updateRequest)
     {
         return $this->getEntityByUuid($updateRequest->getUuid());
     }
@@ -91,9 +91,9 @@ class Request
     /**
      * @param string $uuid
      * @throws \Exception
-     * @return CreditmemoInterface|InvoiceInterface|OrderInterface
+     * @return CreditmemoInterface|InvoiceInterface
      */
-    public function getEntityByUuid($uuid)
+    public function getEntityByUuid(string $uuid)
     {
         $transaction = $this->transactionHelper->getTransactionByTxnId($uuid);
         if (!$transaction->getTransactionId()) {
@@ -112,7 +112,7 @@ class Request
     /**
      * @param \Mygento\Kkm\Api\Data\RequestInterface $request
      */
-    public function increaseExternalId($request)
+    public function increaseExternalId(RequestInterface $request): void
     {
         if (preg_match('/^(.*)__(\d+)$/', $request->getExternalId(), $matches)) {
             $request->setExternalId($matches[1] . '__' . ($matches[2] + 1));

@@ -10,7 +10,6 @@ namespace Mygento\Kkm\Model\Atol;
 
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
-use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Helper\Transaction;
 
 class Response implements ResponseInterface
@@ -44,7 +43,6 @@ class Response implements ResponseInterface
     private $jsonResponse;
 
     /**
-     * ReportResponse constructor.
      * @param string $jsonRaw
      * @throws \Exception
      */
@@ -69,12 +67,6 @@ class Response implements ResponseInterface
         $this->callbackUrl = $json->callback_url ?? null;
         $this->jsonResponse = json_encode($json);
         // phpcs:enable
-
-        if (!$this->uuid) {
-            throw new VendorBadServerAnswerException(
-                __('Receipt is not registered. Response: %1', (string) $jsonRaw)
-            );
-        }
     }
 
     /**

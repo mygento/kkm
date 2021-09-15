@@ -8,26 +8,30 @@
 
 namespace Mygento\Kkm\Console;
 
-use Magento\Framework\App\State;
 use Magento\Framework\Console\Cli;
+use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Data;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\Request;
-use Mygento\Kkm\Helper\Transaction\Proxy;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class AbstractUpdateStatus extends Command
+class UpdateStatus extends Command
 {
-    /**
-     * @var \Magento\Framework\App\State
-     */
-    protected $appState;
+    private const TRANSACTION_UUID_ARGUMENT = 'transaction_uuid';
+    private const TRANSACTION_UUID_ARGUMENT_DESCRIPTION = 'UUID (Transaction id) or "all" to update all';
+    private const COMMAND = 'mygento:kkm:update';
+    private const COMMAND_DESCRIPTION = 'Get status from Atol and save it.';
+
+    private const RUN_ALL_PARAM = 'all';
 
     /**
-     * @var \Mygento\Kkm\Helper\Transaction\Proxy
+     * @var TransactionHelper
      */
-    protected $transactionHelper;
+    private $transactionHelper;
 
     /**
      * @var \Mygento\Kkm\Api\Processor\UpdateInterface
@@ -45,42 +49,99 @@ class AbstractUpdateStatus extends Command
     protected $requestHelper;
 
     /**
-     * AbstractUpdateStatus constructor.
+     * @var \Magento\Store\Api\StoreRepositoryInterface
+     */
+    private $storeRepository;
+
+    /**
+     * UpdateStatus constructor.
      * @param \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor
-     * @param \Mygento\Kkm\Helper\Transaction\Proxy $transactionHelper
-     * @param \Magento\Framework\App\State $state
+     * @param TransactionHelper $transactionHelper
+     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      */
     public function __construct(
         UpdateInterface $updateProcessor,
-        Proxy $transactionHelper,
-        State $state,
+        TransactionHelper $transactionHelper,
+        StoreRepositoryInterface $storeRepository,
         Data $kkmHelper,
         Request $requestHelper
     ) {
         parent::__construct();
 
-        $this->appState = $state;
         $this->updateProcessor = $updateProcessor;
         $this->transactionHelper = $transactionHelper;
+        $this->storeRepository = $storeRepository;
         $this->kkmHelper = $kkmHelper;
         $this->requestHelper = $requestHelper;
     }
 
     /**
-     * @param array $uuids
+     * @param \Symfony\Component\Console\Input\InputInterface $input
      * @param \Symfony\Component\Console\Output\OutputInterface $output
+     * @throws \Exception
      * @throws \Magento\Framework\Exception\LocalizedException
+     * @return int|null
      */
-    protected function updateUuids($uuids, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $i = 1;
-        foreach ($uuids as $uuid) {
-            $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
-            $this->updateOne($output, $uuid);
-            $i++;
+        $transactionUuid = $input->getArgument(self::TRANSACTION_UUID_ARGUMENT);
+
+        if ($transactionUuid !== self::RUN_ALL_PARAM) {
+            $entityStoreId = $this->getEntityStoreId($transactionUuid);
+
+            if (!$this->kkmHelper->isVendorNeedUpdateStatus($entityStoreId)) {
+                $output->writeln($this->getNoNeedUpdateMessage($entityStoreId));
+
+                return Cli::RETURN_SUCCESS;
+            }
+
+            $output->writeln("<comment>Updating {$transactionUuid} ...</comment>");
+
+            return $this->updateOne($output, $transactionUuid);
         }
+
+        $i = 1;
+        foreach ($this->storeRepository->getList() as $store) {
+            if (!$this->kkmHelper->isVendorNeedUpdateStatus($store->getId())) {
+                $output->writeln($this->getNoNeedUpdateMessage($store->getId()));
+            }
+
+            $uuids = $this->transactionHelper->getWaitUuidsByStore($store->getId());
+            foreach ($uuids as $uuid) {
+                $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
+                $this->updateOne($output, $uuid);
+                $i++;
+            }
+        }
+
+        return Cli::RETURN_SUCCESS;
+    }
+
+    /**
+     * Configure the command
+     */
+    protected function configure()
+    {
+        $this->setName(self::COMMAND);
+        $this->setDescription(self::COMMAND_DESCRIPTION);
+        $this->addArgument(
+            self::TRANSACTION_UUID_ARGUMENT,
+            InputArgument::REQUIRED,
+            self::TRANSACTION_UUID_ARGUMENT_DESCRIPTION
+        );
+        $this->setHelp(
+            <<<HELP
+This command updates status of transaction.
+To update one:
+      <comment>%command.full_name% 290f5207-e555-402d-88b6-fcccab9a4024</comment>
+To update all transaction with status 'wait':
+      <comment>%command.full_name% </comment>
+HELP
+            . self::RUN_ALL_PARAM
+        );
+        parent::configure();
     }
 
     /**
@@ -94,6 +155,16 @@ class AbstractUpdateStatus extends Command
             $this->kkmHelper->getCurrentVendorCode($storeId),
             $storeId
         );
+    }
+
+    /**
+     * @param string $uuid
+     * @throws \Exception
+     * @return int|null
+     */
+    private function getEntityStoreId($uuid)
+    {
+        return $this->requestHelper->getEntityByUuid($uuid)->getStoreId();
     }
 
     /**

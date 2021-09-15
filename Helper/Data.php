@@ -11,15 +11,12 @@ namespace Mygento\Kkm\Helper;
 use Exception;
 use Mygento\Kkm\Model\VendorFactory;
 
-/**
- * Class Data
- */
 class Data extends \Mygento\Base\Helper\Data
 {
-    const CONFIG_CODE = 'mygento_kkm';
+    public const CONFIG_CODE = 'mygento_kkm';
 
-    const CFG_ATTRIBUTE_VALUE = 'attribute_value';
-    const CFG_JUR_TYPE = 'jur_type';
+    public const CFG_ATTRIBUTE_VALUE = 'attribute_value';
+    public const CFG_JUR_TYPE = 'jur_type';
 
     private const CONFIG_PATH_TEST_MODE = 'general/test_mode';
 
@@ -51,7 +48,7 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string $param
-     * @param string|null $scopeCode
+     * @param int|string|null $scopeCode
      * @return string
      */
     public function getConfig($param, $scopeCode = null)
@@ -60,39 +57,39 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @param string|null $storeId
-     * @throws Exception
+     * @param int|string|null $storeId
+     * @throws \Exception
      * @return string
      */
     public function getAtolLogin($storeId = null)
     {
         $login = $this->getConfig('atol/login', $storeId);
 
-        if ($login == false) {
+        if (!$login) {
             throw new Exception('No login specified.');
         }
 
-        return (string) $login;
+        return $login;
     }
 
     /**
-     * @param string|null $storeId
-     * @throws Exception
+     * @param int|string|null $storeId
+     * @throws \Exception
      * @return string
      */
     public function getAtolPassword($storeId = null)
     {
         $passwd = $this->getConfig('atol/password', $storeId);
 
-        if ($passwd == false) {
+        if (!$passwd) {
             throw new Exception('No password specified.');
         }
 
-        return (string) $passwd;
+        return $passwd;
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return string|null
      */
     public function getStoreEmail($storeId = null)
@@ -101,26 +98,57 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return bool
      */
-    public function isTestMode(?string $storeId = null): bool
+    public function isTestMode($storeId = null): bool
     {
         return (bool) $this->getConfig(self::CONFIG_PATH_TEST_MODE, $storeId);
     }
 
     /**
-     * @param string|null $storeId
+     * @return array
+     */
+    public function getAtolNonFatalErrorCodes()
+    {
+        $atolNonFatalErrorCodes = $this->getConfig('atol/error_codes/non_fatal_error_codes');
+
+        return trim($atolNonFatalErrorCodes)
+            ? array_filter(array_map('trim', explode(',', $atolNonFatalErrorCodes)))
+            : [];
+    }
+
+    /**
+     * @param string $errorCode
+     * @param string $errorType
+     */
+    public function isAtolNonFatalError($errorCode, $errorType)
+    {
+        $atolNonFatalErrors = $this->getAtolNonFatalErrorCodes();
+
+        return in_array($errorType . '_' . $errorCode, $atolNonFatalErrors);
+    }
+
+    /**
+     * @param int|string|null $storeId
      * @return bool
      */
-    public function isMessageQueueEnabled($storeId = null)
+    public function isMessageQueueEnabled($storeId = null): bool
     {
         return (bool) $this->getConfig('general/async_enabled', $storeId);
     }
 
     /**
-     * @param string|null $storeId
      * @return string
+     */
+    public function getOrderStatusAfterKkmFail()
+    {
+        return $this->getConfig('general/fail_status');
+    }
+
+    /**
+     * @param int|string|null $storeId
+     * @return false|string
      */
     public function getOrderStatusAfterKkmTransactionDone($storeId = null)
     {
@@ -128,28 +156,28 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return bool
      */
-    public function isRetrySendingEndlessly($storeId = null)
+    public function isRetrySendingEndlessly($storeId = null): bool
     {
         return (bool) $this->getConfig('general/is_retry_sending_endlessly', $storeId);
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return bool
      */
-    public function isUseCustomRetryIntervals($storeId = null)
+    public function isUseCustomRetryIntervals($storeId = null): bool
     {
         return (bool) $this->getConfig('general/is_use_custom_retry_intervals', $storeId);
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return array
      */
-    public function getCustomRetryIntervals($storeId = null)
+    public function getCustomRetryIntervals($storeId = null): array
     {
         $customRetryIntervals = $this->getConfig('general/retry_intervals', $storeId);
 
@@ -159,25 +187,25 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return int
      */
-    public function getMaxTrials($storeId = null)
+    public function getMaxTrials($storeId = null): int
     {
         return (int) $this->getConfig('general/max_trials', $storeId);
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return int
      */
-    public function getMaxUpdateTrials($storeId = null)
+    public function getMaxUpdateTrials($storeId = null): int
     {
         return (int) $this->getConfig('general/max_update_trials', $storeId);
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return bool
      */
     public function isMarkingEnabled($storeId = null): bool
@@ -188,28 +216,28 @@ class Data extends \Mygento\Base\Helper\Data
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return string
      */
-    public function getMarkingShouldField($storeId = null)
+    public function getMarkingShouldField($storeId = null): string
     {
         return $this->getConfig('marking/marking_status_field', $storeId) ?: '';
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return string
      */
-    public function getMarkingField($storeId = null)
+    public function getMarkingField($storeId = null): string
     {
         return $this->getConfig('marking/marking_mark_field', $storeId) ?: '';
     }
 
     /**
-     * @param string|null $storeId
+     * @param int|string|null $storeId
      * @return string
      */
-    public function getMarkingRefundField($storeId = null)
+    public function getMarkingRefundField($storeId = null): string
     {
         return $this->getConfig('marking/marking_refund_field', $storeId) ?: '';
     }

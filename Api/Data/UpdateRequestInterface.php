@@ -10,10 +10,10 @@ namespace Mygento\Kkm\Api\Data;
 
 interface UpdateRequestInterface
 {
-    const UPDATE_OPERATION_TYPE = 3;
+    public const UPDATE_OPERATION_TYPE = 3;
 
-    const UUID = 'uuid';
-    const ENTITY_STORE_ID = 'entity_store_id';
+    public const UUID = 'uuid';
+    public const STORE_ID = 'store_id';
 
     /**
      * Get uuid

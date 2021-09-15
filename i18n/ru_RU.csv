@@ -81,6 +81,18 @@ Spread Discount evenly,Размазывать скидку равномерно
 Split items allowed,Разделять позицию на 2
 Ability to split 1 item to 2 with different prices (if needed),Возможность разделять товарную позицию на 2, если цена не делится с точностью до копеек
 "Limit when processing scheduled attempts","Лимит при обработки очередей с задержкой"
+"Error Codes","Коды ошибок"
+"Non Fatal Error Codes","Коды некритических ошибок"
+"Attempts with these error codes will be sent with new external_id","Попытки с данными кодами ошибок будут переотправлены с новым external_id"
+"System Errors","Системные ошибки"
+"Timeout errors","Ошибки времени ожидания"
+"Cash machine errors: Agent Errors","Ошибки при работе с ККТ: ошибки типа Agent"
+"Cash machine errors: Driver Errors","Ошибки при работе с ККТ: ошибки типа Driver"
+"Unknown Errors","Неизвестные ошибки"
+"Cheque was placed to queue for further sending", "Чек был добавлен в очередь для дальнейшей отправки"
+"Cheque was sent to KKM", "Чек был отправлен в KKM"
+"Failed resend for attempts with ids: %1", "Неудачная переотправка попыток с id: %1"
+"Successful resend for attempts with ids: %1", "Успешная переотправка попыток с id: %1"
 "Service used","Используемый сервис"
 "Current vendor ""%1"" does not need update status.","Для используемого сервиса ""%1"" не нужно проверять статус."
 "Will be extracted from the certificate by default. Fill in if one certificate is used for several enterprises.","Идентификатор предприятия. По умолчанию будет извлечено из сертификата. Передаётся только в случае использования одного сертификата на несколько предприятий."

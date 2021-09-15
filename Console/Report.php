@@ -19,9 +19,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class Report
- * @package Mygento\Kkm\Console
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Report extends Command

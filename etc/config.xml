@@ -12,6 +12,9 @@
             <atol>
                 <!--<api_version>4</api_version>-->
                 <test_mode>1</test_mode>
+                <error_codes>
+                    <non_fatal_error_codes>system_20,system_31,system_32,timeout_1,agent_1,agent_2,agent_3,agent_4,driver_-1,driver_-6,driver_-12,driver_-15,driver_-16,driver_-20,driver_-21,driver_-199,driver_-3803,driver_-3804,driver_-3805,driver_-3809,driver_-3810,driver_-3813,driver_-3816,driver_-3817,driver_-3818,driver_-3819,driver_-3822,driver_-3823,driver_-3825,driver_-3830,driver_-3831,driver_-3835,driver_-3863,driver_-3895,driver_-3896,driver_-3897,driver_-3905,driver_-3906,driver_-3910,driver_-3911,driver_-3912,driver_-3913,driver_-3914,driver_-3915,driver_-3916,driver_-3917,driver_-3919,driver_-3922,driver_-3924,driver_-3929,driver_-3932,driver_-3933,driver_-3934,driver_-3935,driver_-3936,driver_-3957,driver_-3965,driver_-3969,driver_-3970,driver_-3975,driver_-3976,driver_-3978,driver_-3979,driver_-3980,driver_-4021,driver_-4022,driver_-4025</non_fatal_error_codes>
+                </error_codes>
             </atol>
             <checkonline>
                 <test_mode>1</test_mode>

@@ -9,8 +9,9 @@
 namespace Mygento\Kkm\Model\Atol;
 
 use Magento\Framework\DataObject;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 
-class UpdateRequest extends DataObject implements \Mygento\Kkm\Api\Data\UpdateRequestInterface
+class UpdateRequest extends DataObject implements UpdateRequestInterface
 {
     /**
      * Get uuid

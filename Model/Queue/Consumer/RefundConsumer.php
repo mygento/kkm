@@ -8,11 +8,14 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+
 class RefundConsumer extends AbstractConsumer
 {
     /**
      * @param \Mygento\Kkm\Api\Queue\MergedRequestInterface $mergedRequest
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws LocalizedException|NoSuchEntityException
      */
     public function sendMergedRequest($mergedRequest)
     {

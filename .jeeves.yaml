@@ -1,7 +1,7 @@
 Mygento:
   Kkm:
     TransactionAttempt:
-      gui: false
+      readonly: true
       comment: 'Table for kkm transaction attempts'
       columns:
         id:
@@ -15,6 +15,11 @@ Mygento:
           nullable: false
           unsigned: true
           comment: 'Order id'
+        store_id:
+            type: int
+            nullable: false
+            unsigned: true
+            comment: 'Store id'
         txn_type:
           type: varchar
           length: 15
@@ -77,6 +82,17 @@ Mygento:
           type: longtext
           nullable: true
           comment: 'Request Json'
+        error_code:
+          type: varchar
+          length: 15
+          nullable: true
+          comment: 'Error Code'
+        error_type:
+          type: varchar
+          length: 50
+          nullable: true
+          comment: 'Error Type'
+          source: 'Mygento\Kkm\Model\Source\Atol\ErrorType'
       indexes:
         IX_STATUS:
           columns: ['status']

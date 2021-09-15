@@ -19,21 +19,21 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Mygento\Kkm\Exception\AuthorizationException;
 use Mygento\Kkm\Exception\CreateDocumentFailedException;
+use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 use Mygento\Kkm\Helper\OrderComment;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
+use Mygento\Kkm\Model\Source\Atol\ErrorType;
 
 /**
- * Class Vendor
- * @package Mygento\Kkm\Model\Atol
- *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\StatusUpdatable
 {
-    const CLIENT_NAME = 'client_name';
-    const CLIENT_INN = 'client_inn';
+    public const CLIENT_NAME = 'client_name';
+    public const CLIENT_INN = 'client_inn';
 
     /**
      * @var \Mygento\Kkm\Helper\Data
@@ -314,7 +314,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
         $maxUpdateTrials = $this->kkmHelper->getMaxUpdateTrials($entity->getStoreId());
 
         //Don't send if trials number exceeded
-        if ($trials >= $maxUpdateTrials) {
+        if ($trials >= $maxUpdateTrials && !$this->kkmHelper->isRetrySendingEndlessly($entity->getStoreId())) {
+            $this->transactionHelper->setKkmStatus($transaction, ResponseInterface::STATUS_FAIL);
             $this->kkmHelper->debug('Request is skipped. Max num of trials exceeded while update');
 
             throw new \Exception(__('Request is skipped. Max num of trials exceeded while update'));
@@ -357,6 +358,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
      * @throws \Throwable
      * @throws CreateDocumentFailedException
      * @return ResponseInterface
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     private function sendRequest($request, $callback, $entity = null): ResponseInterface
     {
@@ -380,9 +382,14 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
 
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt($request, $entity);
+        $attempt
+            ->setErrorCode(null)
+            ->setErrorType(null);
+        $response = null;
 
         try {
             //Make Request to Vendor's API
+            /** @var \Mygento\Kkm\Api\Data\ResponseInterface $response */
             $response = $this->apiClient->{$callback}($request);
 
             //Save transaction data
@@ -394,8 +401,36 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
 
             //Mark attempt as Sent
             $this->attemptHelper->finishAttempt($attempt);
+        } catch (AuthorizationException $e) {
+            if ($e->getErrorCode() && $e->getErrorType()) {
+                $attempt->setErrorCode($e->getErrorCode());
+                $attempt->setErrorType($e->getErrorType());
+            }
+
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        } catch (VendorBadServerAnswerException $e) {
+            $attempt->setErrorType(ErrorType::BAD_SERVER_ANSWER);
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
+        } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
+            $attempt->setErrorType(ErrorType::UNKNOWN);
+            $response = $e->getResponse();
+
+            if ($response && $response->getErrorCode() && $response->getErrorType()) {
+                $attempt
+                    ->setErrorCode($response->getErrorCode())
+                    ->setErrorType($response->getErrorType());
+            }
+
+            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+
+            throw $e;
         } catch (\Throwable $e) {
             //Mark attempt as Error
+            $attempt->setErrorType(ErrorType::UNKNOWN);
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
 
             throw $e;
@@ -411,9 +446,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
      */
     private function validateResponse($response)
     {
-        if ($response->isFailed()) {
+        if ($response->isFailed() || !$response->getUuid()) {
             throw new CreateDocumentFailedException(
-                __('Response is failed or invalid.'),
+                __('Response is failed or invalid. Message: %1', $response->getMessage()),
                 $response
             );
         }
@@ -436,30 +471,74 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
      */
     private function validateErrorCode($response)
     {
-        //Ошибки при работе с ККТ (cash machine errors)
-        if ($response->getErrorCode() < 0) {
-            //increment EID and send it
-            throw new VendorNonFatalErrorException();
+        $isNonFatalError = $this->kkmHelper->isAtolNonFatalError(
+            $response->getErrorCode(),
+            $response->getErrorType()
+        );
+
+        if ($isNonFatalError) {
+            throw new VendorNonFatalErrorException(
+                __(
+                    'Error response from ATOL with code %1. Need to resend with new external_id.',
+                    $response->getErrorCode()
+                ),
+                $response
+            );
         }
 
-        switch ($response->getErrorCode()) {
-            case '1': //Timeout
-            case '2': //Incorrect INN (if type = agent) or incorrect Group_Code or Operation
-            case '3': //Incorrect Operation
-            case '8': //Validation error.
-            case '22': //Incorrect group_code
-                throw new VendorNonFatalErrorException(
-                    __(
-                        'Error response from ATOL with code %1. Need to resend with new external_id.',
-                        $response->getErrorCode()
-                    )
-                );
+        throw new CreateDocumentFailedException(
+            __('Error response from ATOL with code %1.', $response->getErrorCode()),
+            $response
+        );
+    }
 
-            default:
-                throw new CreateDocumentFailedException(
-                    __('Error response from ATOL with code %1.', $response->getErrorCode()),
-                    $response
-                );
+    /**
+     * @param RecalculateResultItemInterface $item
+     * @throws \Exception
+     */
+    private function validateItem(RecalculateResultItemInterface $item)
+    {
+        $reason = false;
+        if (!isset($item['name']) || $item['name'] === null || $item['name'] === '') {
+            $reason = __('One of items has undefined name.');
         }
+
+        if (!isset($item['tax']) || $item['tax'] === null) {
+            $reason = __('Item %1 has undefined tax.', $item['name']);
+        }
+
+        if ($reason) {
+            throw new \Exception(
+                __('Can not send data to Atol. Reason: %1', $reason)
+            );
+        }
+    }
+
+    /**
+     * @param string $marking
+     * @return string
+     */
+    private function convertMarkingToHex(string $marking): string
+    {
+        $productCode = '444D';
+        $gtin = substr($marking, 2, $this->kkmHelper->getConfig('marking/gtin_length'));
+        $serialNumber = substr($marking, 2 + $this->kkmHelper->getConfig('marking/gtin_length') + 2);
+        $gtinHex = $this->normalizeHex(dechex($gtin));
+        $serialHex = $this->normalizeHex(bin2hex($serialNumber));
+
+        return trim(chunk_split(strtoupper($productCode . $gtinHex . $serialHex), 2, ' '));
+    }
+
+    /**
+     * @param string $hex
+     * @return string
+     */
+    private function normalizeHex(string $hex): string
+    {
+        if (strlen($hex) % 2 > 0) {
+            $hex = '0' . $hex;
+        }
+
+        return $hex;
     }
 }

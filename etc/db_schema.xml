@@ -4,7 +4,7 @@
         <column xsi:type="int" name="id" nullable="false" identity="true" unsigned="true" padding="10" comment="Attempt ID"/>
         <column xsi:type="int" name="parent_id" nullable="true" unsigned="true" padding="10" comment="Parent attempt ID"/>
         <column xsi:type="int" name="order_id" nullable="false" identity="false" unsigned="true" padding="10" comment="Order id"/>
-        <column xsi:type="smallint" name="store_id" nullable="true" identity="false" unsigned="true" padding="5" comment="Store id"/>
+        <column xsi:type="int" name="store_id" nullable="false" default="0" identity="false" unsigned="true" padding="10" comment="Store id"/>
         <column xsi:type="varchar" name="txn_type" nullable="true" length="15" comment="Txn Type"/>
         <column xsi:type="smallint" name="operation" nullable="false" identity="false" unsigned="false" padding="10" comment="Operation type. Sell or Refund."/>
         <column xsi:type="int" name="sales_entity_id" nullable="false" identity="false" unsigned="true" padding="10" comment="Invoice or Creditmemo id"/>
@@ -18,6 +18,8 @@
         <column xsi:type="timestamp" name="scheduled_at" nullable="false" default="CURRENT_TIMESTAMP" on_update="false" comment="Scheduled At"/>
         <column xsi:type="boolean" name="is_scheduled" nullable="false" default="0" comment="Is Scheduled"/>
         <column xsi:type="longtext" name="request_json" nullable="true" comment="Request Json"/>
+        <column xsi:type="varchar" name="error_code" nullable="true" length="15" comment="Error Code"/>
+        <column xsi:type="varchar" name="error_type" nullable="true" length="50" comment="Error Type"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>

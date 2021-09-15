@@ -90,6 +90,7 @@ class Send implements SendInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return bool
      */
     public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)

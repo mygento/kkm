@@ -49,6 +49,16 @@
                 <field id="callback_url" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Callback URL</label>
                 </field>
+                <group id="error_codes" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Error Codes</label>
+                    <field id="non_fatal_error_codes" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1"
+                           showInStore="1">
+                        <label>Non Fatal Error Codes</label>
+                        <source_model>Mygento\Kkm\Model\Source\Atol\ErrorCode</source_model>
+                        <frontend_class>validate-select</frontend_class>
+                        <comment>Attempts with these error codes will be sent with new external_id</comment>
+                    </field>
+                </group>
             </group>
 
             <group id="checkonline" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -180,14 +190,14 @@
                         <field id="*/*/default_shipping_name">0</field>
                     </depends>
                 </field>
-                <!--<field id="fail_status" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">-->
-                    <!--<label>Sending cheque fail status</label>-->
-                    <!--<source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>-->
-                    <!--<comment>-->
-                        <!--<![CDATA[Set this status to order if sending data to KKM vendor failed.]]>-->
-                    <!--</comment>-->
-                <!--</field>-->
-                <field id="order_status_after_kkm_transaction_done" translate="label" type="select" sortOrder="171" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="fail_status" translate="label" type="select" sortOrder="171" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Sending cheque fail status</label>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                    <comment>
+                        <![CDATA[Set this status to order if sending data to KKM vendor failed.]]>
+                    </comment>
+                </field>
+                <field id="order_status_after_kkm_transaction_done" translate="label" type="select" sortOrder="172" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Order status after kkm transaction done</label>
                     <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
                     <comment>Only for orders with 'KKM Failed' status</comment>

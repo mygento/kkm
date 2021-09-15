@@ -47,7 +47,7 @@ $notSent = array_merge($statistics->getFails(), $statistics->getUnknowns(), $sta
                         <th style="padding: 0 0 0 15px;">Сообщение</th>
                     </tr>
                     <?php foreach ($notSent as $item): ?>
-                    <?php
+                        <?php
                         $additional = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);
                         $incrementId = $additional[Transaction::INCREMENT_ID_KEY] ?? null;
                         $message = $additional[Transaction::ERROR_MESSAGE_KEY]

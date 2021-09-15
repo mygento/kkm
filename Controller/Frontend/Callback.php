@@ -26,7 +26,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     private $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error\Proxy
+     * @var \Mygento\Kkm\Helper\Error
      */
     private $errorHelper;
 
@@ -49,7 +49,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
      * Callback constructor.
      * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Helper\Error $errorHelper
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Mygento\Kkm\Helper\Resell $resellHelper
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
@@ -58,7 +58,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     public function __construct(
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Helper\Error $errorHelper,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Mygento\Kkm\Helper\Resell $resellHelper,
         \Mygento\Kkm\Api\Processor\SendInterface $processor,

@@ -12,6 +12,7 @@ interface TransactionAttemptInterface
 {
     public const ID = 'id';
     public const ORDER_ID = 'order_id';
+    public const STORE_ID = 'store_id';
     public const TXN_TYPE = 'txn_type';
     public const OPERATION = 'operation';
     public const SALES_ENTITY_ID = 'sales_entity_id';
@@ -26,7 +27,8 @@ interface TransactionAttemptInterface
     public const IS_SCHEDULED = 'is_scheduled';
     public const REQUEST_JSON = 'request_json';
     public const PARENT_ID = 'parent_id';
-    public const STORE_ID = 'store_id';
+    public const ERROR_CODE = 'error_code';
+    public const ERROR_TYPE = 'error_type';
 
     const OPERATION_LABEL = [
         1 => 'Payment',
@@ -65,6 +67,19 @@ interface TransactionAttemptInterface
      * @return $this
      */
     public function setOrderId($orderId);
+
+    /**
+     * Get store id
+     * @return int|string|null
+     */
+    public function getStoreId();
+
+    /**
+     * Set order id
+     * @param int|string|null $storeId
+     * @return $this
+     */
+    public function setStoreId($storeId);
 
     /**
      * Get txn type
@@ -249,13 +264,28 @@ interface TransactionAttemptInterface
     public function setParentId($id);
 
     /**
-     * @return int|null
+     * Get error code
+     * @return string|null
      */
-    public function getStoreId();
+    public function getErrorCode();
 
     /**
-     * @param int|string $storeId
+     * Set error code
+     * @param string|null $errorCode
      * @return $this
      */
-    public function setStoreId($storeId);
+    public function setErrorCode($errorCode);
+
+    /**
+     * Get error type
+     * @return string|null
+     */
+    public function getErrorType();
+
+    /**
+     * Set error type
+     * @param string|null $errorType
+     * @return $this
+     */
+    public function setErrorType($errorType);
 }

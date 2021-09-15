@@ -33,7 +33,7 @@ class Resell extends \Magento\Backend\App\Action
     private $processor;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error\Proxy
+     * @var \Mygento\Kkm\Helper\Error
      */
     private $errorHelper;
 
@@ -43,9 +43,8 @@ class Resell extends \Magento\Backend\App\Action
     private $resellHelper;
 
     /**
-     * Resend constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Helper\Error $errorHelper
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param \Mygento\Kkm\Helper\Resell $resellHelper
      * @param \Magento\Backend\App\Action\Context $context
@@ -53,7 +52,7 @@ class Resell extends \Magento\Backend\App\Action
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Helper\Error $errorHelper,
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Mygento\Kkm\Helper\Resell $resellHelper,
         \Magento\Backend\App\Action\Context $context,
