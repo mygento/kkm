@@ -50,7 +50,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     private $requestHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error\Proxy
+     * @var \Mygento\Kkm\Helper\Error
      */
     private $errorHelper;
 
@@ -70,7 +70,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      * @param \Mygento\Kkm\Helper\Request $requestHelper
-     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Helper\Error $errorHelper
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Model\Processor\Update $updateProcessor
      * @param \Mygento\Kkm\Helper\OrderComment $orderComment
@@ -80,7 +80,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         \Mygento\Kkm\Helper\Data $helper,
         \Magento\Framework\MessageQueue\PublisherInterface $publisher,
         \Mygento\Kkm\Helper\Request $requestHelper,
-        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Helper\Error $errorHelper,
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\Processor\Update $updateProcessor,
         \Mygento\Kkm\Helper\OrderComment $orderComment

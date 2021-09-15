@@ -45,7 +45,6 @@
         </constraint>
         <constraint xsi:type="foreign" referenceId="FK_ATTMPT_ORDER_ID_SAL_ORDER_ENT_ID" table="mygento_kkm_transaction_attempt" column="order_id" referenceTable="sales_order" referenceColumn="entity_id" onDelete="CASCADE"/>
         <constraint xsi:type="foreign" referenceId="FK_KKM_ATTMPT_PARENT_ID_KKM_ATTMPT_ID" table="mygento_kkm_transaction_attempt" column="parent_id" referenceTable="mygento_kkm_transaction_attempt" referenceColumn="id" onDelete="CASCADE"/>
-        <constraint xsi:type="foreign" referenceId="FK_KKM_ATTMPT_STORE_ID_STORE_STORE_ID" table="mygento_kkm_transaction_attempt" column="store_id" referenceTable="store" referenceColumn="store_id" onDelete="CASCADE"/>
     </table>
 
     <!--Add column to Payment Transaction table-->

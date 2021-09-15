@@ -135,7 +135,7 @@ class RequestBuilder extends AbstractRequestBuilder
             : '';
 
         $request
-            ->setEntityStoreId($storeId)
+            ->setStoreId($storeId)
             ->setExternalId($this->generateExternalId($salesEntity))
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setEmail($order->getCustomerEmail())

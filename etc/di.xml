@@ -7,8 +7,7 @@
             <argument name="commands" xsi:type="array">
                 <item name="sendSellToKkm" xsi:type="object">Mygento\Kkm\Console\SendSell</item>
                 <item name="sendSellRefundToKkm" xsi:type="object">Mygento\Kkm\Console\SendRefund</item>
-                <item name="updateStatusAll" xsi:type="object">Mygento\Kkm\Console\UpdateAll</item>
-                <item name="updateStatusOne" xsi:type="object">Mygento\Kkm\Console\UpdateOne</item>
+                <item name="updateStatus" xsi:type="object">Mygento\Kkm\Console\UpdateStatus</item>
                 <item name="sendResellToKkm" xsi:type="object">Mygento\Kkm\Console\SendResell</item>
                 <item name="showReport" xsi:type="object">Mygento\Kkm\Console\Report</item>
             </argument>
@@ -57,7 +56,7 @@
             <argument name="transactionHelper" xsi:type="object">Mygento\Kkm\Helper\Transaction\Proxy</argument>
         </arguments>
     </type>
-    <type name="Mygento\Kkm\Model\Queue\Consumer\AbstractConsumer">
+    <type name="Mygento\Kkm\Model\Queue\Consumer\Atol\ConsumerProcessor">
         <arguments>
             <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
         </arguments>

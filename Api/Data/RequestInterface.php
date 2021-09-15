@@ -269,15 +269,4 @@ interface RequestInterface
      * @return $this
      */
     public function setAdditionalCheckProps($checkProps): self;
-
-    /**
-     * @return int|string
-     */
-    public function getEntityStoreId();
-
-    /**
-     * @param int|string $storeId
-     * @return $this
-     */
-    public function setEntityStoreId($storeId): self;
 }

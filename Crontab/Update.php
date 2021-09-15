@@ -98,7 +98,7 @@ class Update
 
         $this->kkmHelper->info('KKM Update statuses Cron START');
 
-        $uuids = $this->transactionHelper->getAllWaitUuids($storeId);
+        $uuids = $this->transactionHelper->getWaitUuidsByStore($storeId);
 
         $result = [];
         $i = 0;

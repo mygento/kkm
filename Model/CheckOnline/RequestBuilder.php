@@ -101,7 +101,7 @@ class RequestBuilder extends AbstractRequestBuilder
             : '';
 
         $request
-            ->setEntityStoreId($storeId)
+            ->setStoreId($storeId)
             ->setSalesEntityId($salesEntity->getEntityId())
             ->setClientId($this->kkmHelper->getConfig('checkonline/client_id', $storeId))
             ->setGroup($this->kkmHelper->getConfig('checkonline/group', $storeId))

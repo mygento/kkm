@@ -131,7 +131,7 @@ class Request
         $message = $this->queueMessageFactory->create();
         $message
             ->setEntityId($request->getSalesEntityId())
-            ->setEntityStoreId($request->getEntityStoreId())
+            ->setEntityStoreId($request->getStoreId())
             ->setOperationType($request->getOperationType());
 
         return $message;

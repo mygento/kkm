@@ -86,7 +86,7 @@ class Client
      */
     public function sendPostRequest($request): ResponseInterface
     {
-        $entityStoreId = $request->getEntityStoreId();
+        $entityStoreId = $request->getStoreId();
         $debugData = [];
         $url = $debugData['url'] = $this->getUrl($entityStoreId);
         $this->kkmHelper->info('START Sending ' . $request->getEntityType());

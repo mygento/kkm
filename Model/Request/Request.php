@@ -510,23 +510,4 @@ abstract class Request implements \JsonSerializable, RequestInterface
 
         return $this;
     }
-
-    /**
-     * @return int|string
-     */
-    public function getEntityStoreId()
-    {
-        return $this->entityStoreId;
-    }
-
-    /**
-     * @param int|string $storeId
-     * @return RequestInterface
-     */
-    public function setEntityStoreId($storeId): RequestInterface
-    {
-        $this->entityStoreId = $storeId;
-
-        return $this;
-    }
 }

@@ -17,7 +17,7 @@
             "scheduled_at": true,
             "is_scheduled": true,
             "request_json": true,
-            "store_id": true
+            "store_id": true,
             "error_code": true,
             "error_type": true
         },
@@ -32,8 +32,7 @@
             "UNQ_C25BBFFBD4D1C59FE6BF140EFB4852F0": true,
             "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID_SALES_ORDER_ENTITY_ID": true,
             "FK_CFECB3C346D292C3B779AC43203C200E": true,
-            "UNQ_32A3A4FB4F4D50876D225D9A9E8DD7B2": true,
-            "MYGENTO_KKM_TRANSACTION_ATTEMPT_STORE_ID_STORE_STORE_ID": true
+            "UNQ_32A3A4FB4F4D50876D225D9A9E8DD7B2": true
         }
     },
     "sales_payment_transaction": {
