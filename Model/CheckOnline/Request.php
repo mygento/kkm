@@ -167,9 +167,9 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getGroup(): string
+    public function getGroup(): ?string
     {
         return $this->group;
     }
