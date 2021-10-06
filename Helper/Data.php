@@ -264,9 +264,8 @@ class Data extends \Mygento\Base\Helper\Data
     /**
      * @param string|null $storeId
      * @throws \Magento\Framework\Exception\InvalidArgumentException
-     * @return bool
      */
-    public function isVendorNeedUpdateStatus($storeId = null)
+    public function isVendorNeedUpdateStatus($storeId = null): bool
     {
         $vendor = $this->getCurrentVendor($storeId);
 

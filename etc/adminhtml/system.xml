@@ -37,7 +37,7 @@
                 </field>
                 <field id="sno" translate="label" type="select" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>SNO</label>
-                    <source_model>Mygento\Kkm\Model\Source\Sno</source_model>
+                    <source_model>Mygento\Kkm\Model\Source\Atol\Sno</source_model>
                     <comment>
                         <![CDATA[Система налогообложения]]>
                     </comment>

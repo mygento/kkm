@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2021 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2020 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -24,6 +24,9 @@ use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Model\GetRecalculated;
 use Mygento\Kkm\Model\Request\AbstractRequestBuilder;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class RequestBuilder extends AbstractRequestBuilder
 {
     private const TAX_SUM = 'tax_sum';
@@ -83,6 +86,8 @@ class RequestBuilder extends AbstractRequestBuilder
      * @param string $clientInn
      * @throws \Exception
      * @return RequestInterface
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     public function buildRequest(
         $salesEntity,
@@ -107,7 +112,6 @@ class RequestBuilder extends AbstractRequestBuilder
         }
 
         $recalculatedReceiptData = $this->getRecalculated->execute($salesEntity);
-
         $items = [];
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
             //For orders without Shipping (Virtual products)
@@ -130,10 +134,7 @@ class RequestBuilder extends AbstractRequestBuilder
             $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId);
         }
 
-        $telephone = $order->getBillingAddress()
-            ? (string) $order->getBillingAddress()->getTelephone()
-            : '';
-
+        $telephone = $order->getBillingAddress() ? (string) $order->getBillingAddress()->getTelephone() : '';
         $request
             ->setStoreId($storeId)
             ->setExternalId($this->generateExternalId($salesEntity))

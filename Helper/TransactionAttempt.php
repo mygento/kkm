@@ -8,7 +8,6 @@
 
 namespace Mygento\Kkm\Helper;
 
-use DateTime;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -22,6 +21,9 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class TransactionAttempt
 {
     /**

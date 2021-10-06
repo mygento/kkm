@@ -11,7 +11,9 @@ namespace Mygento\Kkm\Crontab;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\MessageQueue\MessageEncoder;
+use Magento\Framework\MessageQueue\PublisherInterface;
 use Magento\Framework\Stdlib\DateTime\DateTime;
+use Magento\Store\Model\StoreManagerInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
@@ -19,6 +21,7 @@ use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
+use Mygento\Kkm\Helper\Data;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
@@ -30,11 +33,11 @@ class ProceedScheduledAttempt
      */
     private $attemptRepository;
 
-    /** @var \Mygento\Kkm\Helper\Data */
+    /** @var Data */
     private $kkmHelper;
 
     /**
-     * @var \Magento\Framework\MessageQueue\PublisherInterface
+     * @var PublisherInterface
      */
     private $publisher;
 
@@ -54,27 +57,27 @@ class ProceedScheduledAttempt
     private $dateTime;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     private $storeManager;
 
     /**
      * @param TransactionAttemptRepositoryInterface $attemptRepository
-     * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
+     * @param Data $kkmHelper
+     * @param PublisherInterface $publisher
      * @param MessageEncoder $messageEncoder
      * @param SearchCriteriaBuilder $searchCriteriaBuilder
      * @param DateTime $dateTime
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         TransactionAttemptRepositoryInterface $attemptRepository,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Magento\Framework\MessageQueue\PublisherInterface $publisher,
+        Data $kkmHelper,
+        PublisherInterface $publisher,
         MessageEncoder $messageEncoder,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         DateTime $dateTime,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager
     ) {
         $this->attemptRepository = $attemptRepository;
         $this->kkmHelper = $kkmHelper;
@@ -125,7 +128,7 @@ class ProceedScheduledAttempt
 
     /**
      * @param TransactionAttemptInterface $attempt
-     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws LocalizedException
      */
     private function publishRequest(TransactionAttemptInterface $attempt)
     {

@@ -8,7 +8,9 @@
 
 namespace Mygento\Kkm\Model\Source\CheckOnline;
 
-class Sno extends \Mygento\Kkm\Model\Source\Sno
+use Mygento\Kkm\Model\Source\AbstractSno;
+
+class Sno extends AbstractSno
 {
     // phpcs:disable
     protected $osnValue = 1;

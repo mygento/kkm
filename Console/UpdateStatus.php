@@ -12,8 +12,8 @@ use Magento\Framework\Console\Cli;
 use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
 use Mygento\Kkm\Helper\Data;
-use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\Request;
+use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -29,11 +29,6 @@ class UpdateStatus extends Command
     private const RUN_ALL_PARAM = 'all';
 
     /**
-     * @var TransactionHelper
-     */
-    private $transactionHelper;
-
-    /**
      * @var \Mygento\Kkm\Api\Processor\UpdateInterface
      */
     protected $updateProcessor;
@@ -47,6 +42,11 @@ class UpdateStatus extends Command
      * @var \Mygento\Kkm\Helper\Request
      */
     protected $requestHelper;
+
+    /**
+     * @var TransactionHelper
+     */
+    private $transactionHelper;
 
     /**
      * @var \Magento\Store\Api\StoreRepositoryInterface
@@ -145,7 +145,7 @@ HELP
     }
 
     /**
-     * @param $storeId
+     * @param int|string|null $storeId
      * @return string
      */
     protected function getNoNeedUpdateMessage($storeId)

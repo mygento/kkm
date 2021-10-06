@@ -10,8 +10,10 @@ namespace Mygento\Kkm\Model\Queue\Consumer\CheckOnline;
 
 use Magento\Framework\Exception\InputException;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Queue\ConsumerProcessorInterface;
+use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 use Mygento\Kkm\Exception\VendorBadServerAnswerException;
 use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 
@@ -44,7 +46,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     private $requestHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error\Proxy
+     * @var \Mygento\Kkm\Helper\Error
      */
     private $errorHelper;
 
@@ -59,12 +61,11 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     private $orderComment;
 
     /**
-     * ConsumerProcessor constructor.
      * @param \Mygento\Kkm\Model\CheckOnline\Vendor $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      * @param \Mygento\Kkm\Helper\Request $requestHelper
-     * @param \Mygento\Kkm\Helper\Error\Proxy $errorHelper
+     * @param \Mygento\Kkm\Helper\Error $errorHelper
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Helper\OrderComment $orderComment
      */
@@ -73,7 +74,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         \Mygento\Kkm\Helper\Data $helper,
         \Magento\Framework\MessageQueue\PublisherInterface $publisher,
         \Mygento\Kkm\Helper\Request $requestHelper,
-        \Mygento\Kkm\Helper\Error\Proxy $errorHelper,
+        \Mygento\Kkm\Helper\Error $errorHelper,
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Helper\OrderComment $orderComment
     ) {
@@ -89,7 +90,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     /**
      * @inheritDoc
      */
-    public function processSell($queueMessage)
+    public function processSell(QueueMessageInterface $queueMessage): void
     {
         try {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
@@ -105,7 +106,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
 
             $this->vendor->sendSellRequest($request, $entity);
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
+            $this->helper->warning($e->getMessage());
 
             if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
                 // помечаем заказ, как KKM Fail
@@ -113,13 +114,15 @@ class ConsumerProcessor implements ConsumerProcessorInterface
 
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_SELL);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(
-                    SendInterface::TOPIC_NAME_SELL,
-                    $this->requestHelper->getQueueMessage($request)
-                );
+
+                return;
             }
+
+            $request->setIgnoreTrialsNum(false);
+            $this->publisher->publish(
+                SendInterface::TOPIC_NAME_SELL,
+                $this->requestHelper->getQueueMessage($request)
+            );
         } catch (\Throwable $e) {
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
             if ($this->helper->isRetrySendingEndlessly($entity->getStoreId())) {
@@ -136,7 +139,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     /**
      * @inheritDoc
      */
-    public function processRefund($queueMessage)
+    public function processRefund(QueueMessageInterface $queueMessage): void
     {
         try {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
@@ -147,7 +150,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = $this->vendor->buildRequest($entity);
             $this->vendor->sendRefundRequest($request, $entity);
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
+            $this->helper->warning($e->getMessage());
 
             if ($e instanceof VendorBadServerAnswerException) {
                 $this->orderComment->addCommentToOrderNoChangeStatus($entity, $e->getMessage());
@@ -156,13 +159,15 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_REFUND);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(
-                    SendInterface::TOPIC_NAME_REFUND,
-                    $this->requestHelper->getQueueMessage($request)
-                );
+
+                return;
             }
+
+            $request->setIgnoreTrialsNum(false);
+            $this->publisher->publish(
+                SendInterface::TOPIC_NAME_REFUND,
+                $this->requestHelper->getQueueMessage($request)
+            );
         } catch (\Throwable $e) {
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
@@ -171,7 +176,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     /**
      * @inheritDoc
      */
-    public function processResell($queueMessage)
+    public function processResell(QueueMessageInterface $queueMessage): void
     {
         try {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
@@ -181,17 +186,19 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = $this->vendor->buildRequestForResellRefund($entity);
             $this->vendor->sendResellRequest($request);
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
+            $this->helper->warning($e->getMessage());
 
             if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
                 $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
-            } else {
-                $this->publisher->publish(
-                    SendInterface::TOPIC_NAME_RESELL,
-                    $this->requestHelper->getQueueMessage($request)
-                );
+
+                return;
             }
+
+            $this->publisher->publish(
+                SendInterface::TOPIC_NAME_RESELL,
+                $this->requestHelper->getQueueMessage($request)
+            );
         } catch (InputException $exc) {
             $this->helper->error($exc->getMessage());
         } catch (\Throwable $e) {
@@ -199,10 +206,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function processUpdate($updateRequest)
+    public function processUpdate(UpdateRequestInterface $updateRequest): void
     {
     }
 }

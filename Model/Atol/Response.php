@@ -86,6 +86,16 @@ class Response implements ResponseInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function setIdForTransaction($uuid)
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    /**
      * @return string|null
      */
     public function getUuid()

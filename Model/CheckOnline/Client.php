@@ -55,7 +55,6 @@ class Client
     private $apiUrlPath = 'fr/api/v2/Complex';
 
     /**
-     * Client constructor.
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Model\CheckOnline\ResponseFactory $responseFactory
      * @param \Magento\Framework\HTTP\Client\CurlFactory $curlFactory

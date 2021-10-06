@@ -139,6 +139,14 @@ class Response implements ResponseInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function setIdForTransaction($idForTransaction)
+    {
+        return $this->setRequestId($idForTransaction);
+    }
+
+    /**
      * @return string|null
      */
     public function getRequestId()
@@ -515,7 +523,7 @@ class Response implements ResponseInterface
         }
 
         if ($fceError) {
-            $result = $this->getFatal() ? self::STATUS_FAIL : self::STATUS_WAIT;
+            $result = self::STATUS_FAIL;
         }
 
         if ($response && $response->Error !== 0) {

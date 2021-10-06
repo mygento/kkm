@@ -83,7 +83,7 @@ class QueueMessage implements QueueMessageInterface
     /**
      * @inheritDoc
      */
-    public function setOperationType($operationType): QueueMessageInterface
+    public function setOperationType(int $operationType): QueueMessageInterface
     {
         $this->operationType = $operationType;
 

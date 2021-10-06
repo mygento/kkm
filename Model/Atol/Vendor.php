@@ -174,6 +174,16 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
         //TODO: Validate response
         $response = $this->apiClient->receiveStatus($uuid, $entity->getStoreId());
 
+        try {
+            $this->validateResponse($response);
+        } catch (CreateDocumentFailedException $e) {
+            $this->kkmHelper->critical($e);
+
+            if (!$response->getIdForTransaction()) {
+                $response->setIdForTransaction($uuid);
+            }
+        }
+
         $operation = '';
         switch ($entity->getEntityType()) {
             case 'invoice':
@@ -490,55 +500,5 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
             __('Error response from ATOL with code %1.', $response->getErrorCode()),
             $response
         );
-    }
-
-    /**
-     * @param RecalculateResultItemInterface $item
-     * @throws \Exception
-     */
-    private function validateItem(RecalculateResultItemInterface $item)
-    {
-        $reason = false;
-        if (!isset($item['name']) || $item['name'] === null || $item['name'] === '') {
-            $reason = __('One of items has undefined name.');
-        }
-
-        if (!isset($item['tax']) || $item['tax'] === null) {
-            $reason = __('Item %1 has undefined tax.', $item['name']);
-        }
-
-        if ($reason) {
-            throw new \Exception(
-                __('Can not send data to Atol. Reason: %1', $reason)
-            );
-        }
-    }
-
-    /**
-     * @param string $marking
-     * @return string
-     */
-    private function convertMarkingToHex(string $marking): string
-    {
-        $productCode = '444D';
-        $gtin = substr($marking, 2, $this->kkmHelper->getConfig('marking/gtin_length'));
-        $serialNumber = substr($marking, 2 + $this->kkmHelper->getConfig('marking/gtin_length') + 2);
-        $gtinHex = $this->normalizeHex(dechex($gtin));
-        $serialHex = $this->normalizeHex(bin2hex($serialNumber));
-
-        return trim(chunk_split(strtoupper($productCode . $gtinHex . $serialHex), 2, ' '));
-    }
-
-    /**
-     * @param string $hex
-     * @return string
-     */
-    private function normalizeHex(string $hex): string
-    {
-        if (strlen($hex) % 2 > 0) {
-            $hex = '0' . $hex;
-        }
-
-        return $hex;
     }
 }

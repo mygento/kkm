@@ -8,13 +8,11 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer\Atol;
 
-use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\InvalidArgumentException;
 use Mygento\Kkm\Api\Data\RequestInterface;
-use Mygento\Kkm\Api\Processor\SendInterface;
-use Mygento\Kkm\Api\Processor\UpdateInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Queue\ConsumerProcessorInterface;
-use Mygento\Kkm\Exception\VendorBadServerAnswerException;
-use Mygento\Kkm\Exception\VendorNonFatalErrorException;
+use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 
 /**
  * Class ConsumerProcessor
@@ -25,9 +23,24 @@ use Mygento\Kkm\Exception\VendorNonFatalErrorException;
 class ConsumerProcessor implements ConsumerProcessorInterface
 {
     /**
-     * @var \Mygento\Kkm\Model\Processor\Update
+     * @var \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolSellConsumer
      */
-    protected $updateProcessor;
+    protected $sellConsumer;
+
+    /**
+     * @var \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolRefundConsumer
+     */
+    protected $refundConsumer;
+
+    /**
+     * @var \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolResellConsumer
+     */
+    protected $resellConsumer;
+
+    /**
+     * @var \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolUpdateConsumer
+     */
+    protected $updateConsumer;
 
     /**
      * @var \Mygento\Kkm\Model\Atol\Vendor
@@ -40,65 +53,38 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     private $helper;
 
     /**
-     * @var \Magento\Framework\MessageQueue\PublisherInterface
-     */
-    private $publisher;
-
-    /**
      * @var \Mygento\Kkm\Helper\Request
      */
     private $requestHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Error
-     */
-    private $errorHelper;
-
-    /**
-     * @var \Mygento\Kkm\Helper\TransactionAttempt
-     */
-    private $attemptHelper;
-
-    /**
-     * @var \Mygento\Kkm\Helper\OrderComment
-     */
-    private $orderComment;
-
-    /**
-     * ConsumerProcessor constructor.
+     * @param \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolSellConsumer $sellConsumer
+     * @param \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolRefundConsumer $refundConsumer
+     * @param \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolResellConsumer $resellConsumer
+     * @param \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolUpdateConsumer $updateConsumer
      * @param \Mygento\Kkm\Model\Atol\Vendor $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
-     * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      * @param \Mygento\Kkm\Helper\Request $requestHelper
-     * @param \Mygento\Kkm\Helper\Error $errorHelper
-     * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
-     * @param \Mygento\Kkm\Model\Processor\Update $updateProcessor
-     * @param \Mygento\Kkm\Helper\OrderComment $orderComment
      */
     public function __construct(
+        \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolSellConsumer $sellConsumer,
+        \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolRefundConsumer $refundConsumer,
+        \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolResellConsumer $resellConsumer,
+        \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolUpdateConsumer $updateConsumer,
         \Mygento\Kkm\Model\Atol\Vendor $vendor,
         \Mygento\Kkm\Helper\Data $helper,
-        \Magento\Framework\MessageQueue\PublisherInterface $publisher,
-        \Mygento\Kkm\Helper\Request $requestHelper,
-        \Mygento\Kkm\Helper\Error $errorHelper,
-        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
-        \Mygento\Kkm\Model\Processor\Update $updateProcessor,
-        \Mygento\Kkm\Helper\OrderComment $orderComment
+        \Mygento\Kkm\Helper\Request $requestHelper
     ) {
+        $this->sellConsumer = $sellConsumer;
+        $this->refundConsumer = $refundConsumer;
+        $this->resellConsumer = $resellConsumer;
+        $this->updateConsumer = $updateConsumer;
         $this->vendor = $vendor;
         $this->helper = $helper;
-        $this->publisher = $publisher;
         $this->requestHelper = $requestHelper;
-        $this->errorHelper = $errorHelper;
-        $this->attemptHelper = $attemptHelper;
-        $this->updateProcessor = $updateProcessor;
-        $this->orderComment = $orderComment;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function processSell($queueMessage)
+    public function processSell(QueueMessageInterface $queueMessage): void
     {
         try {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
@@ -106,56 +92,28 @@ class ConsumerProcessor implements ConsumerProcessorInterface
                 $queueMessage->getOperationType()
             );
 
-            if ($queueMessage->getOperationType() === RequestInterface::RESELL_SELL_OPERATION_TYPE) {
-                $request = $this->vendor->buildRequestForResellSell($entity);
-            } else {
-                $request = $this->vendor->buildRequest($entity);
+            switch ($queueMessage->getOperationType()) {
+                case RequestInterface::RESELL_SELL_OPERATION_TYPE:
+                    $request = $this->vendor->buildRequestForResellSell($entity);
+                    break;
+                case RequestInterface::SELL_OPERATION_TYPE:
+                    $request = $this->vendor->buildRequest($entity);
             }
 
-            $this->vendor->sendSellRequest($request, $entity);
-        } catch (VendorNonFatalErrorException $e) {
-            // меняем external_id и пробуем сделать повторную отправку
-            $this->helper->info($e->getMessage());
-
-            $request->setIgnoreTrialsNum(false);
-            $this->requestHelper->increaseExternalId($request);
-            $this->publisher->publish(
-                SendInterface::TOPIC_NAME_SELL,
-                $this->requestHelper->getQueueMessage($request)
-            );
-        } catch (VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
-                // помечаем заказ, как KKM Fail
-                $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
-                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_SELL);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(
-                    SendInterface::TOPIC_NAME_SELL,
-                    $this->requestHelper->getQueueMessage($request)
-                );
+            if (!isset($request)) {
+                throw new InvalidArgumentException(__(
+                    'Invalid operation type received in topic "mygento.kkm.message.sell". Operation type: %1',
+                    $queueMessage->getOperationType()
+                ));
             }
+
+            $this->sellConsumer->sendSellRequest($request);
         } catch (\Throwable $e) {
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
-            if ($this->helper->isRetrySendingEndlessly($entity->getStoreId())) {
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
-                $this->attemptHelper->scheduleNextAttempt(
-                    $request,
-                    SendInterface::TOPIC_NAME_SELL,
-                    (new \DateTime('+1 day'))->format('Y-m-d H:i:s')
-                );
-            }
+            $this->helper->critical($e->getMessage());
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function processRefund($queueMessage)
+    public function processRefund(QueueMessageInterface $queueMessage): void
     {
         try {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
@@ -164,94 +122,33 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             );
 
             $request = $this->vendor->buildRequest($entity);
-            $this->vendor->sendRefundRequest($request, $entity);
-        } catch (VendorNonFatalErrorException $e) {
-            // меняем external_id и пробуем сделать повторную отправку
-            $this->helper->info($e->getMessage());
-
-            $request->setIgnoreTrialsNum(false);
-            $this->requestHelper->increaseExternalId($request);
-            $this->publisher->publish(
-                SendInterface::TOPIC_NAME_REFUND,
-                $this->requestHelper->getQueueMessage($request)
-            );
-        } catch (VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
-            $this->orderComment->addCommentToOrderNoChangeStatus($entity, $e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at
-                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_REFUND);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(
-                    SendInterface::TOPIC_NAME_REFUND,
-                    $this->requestHelper->getQueueMessage($request)
-                );
-            }
+            $this->refundConsumer->sendRefundRequest($request);
         } catch (\Throwable $e) {
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            $this->helper->critical($e->getMessage());
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function processResell($queueMessage)
+    public function processResell(QueueMessageInterface $queueMessage): void
     {
         try {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
                 $queueMessage->getOperationType()
             );
+
             $request = $this->vendor->buildRequestForResellRefund($entity);
-            $this->vendor->sendResellRequest($request);
-        } catch (VendorNonFatalErrorException $e) {
-            $this->helper->info($e->getMessage());
-
-            $request->setIgnoreTrialsNum(false);
-            $this->requestHelper->increaseExternalId($request);
-            $this->publisher->publish(
-                SendInterface::TOPIC_NAME_RESELL,
-                $this->requestHelper->getQueueMessage($request)
-            );
-        } catch (VendorBadServerAnswerException $e) {
-            $this->helper->critical($e->getMessage());
-
-            if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
-                // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
-                $this->attemptHelper->scheduleNextAttempt($request, SendInterface::TOPIC_NAME_RESELL);
-            } else {
-                $request->setIgnoreTrialsNum(false);
-                $this->publisher->publish(
-                    SendInterface::TOPIC_NAME_RESELL,
-                    $this->requestHelper->getQueueMessage($request)
-                );
-            }
-        } catch (InputException $exc) {
-            $this->helper->error($exc->getMessage());
+            $this->resellConsumer->sendResellRequest($request);
         } catch (\Throwable $e) {
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            $this->helper->critical($e->getMessage());
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function processUpdate($updateRequest)
+    public function processUpdate(UpdateRequestInterface $updateRequest): void
     {
         try {
-            $response = $this->updateProcessor->proceedUsingAttempt($updateRequest->getUuid());
-            if ($response->isWait()) {
-                $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
-            }
-        } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
-            $this->helper->info($e->getMessage());
-
-            $this->publisher->publish(UpdateInterface::TOPIC_NAME_UPDATE, $updateRequest);
+            $this->updateConsumer->sendUpdateRequest($updateRequest);
         } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByUpdateRequest($updateRequest);
-            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            $this->helper->critical($e->getMessage());
         }
     }
 }

@@ -8,25 +8,15 @@
 
 namespace Mygento\Kkm\Api\Queue;
 
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+
 interface ConsumerProcessorInterface
 {
-    /**
-     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
-     */
-    public function processSell($queueMessage);
+    public function processSell(QueueMessageInterface $queueMessage): void;
 
-    /**
-     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
-     */
-    public function processRefund($queueMessage);
+    public function processRefund(QueueMessageInterface $queueMessage): void;
 
-    /**
-     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterface $queueMessage
-     */
-    public function processResell($queueMessage);
+    public function processResell(QueueMessageInterface $queueMessage): void;
 
-    /**
-     * @param \Mygento\Kkm\Api\Data\UpdateRequestInterface $updateRequest
-     */
-    public function processUpdate($updateRequest);
+    public function processUpdate(UpdateRequestInterface $updateRequest): void;
 }

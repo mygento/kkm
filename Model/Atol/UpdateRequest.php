@@ -37,7 +37,7 @@ class UpdateRequest extends DataObject implements UpdateRequestInterface
      */
     public function getEntityStoreId()
     {
-        return $this->getData(self::ENTITY_STORE_ID);
+        return $this->getData(self::STORE_ID);
     }
 
     /**
@@ -45,6 +45,6 @@ class UpdateRequest extends DataObject implements UpdateRequestInterface
      */
     public function setEntityStoreId($storeId)
     {
-        return $this->setData(self::ENTITY_STORE_ID, $storeId);
+        return $this->setData(self::STORE_ID, $storeId);
     }
 }

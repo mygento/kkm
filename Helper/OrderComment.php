@@ -139,12 +139,7 @@ class OrderComment
         return $comment;
     }
 
-    /**
-     * @param string $orderState
-     * @param string $storeId
-     * @return string
-     */
-    private function resolveOrderStatus($orderState, $storeId)
+    private function resolveOrderStatus(string $orderState, string $storeId): string
     {
         return $orderState === Order::STATE_CLOSED
             ? $this->orderConfig->getStateDefaultStatus(Order::STATE_CLOSED)

@@ -56,7 +56,12 @@
             <argument name="transactionHelper" xsi:type="object">Mygento\Kkm\Helper\Transaction\Proxy</argument>
         </arguments>
     </type>
-    <type name="Mygento\Kkm\Model\Queue\Consumer\Atol\ConsumerProcessor">
+    <type name="Mygento\Kkm\Model\Queue\Consumer\Atol\AtolAbstractConsumer">
+        <arguments>
+            <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\Queue\Consumer\CheckOnline\ConsumerProcessor">
         <arguments>
             <argument name="errorHelper" xsi:type="object">Mygento\Kkm\Helper\Error\Proxy</argument>
         </arguments>

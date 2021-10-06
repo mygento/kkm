@@ -25,6 +25,12 @@ interface ResponseInterface
     public function getIdForTransaction();
 
     /**
+     * @param string $idForTransaction
+     * @return ResponseInterface
+     */
+    public function setIdForTransaction($idForTransaction);
+
+    /**
      * @return string|null
      */
     public function getErrorMessage();

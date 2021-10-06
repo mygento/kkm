@@ -44,7 +44,7 @@ interface QueueMessageInterface
 
     /**
      * @param int $operationType
-     * @return QueueMessageInterface
+     * @return $this
      */
-    public function setOperationType($operationType): QueueMessageInterface;
+    public function setOperationType(int $operationType): QueueMessageInterface;
 }
