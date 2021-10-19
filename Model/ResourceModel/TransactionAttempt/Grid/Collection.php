@@ -10,8 +10,8 @@ namespace Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid;
 
 use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Collection as ParentCollection;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Collection as ParentCollection;
 
 class Collection extends ParentCollection implements SearchResultInterface
 {
@@ -141,18 +141,19 @@ class Collection extends ParentCollection implements SearchResultInterface
         $selectSuccessfulAttempts
             ->reset(\Zend_Db_Select::COLUMNS)
             ->columns(new \Zend_Db_Expr($attemptKeyExpression))
-            ->where(TransactionAttemptInterface::STATUS . "= ?", TransactionAttemptInterface::STATUS_SENT)
+            ->where(TransactionAttemptInterface::STATUS . '= ?', TransactionAttemptInterface::STATUS_SENT)
             ->group(TransactionAttemptInterface::ORDER_ID)
             ->group(TransactionAttemptInterface::OPERATION)
             ->group(TransactionAttemptInterface::SALES_ENTITY_ID);
         $successfulKkmAttemptIds = $this->getConnection()->fetchCol($selectSuccessfulAttempts);
 
-        $isClosedExpression =  new \Zend_Db_Expr('(' .
+        $isClosedExpression = new \Zend_Db_Expr(
+            '(' .
             $this->getConnection()->prepareSqlCondition(
                 $attemptKeyExpression,
-                    [
-                        'in' => implode(',', $successfulKkmAttemptIds)
-                    ]
+                [
+                    'in' => implode(',', $successfulKkmAttemptIds),
+                ]
             ) . ')'
         );
 
