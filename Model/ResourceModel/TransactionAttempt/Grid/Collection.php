@@ -11,6 +11,7 @@ namespace Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid;
 use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Collection as ParentCollection;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
 class Collection extends ParentCollection implements SearchResultInterface
 {
@@ -130,29 +131,32 @@ class Collection extends ParentCollection implements SearchResultInterface
     {
         parent::_initSelect();
 
-        $successfulKkmAttemptsAlias = 'successful_kkm_attempts';
-        $isClosedExpression = new \Zend_Db_Expr("({$successfulKkmAttemptsAlias}.id IS NOT NULL)");
-        $this->getSelect()
-            ->joinLeft(
-                [$successfulKkmAttemptsAlias => $this->getMainTable()],
-                implode(
-                    ' AND ',
+        $attemptKeyExpression = sprintf(
+            'CONCAT(%s, "_" , %s, "_", %s)',
+            TransactionAttemptInterface::ORDER_ID,
+            TransactionAttemptInterface::OPERATION,
+            TransactionAttemptInterface::SALES_ENTITY_ID
+        );
+        $selectSuccessfulAttempts = clone $this->getSelect();
+        $selectSuccessfulAttempts
+            ->reset(\Zend_Db_Select::COLUMNS)
+            ->columns(new \Zend_Db_Expr($attemptKeyExpression))
+            ->where(TransactionAttemptInterface::STATUS . "= ?", TransactionAttemptInterface::STATUS_SENT)
+            ->group(TransactionAttemptInterface::ORDER_ID)
+            ->group(TransactionAttemptInterface::OPERATION)
+            ->group(TransactionAttemptInterface::SALES_ENTITY_ID);
+        $successfulKkmAttemptIds = $this->getConnection()->fetchCol($selectSuccessfulAttempts);
+
+        $isClosedExpression =  new \Zend_Db_Expr('(' .
+            $this->getConnection()->prepareSqlCondition(
+                $attemptKeyExpression,
                     [
-                        "main_table.order_id = {$successfulKkmAttemptsAlias}.order_id",
-                        "main_table.operation = {$successfulKkmAttemptsAlias}.operation",
-                        "main_table.sales_entity_id = {$successfulKkmAttemptsAlias}.sales_entity_id",
-                        "{$successfulKkmAttemptsAlias}.status != 3",
+                        'in' => implode(',', $successfulKkmAttemptIds)
                     ]
-                ),
-                ['is_closed' => $isClosedExpression]
-            );
+            ) . ')'
+        );
 
-        $tableDescription = $this->getConnection()->describeTable($this->getMainTable());
-
-        foreach ($tableDescription as $columnInfo) {
-            $this->addFilterToMap($columnInfo['COLUMN_NAME'], 'main_table.' . $columnInfo['COLUMN_NAME']);
-        }
-
+        $this->getSelect()->columns(['is_closed' => $isClosedExpression]);
         $this->addFilterToMap('is_closed', $isClosedExpression);
 
         return $this;
