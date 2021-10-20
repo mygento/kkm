@@ -152,7 +152,7 @@ class Collection extends ParentCollection implements SearchResultInterface
             $this->getConnection()->prepareSqlCondition(
                 $attemptKeyExpression,
                 [
-                    'in' => implode(',', $successfulKkmAttemptIds),
+                    'in' => $successfulKkmAttemptIds,
                 ]
             ) . ')'
         );
