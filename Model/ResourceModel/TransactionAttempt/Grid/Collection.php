@@ -20,6 +20,7 @@ class Collection extends ParentCollection implements SearchResultInterface
 
     /**
      * @param \Magento\Framework\Data\Collection\EntityFactoryInterface $entityFactory
+     * @param \Magento\Framework\DB\Sql\ExpressionFactory $expressionFactory
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Framework\Data\Collection\Db\FetchStrategyInterface $fetchStrategy
      * @param \Magento\Framework\Event\ManagerInterface $eventManager
@@ -131,33 +132,46 @@ class Collection extends ParentCollection implements SearchResultInterface
     {
         parent::_initSelect();
 
-        $attemptKeyExpression = sprintf(
-            'CONCAT(%s, "_" , %s, "_", %s)',
-            TransactionAttemptInterface::ORDER_ID,
-            TransactionAttemptInterface::OPERATION,
-            TransactionAttemptInterface::SALES_ENTITY_ID
+        $successfulKkmAttemptsAlias = 'successful_kkm_attempts';
+        $isClosedExpression = new \Zend_Db_Expr(
+            "(" . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID . " IS NOT NULL)"
         );
-        $selectSuccessfulAttempts = clone $this->getSelect();
-        $selectSuccessfulAttempts
-            ->reset(\Zend_Db_Select::COLUMNS)
-            ->columns(new \Zend_Db_Expr($attemptKeyExpression))
-            ->where(TransactionAttemptInterface::STATUS . '= ?', TransactionAttemptInterface::STATUS_SENT)
+
+        $successfulKkmAttemptsSelect = $this->getConnection()->select();
+        $successfulKkmAttemptsSelect->from(
+            [$successfulKkmAttemptsAlias => $this->getMainTable()],
+            [
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID =>
+                    TransactionAttemptInterface::ID,
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID =>
+                    TransactionAttemptInterface::ORDER_ID,
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION =>
+                    TransactionAttemptInterface::OPERATION,
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID =>
+                    TransactionAttemptInterface::SALES_ENTITY_ID
+            ]
+        )->where(TransactionAttemptInterface::STATUS . '= ?', TransactionAttemptInterface::STATUS_SENT)
             ->group(TransactionAttemptInterface::ORDER_ID)
             ->group(TransactionAttemptInterface::OPERATION)
             ->group(TransactionAttemptInterface::SALES_ENTITY_ID);
-        $successfulKkmAttemptIds = $this->getConnection()->fetchCol($selectSuccessfulAttempts);
 
-        $isClosedExpression = new \Zend_Db_Expr(
-            '(' .
-            $this->getConnection()->prepareSqlCondition(
-                $attemptKeyExpression,
-                [
-                    'in' => $successfulKkmAttemptIds,
-                ]
-            ) . ')'
-        );
+        $this->getSelect()
+            ->joinLeft(
+                [$successfulKkmAttemptsAlias => $successfulKkmAttemptsSelect],
+                implode(
+                    ' AND ',
+                    [
+                        "main_table.order_id = "
+                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID,
+                        "main_table.operation = "
+                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION,
+                        "main_table.sales_entity_id = "
+                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID
+                    ]
+                ),
+                ['is_closed' => $isClosedExpression]
+            );
 
-        $this->getSelect()->columns(['is_closed' => $isClosedExpression]);
         $this->addFilterToMap('is_closed', $isClosedExpression);
 
         return $this;
