@@ -136,15 +136,19 @@ class Collection extends ParentCollection implements SearchResultInterface
         $isClosedExpression = new \Zend_Db_Expr(
             '(' . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID . ' IS NOT NULL)'
         );
+        $successfulKkmAttemptId =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID;
+        $successfulKkmAttemptOrderId =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID;
+        $successfulKkmAttemptOperation =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION;
+        $successfulKkmAttemptSalesEntityId =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID;
 
         $successfulKkmAttemptsSelect = $this->getConnection()->select();
         $successfulKkmAttemptsSelect->from(
             [$successfulKkmAttemptsAlias => $this->getMainTable()],
             [
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID => TransactionAttemptInterface::ID,
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID => TransactionAttemptInterface::ORDER_ID,
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION => TransactionAttemptInterface::OPERATION,
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID => TransactionAttemptInterface::SALES_ENTITY_ID,
+                $successfulKkmAttemptId => TransactionAttemptInterface::ID,
+                $successfulKkmAttemptOrderId => TransactionAttemptInterface::ORDER_ID,
+                $successfulKkmAttemptOperation => TransactionAttemptInterface::OPERATION,
+                $successfulKkmAttemptSalesEntityId => TransactionAttemptInterface::SALES_ENTITY_ID,
             ]
         )->where(TransactionAttemptInterface::STATUS . '= ?', TransactionAttemptInterface::STATUS_SENT)
             ->group(TransactionAttemptInterface::ORDER_ID)
@@ -157,12 +161,9 @@ class Collection extends ParentCollection implements SearchResultInterface
                 implode(
                     ' AND ',
                     [
-                        'main_table.order_id = '
-                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID,
-                        'main_table.operation = '
-                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION,
-                        'main_table.sales_entity_id = '
-                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID,
+                        TransactionAttemptInterface::ORDER_ID . " = {$successfulKkmAttemptOrderId}" ,
+                        TransactionAttemptInterface::OPERATION . " = {$successfulKkmAttemptOperation}",
+                        TransactionAttemptInterface::SALES_ENTITY_ID . " = {$successfulKkmAttemptSalesEntityId}",
                     ]
                 ),
                 ['is_closed' => $isClosedExpression]
