@@ -136,10 +136,10 @@ class Collection extends ParentCollection implements SearchResultInterface
         $isClosedExpression = new \Zend_Db_Expr(
             '(' . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID . ' IS NOT NULL)'
         );
-        $successfulKkmAttemptId =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID;
-        $successfulKkmAttemptOrderId =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID;
-        $successfulKkmAttemptOperation =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION;
-        $successfulKkmAttemptSalesEntityId =  $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID;
+        $successfulKkmAttemptId = $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID;
+        $successfulKkmAttemptOrderId = $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID;
+        $successfulKkmAttemptOperation = $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION;
+        $successfulKkmAttemptSalesEntityId = $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID;
 
         $successfulKkmAttemptsSelect = $this->getConnection()->select();
         $successfulKkmAttemptsSelect->from(
