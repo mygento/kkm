@@ -134,21 +134,17 @@ class Collection extends ParentCollection implements SearchResultInterface
 
         $successfulKkmAttemptsAlias = 'successful_kkm_attempts';
         $isClosedExpression = new \Zend_Db_Expr(
-            "(" . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID . " IS NOT NULL)"
+            '(' . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID . ' IS NOT NULL)'
         );
 
         $successfulKkmAttemptsSelect = $this->getConnection()->select();
         $successfulKkmAttemptsSelect->from(
             [$successfulKkmAttemptsAlias => $this->getMainTable()],
             [
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID =>
-                    TransactionAttemptInterface::ID,
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID =>
-                    TransactionAttemptInterface::ORDER_ID,
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION =>
-                    TransactionAttemptInterface::OPERATION,
-                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID =>
-                    TransactionAttemptInterface::SALES_ENTITY_ID
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ID => TransactionAttemptInterface::ID,
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID => TransactionAttemptInterface::ORDER_ID,
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION => TransactionAttemptInterface::OPERATION,
+                $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID => TransactionAttemptInterface::SALES_ENTITY_ID,
             ]
         )->where(TransactionAttemptInterface::STATUS . '= ?', TransactionAttemptInterface::STATUS_SENT)
             ->group(TransactionAttemptInterface::ORDER_ID)
@@ -161,12 +157,12 @@ class Collection extends ParentCollection implements SearchResultInterface
                 implode(
                     ' AND ',
                     [
-                        "main_table.order_id = "
+                        'main_table.order_id = '
                         . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::ORDER_ID,
-                        "main_table.operation = "
+                        'main_table.operation = '
                         . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::OPERATION,
-                        "main_table.sales_entity_id = "
-                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID
+                        'main_table.sales_entity_id = '
+                        . $successfulKkmAttemptsAlias . '_' . TransactionAttemptInterface::SALES_ENTITY_ID,
                     ]
                 ),
                 ['is_closed' => $isClosedExpression]
