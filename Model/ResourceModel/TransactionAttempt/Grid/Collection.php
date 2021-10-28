@@ -145,7 +145,7 @@ class Collection extends ParentCollection implements SearchResultInterface
         $successfulKkmAttemptsSelect->from(
             [$successfulKkmAttemptsAlias => $this->getMainTable()],
             [
-                $successfulKkmAttemptId => new \Zend_Db_Expr("MIN(" . TransactionAttemptInterface::ID . ")"),
+                $successfulKkmAttemptId => new \Zend_Db_Expr('MIN(' . TransactionAttemptInterface::ID . ')'),
                 $successfulKkmAttemptOrderId => TransactionAttemptInterface::ORDER_ID,
                 $successfulKkmAttemptOperation => TransactionAttemptInterface::OPERATION,
                 $successfulKkmAttemptSalesEntityId => TransactionAttemptInterface::SALES_ENTITY_ID,
