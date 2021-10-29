@@ -12,18 +12,10 @@ use Mygento\Kkm\Model\Source\AbstractSno;
 
 class Sno extends AbstractSno
 {
-    // phpcs:disable
-    protected $osnValue = 1;
-
-    protected $usnIncomeValue = 2;
-
-    protected $usnIncomeOutcomeValue = 4;
-
-    protected $envdValue = 8;
-
-    protected $esnValue = 16;
-
-    protected $patentValue = 32;
-
-    // phpcs:enable
+    protected const RECEIPT_SNO_OSN = 1;
+    protected const RECEIPT_SNO_USN_INCOME = 2;
+    protected const RECEIPT_SNO_USN_INCOME_OUTCOME = 4;
+    protected const RECEIPT_SNO_ENVD = 8;
+    protected const RECEIPT_SNO_ESN = 16;
+    protected const RECEIPT_SNO_PATENT = 32;
 }

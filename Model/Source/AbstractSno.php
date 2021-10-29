@@ -21,27 +21,27 @@ abstract class AbstractSno implements OptionSourceInterface
     {
         return [
             [
-                'value' => $this->osnValue,
+                'value' => static::RECEIPT_SNO_OSN,
                 'label' => __('общая СН'),
             ],
             [
-                'value' => $this->usnIncomeValue,
+                'value' => static::RECEIPT_SNO_USN_INCOME,
                 'label' => __('упрощенная СН (доходы)'),
             ],
             [
-                'value' => $this->usnIncomeOutcomeValue,
+                'value' => static::RECEIPT_SNO_USN_INCOME_OUTCOME,
                 'label' => __('упрощенная СН (доходы минус расходы)'),
             ],
             [
-                'value' => $this->envdValue,
+                'value' => static::RECEIPT_SNO_ENVD,
                 'label' => __('единый налог на вмененный доход'),
             ],
             [
-                'value' => $this->esnValue,
+                'value' => static::RECEIPT_SNO_ESN,
                 'label' => __('единый сельскохозяйственный налог'),
             ],
             [
-                'value' => $this->patentValue,
+                'value' => static::RECEIPT_SNO_PATENT,
                 'label' => __('патентная СН'),
             ],
         ];
