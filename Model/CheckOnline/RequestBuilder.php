@@ -197,20 +197,22 @@ class RequestBuilder extends AbstractRequestBuilder
     private function validateItem($item)
     {
         $reason = '';
-        if (!isset($item['name']) || $item['name'] === '') {
+
+        $itemName = $item['name'] ?? '';
+        if (!$itemName) {
             $reason .= __('One of items has undefined name. ');
         }
 
         if (!isset($item['tax'])) {
-            $reason .= __('Item %1 has undefined tax. ', $item['name']);
+            $reason .= __('Item \'%1\' has undefined tax. ', $itemName);
         }
 
         if (!isset($item['price'])) {
-            $reason .= __('Item %1 has undefined price. ', $item['name']);
+            $reason .= __('Item \'%1\' has undefined price. ', $itemName);
         }
 
         if (!isset($item['quantity'])) {
-            $reason .= __('Item %1 has undefined quantity. ', $item['name']);
+            $reason .= __('Item \'%1\' has undefined quantity. ', $itemName);
         }
 
         if ($reason) {

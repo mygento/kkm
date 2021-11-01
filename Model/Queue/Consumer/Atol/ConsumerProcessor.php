@@ -11,6 +11,7 @@ namespace Mygento\Kkm\Model\Queue\Consumer\Atol;
 use Magento\Framework\Exception\InvalidArgumentException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Queue\ConsumerProcessorInterface;
 use Mygento\Kkm\Api\Queue\QueueMessageInterface;
 
@@ -43,6 +44,11 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     protected $updateConsumer;
 
     /**
+     * @var \Mygento\Kkm\Helper\TransactionAttempt
+     */
+    protected $attemptHelper;
+
+    /**
      * @var \Mygento\Kkm\Model\Atol\Vendor
      */
     private $vendor;
@@ -58,6 +64,11 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     private $requestHelper;
 
     /**
+     * @var \Mygento\Kkm\Helper\Error
+     */
+    private $errorHelper;
+
+    /**
      * @param \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolSellConsumer $sellConsumer
      * @param \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolRefundConsumer $refundConsumer
      * @param \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolResellConsumer $resellConsumer
@@ -65,6 +76,8 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      * @param \Mygento\Kkm\Model\Atol\Vendor $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
+     * @param \Mygento\Kkm\Helper\Error $errorHelper
+     * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      */
     public function __construct(
         \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolSellConsumer $sellConsumer,
@@ -73,7 +86,9 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         \Mygento\Kkm\Model\Queue\Consumer\Atol\AtolUpdateConsumer $updateConsumer,
         \Mygento\Kkm\Model\Atol\Vendor $vendor,
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Helper\Request $requestHelper
+        \Mygento\Kkm\Helper\Request $requestHelper,
+        \Mygento\Kkm\Helper\Error $errorHelper,
+        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
     ) {
         $this->sellConsumer = $sellConsumer;
         $this->refundConsumer = $refundConsumer;
@@ -82,8 +97,14 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         $this->vendor = $vendor;
         $this->helper = $helper;
         $this->requestHelper = $requestHelper;
+        $this->errorHelper = $errorHelper;
+        $this->attemptHelper = $attemptHelper;
     }
 
+    /**
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     */
     public function processSell(QueueMessageInterface $queueMessage): void
     {
         try {
@@ -109,7 +130,15 @@ class ConsumerProcessor implements ConsumerProcessorInterface
 
             $this->sellConsumer->sendSellRequest($request);
         } catch (\Throwable $e) {
-            $this->helper->critical($e->getMessage());
+            $entity = $this->requestHelper->getEntityByRequest($request);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+            if ($this->helper->isRetrySendingEndlessly($entity->getStoreId())) {
+                $this->attemptHelper->scheduleNextAttempt(
+                    $request,
+                    SendInterface::TOPIC_NAME_SELL,
+                    (new \DateTime('+1 day'))->format('Y-m-d H:i:s')
+                );
+            }
         }
     }
 
@@ -124,7 +153,8 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = $this->vendor->buildRequest($entity);
             $this->refundConsumer->sendRefundRequest($request);
         } catch (\Throwable $e) {
-            $this->helper->critical($e->getMessage());
+            $entity = $this->requestHelper->getEntityByRequest($request);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
@@ -139,7 +169,8 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = $this->vendor->buildRequestForResellRefund($entity);
             $this->resellConsumer->sendResellRequest($request);
         } catch (\Throwable $e) {
-            $this->helper->critical($e->getMessage());
+            $entity = $this->requestHelper->getEntityByRequest($request);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
@@ -148,7 +179,8 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         try {
             $this->updateConsumer->sendUpdateRequest($updateRequest);
         } catch (\Throwable $e) {
-            $this->helper->critical($e->getMessage());
+            $entity = $this->requestHelper->getEntityByUpdateRequest($updateRequest);
+            $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 }
