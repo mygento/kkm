@@ -119,13 +119,12 @@ class ConsumerProcessor implements ConsumerProcessorInterface
                     break;
                 case RequestInterface::SELL_OPERATION_TYPE:
                     $request = $this->vendor->buildRequest($entity);
-            }
-
-            if (!isset($request)) {
-                throw new InvalidArgumentException(__(
-                    'Invalid operation type received in topic "mygento.kkm.message.sell". Operation type: %1',
-                    $queueMessage->getOperationType()
-                ));
+                    break;
+                default:
+                    throw new InvalidArgumentException(__(
+                        'Invalid operation type received in topic "mygento.kkm.message.sell". Operation type: %1',
+                        $queueMessage->getOperationType()
+                    ));
             }
 
             $this->sellConsumer->sendSellRequest($request);
