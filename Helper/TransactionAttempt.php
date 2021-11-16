@@ -235,12 +235,30 @@ class TransactionAttempt
     }
 
     /**
-     * Mark attempt as Finish
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @throws LocalizedException
+     */
+    public function markEntityAttemptAsDone($entity)
+    {
+        $attempt = $this->getAttemptByOperationType(
+            UpdateRequestInterface::UPDATE_OPERATION_TYPE,
+            $entity
+        );
+
+        if (!$attempt->getId()) {
+            return;
+        }
+
+        $attempt->setStatus(TransactionAttemptInterface::STATUS_DONE);
+        $this->attemptRepository->save($attempt);
+    }
+
+    /**
      * @param TransactionAttemptInterface $attempt
      * @throws LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function finishAttempt(TransactionAttemptInterface $attempt): TransactionAttemptInterface
+    public function markAsSent(TransactionAttemptInterface $attempt): TransactionAttemptInterface
     {
         $attempt
             ->setStatus(TransactionAttemptInterface::STATUS_SENT)

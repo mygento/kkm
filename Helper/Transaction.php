@@ -80,7 +80,11 @@ class Transaction
     private $sortOrderBuilder;
 
     /**
-     * Transaction constructor.
+     * @var \Magento\Framework\Event\ManagerInterface
+     */
+    private $eventManager;
+
+    /**
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
@@ -89,6 +93,7 @@ class Transaction
      * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
      * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
      * @param Data $kkmHelper
+     * @param \Magento\Framework\Event\ManagerInterface $eventManager
      */
     public function __construct(
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
@@ -98,7 +103,8 @@ class Transaction
         InvoiceCollectionFactory $invoiceCollectionFactory,
         CreditmemoCollectionFactory $creditmemoCollectionFactory,
         \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
-        \Mygento\Kkm\Helper\Data $kkmHelper
+        \Mygento\Kkm\Helper\Data $kkmHelper,
+        \Magento\Framework\Event\ManagerInterface $eventManager
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
@@ -108,6 +114,7 @@ class Transaction
         $this->kkmHelper = $kkmHelper;
         $this->jsonSerializer = $jsonSerializer;
         $this->sortOrderBuilder = $sortOrderBuilder;
+        $this->eventManager = $eventManager;
     }
 
     /**
@@ -620,6 +627,15 @@ class Transaction
         ];
         $additional = array_merge($additional, (array) $response->getPayload());
 
+        if ($response->isDone()) {
+            $this->eventManager->dispatch(
+                'mygento_kkm_transaction_is_done',
+                [
+                    'entity' => $entity
+                ]
+            );
+        }
+
         //Update
         if ($this->isTransactionExists($txnId, $payment->getId(), $order->getId())) {
             $transaction = $this->updateTransactionData(
@@ -644,7 +660,6 @@ class Transaction
             ->setTxnType($type)
             ->setIsClosed($isClosed)
             ->setTxnId($txnId)
-            ->setKkmStatus($response->getStatus())
             ->setKkmStatus($response->getStatus())
             ->setAdditionalInformation(
                 TransactionEntity::RAW_DETAILS,

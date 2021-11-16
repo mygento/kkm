@@ -596,7 +596,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $this->validateResponse($response);
 
             //Mark attempt as Sent
-            $this->attemptHelper->finishAttempt($attempt);
+            $this->attemptHelper->markAsSent($attempt);
         } catch (\Throwable $e) {
             //Mark attempt as Error
             $this->attemptHelper->failAttempt($attempt, $e->getMessage());
@@ -688,11 +688,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
 
-            //Check response.
             $this->validateResponse($response);
-
-            //Mark attempt as Sent
-            $this->attemptHelper->finishAttempt($attempt);
+            $this->attemptHelper->markAsSent($attempt);
         } catch (AuthorizationException $e) {
             if ($e->getErrorCode() && $e->getErrorType()) {
                 $attempt->setErrorCode($e->getErrorCode());

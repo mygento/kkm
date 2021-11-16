@@ -150,7 +150,7 @@ class Collection extends ParentCollection implements SearchResultInterface
                 $successfulKkmAttemptOperation => TransactionAttemptInterface::OPERATION,
                 $successfulKkmAttemptSalesEntityId => TransactionAttemptInterface::SALES_ENTITY_ID,
             ]
-        )->where(TransactionAttemptInterface::STATUS . '= ?', TransactionAttemptInterface::STATUS_SENT)
+        )->where(TransactionAttemptInterface::STATUS . '= ?', TransactionAttemptInterface::STATUS_DONE)
             ->group(TransactionAttemptInterface::ORDER_ID)
             ->group(TransactionAttemptInterface::OPERATION)
             ->group(TransactionAttemptInterface::SALES_ENTITY_ID);

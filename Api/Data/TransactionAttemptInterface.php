@@ -41,6 +41,8 @@ interface TransactionAttemptInterface
     const STATUS_SENT_LABEL = 'Sent Attempt';
     const STATUS_ERROR = 3;
     const STATUS_ERROR_LABEL = 'Error Attempt';
+    const STATUS_DONE = 4;
+    const STATUS_DONE_LABEL = 'Done Attempt';
 
     /**
      * Get id
