@@ -92,3 +92,5 @@ Ability to split 1 item to 2 with different prices (if needed),Возможно�
 "Cheque was sent to KKM", "Чек был отправлен в KKM"
 "Failed resend for attempts with ids: %1", "Неудачная переотправка попыток с id: %1"
 "Successful resend for attempts with ids: %1", "Успешная переотправка попыток с id: %1"
+"Error Code", "Код ошибки"
+"Error Type", "Тип ошибки"

@@ -30,19 +30,15 @@ interface TransactionAttemptInterface
     public const ERROR_CODE = 'error_code';
     public const ERROR_TYPE = 'error_type';
 
-    const OPERATION_LABEL = [
+    public const STATUS_NEW = 1;
+    public const STATUS_SENT = 2;
+    public const STATUS_ERROR = 3;
+    public const STATUS_DONE = 4;
+
+    public const OPERATION_LABEL = [
         1 => 'Payment',
         2 => 'Refund',
     ];
-
-    const STATUS_NEW = 1;
-    const STATUS_NEW_LABEL = 'New Attempt';
-    const STATUS_SENT = 2;
-    const STATUS_SENT_LABEL = 'Sent Attempt';
-    const STATUS_ERROR = 3;
-    const STATUS_ERROR_LABEL = 'Error Attempt';
-    const STATUS_DONE = 4;
-    const STATUS_DONE_LABEL = 'Done Attempt';
 
     /**
      * Get id

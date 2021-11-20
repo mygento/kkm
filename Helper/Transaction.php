@@ -627,15 +627,6 @@ class Transaction
         ];
         $additional = array_merge($additional, (array) $response->getPayload());
 
-        if ($response->isDone()) {
-            $this->eventManager->dispatch(
-                'mygento_kkm_transaction_is_done',
-                [
-                    'entity' => $entity
-                ]
-            );
-        }
-
         //Update
         if ($this->isTransactionExists($txnId, $payment->getId(), $order->getId())) {
             $transaction = $this->updateTransactionData(
@@ -670,6 +661,16 @@ class Transaction
             $transaction
                 ->setParentId($parentTransaction->getTransactionId())
                 ->setParentTxnId($parentTransaction->getTxnId());
+        }
+
+        if ($response->isDone()) {
+            $this->eventManager->dispatch(
+                'mygento_kkm_transaction_is_done',
+                [
+                    'entity' => $entity,
+                    'transaction' => $transaction
+                ]
+            );
         }
 
         return $this->transactionRepo->save($transaction);

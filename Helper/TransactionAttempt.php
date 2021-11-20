@@ -240,8 +240,12 @@ class TransactionAttempt
      */
     public function markEntityAttemptAsDone($entity)
     {
+        $operationType = $entity instanceof InvoiceInterface
+            ? RequestInterface::SELL_OPERATION_TYPE
+            : RequestInterface::REFUND_OPERATION_TYPE;
+
         $attempt = $this->getAttemptByOperationType(
-            UpdateRequestInterface::UPDATE_OPERATION_TYPE,
+            $operationType,
             $entity
         );
 

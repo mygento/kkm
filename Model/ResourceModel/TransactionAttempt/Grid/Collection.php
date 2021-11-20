@@ -11,10 +11,18 @@ namespace Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid;
 use Magento\Framework\Api\Search\SearchResultInterface;
 use Magento\Framework\Api\SearchCriteriaInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Collection as ParentCollection;
 
 class Collection extends ParentCollection implements SearchResultInterface
 {
+    private const OPERATIONS_TO_SHOW = [
+        RequestInterface::SELL_OPERATION_TYPE,
+        RequestInterface::REFUND_OPERATION_TYPE,
+        RequestInterface::RESELL_REFUND_OPERATION_TYPE,
+        RequestInterface::RESELL_SELL_OPERATION_TYPE
+    ];
+
     /** @var \Magento\Framework\Api\Search\AggregationInterface */
     protected $aggregations;
 
@@ -167,7 +175,10 @@ class Collection extends ParentCollection implements SearchResultInterface
                     ]
                 ),
                 ['is_closed' => $isClosedExpression]
-            );
+            )->where(
+                TransactionAttemptInterface::OPERATION . ' IN(?)',
+                self::OPERATIONS_TO_SHOW
+            );;
 
         $this->addFilterToMap('is_closed', $isClosedExpression);
 

@@ -100,14 +100,15 @@
                 <visible>false</visible>
             </settings>
         </column>
-        <column name="operation">
+        <column name="operation" component="Magento_Ui/js/grid/columns/select">
             <settings>
-                <filter>textRange</filter>
-                <dataType>text</dataType>
+                <filter>select</filter>
+                <dataType>select</dataType>
                 <editor>
-                    <editorType>text</editorType>
+                    <editorType>select</editorType>
                 </editor>
                 <label translate="true">Operation</label>
+                <options class="Mygento\Kkm\Model\Source\OperationType"/>
             </settings>
         </column>
         <column name="sales_entity_id">
@@ -130,14 +131,15 @@
                 <label translate="true">Sales Entity Increment Id</label>
             </settings>
         </column>
-        <column name="status">
+        <column name="status" component="Magento_Ui/js/grid/columns/select">
             <settings>
-                <filter>textRange</filter>
-                <dataType>text</dataType>
+                <filter>select</filter>
+                <dataType>select</dataType>
                 <editor>
-                    <editorType>text</editorType>
+                    <editorType>select</editorType>
                 </editor>
                 <label translate="true">Status</label>
+                <options class="Mygento\Kkm\Model\Source\AttemptStatus"/>
             </settings>
         </column>
         <column name="message">
