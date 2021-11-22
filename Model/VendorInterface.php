@@ -28,6 +28,7 @@ interface VendorInterface
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendSellRequest($request, $invoice = null);
@@ -41,6 +42,7 @@ interface VendorInterface
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendRefundRequest($request, $creditmemo = null);
@@ -54,6 +56,7 @@ interface VendorInterface
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function sendResellRequest(RequestInterface $request, ?InvoiceInterface $invoice = null): ResponseInterface;
@@ -65,6 +68,7 @@ interface VendorInterface
      * @param array $receiptData
      * @param string $clientName
      * @param string $clientInn
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
     public function buildRequest(
@@ -78,12 +82,14 @@ interface VendorInterface
 
     /**
      * @param InvoiceInterface $invoice
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
     public function buildRequestForResellRefund($invoice): RequestInterface;
 
     /**
      * @param InvoiceInterface $invoice
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @return \Mygento\Kkm\Api\Data\RequestInterface
      */
     public function buildRequestForResellSell($invoice): RequestInterface;

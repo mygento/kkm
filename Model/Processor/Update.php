@@ -13,12 +13,17 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\Processor\UpdateInterface;
-use Mygento\Kkm\Helper\Data as KkmHelper;
 use Mygento\Kkm\Helper\Request;
 use Mygento\Kkm\Helper\Resell as ResellHelper;
+use Mygento\Kkm\Model\VendorInterface;
 
 class Update implements UpdateInterface
 {
+    /**
+     * @var VendorInterface
+     */
+    private $vendor;
+
     /**
      * @var \Magento\Framework\MessageQueue\PublisherInterface
      */
@@ -40,30 +45,24 @@ class Update implements UpdateInterface
     private $processor;
 
     /**
-     * @var \Mygento\Kkm\Helper\Data
-     */
-    private $kkmHelper;
-
-    /**
-     * Processor constructor.
+     * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param \Mygento\Kkm\Helper\Resell $resellHelper
      * @param \Mygento\Kkm\Helper\Request $requestHelper
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
-     * @param \Mygento\Kkm\Helper\Data $kkmHelper
      */
     public function __construct(
+        VendorInterface $vendor,
         SendInterface $processor,
         ResellHelper $resellHelper,
         Request $requestHelper,
-        PublisherInterface $publisher,
-        KkmHelper $kkmHelper
+        PublisherInterface $publisher
     ) {
+        $this->vendor = $vendor;
         $this->publisher = $publisher;
         $this->resellHelper = $resellHelper;
         $this->requestHelper = $requestHelper;
         $this->processor = $processor;
-        $this->kkmHelper = $kkmHelper;
     }
 
     /**
@@ -103,8 +102,7 @@ class Update implements UpdateInterface
     protected function proceed($uuid, $useAttempt = false): ResponseInterface
     {
         $entity = $this->requestHelper->getEntityByUuid($uuid);
-        $vendor = $this->kkmHelper->getCurrentVendor($entity->getStoreId());
-        $response = $vendor->updateStatus($uuid, $useAttempt);
+        $response = $this->vendor->updateStatus($uuid, $useAttempt);
 
         //Если был совершен refund по инвойсу - следовательно, это коррекция чека
         //и нужно заново отправить инвойс в АТОЛ

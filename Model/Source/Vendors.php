@@ -10,8 +10,8 @@ namespace Mygento\Kkm\Model\Source;
 
 class Vendors implements \Magento\Framework\Data\OptionSourceInterface
 {
-    const ATOL_VENDOR_CODE = 'atol';
-    const CHECKONLINE_VENDOR_CODE = 'checkonline';
+    public const ATOL_VENDOR_CODE = 'atol';
+    public const CHECKONLINE_VENDOR_CODE = 'checkonline';
 
     /**
      * Get options

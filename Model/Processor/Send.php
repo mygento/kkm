@@ -21,12 +21,18 @@ use Mygento\Kkm\Helper\Request as RequestHelper;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
 use Mygento\Kkm\Helper\TransactionAttempt as TransactionAttemptHelper;
 use Mygento\Kkm\Model\Atol\Response;
+use Mygento\Kkm\Model\VendorInterface;
 
 /**
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Send implements SendInterface
 {
+    /**
+     * @var VendorInterface
+     */
+    private $vendor;
+
     /**
      * @var \Mygento\Kkm\Helper\Data
      */
@@ -59,6 +65,7 @@ class Send implements SendInterface
 
     /**
      * Processor constructor.
+     * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $helper
      * @param TransactionAttemptHelper $attemptHelper
      * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
@@ -67,6 +74,7 @@ class Send implements SendInterface
      * @param \Magento\Framework\MessageQueue\PublisherInterface $publisher
      */
     public function __construct(
+        VendorInterface $vendor,
         Data $helper,
         TransactionAttemptHelper $attemptHelper,
         TransactionHelper $transactionHelper,
@@ -74,6 +82,7 @@ class Send implements SendInterface
         TransactionAttemptRepositoryInterface $attemptRepository,
         PublisherInterface $publisher
     ) {
+        $this->vendor = $vendor;
         $this->helper = $helper;
         $this->publisher = $publisher;
         $this->attemptHelper = $attemptHelper;
@@ -95,8 +104,7 @@ class Send implements SendInterface
      */
     public function proceedSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
-        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
-        $request = $vendor->buildRequest($invoice);
+        $request = $this->vendor->buildRequest($invoice);
 
         if ($incrExtId) {
             $this->requestHelper->increaseExternalId($request);
@@ -106,7 +114,7 @@ class Send implements SendInterface
 
         if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $vendor->sendSellRequest($request);
+            $this->vendor->sendSellRequest($request);
 
             return true;
         }
@@ -130,8 +138,7 @@ class Send implements SendInterface
      */
     public function proceedRefund($creditmemo, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
-        $vendor = $this->helper->getCurrentVendor($creditmemo->getStoreId());
-        $request = $vendor->buildRequest($creditmemo);
+        $request = $this->vendor->buildRequest($creditmemo);
 
         if ($incrExtId) {
             $this->requestHelper->increaseExternalId($request);
@@ -141,7 +148,7 @@ class Send implements SendInterface
 
         if ($sync || !$this->helper->isMessageQueueEnabled($creditmemo->getStoreId())) {
             $this->helper->debug('Sending request without Queue:', $request->__toArray());
-            $vendor->sendRefundRequest($request);
+            $this->vendor->sendRefundRequest($request);
 
             return true;
         }
@@ -166,8 +173,7 @@ class Send implements SendInterface
      */
     public function proceedResellSell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
-        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
-        $request = $vendor->buildRequestForResellSell($invoice);
+        $request = $this->vendor->buildRequestForResellSell($invoice);
 
         if ($incrExtId) {
             $this->requestHelper->increaseExternalId($request);
@@ -183,7 +189,7 @@ class Send implements SendInterface
 
         if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $vendor->sendSellRequest($request, $invoice);
+            $this->vendor->sendSellRequest($request, $invoice);
 
             return true;
         }
@@ -204,6 +210,7 @@ class Send implements SendInterface
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
      * @return bool
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function proceedFailedResell($invoice, $sync = false, $ignoreTrials = false)
     {
@@ -289,8 +296,7 @@ class Send implements SendInterface
      */
     private function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false)
     {
-        $vendor = $this->helper->getCurrentVendor($invoice->getStoreId());
-        $request = $vendor->buildRequestForResellRefund($invoice);
+        $request = $this->vendor->buildRequestForResellRefund($invoice);
 
         if ($incrExtId) {
             $this->requestHelper->increaseExternalId($request);
@@ -302,7 +308,7 @@ class Send implements SendInterface
 
         if ($sync || !$this->helper->isMessageQueueEnabled($invoice->getStoreId())) {
             $this->helper->debug('Sending request without Queue: ', $request->__toArray());
-            $vendor->sendResellRequest($request, $invoice);
+            $this->vendor->sendResellRequest($request, $invoice);
 
             return true;
         }

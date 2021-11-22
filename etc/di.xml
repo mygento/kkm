@@ -16,16 +16,17 @@
 
     <preference for="Mygento\Kkm\Api\Processor\SendInterface" type="Mygento\Kkm\Model\Processor\Send"/>
     <preference for="Mygento\Kkm\Api\Processor\UpdateInterface" type="Mygento\Kkm\Model\Processor\Update"/>
+    <preference for="Mygento\Kkm\Model\VendorInterface" type="Mygento\Kkm\Model\Vendor"/>
 
     <preference for="Mygento\Kkm\Api\Data\UpdateRequestInterface" type="Mygento\Kkm\Model\Atol\UpdateRequest"/>
     <preference for="Mygento\Kkm\Api\Data\UserPropInterface" type="Mygento\Kkm\Model\Atol\UserProp"/>
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
     <preference for="Mygento\Kkm\Api\ResenderInterface" type="Mygento\Kkm\Model\Resender"/>
-    <type name="Mygento\Kkm\Model\VendorFactory">
+    <type name="Mygento\Kkm\Model\Vendor">
         <arguments>
-            <argument name="vendorFactories" xsi:type="array">
-                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Atol\VendorFactory</item>
-                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\CheckOnline\VendorFactory</item>
+            <argument name="vendors" xsi:type="array">
+                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Atol\Vendor\Proxy</item>
+                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\CheckOnline\Vendor\Proxy</item>
             </argument>
         </arguments>
     </type>
@@ -92,11 +93,11 @@
             </argument>
         </arguments>
     </type>
-    <type name="Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory">
+    <type name="Mygento\Kkm\Model\Queue\Consumer\AbstractConsumer">
         <arguments>
-            <argument name="processorFactories" xsi:type="array">
-                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\Atol\ConsumerProcessorFactory</item>
-                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\CheckOnline\ConsumerProcessorFactory</item>
+            <argument name="consumerProcessors" xsi:type="array">
+                <item name="atol" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\Atol\ConsumerProcessor\Proxy</item>
+                <item name="checkonline" xsi:type="object">Mygento\Kkm\Model\Queue\Consumer\CheckOnline\ConsumerProcessor\Proxy</item>
             </argument>
         </arguments>
     </type>
@@ -165,6 +166,14 @@
     <type name="Mygento\Kkm\Helper\Transaction">
         <arguments>
             <argument name="transactionRepo" xsi:type="object">Mygento\Kkm\Model\TransactionRepository</argument>
+        </arguments>
+    </type>
+
+    <type name="Mygento\Kkm\Helper\Data">
+        <arguments>
+            <argument name="statusUpdatableVendorCodes" xsi:type="array">
+                <item name="atol" xsi:type="const">Mygento\Kkm\Model\Source\Vendors::ATOL_VENDOR_CODE</item>
+            </argument>
         </arguments>
     </type>
 </config>

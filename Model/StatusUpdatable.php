@@ -16,6 +16,7 @@ interface StatusUpdatable
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Mygento\Kkm\Exception\VendorNonFatalErrorException
+     * @throws \Magento\Framework\Exception\InvalidArgumentException
      * @return \Mygento\Kkm\Api\Data\ResponseInterface
      */
     public function updateStatus($uuid, $useAttempt = false);

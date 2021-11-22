@@ -21,6 +21,11 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     private $responseFactory;
 
     /**
+     * @var \Mygento\Kkm\Model\VendorInterface
+     */
+    private $vendor;
+
+    /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
@@ -48,6 +53,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     /**
      * Callback constructor.
      * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error $errorHelper
      * @param \Magento\Store\Model\StoreManagerInterface $storeManager
@@ -57,6 +63,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
      */
     public function __construct(
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error $errorHelper,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -66,6 +73,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     ) {
         parent::__construct($context);
         $this->responseFactory = $responseFactory;
+        $this->vendor = $vendor;
         $this->kkmHelper = $kkmHelper;
         $this->storeManager = $storeManager;
         $this->errorHelper = $errorHelper;
@@ -101,8 +109,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
             //Sometimes callback is received when transaction is not saved yet. In order to avoid this
             sleep(3);
 
-            $vendor = $this->kkmHelper->getCurrentVendor($this->storeManager->getStore()->getId());
-            $entity = $vendor->saveCallback($response);
+            $entity = $this->vendor->saveCallback($response, $this->storeManager->getStore()->getId());
 
             //Если был совершен refund по инвойсу - следовательно, это коррекция чека
             //и нужно заново отправить инвойс в АТОЛ

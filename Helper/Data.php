@@ -9,7 +9,6 @@
 namespace Mygento\Kkm\Helper;
 
 use Exception;
-use Mygento\Kkm\Model\VendorFactory;
 
 class Data extends \Mygento\Base\Helper\Data
 {
@@ -31,17 +30,17 @@ class Data extends \Mygento\Base\Helper\Data
     protected $code = self::CONFIG_CODE;
 
     /**
-     * @var VendorFactory
+     * @var array
      */
-    private $vendorFactory;
+    private $statusUpdatableVendorCodes;
 
     public function __construct(
         \Mygento\Base\Model\LogManager $logManager,
         \Magento\Framework\Encryption\Encryptor $encryptor,
         \Magento\Framework\App\Helper\Context $context,
-        \Mygento\Kkm\Model\VendorFactory $vendorFactory
+        $statusUpdatableVendorCodes = []
     ) {
-        $this->vendorFactory = $vendorFactory;
+        $this->statusUpdatableVendorCodes = $statusUpdatableVendorCodes;
 
         parent::__construct($logManager, $encryptor, $context);
     }
@@ -253,23 +252,12 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string|null $storeId
-     * @throws \Magento\Framework\Exception\InvalidArgumentException
-     * @return \Mygento\Kkm\Model\VendorInterface
-     */
-    public function getCurrentVendor($storeId = null)
-    {
-        return $this->vendorFactory->create($this->getCurrentVendorCode($storeId));
-    }
-
-    /**
-     * @param string|null $storeId
-     * @throws \Magento\Framework\Exception\InvalidArgumentException
      */
     public function isVendorNeedUpdateStatus($storeId = null): bool
     {
-        $vendor = $this->getCurrentVendor($storeId);
+        $currentVendorCode = $this->getCurrentVendorCode($storeId);
 
-        return $vendor instanceof \Mygento\Kkm\Model\StatusUpdatable;
+        return in_array($currentVendorCode, $this->statusUpdatableVendorCodes);
     }
 
     /**

@@ -8,6 +8,8 @@
 
 namespace Mygento\Kkm\Model\Queue\Consumer;
 
+use Magento\Framework\Exception\InvalidArgumentException;
+
 abstract class AbstractConsumer
 {
     /**
@@ -16,9 +18,9 @@ abstract class AbstractConsumer
     protected $helper;
 
     /**
-     * @var \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory
+     * @var \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface[]
      */
-    protected $consumerProcessorFactory;
+    protected $consumerProcessors;
 
     /**
      * @var \Mygento\Kkm\Helper\Request
@@ -26,19 +28,18 @@ abstract class AbstractConsumer
     protected $requestHelper;
 
     /**
-     * Consumer constructor.
      * @param \Mygento\Kkm\Helper\Data $helper
-     * @param \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory $consumerProcessorFactory
      * @param \Mygento\Kkm\Helper\Request $requestHelper
+     * @param \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface[] $consumerProcessors
      */
     public function __construct(
         \Mygento\Kkm\Helper\Data $helper,
-        \Mygento\Kkm\Model\Queue\Consumer\ConsumerProcessorFactory $consumerProcessorFactory,
-        \Mygento\Kkm\Helper\Request $requestHelper
+        \Mygento\Kkm\Helper\Request $requestHelper,
+        $consumerProcessors = []
     ) {
         $this->helper = $helper;
-        $this->consumerProcessorFactory = $consumerProcessorFactory;
         $this->requestHelper = $requestHelper;
+        $this->consumerProcessors = $consumerProcessors;
     }
 
     /**
@@ -49,11 +50,17 @@ abstract class AbstractConsumer
 
     /**
      * @param int|string|null $storeId
-     * @throws \Magento\Framework\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      * @return \Mygento\Kkm\Api\Queue\ConsumerProcessorInterface
      */
     protected function getConsumerProcessor($storeId = null)
     {
-        return $this->consumerProcessorFactory->create($this->helper->getCurrentVendorCode($storeId));
+        $currentVendorCode = $this->helper->getCurrentVendorCode($storeId);
+
+        if (!isset($this->consumerProcessors[$currentVendorCode])) {
+            throw new InvalidArgumentException(__('No such Kkm vendor: %1', $currentVendorCode));
+        }
+
+        return $this->consumerProcessors[$currentVendorCode];
     }
 }
