@@ -607,6 +607,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 TransactionAttemptInterface::STATUS_ERROR,
                 $e->getMessage()
             );
+
             throw $e;
         }
 

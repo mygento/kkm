@@ -17,12 +17,12 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Mygento\Base\Model\Payment\Transaction as TransactionBase;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
-use Mygento\Base\Model\Payment\Transaction as TransactionBase;
-use Mygento\Kkm\Api\Data\ResponseInterface;
 
 class TransactionAttempt
 {
@@ -268,8 +268,8 @@ class TransactionAttempt
      * @param TransactionAttemptInterface $attempt
      * @param int $status
      * @param string $message
-     * @return TransactionAttemptInterface
      * @throws LocalizedException
+     * @return TransactionAttemptInterface
      */
     public function updateStatus(
         TransactionAttemptInterface $attempt,

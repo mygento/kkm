@@ -8,8 +8,8 @@
 
 namespace Mygento\Kkm\Model\Source;
 
-use Mygento\Kkm\Api\Data\RequestInterface;
 use Magento\Framework\Data\OptionSourceInterface;
+use Mygento\Kkm\Api\Data\RequestInterface;
 
 class OperationType implements OptionSourceInterface
 {
@@ -34,7 +34,7 @@ class OperationType implements OptionSourceInterface
             [
                 'value' => RequestInterface::RESELL_REFUND_OPERATION_TYPE,
                 'label' => __('Resell Refund'),
-            ]
+            ],
         ];
     }
 }

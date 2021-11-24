@@ -8,8 +8,8 @@
 
 namespace Mygento\Kkm\Model\Source;
 
-use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Magento\Framework\Data\OptionSourceInterface;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 
 class AttemptStatus implements OptionSourceInterface
 {
@@ -34,7 +34,7 @@ class AttemptStatus implements OptionSourceInterface
             [
                 'value' => TransactionAttemptInterface::STATUS_DONE,
                 'label' => __('Done'),
-            ]
+            ],
         ];
     }
 }
