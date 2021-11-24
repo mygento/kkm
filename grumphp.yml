@@ -1,6 +1,4 @@
-parameters:
-    git_dir: .
-    bin_dir: vendor/bin
+grumphp:
     tasks:
         composer:
             no_check_lock: true
@@ -10,10 +8,16 @@ parameters:
                 - "var_dump("
                 - "exit;"
         phplint:
-        phpcsfixer2:
+        phpcsfixer:
             config: '.php_cs'
         phpmd:
             ruleset: ['vendor/mygento/coding-standard/Mygento-Mage2/phpmd.xml']
+        phpunit:
+          testsuite: 'Test'
         phpcs:
-            warning_severity: null
+            warning_severity: 0
         xmllint:
+        phpstan:
+          autoload_file: 'vendor/mygento/coding-standard/stan/autoload.php'
+          ignore_patterns: ['Test']
+          level: 1
