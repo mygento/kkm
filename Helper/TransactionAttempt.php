@@ -21,6 +21,8 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
+use Mygento\Base\Model\Payment\Transaction as TransactionBase;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 
 class TransactionAttempt
 {
@@ -116,7 +118,9 @@ class TransactionAttempt
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($numberOfTrials)
-            ->setTotalNumberOfTrials($totalNumberOfTrials);
+            ->setTotalNumberOfTrials($totalNumberOfTrials)
+            ->setErrorCode(null)
+            ->setErrorType(null);
 
         return $this->attemptRepository->save($attempt);
     }
@@ -236,14 +240,14 @@ class TransactionAttempt
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param TransactionInterface $transaction
      * @throws LocalizedException
      */
-    public function markEntityAttemptAsDone($entity)
-    {
-        $operationType = $entity instanceof InvoiceInterface
-            ? RequestInterface::SELL_OPERATION_TYPE
-            : RequestInterface::REFUND_OPERATION_TYPE;
-
+    public function markTransactionAttempt(
+        $entity,
+        $transaction
+    ) {
+        $operationType = $this->resolveAttemptOperationType($entity, $transaction);
         $attempt = $this->getAttemptByOperationType(
             $operationType,
             $entity
@@ -253,35 +257,27 @@ class TransactionAttempt
             return;
         }
 
-        $attempt->setStatus(TransactionAttemptInterface::STATUS_DONE);
-        $this->attemptRepository->save($attempt);
+        $attemptStatus = $transaction->getIsClosed() && $transaction->getKkmStatus() == ResponseInterface::STATUS_DONE
+            ? TransactionAttemptInterface::STATUS_DONE
+            : TransactionAttemptInterface::STATUS_SENT;
+
+        $this->updateStatus($attempt, $attemptStatus);
     }
 
     /**
      * @param TransactionAttemptInterface $attempt
-     * @throws LocalizedException
-     * @return TransactionAttemptInterface
-     */
-    public function markAsSent(TransactionAttemptInterface $attempt): TransactionAttemptInterface
-    {
-        $attempt
-            ->setStatus(TransactionAttemptInterface::STATUS_SENT)
-            ->setMessage('');
-
-        return $this->attemptRepository->save($attempt);
-    }
-
-    /**
-     * Mark attempt as Failed
-     * @param TransactionAttemptInterface $attempt
+     * @param int $status
      * @param string $message
-     * @throws LocalizedException
      * @return TransactionAttemptInterface
+     * @throws LocalizedException
      */
-    public function failAttempt(TransactionAttemptInterface $attempt, string $message = ''): TransactionAttemptInterface
-    {
+    public function updateStatus(
+        TransactionAttemptInterface $attempt,
+        int $status,
+        string $message = ''
+    ): TransactionAttemptInterface {
         $attempt
-            ->setStatus(TransactionAttemptInterface::STATUS_ERROR)
+            ->setStatus($status)
             ->setMessage($message);
 
         return $this->attemptRepository->save($attempt);
@@ -327,6 +323,30 @@ class TransactionAttempt
             default:
                 return 'order';
         }
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param TransactionInterface $transaction
+     * @return int
+     */
+    public function resolveAttemptOperationType(
+        $entity,
+        TransactionInterface $transaction
+    ): int {
+        if ($entity instanceof CreditmemoInterface) {
+            return RequestInterface::REFUND_OPERATION_TYPE;
+        }
+
+        if ($transaction->getTxnType() == TransactionBase::TYPE_FISCAL_REFUND) {
+            return RequestInterface::RESELL_REFUND_OPERATION_TYPE;
+        }
+
+        if ($transaction->getParentId()) {
+            return RequestInterface::RESELL_SELL_OPERATION_TYPE;
+        }
+
+        return RequestInterface::SELL_OPERATION_TYPE;
     }
 
     /**

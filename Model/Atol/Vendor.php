@@ -235,9 +235,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 }
 
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
+                $this->attemptHelper->markTransactionAttempt($entity, $txn);
                 break;
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
+                $this->attemptHelper->markTransactionAttempt($entity, $txn);
                 break;
         }
 
@@ -596,11 +598,15 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $this->validateResponse($response);
 
             //Mark attempt as Sent
-            $this->attemptHelper->markAsSent($attempt);
+            $this->attemptHelper->updateStatus($attempt, TransactionAttemptInterface::STATUS_SENT);
+            $this->attemptHelper->markTransactionAttempt($entity, $txn);
         } catch (\Throwable $e) {
             //Mark attempt as Error
-            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
-
+            $this->attemptHelper->updateStatus(
+                $attempt,
+                TransactionAttemptInterface::STATUS_ERROR,
+                $e->getMessage()
+            );
             throw $e;
         }
 
@@ -674,9 +680,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
         //Register sending Attempt
         $attempt = $this->attemptHelper->registerAttempt($request, $entity);
-        $attempt
-            ->setErrorCode(null)
-            ->setErrorType(null);
         $response = null;
 
         try {
@@ -687,21 +690,28 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             //Save transaction data
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
-
             $this->validateResponse($response);
-            $this->attemptHelper->markAsSent($attempt);
+            $this->attemptHelper->markTransactionAttempt($entity, $txn);
         } catch (AuthorizationException $e) {
             if ($e->getErrorCode() && $e->getErrorType()) {
                 $attempt->setErrorCode($e->getErrorCode());
                 $attempt->setErrorType($e->getErrorType());
             }
 
-            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+            $this->attemptHelper->updateStatus(
+                $attempt,
+                TransactionAttemptInterface::STATUS_ERROR,
+                $e->getMessage()
+            );
 
             throw $e;
         } catch (VendorBadServerAnswerException $e) {
             $attempt->setErrorType(ErrorType::BAD_SERVER_ANSWER);
-            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+            $this->attemptHelper->updateStatus(
+                $attempt,
+                TransactionAttemptInterface::STATUS_ERROR,
+                $e->getMessage()
+            );
 
             throw $e;
         } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
@@ -714,13 +724,21 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     ->setErrorType($response->getErrorType());
             }
 
-            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+            $this->attemptHelper->updateStatus(
+                $attempt,
+                TransactionAttemptInterface::STATUS_ERROR,
+                $e->getMessage()
+            );
 
             throw $e;
         } catch (\Throwable $e) {
             //Mark attempt as Error
             $attempt->setErrorType(ErrorType::UNKNOWN);
-            $this->attemptHelper->failAttempt($attempt, $e->getMessage());
+            $this->attemptHelper->updateStatus(
+                $attempt,
+                TransactionAttemptInterface::STATUS_ERROR,
+                $e->getMessage()
+            );
 
             throw $e;
         }

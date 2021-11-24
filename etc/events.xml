@@ -13,7 +13,4 @@
     <event name="sales_order_creditmemo_save_commit_after">
         <observer name="Mygento_Kkm_CancelCheque" instance="Mygento\Kkm\Observer\Send" />
     </event>
-    <event name="mygento_kkm_transaction_is_done">
-        <observer name="Mygento_Kkm_MarkAttemptAsDone" instance="Mygento\Kkm\Observer\MarkAttemptAsDone" />
-    </event>
 </config>

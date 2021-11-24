@@ -60,6 +60,11 @@ class Transaction
     private $searchCriteriaBuilder;
 
     /**
+     * @var \Magento\Framework\Api\SortOrderBuilder
+     */
+    private $sortOrderBuilder;
+
+    /**
      * @var InvoiceCollectionFactory
      */
     private $invoiceCollectionFactory;
@@ -75,46 +80,33 @@ class Transaction
     private $jsonSerializer;
 
     /**
-     * @var \Magento\Framework\Api\SortOrderBuilder
-     */
-    private $sortOrderBuilder;
-
-    /**
-     * @var \Magento\Framework\Event\ManagerInterface
-     */
-    private $eventManager;
-
-    /**
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
+     * @param Data $kkmHelper
      * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
      * @param \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder
      * @param InvoiceCollectionFactory $invoiceCollectionFactory
      * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
      * @param \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
-     * @param Data $kkmHelper
-     * @param \Magento\Framework\Event\ManagerInterface $eventManager
      */
     public function __construct(
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
+        \Mygento\Kkm\Helper\Data $kkmHelper,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
         \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder,
         InvoiceCollectionFactory $invoiceCollectionFactory,
         CreditmemoCollectionFactory $creditmemoCollectionFactory,
-        \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Magento\Framework\Event\ManagerInterface $eventManager
+        \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
+        $this->kkmHelper = $kkmHelper;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->sortOrderBuilder = $sortOrderBuilder;
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->creditmemoCollectionFactory = $creditmemoCollectionFactory;
-        $this->kkmHelper = $kkmHelper;
         $this->jsonSerializer = $jsonSerializer;
-        $this->sortOrderBuilder = $sortOrderBuilder;
-        $this->eventManager = $eventManager;
     }
 
     /**
@@ -661,16 +653,6 @@ class Transaction
             $transaction
                 ->setParentId($parentTransaction->getTransactionId())
                 ->setParentTxnId($parentTransaction->getTxnId());
-        }
-
-        if ($response->isDone()) {
-            $this->eventManager->dispatch(
-                'mygento_kkm_transaction_is_done',
-                [
-                    'entity' => $entity,
-                    'transaction' => $transaction
-                ]
-            );
         }
 
         return $this->transactionRepo->save($transaction);
