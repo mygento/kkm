@@ -24,6 +24,9 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class TransactionAttempt
 {
     /**
