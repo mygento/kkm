@@ -22,7 +22,7 @@ use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory;
 
 class MassResend extends Action implements HttpPostActionInterface
 {
-    const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
+    public const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
 
     /**
      * @var Filter

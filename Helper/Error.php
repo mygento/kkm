@@ -12,7 +12,7 @@ use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
 class Error
 {
-    const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
+    public const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
 
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface
@@ -61,19 +61,19 @@ class Error
 
             $uuid =
                 method_exists($exception, 'getResponse') && $exception->getResponse()
-                    ? $exception->getResponse()->getUuid()
+                    ? $exception->getResponse()->getIdForTransaction()
                     : null;
 
             if ($exception instanceof CreateDocumentFailedException) {
                 $this->baseHelper->error('Params:', $exception->getDebugData());
                 $this->baseHelper->error('Response: ' . $exception->getResponse());
-                $fullMessage .= $uuid ? ". Transaction Id (uuid): {$uuid}" : '';
+                $fullMessage .= $uuid ? ". Transaction Id: {$uuid}" : '';
             }
             $this->baseHelper->error($fullMessage);
             $this->baseHelper->debug($exception->getTraceAsString());
 
             //Show Admin Messages
-            if ($this->baseHelper->getConfig('general/admin_notifications')) {
+            if ($this->baseHelper->getConfig('general/admin_notifications', $entity->getStoreId())) {
                 $this->adminNotifier->addMajor(
                     __(
                         'KKM Cheque sending error. Order: %1',

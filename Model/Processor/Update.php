@@ -20,7 +20,7 @@ use Mygento\Kkm\Model\VendorInterface;
 class Update implements UpdateInterface
 {
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
+     * @var VendorInterface
      */
     private $vendor;
 
@@ -45,7 +45,6 @@ class Update implements UpdateInterface
     private $processor;
 
     /**
-     * Processor constructor.
      * @param VendorInterface $vendor
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param \Mygento\Kkm\Helper\Resell $resellHelper
@@ -102,8 +101,8 @@ class Update implements UpdateInterface
      */
     protected function proceed($uuid, $useAttempt = false): ResponseInterface
     {
-        $response = $this->vendor->updateStatus($uuid, $useAttempt);
         $entity = $this->requestHelper->getEntityByUuid($uuid);
+        $response = $this->vendor->updateStatus($uuid, $useAttempt);
 
         //Если был совершен refund по инвойсу - следовательно, это коррекция чека
         //и нужно заново отправить инвойс в АТОЛ

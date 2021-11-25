@@ -33,6 +33,9 @@
             <column name="is_scheduled"/>
             <column name="scheduled_at"/>
         </index>
+        <index referenceId="IX_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
         <constraint xsi:type="unique" referenceId="IX_SALES_ENTITY_U" disabled="true"/>
         <constraint xsi:type="unique" referenceId="IX_OPERATION_ENTITY_ID_PARENT_ID_U">
             <column name="operation"/>

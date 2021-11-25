@@ -8,6 +8,7 @@
 
 namespace Mygento\Kkm\Model;
 
+use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Sales\Api\CreditmemoRepositoryInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
@@ -86,6 +87,9 @@ class Resender implements ResenderInterface
                     $entity = $this->creditmemoRepository->get($entityId);
                     $this->sendProcessor->proceedRefund($entity, true, true, $needExtIdIncr);
                     break;
+                default:
+                    throw new LocalizedException(__('Unknown entity type: \'%1\'', $entityType));
+                    break;
             }
         } catch (NoSuchEntityException $exc) {
             $this->configHelper->error("Entity {$entityType} with Id {$entityId} not found.");
@@ -93,6 +97,11 @@ class Resender implements ResenderInterface
             throw $exc;
         } catch (\Throwable $exc) {
             $this->configHelper->error('Resend failed. Reason: ' . $exc->getMessage());
+
+            if (!isset($entity)) {
+                throw new LocalizedException(__('Unknown entity to resend'));
+            }
+
             $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
 
             throw $exc;

@@ -165,7 +165,7 @@ class Client
             $responseRaw = $this->sendPostRequest($url, $token, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-            $this->kkmHelper->info(__('Refund is sent. Uuid: %1', $response->getUuid()));
+            $this->kkmHelper->info(__('Refund is sent. Uuid: %1', $response->getIdForTransaction()));
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (AuthorizationException | VendorBadServerAnswerException $exc) {
             throw $exc;
@@ -207,7 +207,7 @@ class Client
             $responseRaw = $this->sendPostRequest($url, $token, $request);
             $response = $this->responseFactory->create(['jsonRaw' => $responseRaw]);
 
-            $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getUuid()));
+            $this->kkmHelper->info(__('Invoice is sent. Uuid: %1', $response->getIdForTransaction()));
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (AuthorizationException | VendorBadServerAnswerException $exc) {
             throw $exc;
@@ -300,7 +300,7 @@ class Client
             $curl->get($url);
             $response = $curl->getBody();
         } catch (\Exception $e) {
-            throw new VendorBadServerAnswerException('No response from Atol.');
+            throw new VendorBadServerAnswerException('No response from Atol: ' . $e->getMessage());
         }
 
         if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {

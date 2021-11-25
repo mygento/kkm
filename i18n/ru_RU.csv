@@ -43,7 +43,8 @@ Custom shipping name,Имя доставки
 Async processing,Асинхронная отправка
 Through queue (Magento Queue Framework),Через механизм очередей (Magento Queue Framework)
 Max trials to resend,Макс кол-во попыток отправки
-Update by cron,Обновлять статусы по CRON
+Update by cron,Выполнять CRON операции
+"Update status. Process scheduled attempts","Обработка запланированных попыток, обновление статуса."
 Update frequency,Частота обновления
 Show notifications in Dashboard,Показывать уведомления в панели управления
 Report Settings,Настройки отчетов
@@ -92,3 +93,8 @@ Ability to split 1 item to 2 with different prices (if needed),Возможно�
 "Cheque was sent to KKM", "Чек был отправлен в KKM"
 "Failed resend for attempts with ids: %1", "Неудачная переотправка попыток с id: %1"
 "Successful resend for attempts with ids: %1", "Успешная переотправка попыток с id: %1"
+"Service used","Используемый сервис"
+"Current vendor ""%1"" does not need update status.","Для используемого сервиса ""%1"" не нужно проверять статус."
+"Will be extracted from the certificate by default. Fill in if one certificate is used for several enterprises.","Идентификатор предприятия. По умолчанию будет извлечено из сертификата. Передаётся только в случае использования одного сертификата на несколько предприятий."
+"Fill in if you have multiple sites. If there is only one site, leave it blank.","Заполните, если Чеконлайн используется на нескольких сайтах. Если сайт один, оставьте пустым."
+"Receive full response from Checkonline API","Получать полный ответ от API Чеконлайн"

@@ -8,7 +8,7 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-class RequestForVersion4 extends Request
+class RequestForVersion4 extends \Mygento\Kkm\Model\Request\Request
 {
     /**
      * @throws \Exception

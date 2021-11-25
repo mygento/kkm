@@ -17,7 +17,7 @@ class Resell extends \Magento\Backend\App\Action
     /**
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
+    public const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
 
     /** @var \Mygento\Kkm\Helper\Data */
     protected $kkmHelper;
@@ -72,10 +72,11 @@ class Resell extends \Magento\Backend\App\Action
      */
     public function execute()
     {
+        $id = $this->getRequest()->getParam('id');
+
         try {
             $this->validateRequest();
 
-            $id = $this->getRequest()->getParam('id');
             $invoice = $this->invoiceRepository->get($id);
 
             if ($this->resellHelper->isResellFailed($invoice)) {
@@ -95,7 +96,7 @@ class Resell extends \Magento\Backend\App\Action
             }
 
             //Кнопка в админке должна отправлять сразу же $sync=true
-            $this->processor->proceedResellRefund($invoice, true, true);
+            $this->processor->proceedResell($invoice, true, true);
 
             $comment = 'Resell started. Refund was sent to KKM.';
 
@@ -107,10 +108,12 @@ class Resell extends \Magento\Backend\App\Action
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error($exc->getMessage());
         } catch (\Exception $exc) {
+            $invoice = $this->invoiceRepository->get($id);
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error('Resell failed. Reason: ' . $exc->getMessage());
             $this->errorHelper->processKkmChequeRegistrationError($invoice, $exc);
         } catch (\Throwable $thr) {
+            $invoice = $this->invoiceRepository->get($id);
             $this->getMessageManager()->addErrorMessage(__('Something went wrong. See log.'));
             $this->kkmHelper->error('Resell failed. Reason: ' . $thr->getMessage());
             $this->errorHelper->processKkmChequeRegistrationError($invoice, $thr);

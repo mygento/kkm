@@ -8,7 +8,6 @@
 
 namespace Mygento\Kkm\Helper;
 
-use DateTime;
 use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -22,6 +21,9 @@ use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class TransactionAttempt
 {
     /**
@@ -188,8 +190,8 @@ class TransactionAttempt
 
         $attempt
             ->setIsScheduled(true)
-            ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt, $request->getStoreId()))
-            ->setRequestJson($this->messageEncoder->encode($topic, $request));
+            ->setScheduledAt($scheduledAt ?? $this->resolveScheduledAt($attempt))
+            ->setRequestJson($this->messageEncoder->encode($topic, $this->requestHelper->getQueueMessage($request)));
 
         return $this->attemptRepository->save($attempt);
     }
@@ -348,16 +350,15 @@ class TransactionAttempt
 
     /**
      * @param TransactionAttemptInterface $attempt
-     * @param int|string|null $storeId
+     * @throws \Exception
      * @return string
      */
-    private function resolveScheduledAt(TransactionAttemptInterface $attempt, $storeId): string
+    private function resolveScheduledAt(TransactionAttemptInterface $attempt)
     {
         $numberOfTrials = $attempt->getNumberOfTrials();
 
-        $scheduledAt = new DateTime();
-
-        $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals($storeId);
+        $scheduledAt = new \DateTime();
+        $customRetryIntervals = $this->kkmHelper->getCustomRetryIntervals($attempt->getStoreId());
         if ($customRetryIntervals && isset($customRetryIntervals[$numberOfTrials])) {
             $scheduledAt->modify("+{$customRetryIntervals[$numberOfTrials]} minute");
         }

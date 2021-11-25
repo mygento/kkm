@@ -23,11 +23,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SendSell extends Command
 {
-    const ARGUMENT_ENTITY_ID = 'id';
-    const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
-    const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
-    const COMMAND_SEND_SELL = 'mygento:atol:sell';
-    const COMMAND_DESCRIPTION = 'Sends sell to Atol.';
+    public const ARGUMENT_ENTITY_ID = 'id';
+    public const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
+    public const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
+    public const COMMAND_SEND_SELL = 'mygento:kkm:sell';
+    public const COMMAND_DESCRIPTION = 'Sends sell to Kkm.';
 
     /**
      * @var \Magento\Framework\App\State
@@ -105,16 +105,16 @@ class SendSell extends Command
             $message = $additional[Transaction::ERROR_MESSAGE_KEY]
                 ?? $additional[Transaction::RAW_RESPONSE_KEY];
 
-            if ($status != Response::STATUS_DONE || $status != Response::STATUS_WAIT) {
+            if ($status != Response::STATUS_DONE && $status != Response::STATUS_WAIT) {
                 $output->writeln("<error>Status: {$status}</error>");
-                $output->writeln("<error>Uuid: {$transaction->getTxnId()}</error>");
+                $output->writeln("<error>Transaction ID: {$transaction->getTxnId()}</error>");
                 $output->writeln("<error>Text: {$message}</error>");
 
                 return \Magento\Framework\Console\Cli::RETURN_FAILURE;
             }
 
             $output->writeln("<info>Status: {$status}</info>");
-            $output->writeln("<info>Uuid: {$transaction->getTxnId()}</info>");
+            $output->writeln("<info>Transaction ID {$transaction->getTxnId()}</info>");
         }
 
         return \Magento\Framework\Console\Cli::RETURN_SUCCESS;

@@ -10,8 +10,8 @@ namespace Mygento\Kkm\Api\Data;
 
 interface PaymentInterface
 {
-    const PAYMENT_TYPE_BASIC = 1;
-    const PAYMENT_TYPE_AVANS = 2;
+    public const PAYMENT_TYPE_BASIC = 1;
+    public const PAYMENT_TYPE_AVANS = 2;
 
     /**
      * @return int

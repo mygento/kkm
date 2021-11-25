@@ -15,6 +15,7 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -22,17 +23,21 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class Report extends Command
 {
-    const ARGUMENT = 'period';
-    const ARGUMENT_DESCRIPTION = 'Period. Possible values: '
+    public const ARGUMENT = 'period';
+    public const ARGUMENT_DESCRIPTION = 'Period. Possible values: '
     . self::TODAY_PERIOD . ', '
     . self::YESTERDAY_PERIOD . ', '
     . self::WEEK_PERIOD;
-    const COMMAND = 'mygento:atol:report';
-    const COMMAND_DESCRIPTION = 'Show report of kkm transaction for period.';
+    public const COMMAND = 'mygento:kkm:report';
+    public const COMMAND_DESCRIPTION = 'Show report of kkm transaction for period.';
 
-    const WEEK_PERIOD = 'week';
-    const YESTERDAY_PERIOD = 'yesterday';
-    const TODAY_PERIOD = 'today';
+    public const WEEK_PERIOD = 'week';
+    public const YESTERDAY_PERIOD = 'yesterday';
+    public const TODAY_PERIOD = 'today';
+
+    public const STORE_ID_OPTION = 'store_id';
+    public const STORE_ID_OPTION_SHORTCUT = 's';
+    public const STORE_ID_OPTION_DESCRIPTION = 'Filter transactions by Store ID. By default outputs transaction of all stores.';
 
     /**
      * @var \Magento\Framework\App\State
@@ -77,6 +82,11 @@ class Report extends Command
 
         $this->appState->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
         $param = $input->getArgument(self::ARGUMENT);
+        $storeId = $input->getOption(self::STORE_ID_OPTION)
+            ? (int) $input->getOption(self::STORE_ID_OPTION)
+            : null;
+
+        $this->report->setStoreId($storeId);
         switch ($param) {
             case self::WEEK_PERIOD:
                 $statistics = $this->report->getWeekStatistics();
@@ -106,6 +116,12 @@ class Report extends Command
             self::ARGUMENT,
             InputArgument::OPTIONAL,
             self::ARGUMENT_DESCRIPTION
+        );
+        $this->addOption(
+            self::STORE_ID_OPTION,
+            self::STORE_ID_OPTION_SHORTCUT,
+            InputOption::VALUE_REQUIRED,
+            self::STORE_ID_OPTION_DESCRIPTION
         );
         $this->setHelp(
             <<<HELP

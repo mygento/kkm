@@ -8,14 +8,16 @@
 
 namespace Mygento\Kkm\Model\Source;
 
-class Sno implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Data\OptionSourceInterface;
+
+abstract class AbstractSno implements OptionSourceInterface
 {
-    const RECEIPT_SNO_OSN = 'osn';
-    const RECEIPT_SNO_USN_INCOME = 'usn_income';
-    const RECEIPT_SNO_USN_INCOME_OUTCOME = 'usn_income_outcome';
-    const RECEIPT_SNO_ENVD = 'envd';
-    const RECEIPT_SNO_ESN = 'esn';
-    const RECEIPT_SNO_PATENT = 'patent';
+    protected const RECEIPT_SNO_OSN = '';
+    protected const RECEIPT_SNO_USN_INCOME = '';
+    protected const RECEIPT_SNO_USN_INCOME_OUTCOME = '';
+    protected const RECEIPT_SNO_ENVD = '';
+    protected const RECEIPT_SNO_ESN = '';
+    protected const RECEIPT_SNO_PATENT = '';
 
     /**
      * Get options
@@ -26,27 +28,27 @@ class Sno implements \Magento\Framework\Option\ArrayInterface
     {
         return [
             [
-                'value' => self::RECEIPT_SNO_OSN,
+                'value' => static::RECEIPT_SNO_OSN,
                 'label' => __('общая СН'),
             ],
             [
-                'value' => self::RECEIPT_SNO_USN_INCOME,
+                'value' => static::RECEIPT_SNO_USN_INCOME,
                 'label' => __('упрощенная СН (доходы)'),
             ],
             [
-                'value' => self::RECEIPT_SNO_USN_INCOME_OUTCOME,
+                'value' => static::RECEIPT_SNO_USN_INCOME_OUTCOME,
                 'label' => __('упрощенная СН (доходы минус расходы)'),
             ],
             [
-                'value' => self::RECEIPT_SNO_ENVD,
+                'value' => static::RECEIPT_SNO_ENVD,
                 'label' => __('единый налог на вмененный доход'),
             ],
             [
-                'value' => self::RECEIPT_SNO_ESN,
+                'value' => static::RECEIPT_SNO_ESN,
                 'label' => __('единый сельскохозяйственный налог'),
             ],
             [
-                'value' => self::RECEIPT_SNO_PATENT,
+                'value' => static::RECEIPT_SNO_PATENT,
                 'label' => __('патентная СН'),
             ],
         ];

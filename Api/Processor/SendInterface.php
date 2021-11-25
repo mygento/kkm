@@ -45,7 +45,7 @@ interface SendInterface
      * @param bool $incrExtId
      * @return bool
      */
-    public function proceedResellRefund($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false);
+    public function proceedResell($invoice, $sync = false, $ignoreTrials = false, $incrExtId = false);
 
     /**
      * @param \Magento\Sales\Api\Data\InvoiceInterface $invoice

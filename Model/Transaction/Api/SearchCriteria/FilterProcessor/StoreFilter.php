@@ -13,7 +13,7 @@ use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\Cus
 use Magento\Framework\Data\Collection\AbstractDb;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
-use Mygento\Kkm\Model\Atol\Request;
+use Mygento\Kkm\Model\Request\Request;
 use Zend\Db\Sql\Select;
 
 class StoreFilter implements CustomFilterInterface

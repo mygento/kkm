@@ -14,6 +14,12 @@ use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 
+/**
+ * Class Request
+ * @package Mygento\Kkm\Helper
+ *
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class Request
 {
     /**
@@ -37,22 +43,30 @@ class Request
     private $orderRepository;
 
     /**
+     * @var \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory
+     */
+    private $queueMessageFactory;
+
+    /**
      * Request constructor.
      * @param Transaction $transactionHelper
      * @param \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
      * @param \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository
      * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory $queueMessageFactory
      */
     public function __construct(
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
-        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory $queueMessageFactory
     ) {
         $this->transactionHelper = $transactionHelper;
         $this->creditmemoRepository = $creditmemoRepository;
         $this->invoiceRepository = $invoiceRepository;
         $this->orderRepository = $orderRepository;
+        $this->queueMessageFactory = $queueMessageFactory;
     }
 
     /**
@@ -61,16 +75,7 @@ class Request
      */
     public function getEntityByRequest(RequestInterface $request)
     {
-        switch ($request->getOperationType()) {
-            case RequestInterface::SELL_OPERATION_TYPE:
-            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
-            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
-                return $this->invoiceRepository->get($request->getSalesEntityId());
-            case RequestInterface::REFUND_OPERATION_TYPE:
-                return $this->creditmemoRepository->get($request->getSalesEntityId());
-            default:
-                return $this->orderRepository->get($request->getSalesEntityId());
-        }
+        return $this->getEntityByIdAndOperationType($request->getSalesEntityId(), $request->getOperationType());
     }
 
     /**
@@ -113,6 +118,42 @@ class Request
             $request->setExternalId($matches[1] . '__' . ($matches[2] + 1));
         } else {
             $request->setExternalId($request->getExternalId() . '__1');
+        }
+    }
+
+    /**
+     * @param \Mygento\Kkm\Api\Data\RequestInterface $request
+     * @return \Mygento\Kkm\Api\Queue\QueueMessageInterface
+     */
+    public function getQueueMessage($request)
+    {
+        /** @var \Mygento\Kkm\Api\Queue\QueueMessageInterface $message */
+        $message = $this->queueMessageFactory->create();
+        $message
+            ->setEntityId($request->getSalesEntityId())
+            ->setEntityStoreId($request->getStoreId())
+            ->setOperationType($request->getOperationType());
+
+        return $message;
+    }
+
+    /**
+     * @param int|string $entityId
+     * @param int|string $operationType
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @return CreditmemoInterface|InvoiceInterface|OrderInterface
+     */
+    public function getEntityByIdAndOperationType($entityId, $operationType)
+    {
+        switch ($operationType) {
+            case RequestInterface::SELL_OPERATION_TYPE:
+            case RequestInterface::RESELL_REFUND_OPERATION_TYPE:
+            case RequestInterface::RESELL_SELL_OPERATION_TYPE:
+                return $this->invoiceRepository->get($entityId);
+            case RequestInterface::REFUND_OPERATION_TYPE:
+                return $this->creditmemoRepository->get($entityId);
+            default:
+                return $this->orderRepository->get($entityId);
         }
     }
 }

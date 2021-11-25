@@ -8,7 +8,9 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\ResponseInterface;
+use Mygento\Kkm\Helper\Transaction;
 
 class Response implements ResponseInterface
 {
@@ -77,6 +79,24 @@ class Response implements ResponseInterface
 
     /**
      * @inheritdoc
+     */
+    public function getIdForTransaction()
+    {
+        return $this->uuid;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setIdForTransaction($uuid)
+    {
+        $this->uuid = $uuid;
+
+        return $this;
+    }
+
+    /**
+     * @return string|null
      */
     public function getUuid()
     {
@@ -248,5 +268,29 @@ class Response implements ResponseInterface
     public function isWait()
     {
         return $this->getStatus() === self::STATUS_WAIT;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getVendorSpecificTxnData()
+    {
+        $data = [
+            RequestInterface::EXTERNAL_ID_KEY => $this->getExternalId(),
+            Transaction::UUID_KEY => $this->getUuid(),
+            Transaction::STATUS_KEY => $this->getStatus(),
+            Transaction::ERROR_MESSAGE_KEY => $this->getErrorMessage(),
+            Transaction::RAW_RESPONSE_KEY => $this->getRawResponse(),
+        ];
+
+        return array_merge($data, (array) $this->getPayload());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getRawResponse()
+    {
+        return json_encode(json_decode((string) $this), JSON_UNESCAPED_UNICODE);
     }
 }

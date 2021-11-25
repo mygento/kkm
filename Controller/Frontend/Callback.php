@@ -21,6 +21,11 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     private $responseFactory;
 
     /**
+     * @var \Mygento\Kkm\Model\VendorInterface
+     */
+    private $vendor;
+
+    /**
      * @var \Mygento\Kkm\Helper\Data
      */
     private $kkmHelper;
@@ -41,32 +46,36 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
     private $processor;
 
     /**
-     * @var \Mygento\Kkm\Model\VendorInterface
+     * @var \Magento\Store\Model\StoreManagerInterface
      */
-    private $vendor;
+    private $storeManager;
 
     /**
+     * Callback constructor.
      * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
+     * @param \Mygento\Kkm\Model\VendorInterface $vendor
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param \Mygento\Kkm\Helper\Error $errorHelper
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      * @param \Mygento\Kkm\Helper\Resell $resellHelper
      * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
      * @param \Magento\Framework\App\Action\Context $context
      */
     public function __construct(
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
+        \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error $errorHelper,
-        \Mygento\Kkm\Model\VendorInterface $vendor,
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Mygento\Kkm\Helper\Resell $resellHelper,
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Magento\Framework\App\Action\Context $context
     ) {
         parent::__construct($context);
         $this->responseFactory = $responseFactory;
-        $this->kkmHelper = $kkmHelper;
         $this->vendor = $vendor;
+        $this->kkmHelper = $kkmHelper;
+        $this->storeManager = $storeManager;
         $this->errorHelper = $errorHelper;
         $this->resellHelper = $resellHelper;
         $this->processor = $processor;
@@ -92,7 +101,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
                 __(
                     'Callback received. Status: %1. Uuid: %2',
                     $response->getStatus(),
-                    $response->getUuid()
+                    $response->getIdForTransaction()
                 )
             );
             $this->kkmHelper->debug(__('Callback received: %1', (string) $response));
@@ -100,7 +109,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
             //Sometimes callback is received when transaction is not saved yet. In order to avoid this
             sleep(3);
 
-            $entity = $this->vendor->saveCallback($response);
+            $entity = $this->vendor->saveCallback($response, $this->storeManager->getStore()->getId());
 
             //Если был совершен refund по инвойсу - следовательно, это коррекция чека
             //и нужно заново отправить инвойс в АТОЛ

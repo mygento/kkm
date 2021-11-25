@@ -17,13 +17,15 @@
             "scheduled_at": true,
             "is_scheduled": true,
             "request_json": true,
+            "store_id": true,
             "error_code": true,
             "error_type": true
         },
         "index": {
             "MYGENTO_KKM_TRANSACTION_ATTEMPT_STATUS": true,
             "MYGENTO_KKM_TRANSACTION_ATTEMPT_ORDER_ID": true,
-            "MYGENTO_KKM_TRANSACTION_ATTEMPT_IS_SCHEDULED_SCHEDULED_AT": true
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_IS_SCHEDULED_SCHEDULED_AT": true,
+            "MYGENTO_KKM_TRANSACTION_ATTEMPT_STORE_ID": true
         },
         "constraint": {
             "PRIMARY": true,

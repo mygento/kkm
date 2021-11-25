@@ -31,4 +31,20 @@ class UpdateRequest extends DataObject implements UpdateRequestInterface
     {
         return $this->setData(self::UUID, $uuid);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getEntityStoreId()
+    {
+        return $this->getData(self::STORE_ID);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setEntityStoreId($storeId)
+    {
+        return $this->setData(self::STORE_ID, $storeId);
+    }
 }

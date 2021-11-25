@@ -10,12 +10,8 @@ namespace Mygento\Kkm\Crontab;
 
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Magento\Store\Api\StoreRepositoryInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterfaceFactory;
-use Mygento\Kkm\Api\Processor\UpdateInterface;
-use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\Transaction as TransactionHelper;
-use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\Atol\Response;
 
 class Update
@@ -34,7 +30,7 @@ class Update
     private $kkmHelper;
 
     /**
-     * @var \Mygento\Kkm\Helper\Transaction\Proxy
+     * @var TransactionHelper
      */
     private $transactionHelper;
 
@@ -44,19 +40,9 @@ class Update
     private $updateProcessor;
 
     /**
-     * @var \Magento\Store\Api\StoreRepositoryInterface
+     * @var \Magento\Store\Model\StoreManagerInterface
      */
-    private $storeRepository;
-
-    /**
-     * @var array
-     */
-    private $result;
-
-    /**
-     * @var int
-     */
-    private $updatedTransactionsCount;
+    private $storeManager;
 
     /**
      * @param UpdateRequestInterfaceFactory $updateRequestFactory
@@ -64,22 +50,22 @@ class Update
      * @param \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper
      * @param \Mygento\Kkm\Helper\Data $kkmHelper
      * @param TransactionHelper $transactionHelper
-     * @param \Magento\Store\Api\StoreRepositoryInterface $storeRepository
+     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
      */
     public function __construct(
         UpdateRequestInterfaceFactory $updateRequestFactory,
-        UpdateInterface $updateProcessor,
-        TransactionAttempt $attemptHelper,
-        Data $kkmHelper,
+        \Mygento\Kkm\Api\Processor\UpdateInterface $updateProcessor,
+        \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
+        \Mygento\Kkm\Helper\Data $kkmHelper,
         TransactionHelper $transactionHelper,
-        StoreRepositoryInterface $storeRepository
+        \Magento\Store\Model\StoreManagerInterface $storeManager
     ) {
         $this->updateRequestFactory = $updateRequestFactory;
         $this->attemptHelper = $attemptHelper;
         $this->kkmHelper = $kkmHelper;
         $this->transactionHelper = $transactionHelper;
         $this->updateProcessor = $updateProcessor;
-        $this->storeRepository = $storeRepository;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -87,30 +73,59 @@ class Update
      */
     public function execute()
     {
-        //Проверка включения Cron
-        if (!$this->kkmHelper->getConfig('general/update_cron')) {
+        foreach ($this->storeManager->getStores() as $store) {
+            $this->proceed($store->getId());
+        }
+    }
+
+    /**
+     * @param int|string $storeId
+     * @throws \Exception
+     */
+    private function proceed($storeId)
+    {
+        //Проверка включения Cron и необходимость выполнять операцию обновления статуса для вендора
+        if (!$this->kkmHelper->getConfig('general/update_cron', $storeId)
+            || !$this->kkmHelper->isVendorNeedUpdateStatus($storeId)
+        ) {
             return;
         }
 
         $this->kkmHelper->info('KKM Update statuses Cron START');
 
-        $this->result = [];
-        $this->updatedTransactionsCount = 0;
-        foreach ($this->storeRepository->getList() as $store) {
-            $this->updateStatusByStoreId($store->getId());
+        $uuids = $this->transactionHelper->getWaitUuidsByStore($storeId);
+
+        $result = [];
+        $i = 0;
+        foreach ($uuids as $uuid) {
+            try {
+                if (!$this->kkmHelper->isMessageQueueEnabled($storeId)) {
+                    $response = $this->updateProcessor->proceedSync($uuid);
+
+                    $result[] = "UUID {$uuid} new status: {$response->getStatus()}";
+                    $i++;
+                    continue;
+                }
+
+                $this->createUpdateAttempt($uuid, $storeId);
+                $result[] = "UUID {$uuid} update queued";
+                $i++;
+            } catch (\Exception $e) {
+                $this->kkmHelper->critical($e);
+            }
         }
 
-        $this->kkmHelper->debug('Update result: ', $this->result);
-        $this->kkmHelper->info("{$this->updatedTransactionsCount} transactions updated");
+        $this->kkmHelper->debug('Update result: ', $result);
+        $this->kkmHelper->info("{$i} transactions updated");
         $this->kkmHelper->info('KKM Update statuses Cron END');
     }
 
     /**
-     * @param string $uuid
+     * @param int|string $storeId
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Exception
      */
-    private function createUpdateAttempt(string $uuid)
+    private function createUpdateAttempt(string $uuid, $storeId)
     {
         $transaction = $this->transactionHelper->getTransactionByTxnId($uuid, Response::STATUS_WAIT);
         if (!$transaction->getTransactionId()) {
@@ -124,7 +139,9 @@ class Update
         }
 
         $updateRequest = $this->updateRequestFactory->create();
-        $updateRequest->setUuid($uuid);
+        $updateRequest
+            ->setUuid($uuid)
+            ->setEntityStoreId($storeId);
 
         //Register sending Attempt
         $this->attemptHelper->registerUpdateAttempt($entity, $transaction, false);
@@ -132,30 +149,5 @@ class Update
         $this->kkmHelper->debug('Publish request: ', $updateRequest->toArray());
 
         $this->updateProcessor->proceedAsync($updateRequest);
-    }
-
-    /**
-     * @param int|string $storeId
-     */
-    private function updateStatusByStoreId($storeId)
-    {
-        $uuids = $this->transactionHelper->getWaitUuidsByStore($storeId);
-        foreach ($uuids as $uuid) {
-            try {
-                if (!$this->kkmHelper->isMessageQueueEnabled($storeId)) {
-                    $response = $this->updateProcessor->proceedSync($uuid);
-
-                    $this->result[] = "UUID {$uuid} new status: {$response->getStatus()}";
-                    $this->updatedTransactionsCount++;
-                    continue;
-                }
-
-                $this->createUpdateAttempt($uuid);
-                $this->result[] = "UUID {$uuid} update queued";
-                $this->updatedTransactionsCount++;
-            } catch (\Exception $e) {
-                $this->kkmHelper->critical($e);
-            }
-        }
     }
 }

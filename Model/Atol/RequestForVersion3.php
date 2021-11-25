@@ -12,7 +12,7 @@ namespace Mygento\Kkm\Model\Atol;
  * @deprecated
  * @see RequestForVersion4
  */
-class RequestForVersion3 extends Request
+class RequestForVersion3 extends \Mygento\Kkm\Model\Request\Request
 {
     /**
      * @throws \Exception
