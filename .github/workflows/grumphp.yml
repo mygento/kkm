@@ -4,17 +4,17 @@ on:
   workflow_dispatch:
   pull_request:
     branches:
-      - v2.3
+      - v2.4
   push:
     branches:
-      - v2.3
+      - v2.4
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ['7.2','7.3', '7.4']
+        php-versions: ['7.4']
     steps:
       - uses: actions/checkout@v2
 
@@ -34,7 +34,7 @@ jobs:
           # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
-      - run: composer self-update --1
+      - run: composer self-update --2
       - run: echo "{\"http-basic\":{\"repo.magento.com\":{\"username\":\"${MAGE_LOGIN}\",\"password\":\"${MAGE_PWD}\"}}}" > auth.json
         env:
           MAGE_LOGIN: ${{ secrets.MAGE_LOGIN }}
