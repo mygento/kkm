@@ -12,6 +12,13 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 abstract class AbstractSno implements OptionSourceInterface
 {
+    protected const RECEIPT_SNO_OSN = '';
+    protected const RECEIPT_SNO_USN_INCOME = '';
+    protected const RECEIPT_SNO_USN_INCOME_OUTCOME = '';
+    protected const RECEIPT_SNO_ENVD = '';
+    protected const RECEIPT_SNO_ESN = '';
+    protected const RECEIPT_SNO_PATENT = '';
+
     /**
      * Get options
      *

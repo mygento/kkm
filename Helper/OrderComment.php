@@ -20,7 +20,7 @@ use Mygento\Kkm\Model\Atol\Response;
 
 class OrderComment
 {
-    const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
+    public const COMMENT_ADDED_TO_ORDER_FLAG = 'kkm_comment_added';
 
     /**
      * @var OrderRepositoryInterface

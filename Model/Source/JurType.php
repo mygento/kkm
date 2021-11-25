@@ -12,10 +12,10 @@ use Magento\Framework\Data\OptionSourceInterface as OptionSourceInterfaceAlias;
 
 class JurType implements OptionSourceInterfaceAlias
 {
-    const ENTREPRENEUR = 'entrepreneur';
-    const ORGANIZATION = 'organization';
+    public const ENTREPRENEUR = 'entrepreneur';
+    public const ORGANIZATION = 'organization';
 
-    const OPTIONS = [
+    public const OPTIONS = [
         self::ENTREPRENEUR => 'Individual Entrepreneur',
         self::ORGANIZATION => 'Organization',
     ];

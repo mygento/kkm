@@ -198,6 +198,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
                 break;
+            default:
+                throw new LocalizedException(__('Unknown entity type: \'%1\'', $entity->getEntityType()));
+                break;
         }
 
         $this->orderCommentHelper->addCommentToOrder($entity, $response, $txn->getId(), $operation);
@@ -246,6 +249,9 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
                 break;
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
+                break;
+            default:
+                throw new LocalizedException(__('Unknown entity type: \'%1\'', $entity->getEntityType()));
                 break;
         }
 

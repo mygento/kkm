@@ -16,7 +16,7 @@ class Resend extends \Magento\Backend\App\Action
     /**
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
+    public const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
 
     /**
      * @var \Magento\Store\Model\App\Emulation
@@ -58,13 +58,13 @@ class Resend extends \Magento\Backend\App\Action
     public function execute()
     {
         $storeId = $this->_request->getParam('store_id');
+        $entityType = strtolower($this->_request->getParam('entity'));
+        $id = $this->getRequest()->getParam('id');
 
         try {
             $this->validateRequest();
             $this->emulation->startEnvironmentEmulation($storeId);
 
-            $entityType = strtolower($this->_request->getParam('entity'));
-            $id = $this->getRequest()->getParam('id');
             $incrExtId = (bool) $this->getRequest()->getParam('incr_ext_id');
 
             $this->resender->resend($id, $entityType, $incrExtId);

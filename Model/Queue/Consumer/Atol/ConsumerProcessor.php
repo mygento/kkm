@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Model\Queue\Consumer\Atol;
 
 use Magento\Framework\Exception\InvalidArgumentException;
+use Magento\Framework\Exception\LocalizedException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
@@ -129,6 +130,10 @@ class ConsumerProcessor implements ConsumerProcessorInterface
 
             $this->sellConsumer->sendSellRequest($request);
         } catch (\Throwable $e) {
+            if (!isset($request)) {
+                throw new LocalizedException(__('There is no request to schedule next attempt'));
+            }
+
             $entity = $this->requestHelper->getEntityByRequest($request);
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
             if ($this->helper->isRetrySendingEndlessly($entity->getStoreId())) {
@@ -141,6 +146,9 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         }
     }
 
+    /**
+     * @throws LocalizedException
+     */
     public function processRefund(QueueMessageInterface $queueMessage): void
     {
         try {
@@ -152,11 +160,17 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = $this->vendor->buildRequest($entity);
             $this->refundConsumer->sendRefundRequest($request);
         } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByRequest($request);
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
+    /**
+     * @throws LocalizedException
+     */
     public function processResell(QueueMessageInterface $queueMessage): void
     {
         try {
@@ -168,11 +182,17 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = $this->vendor->buildRequestForResellRefund($entity);
             $this->resellConsumer->sendResellRequest($request);
         } catch (\Throwable $e) {
-            $entity = $this->requestHelper->getEntityByRequest($request);
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function processUpdate(UpdateRequestInterface $updateRequest): void
     {
         try {

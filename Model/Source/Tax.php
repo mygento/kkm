@@ -10,12 +10,12 @@ namespace Mygento\Kkm\Model\Source;
 
 class Tax implements \Magento\Framework\Option\ArrayInterface
 {
-    const TAX_NONE = 'none';
-    const TAX_VAT0 = 'vat0';
-    const TAX_VAT10 = 'vat10';
-    const TAX_VAT20 = 'vat20';
-    const TAX_VAT110 = 'vat110';
-    const TAX_VAT120 = 'vat120';
+    public const TAX_NONE = 'none';
+    public const TAX_VAT0 = 'vat0';
+    public const TAX_VAT10 = 'vat10';
+    public const TAX_VAT20 = 'vat20';
+    public const TAX_VAT110 = 'vat110';
+    public const TAX_VAT120 = 'vat120';
 
     /**
      * Get options

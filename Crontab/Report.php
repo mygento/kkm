@@ -13,8 +13,8 @@ use Mygento\Kkm\Model\Source\Period;
 
 class Report
 {
-    const EMAIL_SUBJECT = 'KKM Report';
-    const EMAIL_SENDER_NAME = 'KKM Reporter';
+    public const EMAIL_SUBJECT = 'KKM Report';
+    public const EMAIL_SENDER_NAME = 'KKM Reporter';
 
     /**
      * @var \Mygento\Kkm\Helper\Data

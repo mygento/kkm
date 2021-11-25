@@ -20,7 +20,7 @@ class CheckStatus extends Action
     /**
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_checkstatus';
+    public const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_checkstatus';
 
     /**
      * @var \Magento\Store\Model\App\Emulation

@@ -16,8 +16,8 @@ use Mygento\Kkm\Api\Data\ResponseInterface;
 
 interface VendorInterface
 {
-    const ALREADY_SENT_FLAG = 'kkm_already_sent';
-    const SKIP_PAYMENT_METHOD_VALIDATION = 'kkm_skip_payment_method_validation';
+    public const ALREADY_SENT_FLAG = 'kkm_already_sent';
+    public const SKIP_PAYMENT_METHOD_VALIDATION = 'kkm_skip_payment_method_validation';
 
     /**
      * Send request to Vendor

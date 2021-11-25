@@ -10,14 +10,14 @@ namespace Mygento\Kkm\Model\Atol;
 
 class Item extends \Mygento\Kkm\Model\Request\Item
 {
-    const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
-    const PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment';
-    const PAYMENT_METHOD_ADVANCE = 'advance';
+    public const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
+    public const PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment';
+    public const PAYMENT_METHOD_ADVANCE = 'advance';
 
-    const PAYMENT_OBJECT_BASIC = 'commodity';
-    const PAYMENT_OBJECT_SERVICE = 'service';
-    const PAYMENT_OBJECT_PAYMENT = 'payment'; //Аванс, Бонус, Подарочная карта
-    const PAYMENT_OBJECT_ANOTHER = 'another';
+    public const PAYMENT_OBJECT_BASIC = 'commodity';
+    public const PAYMENT_OBJECT_SERVICE = 'service';
+    public const PAYMENT_OBJECT_PAYMENT = 'payment'; //Аванс, Бонус, Подарочная карта
+    public const PAYMENT_OBJECT_ANOTHER = 'another';
 
     /**
      * @return array

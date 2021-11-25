@@ -19,7 +19,7 @@ use Mygento\Kkm\Helper\Transaction;
  */
 class Response implements ResponseInterface
 {
-    const NON_FATAL_DEVICE_ERROR_CODES = [
+    public const NON_FATAL_DEVICE_ERROR_CODES = [
         17, //Нет транспортного соединения с ОФД
         80, //Данные печатаются
         200, //Тайм-аут принтера

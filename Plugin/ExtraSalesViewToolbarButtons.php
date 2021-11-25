@@ -58,6 +58,7 @@ class ExtraSalesViewToolbarButtons
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function beforePushButtons(
+        /** @phpstan-ignore-next-line */
         \Magento\Backend\Block\Widget\Button\Toolbar\Interceptor $subject,
         \Magento\Framework\View\Element\AbstractBlock $context,
         \Magento\Backend\Block\Widget\Button\ButtonList $buttonList

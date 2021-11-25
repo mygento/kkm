@@ -24,6 +24,8 @@ use Mygento\Kkm\Model\GetRecalculated;
  */
 abstract class AbstractRequestBuilder
 {
+    private const TYPE_GIFTCARD = 'giftcard';
+
     /**
      * @var KkmHelperData
      */
@@ -162,7 +164,7 @@ abstract class AbstractRequestBuilder
             $productType = $item->getProductType()
                 ?? $this->productRepository->getById($item->getProductId())->getTypeId();
 
-            $giftCardType = ProductType::TYPE_GIFTCARD;
+            $giftCardType = self::TYPE_GIFTCARD;
             if (strpos($item->getName(), $itemName) !== false && $productType == $giftCardType) {
                 return true;
             }

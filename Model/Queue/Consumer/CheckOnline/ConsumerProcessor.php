@@ -9,6 +9,8 @@
 namespace Mygento\Kkm\Model\Queue\Consumer\CheckOnline;
 
 use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Mygento\Kkm\Api\Data\RequestInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
@@ -89,6 +91,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
 
     /**
      * @inheritDoc
+     * @throws LocalizedException
      */
     public function processSell(QueueMessageInterface $queueMessage): void
     {
@@ -108,6 +111,12 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->warning($e->getMessage());
 
+            if (!isset($request)) {
+                throw new LocalizedException(__('There is no request to schedule next attempt'));
+            }
+
+            $entity = $this->requestHelper->getEntityByRequest($request);
+
             if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
                 // помечаем заказ, как KKM Fail
                 $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
@@ -124,7 +133,14 @@ class ConsumerProcessor implements ConsumerProcessorInterface
                 $this->requestHelper->getQueueMessage($request)
             );
         } catch (\Throwable $e) {
+            if (!isset($request)) {
+                throw new LocalizedException(__('There is no request to schedule next attempt'));
+            }
+
+            $entity = $this->requestHelper->getEntityByRequest($request);
+
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
+
             if ($this->helper->isRetrySendingEndlessly($entity->getStoreId())) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at на следующей день
                 $this->attemptHelper->scheduleNextAttempt(
@@ -138,6 +154,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
 
     /**
      * @inheritDoc
+     * @throws LocalizedException
      */
     public function processRefund(QueueMessageInterface $queueMessage): void
     {
@@ -151,6 +168,12 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $this->vendor->sendRefundRequest($request, $entity);
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->warning($e->getMessage());
+
+            if (!isset($request)) {
+                throw new LocalizedException(__('There is no request to schedule next attempt'));
+            }
+
+            $entity = $this->requestHelper->getEntityByRequest($request);
 
             if ($e instanceof VendorBadServerAnswerException) {
                 $this->orderComment->addCommentToOrderNoChangeStatus($entity, $e->getMessage());
@@ -169,12 +192,18 @@ class ConsumerProcessor implements ConsumerProcessorInterface
                 $this->requestHelper->getQueueMessage($request)
             );
         } catch (\Throwable $e) {
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
     /**
      * @inheritDoc
+     * @throws NoSuchEntityException
+     * @throws LocalizedException
      */
     public function processResell(QueueMessageInterface $queueMessage): void
     {
@@ -187,6 +216,12 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $this->vendor->sendResellRequest($request);
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->warning($e->getMessage());
+
+            if (!isset($request)) {
+                throw new LocalizedException(__('There is no request to schedule next attempt'));
+            }
+
+            $entity = $this->requestHelper->getEntityByRequest($request);
 
             if ($this->helper->isUseCustomRetryIntervals($entity->getStoreId())) {
                 // находим попытку, ставим флаг is_scheduled и заполняем время scheduled_at.
@@ -202,10 +237,19 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         } catch (InputException $exc) {
             $this->helper->error($exc->getMessage());
         } catch (\Throwable $e) {
+            $entity = $this->requestHelper->getEntityByIdAndOperationType(
+                $queueMessage->getEntityId(),
+                $queueMessage->getOperationType()
+            );
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
     }
 
+    /**
+     * @param UpdateRequestInterface $updateRequest
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
     public function processUpdate(UpdateRequestInterface $updateRequest): void
     {
     }

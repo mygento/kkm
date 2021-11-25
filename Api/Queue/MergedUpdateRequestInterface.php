@@ -10,7 +10,7 @@ namespace Mygento\Kkm\Api\Queue;
 
 interface MergedUpdateRequestInterface
 {
-    const REQUESTS = 'requests';
+    public const REQUESTS = 'requests';
 
     /**
      * Get requests

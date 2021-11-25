@@ -12,6 +12,12 @@ use Magento\Framework\View\Element\Context;
 use Magento\Framework\View\Element\Html\Select;
 use Mygento\Kkm\Model\Source\JurType as JurTypeSource;
 
+/**
+ * Class JurType
+ *
+ * @method $this setName(string $value)
+ * @method string getInputId()
+ */
 class JurType extends Select
 {
     /**

@@ -23,11 +23,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SendRefund extends Command
 {
-    const ARGUMENT_ENTITY_ID = 'id';
-    const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Creditmemo IncrementId';
-    const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
-    const COMMAND_SEND_REFUND = 'mygento:kkm:refund';
-    const COMMAND_DESCRIPTION = 'Sends refund to Kkm.';
+    public const ARGUMENT_ENTITY_ID = 'id';
+    public const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Creditmemo IncrementId';
+    public const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
+    public const COMMAND_SEND_REFUND = 'mygento:kkm:refund';
+    public const COMMAND_DESCRIPTION = 'Sends refund to Kkm.';
 
     /**
      * @var \Magento\Framework\App\State

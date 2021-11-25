@@ -12,7 +12,7 @@ use Mygento\Kkm\Exception\CreateDocumentFailedException;
 
 class Error
 {
-    const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
+    public const ORDER_KKM_FAILED_STATUS = 'kkm_failed';
 
     /**
      * @var \Magento\Sales\Api\OrderRepositoryInterface

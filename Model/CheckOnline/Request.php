@@ -12,9 +12,9 @@ use Mygento\Kkm\Api\Data\RequestInterface;
 
 class Request extends \Mygento\Kkm\Model\Request\Request
 {
-    const REQUEST_ID_KEY = 'RequestId';
+    public const REQUEST_ID_KEY = 'RequestId';
 
-    const CHECKONLINE_OPERATION_TYPE_MAPPING = [
+    public const CHECKONLINE_OPERATION_TYPE_MAPPING = [
         RequestInterface::SELL_OPERATION_TYPE => 0,
         RequestInterface::REFUND_OPERATION_TYPE => 2,
         RequestInterface::RESELL_REFUND_OPERATION_TYPE => 2,

@@ -23,11 +23,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class SendSell extends Command
 {
-    const ARGUMENT_ENTITY_ID = 'id';
-    const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
-    const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
-    const COMMAND_SEND_SELL = 'mygento:kkm:sell';
-    const COMMAND_DESCRIPTION = 'Sends sell to Kkm.';
+    public const ARGUMENT_ENTITY_ID = 'id';
+    public const ARGUMENT_ENTITY_ID_DESCRIPTION = 'Invoice IncrementId';
+    public const OPTION_INCREASE_EXTERNAL_ID = 'increase_external_id';
+    public const COMMAND_SEND_SELL = 'mygento:kkm:sell';
+    public const COMMAND_DESCRIPTION = 'Sends sell to Kkm.';
 
     /**
      * @var \Magento\Framework\App\State

@@ -15,7 +15,7 @@ abstract class TransactionAttempt extends \Magento\Backend\App\Action
      *
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Mygento_Kkm::transactionattempt';
+    public const ADMIN_RESOURCE = 'Mygento_Kkm::transactionattempt';
 
     /**
      * Core registry
