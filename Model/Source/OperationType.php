@@ -10,6 +10,7 @@ namespace Mygento\Kkm\Model\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 
 class OperationType implements OptionSourceInterface
 {
@@ -26,6 +27,10 @@ class OperationType implements OptionSourceInterface
             [
                 'value' => RequestInterface::REFUND_OPERATION_TYPE,
                 'label' => __('Refund'),
+            ],
+            [
+                'value' => UpdateRequestInterface::UPDATE_OPERATION_TYPE,
+                'label' => __('Update'),
             ],
             [
                 'value' => RequestInterface::RESELL_SELL_OPERATION_TYPE,

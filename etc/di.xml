@@ -106,6 +106,7 @@
         <arguments>
             <argument name="collections" xsi:type="array">
                 <item name="kkm_transactionattempt_listing_data_source" xsi:type="string">Mygento\Kkm\Model\ResourceModel\TransactionAttempt\Grid\Collection</item>
+                <item name="kkm_chequestatus_listing_data_source" xsi:type="string">Mygento\Kkm\Model\ResourceModel\ChequeStatus\Grid\Collection</item>
             </argument>
         </arguments>
     </type>
