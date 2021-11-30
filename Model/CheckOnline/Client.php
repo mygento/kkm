@@ -81,7 +81,7 @@ class Client
     /**
      * @param RequestInterface $request
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
-     * @return string
+     * @return ResponseInterface
      */
     public function sendPostRequest($request): ResponseInterface
     {

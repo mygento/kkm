@@ -25,6 +25,8 @@ class Data extends \Mygento\Base\Helper\Data
     private const CONFIG_PATH_PROD_CLIENT_PRIVATE_KEY = 'checkonline/private_key';
     private const CONFIG_PATH_TEST_API_URL = 'checkonline/test_api_url';
     private const CONFIG_PATH_PROD_API_URL = 'checkonline/api_url';
+    private const CONFIG_PATH_TEST_OFD_URL = 'checkonline/test_ofd_url';
+    private const CONFIG_PATH_PROD_OFD_URL = 'checkonline/ofd_url';
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
@@ -293,5 +295,14 @@ class Data extends \Mygento\Base\Helper\Data
         }
 
         return $this->getConfig(self::CONFIG_PATH_PROD_API_URL, $storeId);
+    }
+
+    public function getCheckonlineOfdUrl(?string $storeId): string
+    {
+        if ($this->isTestMode($storeId)) {
+            return (string) $this->getConfig(self::CONFIG_PATH_TEST_OFD_URL, $storeId);
+        }
+
+        return (string) $this->getConfig(self::CONFIG_PATH_PROD_OFD_URL, $storeId);
     }
 }

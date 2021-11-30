@@ -182,6 +182,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         try {
             $response = $this->apiClient->sendPostRequest($request);
 
+            $this->insertReceiptLink($response, $entity->getStoreId());
+
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->orderCommentHelper->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
 
@@ -222,5 +224,32 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 )
             );
         }
+    }
+
+    /**
+     * @param ResponseInterface $response
+     * @param string|null $storeId
+     */
+    private function insertReceiptLink($response, $storeId)
+    {
+        $ofdUrl = $this->kkmHelper->getCheckonlineOfdUrl($storeId);
+
+        if (!$ofdUrl || !$response->getQr()) {
+            return;
+        }
+
+        $sumMatches = $fpdNumberMatches = [];
+        preg_match('/(s=.+?)(&|$)/i', $response->getQr(), $sumMatches);
+        preg_match('/(fp=.+?)(&|$)/i', $response->getQr(), $fpdNumberMatches);
+        $sumPart = $sumMatches[1] ?? null;
+        $fpdNumberPart = $fpdNumberMatches[1] ?? null;
+
+        if (!$sumPart || !$fpdNumberPart) {
+            return;
+        }
+
+        $linkParams = $sumPart . '&' . $fpdNumberPart;
+
+        $response->setReceiptLink($ofdUrl . '?' . $linkParams);
     }
 }
