@@ -15,15 +15,15 @@
     <dataSource name="kkm_chequestatus_listing_data_source" component="Magento_Ui/js/grid/provider">
         <settings>
             <storageConfig>
-                <param name="indexField" xsi:type="string">id</param>
+                <param name="indexField" xsi:type="string">entity_id</param>
             </storageConfig>
             <updateUrl path="mui/index/render"/>
         </settings>
         <aclResource>Mygento_Kkm::chequestatus</aclResource>
         <dataProvider class="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider" name="kkm_chequestatus_listing_data_source">
             <settings>
-                <requestFieldName>id</requestFieldName>
-                <primaryFieldName>id</primaryFieldName>
+                <requestFieldName>entity_id</requestFieldName>
+                <primaryFieldName>entity_id</primaryFieldName>
             </settings>
         </dataProvider>
     </dataSource>
@@ -47,12 +47,28 @@
             </settings>
         </filters>
         <paging name="listing_paging"/>
+        <massaction name="listing_massaction">
+            <action name="mygento_kkm_mass_resend" sortOrder="1">
+                <argument name="data" xsi:type="array">
+                    <item name="sortOrder" xsi:type="string">1</item>
+                </argument>
+                <settings>
+                    <url path="kkm/cheque/massResend"/>
+                    <type>mygento_kkm_mass_resend</type>
+                    <label translate="true">Resend</label>
+                </settings>
+            </action>
+        </massaction>
     </listingToolbar>
     <columns name="kkm_chequestatus_columns">
-        <column name="order_id">
+        <selectionsColumn name="ids">
             <settings>
-                <filter>textRange</filter>
-                <filter>textRange</filter>
+                <indexField>entity_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="order_increment_id">
+            <settings>
+                <filter>text</filter>
                 <dataType>text</dataType>
                 <editor>
                     <editorType>text</editorType>
@@ -71,9 +87,9 @@
                 <options class="Mygento\Kkm\Model\Source\SalesEntityType"/>
             </settings>
         </column>
-        <column name="sales_entity_id">
+        <column name="increment_id">
             <settings>
-                <filter>textRange</filter>
+                <filter>text</filter>
                 <dataType>text</dataType>
                 <editor>
                     <editorType>text</editorType>
@@ -81,24 +97,11 @@
                 <label translate="true">Sales Entity Id</label>
             </settings>
         </column>
-        <column name="sales_increment_id">
+        <column name="store_id" class="Magento\Store\Ui\Component\Listing\Column\Store">
             <settings>
-                <filter>text</filter>
-                <dataType>text</dataType>
-                <editor>
-                    <editorType>text</editorType>
-                </editor>
-                <label translate="true">Sales Entity Increment Id</label>
-            </settings>
-        </column>
-        <column name="store_id">
-            <settings>
-                <filter>textRange</filter>
-                <dataType>text</dataType>
-                <editor>
-                    <editorType>text</editorType>
-                </editor>
-                <label translate="true">Store Id</label>
+                <label translate="true">Store</label>
+                <bodyTmpl>ui/grid/cells/html</bodyTmpl>
+                <sortable>false</sortable>
             </settings>
         </column>
         <column name="is_closed" component="Magento_Ui/js/grid/columns/select">
@@ -112,5 +115,10 @@
                 <options class="Magento\Config\Model\Config\Source\Yesno"/>
             </settings>
         </column>
+        <actionsColumn class="Mygento\Kkm\Ui\Component\Listing\Column\ChequeStatus\Actions" name="actions">
+            <settings>
+                <indexField>entity_id</indexField>
+            </settings>
+        </actionsColumn>
     </columns>
 </listing>

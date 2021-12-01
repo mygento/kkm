@@ -14,11 +14,10 @@ use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Ui\Component\MassAction\Filter;
-use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\ResenderInterface;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\TransactionAttempt;
-use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory;
+use Mygento\Kkm\Model\ResourceModel\ChequeStatus\Grid\CollectionFactory;
 
 class MassResend extends Action implements HttpPostActionInterface
 {
@@ -84,30 +83,8 @@ class MassResend extends Action implements HttpPostActionInterface
         $attemptIdsWithFailedResend = [];
         $attemptIdsWithSuccessfulResend = [];
 
-        /** @var TransactionAttemptInterface $attempt */
-        foreach ($collection as $attempt) {
-            $isResendAvailable = $this->transactionAttemptHelper->isResendAvailable($attempt);
-
-            if (!$isResendAvailable) {
-                continue;
-            }
-
-            $entityType = $this->transactionAttemptHelper->getEntityType($attempt);
-            $needExtIdIncrement = $this->configHelper->isAtolNonFatalError(
-                $attempt->getErrorCode(),
-                $attempt->getErrorType()
-            );
-            $salesEntityId = $attempt->getSalesEntityId();
-
-            try {
-                $this->resender->resend($salesEntityId, $entityType, $needExtIdIncrement);
-            } catch (\Throwable $thr) {
-                $attemptIdsWithFailedResend[] = $attempt->getId();
-
-                continue;
-            }
-
-            $attemptIdsWithSuccessfulResend[] = $attempt->getId();
+        foreach ($collection as $salesEntity) {
+            
         }
 
         if (count($attemptIdsWithFailedResend)) {

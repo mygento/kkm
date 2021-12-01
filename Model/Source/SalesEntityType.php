@@ -12,6 +12,9 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class SalesEntityType implements OptionSourceInterface
 {
+    public const ENTITY_TYPE_INVOICE = 'invoice';
+    public const ENTITY_TYPE_CREDITMEMO = 'creditmemo';
+
     /**
      * @return array
      */
@@ -19,11 +22,11 @@ class SalesEntityType implements OptionSourceInterface
     {
         return [
             [
-                'value' => 1,
+                'value' => self::ENTITY_TYPE_INVOICE,
                 'label' => __('Invoice'),
             ],
             [
-                'value' => 2,
+                'value' => self::ENTITY_TYPE_CREDITMEMO,
                 'label' => __('Creditmemo'),
             ]
         ];
