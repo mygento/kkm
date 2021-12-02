@@ -28,7 +28,7 @@ class SalesEntityType implements OptionSourceInterface
             [
                 'value' => self::ENTITY_TYPE_CREDITMEMO,
                 'label' => __('Creditmemo'),
-            ]
+            ],
         ];
     }
 }

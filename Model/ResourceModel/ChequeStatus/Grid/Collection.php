@@ -8,13 +8,13 @@
 
 namespace Mygento\Kkm\Model\ResourceModel\ChequeStatus\Grid;
 
-use Mygento\Kkm\Model\Source\SalesEntityType;
-use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Magento\Framework\Data\Collection\Db\FetchStrategyInterface as FetchStrategy;
 use Magento\Framework\Data\Collection\EntityFactoryInterface as EntityFactory;
+use Magento\Framework\DB\Sql\ExpressionFactory;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\Grid\Collection as ParentCollection;
-use Magento\Framework\DB\Sql\ExpressionFactory;
+use Mygento\Kkm\Api\Data\UpdateRequestInterface;
+use Mygento\Kkm\Model\Source\SalesEntityType;
 use Psr\Log\LoggerInterface as Logger;
 
 class Collection extends ParentCollection
@@ -59,8 +59,8 @@ class Collection extends ParentCollection
     }
 
     /**
-     * @return $this
      * @throws \Zend_Db_Select_Exception
+     * @return $this
      */
     protected function _initSelect()
     {
@@ -69,7 +69,7 @@ class Collection extends ParentCollection
         $union = $this->getConnection()->select()->union(
             [
                 $this->buildInvoiceSelect(),
-                $this->buildCreditmemoSelect()
+                $this->buildCreditmemoSelect(),
             ]
         );
 
@@ -83,10 +83,9 @@ class Collection extends ParentCollection
      */
     private function buildInvoiceSelect()
     {
-        $isClosedExpression = $this->expressionFactory->create(['expression' =>
-            "IF((" . self::ATTEMT_TABLE_ALIAS . ".operation = 1 
-            OR " . self::ATTEMT_TABLE_ALIAS . ".operation = 5) 
-            AND " . self::ATTEMT_TABLE_ALIAS . ".status = 4, 1, 0)"
+        $isClosedExpression = $this->expressionFactory->create(['expression' => 'IF((' . self::ATTEMT_TABLE_ALIAS . '.operation = 1 
+            OR ' . self::ATTEMT_TABLE_ALIAS . '.operation = 5) 
+            AND ' . self::ATTEMT_TABLE_ALIAS . '.status = 4, 1, 0)',
         ]);
 
         return $this->buildEntitySelect(
@@ -96,14 +95,12 @@ class Collection extends ParentCollection
         );
     }
 
-
     /**
      * @return \Magento\Framework\DB\Select
      */
     private function buildCreditmemoSelect()
     {
-        $isClosedExpression = $this->expressionFactory->create(['expression' =>
-            "IF(" . self::ATTEMT_TABLE_ALIAS . ".operation = 2 AND " . self::ATTEMT_TABLE_ALIAS . ".status = 4, 1, 0)"
+        $isClosedExpression = $this->expressionFactory->create(['expression' => 'IF(' . self::ATTEMT_TABLE_ALIAS . '.operation = 2 AND ' . self::ATTEMT_TABLE_ALIAS . '.status = 4, 1, 0)',
         ]);
 
         return $this->buildEntitySelect(
@@ -131,7 +128,7 @@ class Collection extends ParentCollection
                     [$this->getConnection()->quote($entityType), 'entity_table.entity_id'],
                     '_'
                 ),
-                'sales_entity_type' => $this->expressionFactory->create(['expression' => "'$entityType'"]),
+                'sales_entity_type' => $this->expressionFactory->create(['expression' => "'${entityType}'"]),
                 'sales_entity_id' => 'entity_table.entity_id',
                 'increment_id',
                 'store_id',
@@ -142,7 +139,7 @@ class Collection extends ParentCollection
             'order_id = ' . self::SALES_ORDER_TABLE_ALIAS . '.entity_id',
             [
                 'order_entity_id' => 'entity_id',
-                'order_increment_id' => 'increment_id'
+                'order_increment_id' => 'increment_id',
             ]
         )->joinLeft(
             [self::ENTITY_LAST_ATTEMPT_ALIAS => $this->buildEntityLastAttemptSelect()],
@@ -157,7 +154,7 @@ class Collection extends ParentCollection
                 'last_attempt_status' => 'status',
                 'error_code',
                 'error_type',
-                'is_closed' => $isClosedExpression
+                'is_closed' => $isClosedExpression,
             ]
         );
     }
@@ -174,8 +171,8 @@ class Collection extends ParentCollection
             [
                 'sales_entity_id',
                 'last_attempt_id' => $this->expressionFactory->create([
-                    'expression' => 'max(id)'
-                ])
+                    'expression' => 'max(id)',
+                ]),
             ]
         )->where('operation != ?', UpdateRequestInterface::UPDATE_OPERATION_TYPE)
             ->group('sales_entity_id');
