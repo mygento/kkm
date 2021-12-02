@@ -113,6 +113,8 @@ class Collection extends ParentCollection
                 'last_attempt_id' => 'id',
                 'last_attempt_operation' => 'operation',
                 'last_attempt_status' => 'status',
+                'error_code',
+                'error_type',
                 'is_closed' => $isClosedExpression
             ]
         );

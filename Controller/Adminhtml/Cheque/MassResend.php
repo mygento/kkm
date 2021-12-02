@@ -16,7 +16,6 @@ use Magento\Framework\Controller\ResultFactory;
 use Magento\Ui\Component\MassAction\Filter;
 use Mygento\Kkm\Api\ResenderInterface;
 use Mygento\Kkm\Helper\Data;
-use Mygento\Kkm\Helper\TransactionAttempt;
 use Mygento\Kkm\Model\ResourceModel\ChequeStatus\Grid\CollectionFactory;
 
 class MassResend extends Action implements HttpPostActionInterface
@@ -34,11 +33,6 @@ class MassResend extends Action implements HttpPostActionInterface
     private $collectionFactory;
 
     /**
-     * @var TransactionAttempt
-     */
-    private $transactionAttemptHelper;
-
-    /**
      * @var Data
      */
     private $configHelper;
@@ -52,7 +46,6 @@ class MassResend extends Action implements HttpPostActionInterface
      * @param Context $context
      * @param Filter $filter
      * @param CollectionFactory $collectionFactory
-     * @param TransactionAttempt $transactionAttemptHelper
      * @param Data $configHelper
      * @param ResenderInterface $resender
      */
@@ -60,7 +53,6 @@ class MassResend extends Action implements HttpPostActionInterface
         Context $context,
         Filter $filter,
         CollectionFactory $collectionFactory,
-        TransactionAttempt $transactionAttemptHelper,
         Data $configHelper,
         ResenderInterface $resender
     ) {
@@ -68,7 +60,6 @@ class MassResend extends Action implements HttpPostActionInterface
 
         $this->filter = $filter;
         $this->collectionFactory = $collectionFactory;
-        $this->transactionAttemptHelper = $transactionAttemptHelper;
         $this->configHelper = $configHelper;
         $this->resender = $resender;
     }
@@ -80,33 +71,49 @@ class MassResend extends Action implements HttpPostActionInterface
     public function execute()
     {
         $collection = $this->filter->getCollection($this->collectionFactory->create());
-        $attemptIdsWithFailedResend = [];
-        $attemptIdsWithSuccessfulResend = [];
+        $entityIdsWithFailedResend = [];
+        $entityIdsWithSuccessfulResend = [];
 
         foreach ($collection as $salesEntity) {
-            
+            $errorCode = $salesEntity->getErrorCode();
+            $errorType = $salesEntity->getErrorType();
+            $needExtIdIncrement = $errorCode && $this->configHelper->isAtolNonFatalError($errorCode, $errorType);
+
+            try {
+                $this->resender->resend(
+                    $salesEntity->getSalesEntityId(),
+                    $salesEntity->getSalesEntityType(),
+                    $needExtIdIncrement
+                );
+            } catch (\Throwable $thr) {
+                $entityIdsWithFailedResend[] = $salesEntity->getSalesEntityId();
+
+                continue;
+            }
+
+            $entityIdsWithSuccessfulResend[] = $salesEntity->getSalesEntityId();
         }
 
-        if (count($attemptIdsWithFailedResend)) {
+        if (count($entityIdsWithFailedResend)) {
             $this->messageManager->addErrorMessage(
                 __(
-                    'Failed resend for attempts with ids: %1',
-                    implode(',', $attemptIdsWithFailedResend)
+                    'Failed resend for entities with ids: %1',
+                    implode(',', $entityIdsWithFailedResend)
                 )
             );
         }
 
-        if (count($attemptIdsWithSuccessfulResend)) {
+        if (count($entityIdsWithSuccessfulResend)) {
             $this->messageManager->addSuccessMessage(
                 __(
-                    'Successful resend for attempts with ids: %1',
-                    implode(',', $attemptIdsWithSuccessfulResend)
+                    'Successful resend for entities with ids: %1',
+                    implode(',', $entityIdsWithSuccessfulResend)
                 )
             );
         }
 
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
-        $redirectPath = $this->filter->getComponentRefererUrl() ?: 'kkm/transactionattempt/';
+        $redirectPath = $this->filter->getComponentRefererUrl() ?: 'kkm/chequestatus/';
 
         return $resultRedirect->setPath($redirectPath);
     }
