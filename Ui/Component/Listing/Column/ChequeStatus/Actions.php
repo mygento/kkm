@@ -7,6 +7,7 @@ use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
 use Mygento\Kkm\Model\Source\SalesEntityType;
+use Mygento\Kkm\Helper\Data;
 
 class Actions extends Column
 {
@@ -20,9 +21,15 @@ class Actions extends Column
     private $urlBuilder;
 
     /**
+     * @var Data
+     */
+    private $moduleConfig;
+
+    /**
      * @param ContextInterface $context
      * @param UiComponentFactory $uiComponentFactory
      * @param UrlInterface $urlBuilder
+     * @param Data $moduleConfig
      * @param array $components
      * @param array $data
      */
@@ -30,12 +37,14 @@ class Actions extends Column
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         UrlInterface $urlBuilder,
+        Data $moduleConfig,
         array $components = [],
         array $data = []
     ) {
         parent::__construct($context, $uiComponentFactory, $components, $data);
 
         $this->urlBuilder = $urlBuilder;
+        $this->moduleConfig = $moduleConfig;
     }
 
     /**
@@ -70,6 +79,10 @@ class Actions extends Column
             ];
 
             if (!$item['is_closed']) {
+                $needExtIdIncrement = isset($item['error_code'])
+                    && isset($item['error_type'])
+                    && $this->moduleConfig->isAtolNonFatalError($item['error_code'], $item['error_type']);
+
                 $actions['resend'] = [
                     'href' => $this->urlBuilder->getUrl(
                         'kkm/cheque/resend',
@@ -77,6 +90,7 @@ class Actions extends Column
                             'entity' => $item['sales_entity_type'],
                             'id' => $item['sales_entity_id'],
                             'store_id' => $item['store_id'],
+                            'incr_ext_id' => $needExtIdIncrement
                         ]
                     ),
                     'label' => __('Resend')
