@@ -122,11 +122,11 @@ class Actions extends Column
                     'invoice_id' => $item['sales_entity_id'],
                 ]
             ) : $this->urlBuilder->getUrl(
-            self::URL_CREDITMEMO_VIEW,
-            [
-                'creditmemo_id' => $item['sales_entity_id'],
-            ]
-        );
+                self::URL_CREDITMEMO_VIEW,
+                [
+                    'creditmemo_id' => $item['sales_entity_id'],
+                ]
+            );
     }
 
     /**
