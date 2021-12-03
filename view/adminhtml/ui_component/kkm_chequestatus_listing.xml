@@ -97,7 +97,7 @@
                 <label translate="true">Order Id</label>
             </settings>
         </column>
-        <column name="store_id" class="Magento\Store\Ui\Component\Listing\Column\Store">
+        <column name="store_title" class="Magento\Store\Ui\Component\Listing\Column\Store">
             <settings>
                 <label translate="true">Store</label>
                 <bodyTmpl>ui/grid/cells/html</bodyTmpl>

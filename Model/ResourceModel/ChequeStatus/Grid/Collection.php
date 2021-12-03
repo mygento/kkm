@@ -131,6 +131,7 @@ class Collection extends ParentCollection
                 'sales_entity_type' => $this->expressionFactory->create(['expression' => "'${entityType}'"]),
                 'sales_entity_id' => 'entity_table.entity_id',
                 'increment_id',
+                'store_title' => 'store_id',
                 'store_id',
                 'order_id',
             ]

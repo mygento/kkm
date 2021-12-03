@@ -86,12 +86,12 @@ class MassResend extends Action implements HttpPostActionInterface
                     $needExtIdIncrement
                 );
             } catch (\Throwable $thr) {
-                $entityIdsWithFailedResend[] = $salesEntity->getSalesEntityId();
+                $entityIdsWithFailedResend[] = $salesEntity->getIncrementId();
 
                 continue;
             }
 
-            $entityIdsWithSuccessfulResend[] = $salesEntity->getSalesEntityId();
+            $entityIdsWithSuccessfulResend[] = $salesEntity->getIncrementId();
         }
 
         if (count($entityIdsWithFailedResend)) {
