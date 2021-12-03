@@ -66,14 +66,14 @@
                 <indexField>entity_id</indexField>
             </settings>
         </selectionsColumn>
-        <column name="order_increment_id">
+        <column name="increment_id">
             <settings>
                 <filter>text</filter>
                 <dataType>text</dataType>
                 <editor>
                     <editorType>text</editorType>
                 </editor>
-                <label translate="true">Order Id</label>
+                <label translate="true">Sales Entity Id</label>
             </settings>
         </column>
         <column name="sales_entity_type" component="Magento_Ui/js/grid/columns/select">
@@ -87,14 +87,14 @@
                 <options class="Mygento\Kkm\Model\Source\SalesEntityType"/>
             </settings>
         </column>
-        <column name="increment_id">
+        <column name="order_increment_id">
             <settings>
                 <filter>text</filter>
                 <dataType>text</dataType>
                 <editor>
                     <editorType>text</editorType>
                 </editor>
-                <label translate="true">Sales Entity Id</label>
+                <label translate="true">Order Id</label>
             </settings>
         </column>
         <column name="store_id" class="Magento\Store\Ui\Component\Listing\Column\Store">
