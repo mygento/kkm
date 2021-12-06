@@ -235,11 +235,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 }
 
                 $txn = $this->transactionHelper->saveSellTransaction($entity, $response);
-                $this->attemptHelper->markTransactionAttempt($entity, $txn);
+                $this->attemptHelper->updateStatusByTransaction($entity, $txn);
                 break;
             case 'creditmemo':
                 $txn = $this->transactionHelper->saveRefundTransaction($entity, $response);
-                $this->attemptHelper->markTransactionAttempt($entity, $txn);
+                $this->attemptHelper->updateStatusByTransaction($entity, $txn);
                 break;
         }
 
@@ -582,7 +582,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw new \Exception(__('Request is skipped. Max num of trials exceeded while update'));
         }
 
-        //Register sending Attempt
+        //Register attempt with operation type == update
         /** @var TransactionAttemptInterface $attempt */
         $attempt = $this->attemptHelper->registerUpdateAttempt($entity, $transaction);
 
@@ -597,16 +597,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             //Check response.
             $this->validateResponse($response);
 
-            //Mark attempt as Sent
+            //Mark attempt with operation type == update as sent
             $this->attemptHelper->updateStatus($attempt, TransactionAttemptInterface::STATUS_SENT);
-            $this->attemptHelper->markTransactionAttempt($entity, $txn);
+            //Update attempt's status for specified transaction
+            $this->attemptHelper->updateStatusByTransaction($entity, $txn);
         } catch (\Throwable $e) {
-            //Mark attempt as Error
-            $this->attemptHelper->updateStatus(
-                $attempt,
-                TransactionAttemptInterface::STATUS_ERROR,
-                $e->getMessage()
-            );
+            //Mark attempt with operation type == update as error
+            $this->attemptHelper->updateStatus($attempt, TransactionAttemptInterface::STATUS_ERROR, $e->getMessage());
 
             throw $e;
         }
@@ -692,7 +689,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);
             $this->addCommentToOrder($entity, $response, $txn->getId(), $request->getOperationType());
             $this->validateResponse($response);
-            $this->attemptHelper->markTransactionAttempt($entity, $txn);
+            $this->attemptHelper->updateStatusByTransaction($entity, $txn);
         } catch (AuthorizationException $e) {
             if ($e->getErrorCode() && $e->getErrorType()) {
                 $attempt->setErrorCode($e->getErrorCode());
@@ -708,11 +705,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw $e;
         } catch (VendorBadServerAnswerException $e) {
             $attempt->setErrorType(ErrorType::BAD_SERVER_ANSWER);
-            $this->attemptHelper->updateStatus(
-                $attempt,
-                TransactionAttemptInterface::STATUS_ERROR,
-                $e->getMessage()
-            );
+            $this->attemptHelper->updateStatus($attempt, TransactionAttemptInterface::STATUS_ERROR, $e->getMessage());
 
             throw $e;
         } catch (CreateDocumentFailedException | VendorNonFatalErrorException $e) {
@@ -725,21 +718,13 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                     ->setErrorType($response->getErrorType());
             }
 
-            $this->attemptHelper->updateStatus(
-                $attempt,
-                TransactionAttemptInterface::STATUS_ERROR,
-                $e->getMessage()
-            );
+            $this->attemptHelper->updateStatus($attempt, TransactionAttemptInterface::STATUS_ERROR, $e->getMessage());
 
             throw $e;
         } catch (\Throwable $e) {
             //Mark attempt as Error
             $attempt->setErrorType(ErrorType::UNKNOWN);
-            $this->attemptHelper->updateStatus(
-                $attempt,
-                TransactionAttemptInterface::STATUS_ERROR,
-                $e->getMessage()
-            );
+            $this->attemptHelper->updateStatus($attempt, TransactionAttemptInterface::STATUS_ERROR, $e->getMessage());
 
             throw $e;
         }

@@ -24,6 +24,7 @@
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
     <preference for="Mygento\Kkm\Api\ResenderInterface" type="Mygento\Kkm\Model\Resender"/>
     <preference for="Mygento\Kkm\Model\VendorInterface" type="Mygento\Kkm\Model\Atol\Vendor"/>
+    <preference for="Mygento\Kkm\Model\Resend\ValidatorInterface" type="Mygento\Kkm\Model\Resend\ValidatorComposite"/>
 
     <!--Proxies-->
     <type name="Mygento\Kkm\Console\UpdateStatus">
@@ -143,6 +144,14 @@
     <type name="Mygento\Kkm\Helper\Transaction">
         <arguments>
             <argument name="transactionRepo" xsi:type="object">Mygento\Kkm\Model\TransactionRepository</argument>
+        </arguments>
+    </type>
+
+    <type name="Mygento\Kkm\Model\Resend\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="transactionStatus" xsi:type="object">Mygento\Kkm\Model\Resend\Validator\TransactionStatus</item>
+            </argument>
         </arguments>
     </type>
 </config>

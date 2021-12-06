@@ -116,17 +116,8 @@ class Actions extends Column
     private function getEntityUrl($item)
     {
         return $item['sales_entity_type'] == SalesEntityType::ENTITY_TYPE_INVOICE
-            ? $this->urlBuilder->getUrl(
-                self::URL_INVOICE_VIEW,
-                [
-                    'invoice_id' => $item['sales_entity_id'],
-                ]
-            ) : $this->urlBuilder->getUrl(
-                self::URL_CREDITMEMO_VIEW,
-                [
-                    'creditmemo_id' => $item['sales_entity_id'],
-                ]
-            );
+            ? $this->urlBuilder->getUrl(self::URL_INVOICE_VIEW, ['invoice_id' => $item['sales_entity_id']])
+            : $this->urlBuilder->getUrl(self::URL_CREDITMEMO_VIEW, ['creditmemo_id' => $item['sales_entity_id']]);
     }
 
     /**

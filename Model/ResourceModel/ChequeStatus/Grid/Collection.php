@@ -13,20 +13,23 @@ use Magento\Framework\Data\Collection\EntityFactoryInterface as EntityFactory;
 use Magento\Framework\DB\Sql\ExpressionFactory;
 use Magento\Framework\Event\ManagerInterface as EventManager;
 use Magento\Sales\Model\ResourceModel\Order\Invoice\Grid\Collection as ParentCollection;
+use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Model\Source\SalesEntityType;
 use Psr\Log\LoggerInterface as Logger;
 
 class Collection extends ParentCollection
 {
-    private const ENTITY_LAST_ATTEMPT_ALIAS = 'entity_last_attempt';
-    private const SALES_ORDER_TABLE_ALIAS = 'sales_order';
-    private const ATTEMT_TABLE_ALIAS = 'transaction_attempt';
-
     /**
      * @var ExpressionFactory
      */
     private $expressionFactory;
+
+    /**
+     * @var string
+     */
+    private $attemptTableName = 'mygento_kkm_transaction_attempt';
 
     /**
      * @param ExpressionFactory $expressionFactory
@@ -83,9 +86,13 @@ class Collection extends ParentCollection
      */
     private function buildInvoiceSelect()
     {
-        $isClosedExpression = $this->expressionFactory->create(['expression' => 'IF((' . self::ATTEMT_TABLE_ALIAS . '.operation = 1 
-            OR ' . self::ATTEMT_TABLE_ALIAS . '.operation = 5) 
-            AND ' . self::ATTEMT_TABLE_ALIAS . '.status = 4, 1, 0)',
+        $isClosedCondition =
+            "({$this->attemptTableName}.operation = " . RequestInterface::SELL_OPERATION_TYPE . " 
+            OR {$this->attemptTableName}.operation = " . RequestInterface::RESELL_SELL_OPERATION_TYPE . ") 
+            AND {$this->attemptTableName}.status = " . TransactionAttemptInterface::STATUS_DONE;
+
+        $isClosedExpression = $this->expressionFactory->create([
+            'expression' => "IF(${isClosedCondition}, 1, 0)",
         ]);
 
         return $this->buildEntitySelect(
@@ -100,7 +107,12 @@ class Collection extends ParentCollection
      */
     private function buildCreditmemoSelect()
     {
-        $isClosedExpression = $this->expressionFactory->create(['expression' => 'IF(' . self::ATTEMT_TABLE_ALIAS . '.operation = 2 AND ' . self::ATTEMT_TABLE_ALIAS . '.status = 4, 1, 0)',
+        $isClosedCondition =
+            "{$this->attemptTableName}.operation = " . RequestInterface::REFUND_OPERATION_TYPE . " 
+            AND {$this->attemptTableName}.status = " . TransactionAttemptInterface::STATUS_DONE;
+
+        $isClosedExpression = $this->expressionFactory->create([
+            'expression' => "IF(${isClosedCondition} , 1, 0)",
         ]);
 
         return $this->buildEntitySelect(
@@ -111,44 +123,45 @@ class Collection extends ParentCollection
     }
 
     /**
-     * @param $entityTableName
+     * @param $entityTable
      * @param $entityType
      * @param $isClosedExpression
      * @return \Magento\Framework\DB\Select
      */
-    private function buildEntitySelect($entityTableName, $entityType, $isClosedExpression)
+    private function buildEntitySelect($entityTable, $entityType, $isClosedExpression)
     {
-        $attemptTable = $this->getTable('mygento_kkm_transaction_attempt');
-        $orderTable = $this->getTable('sales_order');
+        $entityLastAttemptAlias = 'entity_last_attempt';
+        $orderTableName = $this->getTable('sales_order');
+        $entityTableName = $this->getTable($entityTable);
 
         return $this->getConnection()->select()->from(
-            ['entity_table' => $this->getTable($entityTableName)],
+            $entityTableName,
             [
                 'entity_id' => $this->getConnection()->getConcatSql(
-                    [$this->getConnection()->quote($entityType), 'entity_table.entity_id'],
+                    [$this->getConnection()->quote($entityType), "${entityTableName}.entity_id"],
                     '_'
                 ),
                 'sales_entity_type' => $this->expressionFactory->create(['expression' => "'${entityType}'"]),
-                'sales_entity_id' => 'entity_table.entity_id',
+                'sales_entity_id' => "${entityTableName}.entity_id",
                 'increment_id',
                 'store_title' => 'store_id',
                 'store_id',
                 'order_id',
             ]
         )->joinLeft(
-            [self::SALES_ORDER_TABLE_ALIAS => $orderTable],
-            'order_id = ' . self::SALES_ORDER_TABLE_ALIAS . '.entity_id',
+            $orderTableName,
+            "order_id = ${orderTableName}.entity_id",
             [
                 'order_entity_id' => 'entity_id',
                 'order_increment_id' => 'increment_id',
             ]
         )->joinLeft(
-            [self::ENTITY_LAST_ATTEMPT_ALIAS => $this->buildEntityLastAttemptSelect()],
-            'entity_table.entity_id = ' . self::ENTITY_LAST_ATTEMPT_ALIAS . '.sales_entity_id',
+            [$entityLastAttemptAlias => $this->buildEntityLastAttemptSelect()],
+            "${entityTableName}.entity_id = ${entityLastAttemptAlias}.sales_entity_id",
             []
         )->joinLeft(
-            [self::ATTEMT_TABLE_ALIAS => $attemptTable],
-            self::ENTITY_LAST_ATTEMPT_ALIAS . '.last_attempt_id = ' . self::ATTEMT_TABLE_ALIAS . '.id',
+            $this->attemptTableName,
+            "${entityLastAttemptAlias}.last_attempt_id = {$this->attemptTableName}.id",
             [
                 'last_attempt_id' => 'id',
                 'last_attempt_operation' => 'operation',

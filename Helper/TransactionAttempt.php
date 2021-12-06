@@ -246,10 +246,8 @@ class TransactionAttempt
      * @param TransactionInterface $transaction
      * @throws LocalizedException
      */
-    public function markTransactionAttempt(
-        $entity,
-        $transaction
-    ) {
+    public function updateStatusByTransaction($entity, TransactionInterface $transaction)
+    {
         $operationType = $this->resolveAttemptOperationType($entity, $transaction);
         $attempt = $this->getAttemptByOperationType(
             $operationType,
@@ -333,10 +331,8 @@ class TransactionAttempt
      * @param TransactionInterface $transaction
      * @return int
      */
-    public function resolveAttemptOperationType(
-        $entity,
-        TransactionInterface $transaction
-    ): int {
+    public function resolveAttemptOperationType($entity, TransactionInterface $transaction): int
+    {
         if ($entity instanceof CreditmemoInterface) {
             return RequestInterface::REFUND_OPERATION_TYPE;
         }

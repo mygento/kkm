@@ -108,8 +108,6 @@
   * отправляет данные по инвойсу после его сохранения.
 * **sales_order_creditmemo_save_commit_after**:
   * отправляет данные по возврату после сохранения.
-* **mygento_kkm_transaction_is_done**
-  * переводит попытку отправки в статус done при закрытии транзакции без ошибок.
 
 ### Плагины
 * before плагин `ExtraSalesViewToolbarButtons` на метод `Magento\Backend\Block\Widget\Button\Toolbar::pushButtons` добавляет кнопки Отправки в АТОЛ и кнопку проверки статуса на страницу сущности в админке

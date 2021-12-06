@@ -18,4 +18,12 @@
         </arguments>
     </type>
 
+    <type name="Mygento\Kkm\Model\Resend\ValidatorComposite">
+        <arguments>
+            <argument name="validators" xsi:type="array">
+                <item name="permission" xsi:type="object">Mygento\Kkm\Model\Resend\Validator\Permission</item>
+            </argument>
+        </arguments>
+    </type>
+
 </config>

@@ -45,6 +45,17 @@
                     </filters>
                 </templates>
             </settings>
+            <filterSelect name="store_title" provider="${ $.parentName }">
+                <settings>
+                    <options class="Magento\Store\Ui\Component\Listing\Column\Store\Options"/>
+                    <caption translate="true">All Stores</caption>
+                    <label translate="true">Store</label>
+                    <dataScope>store_title</dataScope>
+                    <imports>
+                        <link name="visible">ns = ${ $.ns }, componentType = column, index = ${ $.index }:visible</link>
+                    </imports>
+                </settings>
+            </filterSelect>
         </filters>
         <paging name="listing_paging"/>
         <massaction name="listing_massaction">
