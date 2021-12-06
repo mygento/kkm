@@ -80,7 +80,7 @@ class MassResend extends Action implements HttpPostActionInterface
             $needExtIdIncrement = $errorCode && $this->configHelper->isAtolNonFatalError($errorCode, $errorType);
 
             try {
-                $this->resender->resend(
+                $this->resender->resendAsync(
                     $salesEntity->getSalesEntityId(),
                     $salesEntity->getSalesEntityType(),
                     $needExtIdIncrement

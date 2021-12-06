@@ -69,22 +69,47 @@ class Resender implements ResenderInterface
      * @param string $entityType
      * @param bool $needExtIdIncr
      * @throws NoSuchEntityException
+     * @throws \Throwable
+     */
+    public function resendSync($entityId, $entityType, $needExtIdIncr = false)
+    {
+        $this->resend($entityId, $entityType, $needExtIdIncr);
+    }
+
+    /**
+     * @param int $entityId
+     * @param string $entityType
+     * @param bool $needExtIdIncr
+     * @throws NoSuchEntityException
+     * @throws \Throwable
+     */
+    public function resendAsync($entityId, $entityType, $needExtIdIncr = false)
+    {
+        $this->resend($entityId, $entityType, $needExtIdIncr, false);
+    }
+
+    /**
+     * @param $entityId
+     * @param $entityType
+     * @param false $needExtIdIncr
+     * @param bool $sync
+     * @throws NoSuchEntityException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Throwable
      */
-    public function resend($entityId, $entityType, $needExtIdIncr = false)
+    private function resend($entityId, $entityType, $needExtIdIncr = false, $sync = true)
     {
         try {
             switch ($entityType) {
                 case 'invoice':
                     $entity = $this->invoiceRepository->get($entityId);
-                    $this->sendProcessor->proceedSell($entity, true, true, $needExtIdIncr);
+                    $this->sendProcessor->proceedSell($entity, $sync, true, $needExtIdIncr);
                     break;
                 case 'creditmemo':
                     $entity = $this->creditmemoRepository->get($entityId);
-                    $this->sendProcessor->proceedRefund($entity, true, true, $needExtIdIncr);
+                    $this->sendProcessor->proceedRefund($entity, $sync, true, $needExtIdIncr);
                     break;
             }
         } catch (NoSuchEntityException $exc) {

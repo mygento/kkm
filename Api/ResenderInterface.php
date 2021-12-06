@@ -20,5 +20,17 @@ interface ResenderInterface
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @throws \Throwable
      */
-    public function resend($entityId, $entityType, $needExtIdIncr = false);
+    public function resendSync($entityId, $entityType, $needExtIdIncr = false);
+
+    /**
+     * @param int $entityId
+     * @param string $entityType
+     * @param bool $needExtIdIncr
+     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Mygento\Kkm\Exception\CreateDocumentFailedException
+     * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
+     * @throws \Throwable
+     */
+    public function resendAsync($entityId, $entityType, $needExtIdIncr = false);
 }
