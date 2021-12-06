@@ -696,11 +696,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 $attempt->setErrorType($e->getErrorType());
             }
 
-            $this->attemptHelper->updateStatus(
-                $attempt,
-                TransactionAttemptInterface::STATUS_ERROR,
-                $e->getMessage()
-            );
+            $this->attemptHelper->updateStatus($attempt, TransactionAttemptInterface::STATUS_ERROR, $e->getMessage());
 
             throw $e;
         } catch (VendorBadServerAnswerException $e) {

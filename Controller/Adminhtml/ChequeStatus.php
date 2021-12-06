@@ -15,7 +15,7 @@ abstract class ChequeStatus extends \Magento\Backend\App\Action
      *
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Mygento_Kkm::chequestatus';
+    const ADMIN_RESOURCE = 'Mygento_Kkm::chequestatus_grid';
 
     /**
      * Core registry
@@ -25,7 +25,6 @@ abstract class ChequeStatus extends \Magento\Backend\App\Action
     protected $coreRegistry;
 
     /**
-     * @param \Mygento\Kkm\Api\ChequeStatusRepositoryInterface $repository
      * @param \Magento\Framework\Registry $coreRegistry
      * @param \Magento\Backend\App\Action\Context $context
      */
@@ -45,7 +44,7 @@ abstract class ChequeStatus extends \Magento\Backend\App\Action
      */
     protected function initPage($resultPage)
     {
-        $resultPage->setActiveMenu('Mygento_Kkm::chequestatus');
+        $resultPage->setActiveMenu('Mygento_Kkm::chequestatus_grid');
 
         return $resultPage;
     }

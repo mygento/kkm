@@ -19,7 +19,7 @@
             </storageConfig>
             <updateUrl path="mui/index/render"/>
         </settings>
-        <aclResource>Mygento_Kkm::chequestatus</aclResource>
+        <aclResource>Mygento_Kkm::chequestatus_grid</aclResource>
         <dataProvider class="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider" name="kkm_chequestatus_listing_data_source">
             <settings>
                 <requestFieldName>entity_id</requestFieldName>
