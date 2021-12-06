@@ -238,17 +238,14 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             return;
         }
 
-        $sumMatches = $fpdNumberMatches = [];
-        preg_match('/(s=.+?)(&|$)/i', $response->getQr(), $sumMatches);
-        preg_match('/(fp=.+?)(&|$)/i', $response->getQr(), $fpdNumberMatches);
-        $sumPart = $sumMatches[1] ?? null;
-        $fpdNumberPart = $fpdNumberMatches[1] ?? null;
+        $sumPart = round($response->getGrandTotal() / 100, 2);
+        $fpdNumberPart = $response->getFiscalSign();
 
         if (!$sumPart || !$fpdNumberPart) {
             return;
         }
 
-        $linkParams = $sumPart . '&' . $fpdNumberPart;
+        $linkParams = 's=' . $sumPart . '&' . 'fp=' . $fpdNumberPart;
 
         $response->setReceiptLink($ofdUrl . '?' . $linkParams);
     }

@@ -18,6 +18,8 @@
             </atol>
             <checkonline>
                 <test_mode>1</test_mode>
+                <ofd_url>https://receipt.taxcom.ru/v01/show</ofd_url>
+                <test_ofd_url>https://receipt.taxcom.ru/v01/show</test_ofd_url>
             </checkonline>
             <report>
                 <enabled>0</enabled>
