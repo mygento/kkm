@@ -106,7 +106,7 @@ class MassResend extends Action implements HttpPostActionInterface
         if (count($entityIdsWithSuccessfulResend)) {
             $this->messageManager->addSuccessMessage(
                 __(
-                    'Successful resend for entities with ids: %1',
+                    'Entities have been added to the resending queue : %1',
                     implode(',', $entityIdsWithSuccessfulResend)
                 )
             );

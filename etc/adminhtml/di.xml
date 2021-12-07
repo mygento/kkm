@@ -22,6 +22,7 @@
         <arguments>
             <argument name="validators" xsi:type="array">
                 <item name="permission" xsi:type="object">Mygento\Kkm\Model\Resend\Validator\Permission</item>
+                <item name="transactionStatus" xsi:type="object">Mygento\Kkm\Model\Resend\Validator\TransactionStatus</item>
             </argument>
         </arguments>
     </type>

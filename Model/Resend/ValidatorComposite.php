@@ -31,7 +31,7 @@ class ValidatorComposite implements ValidatorInterface
      * @param CreditmemoInterface|InvoiceInterface $entity
      * @throws ResendAvailabilityException
      */
-    public function validate($entity): bool
+    public function validate($entity)
     {
         foreach ($this->validators as $validator) {
             $validator->validate($entity);

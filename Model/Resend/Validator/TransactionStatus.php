@@ -47,7 +47,5 @@ class TransactionStatus implements ValidatorInterface
                 );
             }
         }
-
-        return true;
     }
 }
