@@ -13,7 +13,7 @@ use Magento\Sales\Api\CreditmemoRepositoryInterface;
 use Magento\Sales\Api\InvoiceRepositoryInterface;
 use Mygento\Kkm\Api\Processor\SendInterface;
 use Mygento\Kkm\Api\ResenderInterface;
-use Mygento\Kkm\Exception\ResendAvailabilityException;
+use Mygento\Kkm\Exception\ResendUnavailableException;
 use Mygento\Kkm\Helper\Data;
 use Mygento\Kkm\Helper\Error;
 use Mygento\Kkm\Model\Resend\ValidatorInterface as ResendValidator;
@@ -79,7 +79,7 @@ class Resender implements ResenderInterface
      * @param string $entityType
      * @param bool $needExtIdIncr
      * @throws NoSuchEntityException
-     * @throws ResendAvailabilityException
+     * @throws ResendUnavailableException
      * @throws \Throwable
      */
     public function resendSync($entityId, $entityType, $needExtIdIncr = false)
@@ -92,7 +92,7 @@ class Resender implements ResenderInterface
      * @param string $entityType
      * @param bool $needExtIdIncr
      * @throws NoSuchEntityException
-     * @throws ResendAvailabilityException
+     * @throws ResendUnavailableException
      * @throws \Throwable
      */
     public function resendAsync($entityId, $entityType, $needExtIdIncr = false)
@@ -107,7 +107,7 @@ class Resender implements ResenderInterface
      * @param bool $sync
      * @throws NoSuchEntityException
      * @throws \Magento\Framework\Exception\LocalizedException
-     * @throws ResendAvailabilityException
+     * @throws ResendUnavailableException
      * @throws \Throwable
      */
     private function resend($entityId, $entityType, $needExtIdIncr = false, $sync = true)
@@ -129,7 +129,7 @@ class Resender implements ResenderInterface
             $this->configHelper->error("Entity {$entityType} with Id {$entityId} not found.");
 
             throw $exc;
-        } catch (ResendAvailabilityException $exc) {
+        } catch (ResendUnavailableException $exc) {
             throw $exc;
         } catch (\Throwable $exc) {
             $this->configHelper->error('Resend failed. Reason: ' . $exc->getMessage());

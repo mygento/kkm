@@ -11,7 +11,7 @@ namespace Mygento\Kkm\Model\Resend\Validator;
 use Magento\Framework\AuthorizationInterface;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Mygento\Kkm\Exception\ResendAvailabilityException;
+use Mygento\Kkm\Exception\ResendUnavailableException;
 use Mygento\Kkm\Model\Resend\ValidatorInterface;
 
 class Permission implements ValidatorInterface
@@ -31,12 +31,12 @@ class Permission implements ValidatorInterface
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity
-     * @throws ResendAvailabilityException
+     * @throws ResendUnavailableException
      */
     public function validate($entity)
     {
         if (!$this->authorization->isAllowed('Mygento_Kkm::cheque_resend')) {
-            throw new ResendAvailabilityException(
+            throw new ResendUnavailableException(
                 __('You don\'t have a permission to resend cheques', $entity->getIncrementId())
             );
         }

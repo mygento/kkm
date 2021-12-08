@@ -8,6 +8,6 @@
 
 namespace Mygento\Kkm\Exception;
 
-class ResendAvailabilityException extends ResponseValidationException
+class ResendUnavailableException extends ResponseValidationException
 {
 }

@@ -10,7 +10,7 @@ namespace Mygento\Kkm\Model\Resend\Validator;
 
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Mygento\Kkm\Exception\ResendAvailabilityException;
+use Mygento\Kkm\Exception\ResendUnavailableException;
 use Mygento\Kkm\Helper\Transaction;
 use Mygento\Kkm\Model\Atol\Response;
 use Mygento\Kkm\Model\Resend\ValidatorInterface;
@@ -32,7 +32,7 @@ class TransactionStatus implements ValidatorInterface
 
     /**
      * @param CreditmemoInterface|InvoiceInterface $entity
-     * @throws ResendAvailabilityException
+     * @throws ResendUnavailableException
      */
     public function validate($entity)
     {
@@ -42,7 +42,7 @@ class TransactionStatus implements ValidatorInterface
             $status = $transaction->getKkmStatus();
 
             if ($status === Response::STATUS_DONE || $status === Response::STATUS_WAIT) {
-                throw new ResendAvailabilityException(
+                throw new ResendUnavailableException(
                     __('Entity with id "%1" has a transaction with "wait" or "done" status', $entity->getIncrementId())
                 );
             }

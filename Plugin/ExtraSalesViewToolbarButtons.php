@@ -10,7 +10,7 @@ namespace Mygento\Kkm\Plugin;
 
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
-use Mygento\Kkm\Exception\ResendAvailabilityException;
+use Mygento\Kkm\Exception\ResendUnavailableException;
 use Mygento\Kkm\Model\Atol\Response;
 
 class ExtraSalesViewToolbarButtons
@@ -161,7 +161,7 @@ class ExtraSalesViewToolbarButtons
     {
         try {
             $this->resendValidator->validate($entity);
-        } catch (ResendAvailabilityException $e) {
+        } catch (ResendUnavailableException $e) {
             return false;
         }
 
