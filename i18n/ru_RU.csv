@@ -92,3 +92,6 @@ Ability to split 1 item to 2 with different prices (if needed),Возможно�
 "Cheque was sent to KKM", "Чек был отправлен в KKM"
 "Failed resend for attempts with ids: %1", "Неудачная переотправка попыток с id: %1"
 "Successful resend for attempts with ids: %1", "Успешная переотправка попыток с id: %1"
+"Error response from ATOL with code %1.", "Ошибка в ответе из АТОЛ с кодом %1."
+"Error response from ATOL with code %1. Need to resend with new external_id.", "Ошибка в ответе из АТОЛ с кодом %1. Необходима переотправка с новым external_id."
+"Response is failed or invalid. Message: %1", "Ответ содержит ошибку или не является допустимым. Сообщение: %1"
