@@ -139,7 +139,7 @@
                 </field>
                 <field id="fail_status" translate="label" type="select" sortOrder="171" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Sending cheque fail status</label>
-                    <source_model>Magento\Sales\Model\Config\Source\Order\Status\Processing</source_model>
+                    <source_model>Magento\Sales\Model\Config\Source\Order\Status</source_model>
                     <comment>
                         <![CDATA[Set this status to order if sending data to KKM vendor failed.]]>
                     </comment>
