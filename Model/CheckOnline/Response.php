@@ -79,6 +79,8 @@ class Response implements ResponseInterface
 
     private $status;
 
+    private $receiptLink;
+
     // phpcs:enable
 
     /**
@@ -428,6 +430,9 @@ class Response implements ResponseInterface
         $message = 'Status: ';
         $message .= ucfirst($this->getStatus()) . '. ';
         $message .= $this->getErrorMessage() ?? '';
+        $message .= $this->getReceiptLink() ?
+            sprintf(" <a href='%s'>View receipt</a>.", $this->getReceiptLink())
+            : '';
 
         return $message;
     }
@@ -470,6 +475,25 @@ class Response implements ResponseInterface
     public function isWait()
     {
         return $this->getStatus() === self::STATUS_WAIT;
+    }
+
+    /**
+     * return string|null
+     */
+    public function getReceiptLink()
+    {
+        return $this->receiptLink;
+    }
+
+    /**
+     * @param string $receiptLink
+     * @return $this
+     */
+    public function setReceiptLink($receiptLink)
+    {
+        $this->receiptLink = $receiptLink;
+
+        return $this;
     }
 
     /**
