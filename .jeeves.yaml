@@ -30,6 +30,7 @@ Mygento:
           nullable: false
           comment: 'Operation type. Sell or Refund.'
           length: 10
+          source: 'Mygento\Kkm\Model\Source\OperationType'
         sales_entity_id:
           type: int
           nullable: false
@@ -42,6 +43,7 @@ Mygento:
           comment: 'Invoice or Creditmemo increment id'
         status:
           type: smallint
+          source: 'Mygento\Kkm\Model\Source\AttemptStatus'
         message:
           type: text
           nullable: true

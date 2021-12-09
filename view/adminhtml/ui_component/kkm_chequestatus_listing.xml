@@ -1,0 +1,156 @@
+<?xml version="1.0"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">kkm_chequestatus_listing.kkm_chequestatus_listing_data_source</item>
+        </item>
+    </argument>
+    <settings>
+        <buttons/>
+        <spinner>kkm_chequestatus_columns</spinner>
+        <deps>
+            <dep>kkm_chequestatus_listing.kkm_chequestatus_listing_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="kkm_chequestatus_listing_data_source" component="Magento_Ui/js/grid/provider">
+        <settings>
+            <storageConfig>
+                <param name="indexField" xsi:type="string">entity_id</param>
+            </storageConfig>
+            <updateUrl path="mui/index/render"/>
+        </settings>
+        <aclResource>Mygento_Kkm::chequestatus_grid</aclResource>
+        <dataProvider class="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider" name="kkm_chequestatus_listing_data_source">
+            <settings>
+                <requestFieldName>entity_id</requestFieldName>
+                <primaryFieldName>entity_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>1</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filterSearch name="fulltext"/>
+        <filters name="listing_filters">
+            <settings>
+                <templates>
+                    <filters>
+                        <select>
+                            <param name="template" xsi:type="string">ui/grid/filters/elements/ui-select</param>
+                            <param name="component" xsi:type="string">Magento_Ui/js/form/element/ui-select</param>
+                        </select>
+                    </filters>
+                </templates>
+            </settings>
+            <filterSelect name="store_title" provider="${ $.parentName }">
+                <settings>
+                    <options class="Magento\Store\Ui\Component\Listing\Column\Store\Options"/>
+                    <caption translate="true">All Stores</caption>
+                    <label translate="true">Store</label>
+                    <dataScope>store_title</dataScope>
+                    <imports>
+                        <link name="visible">ns = ${ $.ns }, componentType = column, index = ${ $.index }:visible</link>
+                    </imports>
+                </settings>
+            </filterSelect>
+        </filters>
+        <paging name="listing_paging"/>
+        <massaction name="listing_massaction">
+            <action name="mygento_kkm_mass_resend" sortOrder="1">
+                <argument name="data" xsi:type="array">
+                    <item name="sortOrder" xsi:type="string">1</item>
+                </argument>
+                <settings>
+                    <url path="kkm/cheque/massResend"/>
+                    <type>mygento_kkm_mass_resend</type>
+                    <label translate="true">Resend</label>
+                </settings>
+            </action>
+        </massaction>
+    </listingToolbar>
+    <columns name="kkm_chequestatus_columns">
+        <selectionsColumn name="ids">
+            <settings>
+                <indexField>entity_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="increment_id">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Sales Entity Id</label>
+            </settings>
+        </column>
+        <column name="sales_entity_type" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <editor>
+                    <editorType>select</editorType>
+                </editor>
+                <label translate="true">Sales Entity Type</label>
+                <options class="Mygento\Kkm\Model\Source\SalesEntityType"/>
+            </settings>
+        </column>
+        <column name="order_increment_id">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Order Id</label>
+            </settings>
+        </column>
+        <column name="store_title" class="Magento\Store\Ui\Component\Listing\Column\Store">
+            <settings>
+                <label translate="true">Store</label>
+                <bodyTmpl>ui/grid/cells/html</bodyTmpl>
+                <sortable>false</sortable>
+            </settings>
+        </column>
+        <column name="error_code">
+            <settings>
+                <filter>text</filter>
+                <dataType>text</dataType>
+                <editor>
+                    <editorType>text</editorType>
+                </editor>
+                <label translate="true">Error Code</label>
+            </settings>
+        </column>
+        <column name="error_type" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <editor>
+                    <editorType>select</editorType>
+                </editor>
+                <label translate="true">Error Type</label>
+                <options class="Mygento\Kkm\Model\Source\Atol\ErrorType"/>
+            </settings>
+        </column>
+        <column name="is_closed" component="Magento_Ui/js/grid/columns/select">
+            <settings>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <editor>
+                    <editorType>select</editorType>
+                </editor>
+                <label translate="true">Is Closed</label>
+                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+            </settings>
+        </column>
+        <actionsColumn class="Mygento\Kkm\Ui\Component\Listing\Column\ChequeStatus\Actions" name="actions">
+            <settings>
+                <indexField>entity_id</indexField>
+            </settings>
+        </actionsColumn>
+    </columns>
+</listing>

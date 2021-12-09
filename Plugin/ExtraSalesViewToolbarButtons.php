@@ -8,21 +8,21 @@
 
 namespace Mygento\Kkm\Plugin;
 
+use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
+use Mygento\Kkm\Exception\ResendUnavailableException;
 use Mygento\Kkm\Model\Atol\Response;
 
 class ExtraSalesViewToolbarButtons
 {
-    /** @var \Mygento\Kkm\Helper\Data */
-    private $kkmHelper;
-
     /**
-     * Role Authorizations Service
      * @var \Magento\Framework\AuthorizationInterface
      */
     private $authorization;
 
-    /** @var \Magento\Backend\Model\UrlInterface */
+    /**
+     * @var \Magento\Backend\Model\UrlInterface
+     */
     private $urlBuilder;
 
     /**
@@ -31,22 +31,26 @@ class ExtraSalesViewToolbarButtons
     private $transactionHelper;
 
     /**
-     * ExtraSalesViewToolbarButtons constructor.
-     * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
+     * @var \Mygento\Kkm\Model\Resend\ValidatorInterface
+     */
+    private $resendValidator;
+
+    /**
      * @param \Magento\Framework\AuthorizationInterface $authorization
      * @param \Magento\Backend\Model\UrlInterface $urlBuilder
+     * @param \Mygento\Kkm\Helper\Transaction $transactionHelper
+     * @param \Mygento\Kkm\Model\Resend\ValidatorInterface $resendValidator
      */
     public function __construct(
-        \Mygento\Kkm\Helper\Data $kkmHelper,
-        \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Framework\AuthorizationInterface $authorization,
-        \Magento\Backend\Model\UrlInterface $urlBuilder
+        \Magento\Backend\Model\UrlInterface $urlBuilder,
+        \Mygento\Kkm\Helper\Transaction $transactionHelper,
+        \Mygento\Kkm\Model\Resend\ValidatorInterface $resendValidator
     ) {
-        $this->kkmHelper = $kkmHelper;
         $this->authorization = $authorization;
         $this->urlBuilder = $urlBuilder;
         $this->transactionHelper = $transactionHelper;
+        $this->resendValidator = $resendValidator;
     }
 
     /**
@@ -69,7 +73,7 @@ class ExtraSalesViewToolbarButtons
 
         $transactions = $this->transactionHelper->getTransactionsByEntity($entity, true);
 
-        if ($this->canBeShownResendButton($transactions)) {
+        if ($this->canBeShownResendButton($entity)) {
             $url = $this->urlBuilder->getUrl(
                 'kkm/cheque/resend',
                 [
@@ -150,21 +154,18 @@ class ExtraSalesViewToolbarButtons
     }
 
     /**
-     * @param array $transactions
+     * @param CreditmemoInterface|InvoiceInterface $entity
      * @return bool
      */
-    private function canBeShownResendButton($transactions)
+    private function canBeShownResendButton($entity)
     {
-        //Есть ли хоть одна Done || Wait - то нельзя отправить снова
-        foreach ($transactions as $transaction) {
-            $status = $transaction->getKkmStatus();
-            if ($status === Response::STATUS_DONE || $status === Response::STATUS_WAIT) {
-                return false;
-            }
+        try {
+            $this->resendValidator->validate($entity);
+        } catch (ResendUnavailableException $e) {
+            return false;
         }
 
-        //Check ACL
-        return $this->authorization->isAllowed('Mygento_Kkm::cheque_resend');
+        return true;
     }
 
     /**

@@ -17,11 +17,16 @@ use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Mygento\Base\Model\Payment\Transaction as TransactionBase;
 use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Api\Data\ResponseInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\Data\UpdateRequestInterface;
 use Mygento\Kkm\Api\TransactionAttemptRepositoryInterface;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class TransactionAttempt
 {
     /**
@@ -116,7 +121,9 @@ class TransactionAttempt
             ->setSalesEntityId($entity->getEntityId())
             ->setSalesEntityIncrementId($entity->getIncrementId())
             ->setNumberOfTrials($numberOfTrials)
-            ->setTotalNumberOfTrials($totalNumberOfTrials);
+            ->setTotalNumberOfTrials($totalNumberOfTrials)
+            ->setErrorCode(null)
+            ->setErrorType(null);
 
         return $this->attemptRepository->save($attempt);
     }
@@ -235,31 +242,43 @@ class TransactionAttempt
     }
 
     /**
-     * Mark attempt as Finish
-     * @param TransactionAttemptInterface $attempt
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param TransactionInterface $transaction
      * @throws LocalizedException
-     * @return TransactionAttemptInterface
      */
-    public function finishAttempt(TransactionAttemptInterface $attempt): TransactionAttemptInterface
+    public function updateStatusByTransaction($entity, TransactionInterface $transaction)
     {
-        $attempt
-            ->setStatus(TransactionAttemptInterface::STATUS_SENT)
-            ->setMessage('');
+        $operationType = $this->resolveAttemptOperationType($entity, $transaction);
+        $attempt = $this->getAttemptByOperationType(
+            $operationType,
+            $entity
+        );
 
-        return $this->attemptRepository->save($attempt);
+        if (!$attempt->getId()) {
+            return;
+        }
+
+        $attemptStatus = $transaction->getIsClosed() && $transaction->getKkmStatus() == ResponseInterface::STATUS_DONE
+            ? TransactionAttemptInterface::STATUS_DONE
+            : TransactionAttemptInterface::STATUS_SENT;
+
+        $this->updateStatus($attempt, $attemptStatus);
     }
 
     /**
-     * Mark attempt as Failed
      * @param TransactionAttemptInterface $attempt
+     * @param int $status
      * @param string $message
      * @throws LocalizedException
      * @return TransactionAttemptInterface
      */
-    public function failAttempt(TransactionAttemptInterface $attempt, string $message = ''): TransactionAttemptInterface
-    {
+    public function updateStatus(
+        TransactionAttemptInterface $attempt,
+        int $status,
+        string $message = ''
+    ): TransactionAttemptInterface {
         $attempt
-            ->setStatus(TransactionAttemptInterface::STATUS_ERROR)
+            ->setStatus($status)
             ->setMessage($message);
 
         return $this->attemptRepository->save($attempt);
@@ -305,6 +324,28 @@ class TransactionAttempt
             default:
                 return 'order';
         }
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface $entity
+     * @param TransactionInterface $transaction
+     * @return int
+     */
+    public function resolveAttemptOperationType($entity, TransactionInterface $transaction): int
+    {
+        if ($entity instanceof CreditmemoInterface) {
+            return RequestInterface::REFUND_OPERATION_TYPE;
+        }
+
+        if ($transaction->getTxnType() == TransactionBase::TYPE_FISCAL_REFUND) {
+            return RequestInterface::RESELL_REFUND_OPERATION_TYPE;
+        }
+
+        if ($transaction->getParentId()) {
+            return RequestInterface::RESELL_SELL_OPERATION_TYPE;
+        }
+
+        return RequestInterface::SELL_OPERATION_TYPE;
     }
 
     /**
