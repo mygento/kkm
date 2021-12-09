@@ -67,7 +67,7 @@ class Resend extends \Magento\Backend\App\Action
             $id = $this->getRequest()->getParam('id');
             $incrExtId = (bool) $this->getRequest()->getParam('incr_ext_id');
 
-            $this->resender->resend($id, $entityType, $incrExtId);
+            $this->resender->resendSync($id, $entityType, $incrExtId);
 
             $comment = $this->kkmHelper->isMessageQueueEnabled($storeId)
                 ? __('Cheque was placed to queue for further sending')

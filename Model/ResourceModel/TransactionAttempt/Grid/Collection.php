@@ -122,34 +122,4 @@ class Collection extends ParentCollection implements SearchResultInterface
     {
         return $this;
     }
-
-    /**
-     * @return $this
-     */
-    protected function _initSelect()
-    {
-        parent::_initSelect();
-
-        $successfulKkmAttemptsAlias = 'successful_kkm_attempts';
-        $isClosedExpression = new \Zend_Db_Expr("({$successfulKkmAttemptsAlias}.id IS NOT NULL)");
-        $this->getSelect()
-            ->joinLeft(
-                [$successfulKkmAttemptsAlias => $this->getMainTable()],
-                implode(
-                    ' AND ',
-                    [
-                        "main_table.order_id = {$successfulKkmAttemptsAlias}.order_id",
-                        "main_table.operation = {$successfulKkmAttemptsAlias}.operation",
-                        "main_table.sales_entity_id = {$successfulKkmAttemptsAlias}.sales_entity_id",
-                        "{$successfulKkmAttemptsAlias}.status != 3",
-                    ]
-                ),
-                ['is_closed' => $isClosedExpression]
-            );
-
-        $this->addFilterToMap('is_closed', $isClosedExpression);
-        $this->addFilterToMap('id', 'main_table.id');
-
-        return $this;
-    }
 }

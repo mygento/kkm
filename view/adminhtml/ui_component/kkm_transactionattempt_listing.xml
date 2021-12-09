@@ -74,14 +74,9 @@
                 <sorting>asc</sorting>
             </settings>
         </column>
-        <column name="order_id" class="Mygento\Kkm\Ui\Component\Listing\Columns\OrderIdLink">
-            <argument name="data" xsi:type="array">
-                <item name="config" xsi:type="array">
-                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
-                </item>
-            </argument>
+        <column name="order_id">
             <settings>
-                <filter>textRange</filter>
+                <filter>text</filter>
                 <dataType>text</dataType>
                 <editor>
                     <editorType>text</editorType>
@@ -100,14 +95,15 @@
                 <visible>false</visible>
             </settings>
         </column>
-        <column name="operation">
+        <column name="operation" component="Magento_Ui/js/grid/columns/select">
             <settings>
-                <filter>textRange</filter>
-                <dataType>text</dataType>
+                <filter>select</filter>
+                <dataType>select</dataType>
                 <editor>
-                    <editorType>text</editorType>
+                    <editorType>select</editorType>
                 </editor>
                 <label translate="true">Operation</label>
+                <options class="Mygento\Kkm\Model\Source\OperationType"/>
             </settings>
         </column>
         <column name="sales_entity_id">
@@ -130,14 +126,15 @@
                 <label translate="true">Sales Entity Increment Id</label>
             </settings>
         </column>
-        <column name="status">
+        <column name="status" component="Magento_Ui/js/grid/columns/select">
             <settings>
-                <filter>textRange</filter>
-                <dataType>text</dataType>
+                <filter>select</filter>
+                <dataType>select</dataType>
                 <editor>
-                    <editorType>text</editorType>
+                    <editorType>select</editorType>
                 </editor>
                 <label translate="true">Status</label>
+                <options class="Mygento\Kkm\Model\Source\AttemptStatus"/>
             </settings>
         </column>
         <column name="message">
@@ -246,17 +243,6 @@
                 </editor>
                 <label translate="true">Error Type</label>
                 <options class="Mygento\Kkm\Model\Source\Atol\ErrorType"/>
-            </settings>
-        </column>
-        <column name="is_closed" component="Magento_Ui/js/grid/columns/select">
-            <settings>
-                <options class="Magento\Config\Model\Config\Source\Yesno"/>
-                <filter>select</filter>
-                <editor>
-                    <editorType>select</editorType>
-                </editor>
-                <dataType>select</dataType>
-                <label translate="true">Is Closed</label>
             </settings>
         </column>
     </columns>
