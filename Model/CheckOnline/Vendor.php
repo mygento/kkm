@@ -64,6 +64,11 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private $kkmHelper;
 
+    /**
+     * @var ReceiptUrlBuilder
+     */
+    private $receiptUrlBuilder;
+
     public function __construct(
         RequestBuilder $requestBuilder,
         Client $apiClient,
@@ -71,7 +76,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         RequestHelper $requestHelper,
         OrderComment $orderCommentHelper,
         TransactionHelper $transactionHelper,
-        KkmHelper $kkmHelper
+        KkmHelper $kkmHelper,
+        ReceiptUrlBuilder $receiptUrlBuilder
     ) {
         $this->requestBuilder = $requestBuilder;
         $this->apiClient = $apiClient;
@@ -80,6 +86,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $this->orderCommentHelper = $orderCommentHelper;
         $this->transactionHelper = $transactionHelper;
         $this->kkmHelper = $kkmHelper;
+        $this->receiptUrlBuilder = $receiptUrlBuilder;
     }
 
     /**
@@ -232,21 +239,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
      */
     private function insertReceiptLink($response, $storeId)
     {
-        $ofdUrl = $this->kkmHelper->getCheckonlineOfdUrl($storeId);
-
-        if (!$ofdUrl || !$response->getQr()) {
-            return;
-        }
-
-        $sumPart = round($response->getGrandTotal() / 100, 2);
-        $fpdNumberPart = $response->getFiscalSign();
-
-        if (!$sumPart || !$fpdNumberPart) {
-            return;
-        }
-
-        $linkParams = 's=' . $sumPart . '&' . 'fp=' . $fpdNumberPart;
-
-        $response->setReceiptLink($ofdUrl . '?' . $linkParams);
+        $ofdUrl = $this->receiptUrlBuilder->buildReceiptUrl($response, $storeId);
+        $response->setReceiptLink($ofdUrl);
     }
 }

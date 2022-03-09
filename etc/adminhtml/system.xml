@@ -66,9 +66,9 @@
                 <field id="api_url" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Api URL</label>
                 </field>
-                <field id="ofd_url" translate="label" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="ofd_url" translate="label comment" type="text" sortOrder="11" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>OFD URL</label>
-                    <comment>Url for creating link to receipt.</comment>
+                    <comment><![CDATA[Url for creating link to receipt.<br />Variables:<br />{{fnSerialNumber}} - FN serial number (fn)<br />{{fiscalDocNumber}} - Fiscal document number (fp)<br />{{fiscalSign}} - Fiscal Sign (fpd)<br />{{docNumber}} - Number of receipt<br />{{sum}} - Sum<br />{{dateTime}} - Date time]]></comment>
                 </field>
                 <field id="cert" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Client Certificate</label>
@@ -103,9 +103,9 @@
                 <field id="test_api_url" translate="label" type="text" sortOrder="110" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Test Api URL</label>
                 </field>
-                <field id="test_ofd_url" translate="label" type="text" sortOrder="111" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="test_ofd_url" translate="label comment" type="text" sortOrder="111" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Test OFD URL</label>
-                    <comment>Url for creating link to receipt.</comment>
+                    <comment><![CDATA[Url for creating link to receipt.<br />Variables:<br />{{fnSerialNumber}} - FN serial number (fn)<br />{{fiscalDocNumber}} - Fiscal document number (fp)<br />{{fiscalSign}} - Fiscal Sign (fpd)<br />{{docNumber}} - Number of receipt<br />{{sum}} - Sum<br />{{dateTime}} - Date time]]></comment>
                 </field>
                 <field id="test_cert" translate="label" type="Magento\Config\Block\System\Config\Form\Field\File" sortOrder="120" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Test Client Certificate</label>
