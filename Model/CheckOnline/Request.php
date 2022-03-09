@@ -67,6 +67,11 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     private $advancePayment;
 
     /**
+     * @var mixed
+     */
+    private $userRequisite;
+
+    /**
      * @inheritDoc
      */
     public function getSno()
@@ -247,6 +252,25 @@ class Request extends \Mygento\Kkm\Model\Request\Request
     }
 
     /**
+     * @return mixed
+     */
+    public function getUserRequisite()
+    {
+        return $this->userRequisite;
+    }
+
+    /**
+     * @param mixed $userRequisite
+     * @return RequestInterface
+     */
+    public function setUserRequisite($userRequisite): RequestInterface
+    {
+        $this->userRequisite = $userRequisite;
+
+        return $this;
+    }
+
+    /**
      * @return array
      */
     public function jsonSerialize(): array
@@ -274,6 +298,10 @@ class Request extends \Mygento\Kkm\Model\Request\Request
 
         if ($this->getGroup()) {
             $data['Group'] = $this->getGroup();
+        }
+
+        if ($this->getUserRequisite()) {
+            $data['UserRequisite'] = $this->getUserRequisite();
         }
 
         return $data;
