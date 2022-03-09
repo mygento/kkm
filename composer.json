@@ -9,11 +9,11 @@
         "atol"
     ],
     "require": {
-        "mygento/module-base": "~2.4.0-RC4",
+        "mygento/module-base": "~2.4.0",
         "magento/framework-message-queue": "100.4.*"
     },
     "require-dev": {
-        "mygento/coding-standard": "~2.14.0-beta1"
+        "mygento/coding-standard": "~2.14.0-beta6"
     },
     "autoload": {
         "files": [
