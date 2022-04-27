@@ -96,6 +96,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     public function processSell(QueueMessageInterface $queueMessage): void
     {
         try {
+            $request = null;
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
                 $queueMessage->getOperationType()
@@ -111,7 +112,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->warning($e->getMessage());
 
-            if (!isset($request)) {
+            if (!$request) {
                 throw new LocalizedException(__('There is no request to schedule next attempt'));
             }
 
@@ -159,6 +160,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     public function processRefund(QueueMessageInterface $queueMessage): void
     {
         try {
+            $request = null;
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
                 $queueMessage->getOperationType()
@@ -169,7 +171,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->warning($e->getMessage());
 
-            if (!isset($request)) {
+            if (!$request) {
                 throw new LocalizedException(__('There is no request to schedule next attempt'));
             }
 
@@ -208,6 +210,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
     public function processResell(QueueMessageInterface $queueMessage): void
     {
         try {
+            $request = null;
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
                 $queueMessage->getOperationType()
@@ -217,7 +220,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         } catch (VendorNonFatalErrorException | VendorBadServerAnswerException $e) {
             $this->helper->warning($e->getMessage());
 
-            if (!isset($request)) {
+            if (!$request) {
                 throw new LocalizedException(__('There is no request to schedule next attempt'));
             }
 

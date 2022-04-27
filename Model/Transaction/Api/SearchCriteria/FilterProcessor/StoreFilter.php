@@ -11,10 +11,10 @@ namespace Mygento\Kkm\Model\Transaction\Api\SearchCriteria\FilterProcessor;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessor\FilterProcessor\CustomFilterInterface;
 use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DB\Select;
 use Magento\Sales\Api\Data\TransactionInterface;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Model\Request\Request;
-use Zend\Db\Sql\Select;
 
 class StoreFilter implements CustomFilterInterface
 {
