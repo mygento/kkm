@@ -16,23 +16,14 @@ class Response implements ResponseInterface
 {
     // phpcs:disable
     private $uuid;
-
     private $error;
-
     private $status;
-
     private $payload;
-
     private $externalId;
-
     private $timestamp;
-
     private $groupCode;
-
     private $daemonCode;
-
     private $deviceCode;
-
     private $callbackUrl;
 
     // phpcs:enable

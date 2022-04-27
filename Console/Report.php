@@ -30,11 +30,9 @@ class Report extends Command
     . self::WEEK_PERIOD;
     public const COMMAND = 'mygento:kkm:report';
     public const COMMAND_DESCRIPTION = 'Show report of kkm transaction for period.';
-
     public const WEEK_PERIOD = 'week';
     public const YESTERDAY_PERIOD = 'yesterday';
     public const TODAY_PERIOD = 'today';
-
     public const STORE_ID_OPTION = 'store_id';
     public const STORE_ID_OPTION_SHORTCUT = 's';
     public const STORE_ID_OPTION_DESCRIPTION = 'Filter transactions by Store ID. By default outputs transaction of all stores.';

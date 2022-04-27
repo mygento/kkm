@@ -29,12 +29,10 @@ interface TransactionAttemptInterface
     public const PARENT_ID = 'parent_id';
     public const ERROR_CODE = 'error_code';
     public const ERROR_TYPE = 'error_type';
-
     public const OPERATION_LABEL = [
         1 => 'Payment',
         2 => 'Refund',
     ];
-
     public const STATUS_NEW = 1;
     public const STATUS_NEW_LABEL = 'New Attempt';
     public const STATUS_SENT = 2;

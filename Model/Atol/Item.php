@@ -13,7 +13,6 @@ class Item extends \Mygento\Kkm\Model\Request\Item
     public const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
     public const PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment';
     public const PAYMENT_METHOD_ADVANCE = 'advance';
-
     public const PAYMENT_OBJECT_BASIC = 'commodity';
     public const PAYMENT_OBJECT_SERVICE = 'service';
     public const PAYMENT_OBJECT_PAYMENT = 'payment'; //Аванс, Бонус, Подарочная карта

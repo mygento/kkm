@@ -14,7 +14,6 @@ interface RequestInterface
     public const REFUND_OPERATION_TYPE = 2;
     public const RESELL_REFUND_OPERATION_TYPE = 4;
     public const RESELL_SELL_OPERATION_TYPE = 5;
-
     public const EXTERNAL_ID_KEY = 'external_id';
 
     /**

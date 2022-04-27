@@ -14,27 +14,16 @@ abstract class Item implements \JsonSerializable, ItemInterface
 {
     // phpcs:disable
     protected $name = '';
-
     protected $price = 1.0;
-
     protected $quantity = 1;
-
     protected $sum = 0.0;
-
     protected $tax = '';
-
     protected $taxSum = 0.0;
-
     protected $paymentMethod = '';
-
     protected $paymentObject = '';
-
     protected $countryCode = '';
-
     protected $customsDeclaration = '';
-
     protected $shouldHaveMarking = false;
-
     protected $marking;
 
     // phpcs:enable

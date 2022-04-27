@@ -9,7 +9,7 @@ grumphp:
                 - "exit;"
         phplint:
         phpcsfixer:
-            config: '.php_cs'
+            config: '.php-cs-fixer.php'
         phpmd:
             ruleset: ['vendor/mygento/coding-standard/Mygento-Mage2/phpmd.xml']
         phpcs:

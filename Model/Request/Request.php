@@ -21,41 +21,23 @@ abstract class Request implements \JsonSerializable, RequestInterface
 {
     // phpcs:disable
     protected $sno = '';
-
     protected $externalId = '';
-
     protected $email = '';
-
     protected $clientName = '';
-
     protected $clientInn = '';
-
     protected $companyEmail = '';
-
     protected $phone = '';
-
     protected $items = [];
-
     protected $payments = [];
-
     protected $total = 0;
-
     protected $inn = '';
-
     protected $paymentAddress = '';
-
     protected $callbackUrl = '';
-
     protected $operationType = 0;
-
     protected $salesEntityId = null;
-
     protected $retryCount = null;
-
     protected $additionalUserProps = null;
-
     protected $additionalCheckProps = '';
-
     protected $entityStoreId;
 
     // phpcs:enable

@@ -32,53 +32,29 @@ class Response implements ResponseInterface
     // phpcs:disable
 
     private $fceError;
-
     private $errorDescription;
-
     private $fatal;
-
     private $logRequestId;
-
     private $cloudErrorTimestamp;
-
     private $requestId;
-
     private $clientId;
-
     private $date;
-
     private $device;
-
     private $deviceRegistrationNumber;
-
     private $deviceSerialNumber;
-
     private $docNumber;
-
     private $documentType;
-
     private $fnSerialNumber;
-
     private $fiscalDocNumber;
-
     private $fiscalSign;
-
     private $grandTotal;
-
     private $path;
-
     private $qr;
-
     private $response;
-
     private $responses;
-
     private $text;
-
     private $turnNumber;
-
     private $status;
-
     private $receiptLink;
 
     // phpcs:enable

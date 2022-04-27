@@ -22,7 +22,6 @@ class Client
 
     //see Atol Documentation
     private const ALLOWED_HTTP_STATUSES = [100, 200, 400, 401];
-
     private const GET_TOKEN_URL_APPNX = 'getToken';
     private const SELL_URL_APPNX = 'sell';
     private const SELL_REFUND_URL_APPNX = 'sell_refund';
@@ -196,6 +195,7 @@ class Client
         $storeId = $request->getStoreId();
 
         $request = $debugData['request'] = $this->jsonSerializer->serialize($request);
+        $response = null;
 
         try {
             $token = $this->getToken($storeId);
@@ -214,7 +214,7 @@ class Client
         } catch (\Exception $exc) {
             throw new CreateDocumentFailedException(
                 $exc->getMessage(),
-                $response ?? null,
+                $response,
                 $debugData
             );
         }

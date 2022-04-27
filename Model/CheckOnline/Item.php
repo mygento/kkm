@@ -13,11 +13,9 @@ class Item extends \Mygento\Kkm\Model\Request\Item
     public const PAYMENT_METHOD_FULL_PAYMENT = 4;
     public const PAYMENT_METHOD_FULL_PREPAYMENT = 1;
     public const PAYMENT_METHOD_ADVANCE = 3;
-
     public const PAYMENT_OBJECT_BASIC = 1;
     public const PAYMENT_OBJECT_SERVICE = 4;
     public const PAYMENT_OBJECT_PAYMENT = 10; //Аванс, Бонус, Подарочная карта
-
     public const TAX_MAPPING = [
         'none' => 4,
         'vat0' => 3,
@@ -28,9 +26,7 @@ class Item extends \Mygento\Kkm\Model\Request\Item
     ];
 
     protected $price = 1;
-
     protected $quantity = 1000;
-
     protected $sum = 0;
 
     public function jsonSerialize(): array
