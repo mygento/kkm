@@ -93,6 +93,8 @@ class Client
         $this->kkmHelper->debug('Request:', $request->__toArray());
 
         $params = $debugData['request'] = $this->jsonSerializer->serialize($request);
+        $response = null;
+        $responseRaw = '';
 
         try {
             $curl = $this->curlClientFactory->create();
@@ -120,12 +122,12 @@ class Client
         } catch (FileSystemException $e) {
             throw new CreateDocumentFailedException(
                 $e->getMessage(),
-                $response ?? null,
+                $response,
                 $debugData
             );
         } catch (\JsonException $e) {
             throw new VendorBadServerAnswerException(
-                __('Response from Checkonline is not valid. Response: %1', $responseRaw ?? '')
+                __('Response from Checkonline is not valid. Response: %1', $responseRaw)
             );
         } catch (\Exception $e) {
             throw new VendorBadServerAnswerException(

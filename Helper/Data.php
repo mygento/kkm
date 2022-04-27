@@ -13,12 +13,9 @@ use Exception;
 class Data extends \Mygento\Base\Helper\Data
 {
     public const CONFIG_CODE = 'mygento_kkm';
-
     public const CFG_ATTRIBUTE_VALUE = 'attribute_value';
     public const CFG_JUR_TYPE = 'jur_type';
-
     private const CONFIG_PATH_TEST_MODE = 'general/test_mode';
-
     private const CONFIG_PATH_TEST_CLIENT_CERT = 'checkonline/test_cert';
     private const CONFIG_PATH_PROD_CLIENT_CERT = 'checkonline/cert';
     private const CONFIG_PATH_TEST_CLIENT_PRIVATE_KEY = 'checkonline/test_private_key';

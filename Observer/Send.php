@@ -87,7 +87,8 @@ class Send implements ObserverInterface
      */
     protected function canProceed($entity)
     {
-        if (!$this->kkmHelper->getConfig('general/enabled', $entity->getStoreId())
+        if (
+            !$this->kkmHelper->getConfig('general/enabled', $entity->getStoreId())
             || !$this->kkmHelper->getConfig('general/auto_send_after_invoice', $entity->getStoreId())
             || $entity->getOrderCurrencyCode() != 'RUB'
             || $this->isAlreadySent($entity)

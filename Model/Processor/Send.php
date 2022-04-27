@@ -274,7 +274,8 @@ class Send implements SendInterface
         $storeId = $invoice->getStoreId();
         $this->proceedResellRefund($invoice, $sync, $ignoreTrials, $incrExtId);
 
-        if (!$this->helper->isVendorNeedUpdateStatus($storeId)
+        if (
+            !$this->helper->isVendorNeedUpdateStatus($storeId)
             && ($sync || !$this->helper->isMessageQueueEnabled($storeId))
         ) {
             $this->proceedResellSell($invoice, $sync, $ignoreTrials, $incrExtId);

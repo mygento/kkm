@@ -25,7 +25,6 @@ class UpdateStatus extends Command
     private const TRANSACTION_UUID_ARGUMENT_DESCRIPTION = 'UUID (Transaction id) or "all" to update all';
     private const COMMAND = 'mygento:kkm:update';
     private const COMMAND_DESCRIPTION = 'Get status from Atol and save it.';
-
     private const RUN_ALL_PARAM = 'all';
 
     /**

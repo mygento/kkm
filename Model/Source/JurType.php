@@ -14,7 +14,6 @@ class JurType implements OptionSourceInterfaceAlias
 {
     public const ENTREPRENEUR = 'entrepreneur';
     public const ORGANIZATION = 'organization';
-
     public const OPTIONS = [
         self::ENTREPRENEUR => 'Individual Entrepreneur',
         self::ORGANIZATION => 'Organization',

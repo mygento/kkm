@@ -16,13 +16,9 @@ class Email
 {
     // phpcs:disable
     private $template;
-
     private $area;
-
     private $fields;
-
     private $sender = [];
-
     private $recipient = [];
 
     // phpcs:enable

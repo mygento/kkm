@@ -85,7 +85,8 @@ class Update
     private function proceed($storeId)
     {
         //Проверка включения Cron и необходимость выполнять операцию обновления статуса для вендора
-        if (!$this->kkmHelper->getConfig('general/update_cron', $storeId)
+        if (
+            !$this->kkmHelper->getConfig('general/update_cron', $storeId)
             || !$this->kkmHelper->isVendorNeedUpdateStatus($storeId)
         ) {
             return;
