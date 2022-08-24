@@ -147,7 +147,7 @@ class GetRecalculated
             $add = static function ($val) use ($giftCardAmount, $customerBalanceAmount) {
                 return $val === null
                     ? $val
-                    : bcadd($val, bcadd($giftCardAmount, $customerBalanceAmount, 4), 4);
+                    : bcadd((string) $val, bcadd((string) $giftCardAmount, (string) $customerBalanceAmount, 4), 4);
             };
 
             /** @var \Magento\Sales\Api\Data\OrderItemInterface $itemMock */
