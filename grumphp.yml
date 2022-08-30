@@ -17,5 +17,5 @@ grumphp:
         xmllint:
         phpstan:
           autoload_file: 'vendor/mygento/coding-standard/stan/autoload.php'
-          ignore_patterns: ['Test']
+          memory_limit: '-1'
           level: 1

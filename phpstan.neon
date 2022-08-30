@@ -1,0 +1,6 @@
+includes:
+  - vendor/mygento/coding-standard/stan/extension.neon
+
+parameters:
+    bootstrapFiles:
+        - 'vendor/mygento/coding-standard/stan/autoload.php'

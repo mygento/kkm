@@ -1,7 +1,7 @@
 {
     "name": "mygento/module-kkm",
     "type": "magento2-module",
-    "version": "2.4.0",
+    "version": "2.4.1",
     "license": "OSL-3.0",
     "description": "Модуль интеграции фискальных кассовых аппаратов для Magento в соответствии с 54-ФЗ",
     "keywords": [
@@ -13,7 +13,7 @@
         "magento/framework-message-queue": "100.4.*"
     },
     "require-dev": {
-        "mygento/coding-standard": "~2.14.0-beta6"
+        "mygento/coding-standard": "~2.14.0"
     },
     "autoload": {
         "files": [
@@ -32,7 +32,7 @@
     "config": {
         "allow-plugins": {
             "magento/composer-dependency-version-audit-plugin": false,
-            "phpro/grumphp": false
+            "phpro/grumphp": true
         }
     }
 }
