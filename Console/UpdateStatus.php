@@ -109,7 +109,7 @@ class UpdateStatus extends Command
 
             $uuids = $this->transactionHelper->getWaitUuidsByStore($store->getId());
             foreach ($uuids as $uuid) {
-                $output->writeln("<comment>${i} Updating {$uuid} ...</comment>");
+                $output->writeln("<comment>{$i} Updating {$uuid} ...</comment>");
                 $this->updateOne($output, $uuid);
                 $i++;
             }
