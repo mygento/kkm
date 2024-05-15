@@ -174,14 +174,14 @@ class Report
                 )
                 ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $this->storeId));
         }
-//        $transactionAttempts = $this->attemptRepository->getList(
-//            $searchCriteriaBuilder->create()
-//        );
+        //        $transactionAttempts = $this->attemptRepository->getList(
+        //            $searchCriteriaBuilder->create()
+        //        );
 
         /** @var $statistics \Mygento\Kkm\Model\Statistics */
         $statistics = $this->statisticsFactory->create();
 
-//        $items = array_merge($transactions->getItems(), $transactionAttempts->getItems());
+        //        $items = array_merge($transactions->getItems(), $transactionAttempts->getItems());
         $items = $transactions->getItems();
         foreach ($items as $item) {
             $info = $item->getAdditionalInformation(TransactionEntity::RAW_DETAILS);

@@ -87,7 +87,7 @@ class SendRefund extends Command
      * @throws \Mygento\Kkm\Exception\VendorBadServerAnswerException
      * @return int|null
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->appState->setAreaCode(\Magento\Framework\App\Area::AREA_GLOBAL);
 

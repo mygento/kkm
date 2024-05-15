@@ -83,7 +83,7 @@ class UpdateStatus extends Command
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return int|null
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $transactionUuid = $input->getArgument(self::TRANSACTION_UUID_ARGUMENT);
 
@@ -138,7 +138,7 @@ To update one:
 To update all transaction with status 'wait':
       <comment>%command.full_name% </comment>
 HELP
-            . self::RUN_ALL_PARAM
+                . self::RUN_ALL_PARAM
         );
         parent::configure();
     }

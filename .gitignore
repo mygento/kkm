@@ -6,3 +6,4 @@
 /nbproject/
 .php_cs.cache
 .php-cs-fixer.cache
+/generated

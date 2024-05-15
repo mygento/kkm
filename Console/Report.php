@@ -25,9 +25,9 @@ class Report extends Command
 {
     public const ARGUMENT = 'period';
     public const ARGUMENT_DESCRIPTION = 'Period. Possible values: '
-    . self::TODAY_PERIOD . ', '
-    . self::YESTERDAY_PERIOD . ', '
-    . self::WEEK_PERIOD;
+        . self::TODAY_PERIOD . ', '
+        . self::YESTERDAY_PERIOD . ', '
+        . self::WEEK_PERIOD;
     public const COMMAND = 'mygento:kkm:report';
     public const COMMAND_DESCRIPTION = 'Show report of kkm transaction for period.';
     public const WEEK_PERIOD = 'week';
@@ -74,7 +74,7 @@ class Report extends Command
      * @throws \Exception
      * @return int
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->output = $output;
 
