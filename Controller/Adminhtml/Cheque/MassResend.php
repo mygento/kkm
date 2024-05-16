@@ -12,7 +12,7 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\View\Result\Redirect;
 use Magento\Framework\App\Action\HttpPostActionInterface;
-use Magento\Framework\Controller\ResultFactory;
+use Magento\Framework\Controller\Result\RedirectFactory;
 use Magento\Ui\Component\MassAction\Filter;
 use Mygento\Kkm\Api\Data\TransactionAttemptInterface;
 use Mygento\Kkm\Api\ResenderInterface;
@@ -23,6 +23,11 @@ use Mygento\Kkm\Model\ResourceModel\TransactionAttempt\CollectionFactory;
 class MassResend extends Action implements HttpPostActionInterface
 {
     public const ADMIN_RESOURCE = 'Mygento_Kkm::cheque_resend';
+
+    /**
+     * @var RedirectFactory
+     */
+    private $redirectResultFactory;
 
     /**
      * @var Filter
@@ -49,16 +54,9 @@ class MassResend extends Action implements HttpPostActionInterface
      */
     private $resender;
 
-    /**
-     * @param Context $context
-     * @param Filter $filter
-     * @param CollectionFactory $collectionFactory
-     * @param TransactionAttempt $transactionAttemptHelper
-     * @param Data $configHelper
-     * @param ResenderInterface $resender
-     */
     public function __construct(
         Context $context,
+        RedirectFactory $redirectResultFactory,
         Filter $filter,
         CollectionFactory $collectionFactory,
         TransactionAttempt $transactionAttemptHelper,
@@ -67,6 +65,7 @@ class MassResend extends Action implements HttpPostActionInterface
     ) {
         parent::__construct($context);
 
+        $this->redirectResultFactory = $redirectResultFactory;
         $this->filter = $filter;
         $this->collectionFactory = $collectionFactory;
         $this->transactionAttemptHelper = $transactionAttemptHelper;
@@ -128,7 +127,7 @@ class MassResend extends Action implements HttpPostActionInterface
             );
         }
 
-        $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        $resultRedirect = $this->redirectResultFactory->create();
         $redirectPath = $this->filter->getComponentRefererUrl() ?: 'kkm/transactionattempt/';
 
         return $resultRedirect->setPath($redirectPath);

@@ -11,7 +11,6 @@ namespace Mygento\Kkm\Controller\Frontend;
 use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
-use Magento\Framework\Controller\ResultFactory;
 
 class Callback extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
@@ -19,6 +18,11 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
      * @var \Mygento\Kkm\Model\Atol\ResponseFactory
      */
     private $responseFactory;
+
+    /**
+     * @var \Magento\Framework\Controller\Result\RawFactory
+     */
+    private $rawResultFactory;
 
     /**
      * @var \Mygento\Kkm\Model\VendorInterface
@@ -50,19 +54,9 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
      */
     private $storeManager;
 
-    /**
-     * Callback constructor.
-     * @param \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory
-     * @param \Mygento\Kkm\Model\VendorInterface $vendor
-     * @param \Mygento\Kkm\Helper\Data $kkmHelper
-     * @param \Mygento\Kkm\Helper\Error $errorHelper
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Mygento\Kkm\Helper\Resell $resellHelper
-     * @param \Mygento\Kkm\Api\Processor\SendInterface $processor
-     * @param \Magento\Framework\App\Action\Context $context
-     */
     public function __construct(
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
+        \Magento\Framework\Controller\Result\RawFactory $rawResultFactory,
         \Mygento\Kkm\Model\VendorInterface $vendor,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error $errorHelper,
@@ -72,7 +66,9 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
         \Magento\Framework\App\Action\Context $context
     ) {
         parent::__construct($context);
+
         $this->responseFactory = $responseFactory;
+        $this->rawResultFactory = $rawResultFactory;
         $this->vendor = $vendor;
         $this->kkmHelper = $kkmHelper;
         $this->storeManager = $storeManager;
@@ -92,7 +88,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
         $entity = null;
 
         //For testing purposes
-        $result = $this->resultFactory->create(ResultFactory::TYPE_RAW);
+        $result = $this->rawResultFactory->create();
 
         try {
             $response = $this->responseFactory->create(['jsonRaw' => $json]);
