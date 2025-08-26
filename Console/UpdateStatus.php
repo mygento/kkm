@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -65,7 +65,7 @@ class UpdateStatus extends Command
         TransactionHelper $transactionHelper,
         StoreRepositoryInterface $storeRepository,
         Data $kkmHelper,
-        Request $requestHelper
+        Request $requestHelper,
     ) {
         parent::__construct();
 
@@ -128,7 +128,7 @@ class UpdateStatus extends Command
         $this->addArgument(
             self::TRANSACTION_UUID_ARGUMENT,
             InputArgument::REQUIRED,
-            self::TRANSACTION_UUID_ARGUMENT_DESCRIPTION
+            self::TRANSACTION_UUID_ARGUMENT_DESCRIPTION,
         );
         $this->setHelp(
             <<<HELP
@@ -138,7 +138,7 @@ To update one:
 To update all transaction with status 'wait':
       <comment>%command.full_name% </comment>
 HELP
-                . self::RUN_ALL_PARAM
+                . self::RUN_ALL_PARAM,
         );
         parent::configure();
     }
@@ -152,7 +152,7 @@ HELP
         return sprintf(
             "<info>Vendor '%s' which configured to store with id '%s' does not need update status.</info>",
             $this->kkmHelper->getCurrentVendorCode($storeId),
-            $storeId
+            $storeId,
         );
     }
 

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -56,7 +56,7 @@ class Resell extends \Magento\Backend\App\Action
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Mygento\Kkm\Helper\Resell $resellHelper,
         \Magento\Backend\App\Action\Context $context,
-        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository
+        \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
     ) {
         parent::__construct($context);
 
@@ -91,7 +91,7 @@ class Resell extends \Magento\Backend\App\Action
                 $this->getMessageManager()->addSuccessMessage(__($comment));
 
                 return $this->resultRedirectFactory->create()->setUrl(
-                    $this->_redirect->getRefererUrl()
+                    $this->_redirect->getRefererUrl(),
                 );
             }
 
@@ -120,7 +120,7 @@ class Resell extends \Magento\Backend\App\Action
         }
 
         return $this->resultRedirectFactory->create()->setUrl(
-            $this->_redirect->getRefererUrl()
+            $this->_redirect->getRefererUrl(),
         );
     }
 
@@ -134,7 +134,7 @@ class Resell extends \Magento\Backend\App\Action
         if (!$id) {
             $this->kkmHelper->error(
                 'Invalid url. No id param:',
-                $this->getRequest()->getParams()
+                $this->getRequest()->getParams(),
             );
 
             throw new ValidatorException(__('Invalid request. Check logs.'));

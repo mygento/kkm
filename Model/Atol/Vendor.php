@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -87,7 +87,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Model\Atol\Client $apiClient,
         \Mygento\Kkm\Helper\OrderComment $orderCommentHelper,
-        \Mygento\Kkm\Model\Atol\RequestBuilder $requestBuilder
+        \Mygento\Kkm\Model\Atol\RequestBuilder $requestBuilder,
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->apiClient = $apiClient;
@@ -120,8 +120,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
             throw new InputException(
                 __(
                     'Invoice %1 does not have transaction with status DONE.',
-                    $invoice->getIncrementId()
-                )
+                    $invoice->getIncrementId(),
+                ),
             );
         }
 
@@ -130,8 +130,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
             throw new InputException(
                 __(
                     'Invoice %1 has opened refund transaction.',
-                    $invoice->getIncrementId()
-                )
+                    $invoice->getIncrementId(),
+                ),
             );
         }
 
@@ -218,7 +218,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
     public function saveCallback($response)
     {
         $transaction = $this->transactionHelper->getTransactionByTxnId(
-            $response->getIdForTransaction()
+            $response->getIdForTransaction(),
         );
         //TODO: Validate response
 
@@ -290,7 +290,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface {
         return $this->requestBuilder->buildRequest(
             $salesEntity,
@@ -298,7 +298,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
             $shippingPaymentObject,
             $receiptData,
             $clientName,
-            $clientInn
+            $clientInn,
         );
     }
 
@@ -465,7 +465,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
         if ($response->isFailed() || !$response->getUuid()) {
             throw new CreateDocumentFailedException(
                 __('Response is failed or invalid. Message: %1', $response->getMessage()),
-                $response
+                $response,
             );
         }
 
@@ -489,22 +489,22 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
     {
         $isNonFatalError = $this->kkmHelper->isAtolNonFatalError(
             $response->getErrorCode(),
-            $response->getErrorType()
+            $response->getErrorType(),
         );
 
         if ($isNonFatalError) {
             throw new VendorNonFatalErrorException(
                 __(
                     'Error response from ATOL with code %1. Need to resend with new external_id.',
-                    $response->getErrorCode()
+                    $response->getErrorCode(),
                 ),
-                $response
+                $response,
             );
         }
 
         throw new CreateDocumentFailedException(
             __('Error response from ATOL with code %1.', $response->getErrorCode()),
-            $response
+            $response,
         );
     }
 }

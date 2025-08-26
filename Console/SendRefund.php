@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -67,7 +67,7 @@ class SendRefund extends Command
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Framework\App\State $state,
         \Magento\Sales\Model\Order\CreditmemoRepository $creditmemoRepo,
-        \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource
+        \Magento\Sales\Model\ResourceModel\Order\Creditmemo $creditmemoResource,
     ) {
         parent::__construct();
 
@@ -140,20 +140,20 @@ class SendRefund extends Command
         $this->addArgument(
             self::ARGUMENT_ENTITY_ID,
             InputArgument::REQUIRED,
-            self::ARGUMENT_ENTITY_ID_DESCRIPTION
+            self::ARGUMENT_ENTITY_ID_DESCRIPTION,
         );
         $this->addOption(
             self::OPTION_INCREASE_EXTERNAL_ID,
             'i',
             InputOption::VALUE_NONE,
-            'Increase External id'
+            'Increase External id',
         );
         $this->setHelp(
             <<<HELP
 This command sends existing creditmemo to ATOL.
 To send:
       <comment>%command.full_name% 100050324</comment>
-HELP
+HELP,
         );
         parent::configure();
     }

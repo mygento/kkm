@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -32,11 +32,11 @@ class Merger implements MergerInterface
      */
     public function __construct(
         \Mygento\Kkm\Api\Queue\MergedRequestInterfaceFactory $mergedRequestFactory,
-        \Magento\Framework\MessageQueue\MergedMessageInterfaceFactory $mergedMessageFactory
+        \Magento\Framework\MessageQueue\MergedMessageInterfaceFactory $mergedMessageFactory,
     ) {
         $this->mergedMessageFactory = $mergedMessageFactory
             ?: \Magento\Framework\App\ObjectManager::getInstance()->get(
-                MergedMessageInterfaceFactory::class
+                MergedMessageInterfaceFactory::class,
             );
         $this->mergedRequestFactory = $mergedRequestFactory;
     }
@@ -61,7 +61,7 @@ class Merger implements MergerInterface
                 [
                     'mergedMessage' => $mergedRequest,
                     'originalMessagesIds' => $messageIds,
-                ]
+                ],
             );
 
             $result[$topicName][] = $mergedMessage;

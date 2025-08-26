@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -26,7 +26,7 @@ class ReceiptUrlBuilder
     private $kkmHelper;
 
     public function __construct(
-        KkmHelper $kkmHelper
+        KkmHelper $kkmHelper,
     ) {
         $this->kkmHelper = $kkmHelper;
     }
@@ -68,7 +68,7 @@ class ReceiptUrlBuilder
                 $docNumber,
                 $sum,
             ],
-            $ofdUrl
+            $ofdUrl,
         );
     }
 }

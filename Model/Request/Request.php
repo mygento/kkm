@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -62,7 +62,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
      * @param \Magento\Framework\Stdlib\DateTime\Timezone $date
      */
     public function __construct(
-        \Magento\Framework\Stdlib\DateTime\Timezone $date
+        \Magento\Framework\Stdlib\DateTime\Timezone $date,
     ) {
         $this->date = $date;
     }
@@ -215,7 +215,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     {
         if (empty($this->getItems())) {
             throw new \Exception(
-                'Can not calculate totals. No items in the request'
+                'Can not calculate totals. No items in the request',
             );
         }
 

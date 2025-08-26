@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -22,7 +22,7 @@ class UpdateOrderStatuses implements DataPatchInterface
      * @param \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
      */
     public function __construct(
-        \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
+        \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup,
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
     }
@@ -35,7 +35,7 @@ class UpdateOrderStatuses implements DataPatchInterface
         // Insert statuses
         $this->moduleDataSetup->getConnection()->insertOnDuplicate(
             $this->moduleDataSetup->getTable('sales_order_status'),
-            ['status' => KkmHelper::ORDER_KKM_FAILED_STATUS, 'label' => 'KKM Failed']
+            ['status' => KkmHelper::ORDER_KKM_FAILED_STATUS, 'label' => 'KKM Failed'],
         );
 
         //Bind status to state
@@ -59,7 +59,7 @@ class UpdateOrderStatuses implements DataPatchInterface
         foreach ($states as $state) {
             $this->moduleDataSetup->getConnection()->insertOnDuplicate(
                 $this->moduleDataSetup->getTable('sales_order_status_state'),
-                $state
+                $state,
             );
         }
 

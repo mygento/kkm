@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -61,7 +61,7 @@ class MassResend extends Action implements HttpPostActionInterface
         CollectionFactory $collectionFactory,
         TransactionAttempt $transactionAttemptHelper,
         Data $configHelper,
-        ResenderInterface $resender
+        ResenderInterface $resender,
     ) {
         parent::__construct($context);
 
@@ -94,7 +94,7 @@ class MassResend extends Action implements HttpPostActionInterface
             $entityType = $this->transactionAttemptHelper->getEntityType($attempt);
             $needExtIdIncrement = $this->configHelper->isAtolNonFatalError(
                 $attempt->getErrorCode(),
-                $attempt->getErrorType()
+                $attempt->getErrorType(),
             );
             $salesEntityId = $attempt->getSalesEntityId();
 
@@ -113,8 +113,8 @@ class MassResend extends Action implements HttpPostActionInterface
             $this->messageManager->addErrorMessage(
                 __(
                     'Failed resend for attempts with ids: %1',
-                    implode(',', $attemptIdsWithFailedResend)
-                )
+                    implode(',', $attemptIdsWithFailedResend),
+                ),
             );
         }
 
@@ -122,8 +122,8 @@ class MassResend extends Action implements HttpPostActionInterface
             $this->messageManager->addSuccessMessage(
                 __(
                     'Successful resend for attempts with ids: %1',
-                    implode(',', $attemptIdsWithSuccessfulResend)
-                )
+                    implode(',', $attemptIdsWithSuccessfulResend),
+                ),
             );
         }
 

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -33,7 +33,7 @@ class AtolRefundConsumer extends AtolAbstractConsumer
             $this->requestHelper->increaseExternalId($request);
             $this->publisher->publish(
                 SendInterface::TOPIC_NAME_REFUND,
-                $this->requestHelper->getQueueMessage($request)
+                $this->requestHelper->getQueueMessage($request),
             );
         } catch (VendorBadServerAnswerException $e) {
             $this->helper->critical($e->getMessage());
@@ -45,7 +45,7 @@ class AtolRefundConsumer extends AtolAbstractConsumer
                 $request->setIgnoreTrialsNum(false);
                 $this->publisher->publish(
                     SendInterface::TOPIC_NAME_REFUND,
-                    $this->requestHelper->getQueueMessage($request)
+                    $this->requestHelper->getQueueMessage($request),
                 );
             }
         } catch (\Throwable $e) {

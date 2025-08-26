@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -37,7 +37,7 @@ class Vendor implements VendorInterface, StatusUpdatable
     public function __construct(
         Data $helper,
         Request $requestHelper,
-        $vendors = []
+        $vendors = [],
     ) {
         $this->helper = $helper;
         $this->requestHelper = $requestHelper;
@@ -83,7 +83,7 @@ class Vendor implements VendorInterface, StatusUpdatable
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface {
         $currentVendor = $this->getCurrentVendor($salesEntity->getStoreId());
 
@@ -93,7 +93,7 @@ class Vendor implements VendorInterface, StatusUpdatable
             $shippingPaymentObject,
             $receiptData,
             $clientName,
-            $clientInn
+            $clientInn,
         );
     }
 

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -35,7 +35,7 @@ abstract class AbstractConsumer
     public function __construct(
         \Mygento\Kkm\Helper\Data $helper,
         \Mygento\Kkm\Helper\Request $requestHelper,
-        $consumerProcessors = []
+        $consumerProcessors = [],
     ) {
         $this->helper = $helper;
         $this->requestHelper = $requestHelper;

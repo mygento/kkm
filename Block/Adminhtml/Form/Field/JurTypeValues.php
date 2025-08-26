@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -31,14 +31,14 @@ class JurTypeValues extends AbstractFieldArray
             Data::CFG_ATTRIBUTE_VALUE,
             [
                 'label' => __('Attribute Value'),
-            ]
+            ],
         );
         $this->addColumn(
             Data::CFG_JUR_TYPE,
             [
                 'label' => __('Company Type'),
                 'renderer' => $this->getJurTypeRenderer(),
-            ]
+            ],
         );
 
         $this->_addAfter = false;
@@ -66,7 +66,7 @@ class JurTypeValues extends AbstractFieldArray
             $this->isActiveRenderer = $this->getLayout()->createBlock(
                 JurType::class,
                 '',
-                ['data' => ['is_render_to_js_template' => true]]
+                ['data' => ['is_render_to_js_template' => true]],
             );
         }
 

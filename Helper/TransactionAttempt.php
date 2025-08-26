@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -63,7 +63,7 @@ class TransactionAttempt
         Request $requestHelper,
         Data $kkmHelper,
         SearchCriteriaBuilder $searchCriteriaBuilder,
-        TransactionAttemptRepositoryInterface $attemptRepository
+        TransactionAttemptRepositoryInterface $attemptRepository,
     ) {
         $this->messageEncoder = $messageEncoder;
         $this->requestHelper = $requestHelper;
@@ -171,7 +171,7 @@ class TransactionAttempt
     public function scheduleNextAttempt(
         RequestInterface $request,
         string $topic,
-        string $scheduledAt = null
+        string $scheduledAt = null,
     ): TransactionAttemptInterface {
         /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
         $entity = $this->requestHelper->getEntityByRequest($request);
@@ -207,7 +207,7 @@ class TransactionAttempt
     public function registerUpdateAttempt(
         $entity,
         TransactionInterface $transaction,
-        bool $increaseTrials = true
+        bool $increaseTrials = true,
     ): TransactionAttemptInterface {
         $attempt = $this->attemptRepository
             ->getByEntityId(UpdateRequestInterface::UPDATE_OPERATION_TYPE, $entity->getEntityId());
@@ -225,12 +225,12 @@ class TransactionAttempt
             ->setNumberOfTrials(
                 $increaseTrials
                 ? $attempt->getNumberOfTrials() + 1
-                : $attempt->getNumberOfTrials()
+                : $attempt->getNumberOfTrials(),
             )
             ->setTotalNumberOfTrials(
                 $increaseTrials
                     ? $attempt->getTotalNumberOfTrials() + 1
-                    : $attempt->getTotalNumberOfTrials()
+                    : $attempt->getTotalNumberOfTrials(),
             );
 
         return $this->attemptRepository->save($attempt);
@@ -282,8 +282,8 @@ class TransactionAttempt
                 ->addFilter(
                     TransactionAttemptInterface::STATUS,
                     TransactionAttemptInterface::STATUS_ERROR,
-                    'neq'
-                )->create()
+                    'neq',
+                )->create(),
         );
 
         return $successfulAttemptsSearchResult->getTotalCount() == 0;

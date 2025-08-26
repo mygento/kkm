@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -31,7 +31,7 @@ class Clear extends \Magento\Backend\App\Action
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
-        \Magento\Framework\Filesystem\Io\File $ioFile
+        \Magento\Framework\Filesystem\Io\File $ioFile,
     ) {
         $this->directoryList = $directoryList;
         $this->ioFile = $ioFile;
@@ -58,14 +58,14 @@ class Clear extends \Magento\Backend\App\Action
 
             $this->ioFile->rm($filepath);
             $this->getMessageManager()->addSuccessMessage(
-                __('Logs have been cleared')
+                __('Logs have been cleared'),
             );
         } catch (\Throwable $exc) {
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
         }
 
         return $this->resultRedirectFactory->create()->setUrl(
-            $this->_redirect->getRefererUrl()
+            $this->_redirect->getRefererUrl(),
         );
     }
 }

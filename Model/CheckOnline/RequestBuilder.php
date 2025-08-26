@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -46,13 +46,13 @@ class RequestBuilder extends AbstractRequestBuilder
         GetRecalculated $getRecalculated,
         TransactionHelper $transactionHelper,
         RequestFactory $requestFactory,
-        ItemFactory $itemFactory
+        ItemFactory $itemFactory,
     ) {
         parent::__construct(
             $productRepository,
             $kkmHelper,
             $getRecalculated,
-            $transactionHelper
+            $transactionHelper,
         );
 
         $this->requestFactory = $requestFactory;
@@ -77,7 +77,7 @@ class RequestBuilder extends AbstractRequestBuilder
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface {
         /** @var \Mygento\Kkm\Model\CheckOnline\Request $request */
         $request = $this->requestFactory->create();
@@ -177,7 +177,7 @@ class RequestBuilder extends AbstractRequestBuilder
             if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
                 $item->setMarkingRequired(true);
                 $item->setMarking(
-                    $this->convertMarkingToHexAndEncodeToBase64($itemData[Discount::MARKING], $storeId)
+                    $this->convertMarkingToHexAndEncodeToBase64($itemData[Discount::MARKING], $storeId),
                 );
             }
 
@@ -217,7 +217,7 @@ class RequestBuilder extends AbstractRequestBuilder
 
         if ($reason) {
             throw new \Exception(
-                __('Can not send data to Checkonline. Reason: %1', $reason)
+                __('Can not send data to Checkonline. Reason: %1', $reason),
             );
         }
     }

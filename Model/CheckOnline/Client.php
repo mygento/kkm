@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -68,7 +68,7 @@ class Client
         \Magento\Framework\HTTP\Client\CurlFactory $curlFactory,
         \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
         DirectoryList $directoryList,
-        File $file
+        File $file,
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->responseFactory = $responseFactory;
@@ -116,22 +116,22 @@ class Client
             }
 
             $this->kkmHelper->info(
-                __('%1 is sent. RequestId: %2', $request->getEntityType(), $response->getIdForTransaction())
+                __('%1 is sent. RequestId: %2', $request->getEntityType(), $response->getIdForTransaction()),
             );
             $this->kkmHelper->debug('Response:', [$response]);
         } catch (FileSystemException $e) {
             throw new CreateDocumentFailedException(
                 $e->getMessage(),
                 $response,
-                $debugData
+                $debugData,
             );
         } catch (\JsonException $e) {
             throw new VendorBadServerAnswerException(
-                __('Response from Checkonline is not valid. Response: %1', $responseRaw)
+                __('Response from Checkonline is not valid. Response: %1', $responseRaw),
             );
         } catch (\Exception $e) {
             throw new VendorBadServerAnswerException(
-                sprintf('Error while sending request to Checkonline: %s. Url: %s', $e->getMessage(), $url)
+                sprintf('Error while sending request to Checkonline: %s. Url: %s', $e->getMessage(), $url),
             );
         }
 
@@ -167,8 +167,8 @@ class Client
                     'The %s file \'%s\' does not exists in \'var/%s\' directory',
                     $fileType,
                     $fileName,
-                    $currentCertStorageDir
-                ))
+                    $currentCertStorageDir,
+                )),
             );
         }
 

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -48,7 +48,7 @@ class Send implements ObserverInterface
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Error $errorHelper,
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
-        \Magento\Framework\Message\ManagerInterface $messageManager
+        \Magento\Framework\Message\ManagerInterface $messageManager,
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->processor = $processor;
@@ -109,8 +109,8 @@ class Send implements ObserverInterface
                         'Skipped autosend %1 %2. Reason: Payment method %3 is not allowed',
                         $entity->getEntityType(),
                         $entity->getIncrementId(),
-                        $paymentMethod
-                    )
+                        $paymentMethod,
+                    ),
                 );
 
                 return false;
@@ -123,8 +123,8 @@ class Send implements ObserverInterface
                 __(
                     'Skipped autosend %1 %2. Reason: %1 is not new or state not changed',
                     $entity->getEntityType(),
-                    $entity->getIncrementId()
-                )
+                    $entity->getIncrementId(),
+                ),
             );
 
             return false;
@@ -158,8 +158,8 @@ class Send implements ObserverInterface
                     'Wrong state for autosending. %1 %2 in %3 state.',
                     $entity->getEntityType(),
                     $entity->getIncrementId(),
-                    $entity->getStateName()
-                )
+                    $entity->getStateName(),
+                ),
             );
 
             return false;
@@ -183,14 +183,14 @@ class Send implements ObserverInterface
             $this->messageManager->addErrorMessage(
                 __(
                     'Cheque has not been successfully registered on KKM vendor side. Reason: %1',
-                    $exc->getMessage()
-                )
+                    $exc->getMessage(),
+                ),
             );
 
             $this->errorHelper->processKkmChequeRegistrationError($entity, $exc);
         } catch (\Throwable $thr) {
             $this->messageManager->addErrorMessage(
-                __('Cheque has not been successfully registered on KKM vendor side. See log.')
+                __('Cheque has not been successfully registered on KKM vendor side. See log.'),
             );
             $this->kkmHelper->error('Resend failed. Reason: ' . $thr->getMessage());
             $this->errorHelper->processKkmChequeRegistrationError($entity, $thr);

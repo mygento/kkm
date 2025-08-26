@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -48,7 +48,7 @@ class CheckStatus extends Action
         Context $context,
         UpdateInterface $updateProcessor,
         Emulation $emulation,
-        Data $helper
+        Data $helper,
     ) {
         parent::__construct($context);
 
@@ -73,7 +73,7 @@ class CheckStatus extends Action
             $this->getMessageManager()->addErrorMessage(__('Invalid request. No uuid specified.'));
             $this->kkmHelper->error(
                 'Invalid url. No uuid. Params:',
-                $this->getRequest()->getParams()
+                $this->getRequest()->getParams(),
             );
 
             return $this->redirect();
@@ -98,7 +98,7 @@ class CheckStatus extends Action
     protected function redirect(): Redirect
     {
         return $this->resultRedirectFactory->create()->setUrl(
-            $this->_redirect->getRefererUrl()
+            $this->_redirect->getRefererUrl(),
         );
     }
 
@@ -111,11 +111,11 @@ class CheckStatus extends Action
             $response = $this->updateProcessor->proceedSync($uuid);
 
             $this->getMessageManager()->addSuccessMessage(
-                __('Kkm transaction status was updated. Status: %1', $response->getStatus())
+                __('Kkm transaction status was updated. Status: %1', $response->getStatus()),
             );
         } catch (\Exception $exc) {
             $this->getMessageManager()->addErrorMessage(
-                __('Can not check status of the transaction.')
+                __('Can not check status of the transaction.'),
             );
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
             $this->kkmHelper->error($exc->getMessage());
@@ -129,7 +129,7 @@ class CheckStatus extends Action
     private function exitWithoutUpdateStatus($currentVendorCode)
     {
         $this->getMessageManager()->addNoticeMessage(
-            __('Current vendor "%1" does not need update status.', $currentVendorCode)
+            __('Current vendor "%1" does not need update status.', $currentVendorCode),
         );
 
         return $this->redirect();

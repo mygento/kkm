@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -42,7 +42,7 @@ class Response implements ResponseInterface
         $json = json_decode($jsonRaw);
         if (!$json) {
             throw new \Exception(
-                __('Response from Atol is not valid. Response: %1', (string) $jsonRaw)
+                __('Response from Atol is not valid. Response: %1', (string) $jsonRaw),
             );
         }
         // phpcs:disable
