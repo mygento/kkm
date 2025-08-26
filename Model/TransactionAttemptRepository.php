@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -40,7 +40,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
         ResourceModel\TransactionAttempt $resource,
         ResourceModel\TransactionAttempt\CollectionFactory $collectionFactory,
         \Mygento\Kkm\Api\Data\TransactionAttemptInterfaceFactory $entityFactory,
-        \Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterfaceFactory $searchResFactory
+        \Mygento\Kkm\Api\Data\TransactionAttemptSearchResultsInterfaceFactory $searchResFactory,
     ) {
         $this->resource = $resource;
         $this->collectionFactory = $collectionFactory;
@@ -59,7 +59,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
         $this->resource->load($entity, $entityId);
         if (!$entity->getId()) {
             throw new \Magento\Framework\Exception\NoSuchEntityException(
-                __('Kkm Transaction Attempt with id "%1" does not exist.', $entityId)
+                __('Kkm Transaction Attempt with id "%1" does not exist.', $entityId),
             );
         }
 
@@ -76,11 +76,11 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
         $collection
             ->addFieldToFilter(
                 TransactionAttemptInterface::OPERATION,
-                ['eq' => $operation]
+                ['eq' => $operation],
             )
             ->addFieldToFilter(
                 TransactionAttemptInterface::SALES_ENTITY_ID,
-                ['eq' => $entityId]
+                ['eq' => $entityId],
             );
 
         return $collection->getFirstItem();
@@ -96,15 +96,15 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
         $collection
             ->addFieldToFilter(
                 TransactionAttemptInterface::OPERATION,
-                ['eq' => $operation]
+                ['eq' => $operation],
             )
             ->addFieldToFilter(
                 TransactionAttemptInterface::ORDER_ID,
-                ['eq' => $orderId]
+                ['eq' => $orderId],
             )
             ->addFieldToFilter(
                 TransactionAttemptInterface::SALES_ENTITY_INCREMENT_ID,
-                ['eq' => $entityIncrementId]
+                ['eq' => $entityIncrementId],
             );
 
         return $collection->getFirstItem();
@@ -119,11 +119,11 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
         $collection
             ->addFieldToFilter(
                 TransactionAttemptInterface::OPERATION,
-                ['eq' => RequestInterface::RESELL_SELL_OPERATION_TYPE]
+                ['eq' => RequestInterface::RESELL_SELL_OPERATION_TYPE],
             )
             ->addFieldToFilter(
                 TransactionAttemptInterface::SALES_ENTITY_ID,
-                ['eq' => $entityId]
+                ['eq' => $entityId],
             );
 
         if ($collection->getSize() === 0) {
@@ -155,7 +155,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             $this->resource->save($entity);
         } catch (\Exception $exception) {
             throw new \Magento\Framework\Exception\CouldNotSaveException(
-                __($exception->getMessage())
+                __($exception->getMessage()),
             );
         }
 
@@ -173,7 +173,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             $this->resource->delete($entity);
         } catch (\Exception $exception) {
             throw new \Magento\Framework\Exception\CouldNotDeleteException(
-                __($exception->getMessage())
+                __($exception->getMessage()),
             );
         }
 
@@ -220,7 +220,7 @@ class TransactionAttemptRepository implements \Mygento\Kkm\Api\TransactionAttemp
             foreach ($sortOrders as $sortOrder) {
                 $collection->addOrder(
                     $sortOrder->getField(),
-                    ($sortOrder->getDirection() == $sortAsc) ? $orderAsc : $orderDesc
+                    ($sortOrder->getDirection() == $sortAsc) ? $orderAsc : $orderDesc,
                 );
             }
         }

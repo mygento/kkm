@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -46,7 +46,7 @@ class OrderComment
         OrderRepositoryInterface $orderRepository,
         Data $kkmHelper,
         UrlInterface $urlBuilder,
-        OrderConfig $orderConfig
+        OrderConfig $orderConfig,
     ) {
         $this->orderRepository = $orderRepository;
         $this->kkmHelper = $kkmHelper;
@@ -73,7 +73,7 @@ class OrderComment
         if ($this->isNeedChangeStatusFromFailedToDone($response, $entity)) {
             $order->addCommentToStatusHistory(
                 $comment,
-                $this->resolveOrderStatus($order->getState(), $entity->getStoreId())
+                $this->resolveOrderStatus($order->getState(), $entity->getStoreId()),
             );
 
             $this->orderRepository->save($order);
@@ -118,7 +118,7 @@ class OrderComment
                     'sales/transactions/view',
                     [
                         'txn_id' => $txnId,
-                    ]
+                    ],
                 );
 
             $message .= " <a href='{$href}'>Transaction id: {$txnId}</a>";

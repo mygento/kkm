@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -54,6 +54,8 @@ class RequestBuilder extends AbstractRequestBuilder
      */
     private $urlHelper;
 
+    private CashlessPaymentFactory $cashlessPaymentFactory;
+
     public function __construct(
         ProductRepositoryInterface $productRepository,
         Data $kkmHelper,
@@ -62,19 +64,21 @@ class RequestBuilder extends AbstractRequestBuilder
         RequestFactory $requestFactory,
         ItemFactory $itemFactory,
         PaymentFactory $paymentFactory,
-        Url $urlHelper
+        Url $urlHelper,
+        CashlessPaymentFactory $cashlessPaymentFactory,
     ) {
         parent::__construct(
             $productRepository,
             $kkmHelper,
             $getRecalculated,
-            $transactionHelper
+            $transactionHelper,
         );
 
         $this->requestFactory = $requestFactory;
         $this->itemFactory = $itemFactory;
         $this->paymentFactory = $paymentFactory;
         $this->urlHelper = $urlHelper;
+        $this->cashlessPaymentFactory = $cashlessPaymentFactory;
     }
 
     /**
@@ -84,10 +88,12 @@ class RequestBuilder extends AbstractRequestBuilder
      * @param array $receiptData
      * @param string $clientName
      * @param string $clientInn
+     *
      * @throws \Exception
      * @return RequestInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function buildRequest(
         $salesEntity,
@@ -95,7 +101,7 @@ class RequestBuilder extends AbstractRequestBuilder
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface {
         $order = $salesEntity->getOrder() ?? $salesEntity;
         $storeId = $order->getStoreId();
@@ -113,6 +119,7 @@ class RequestBuilder extends AbstractRequestBuilder
 
         $recalculatedReceiptData = $this->getRecalculated->execute($salesEntity);
         $items = [];
+        //$itemPayments =
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
             //For orders without Shipping (Virtual products)
             if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
@@ -150,6 +157,9 @@ class RequestBuilder extends AbstractRequestBuilder
             ->setCallbackUrl($this->getCallbackUrl($storeId))
             ->setItems($items);
 
+        //if ($internetOrder) {
+        //    $request->setIsInternetOrder();
+        //}
         //"GiftCard applied" payment
         if ($this->isGiftCardApplied($salesEntity)) {
             $giftCardsAmount = $salesEntity->getGiftCardsAmount()
@@ -159,7 +169,7 @@ class RequestBuilder extends AbstractRequestBuilder
                 ->addPayment(
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
-                        ->setSum(round($giftCardsAmount, 2))
+                        ->setSum(round($giftCardsAmount, 2)),
                 );
         }
 
@@ -172,7 +182,7 @@ class RequestBuilder extends AbstractRequestBuilder
                 ->addPayment(
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
-                        ->setSum(round($customerBalanceAmount, 2))
+                        ->setSum(round($customerBalanceAmount, 2)),
                 );
         }
 
@@ -182,8 +192,28 @@ class RequestBuilder extends AbstractRequestBuilder
                 ->addPayment(
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
-                        ->setSum(round($salesEntity->getGrandTotal(), 2))
+                        ->setSum(round($salesEntity->getGrandTotal(), 2)),
                 );
+        }
+
+        $timeZone = $this->kkmHelper->getConfig('atol/timezone', $storeId);
+        if ($timeZone) {
+            $request->setTimezone($timeZone);
+        }
+        if ($this->kkmHelper->getConfig('atol/internet_order', $storeId)) {
+            $request->setIsInternetOrder();
+        }
+        $transactionId = $order->getPayment()?->getLastTransId();
+        $cahshlessPaymentEnabled = $this->kkmHelper->getConfig('atol/cashless_payment', $storeId);
+
+        if ($cahshlessPaymentEnabled && $transactionId) {
+            /** @var \Mygento\Kkm\Api\Data\CashlessPaymentInterface $cashlessPayment */
+            $cashlessPayment = $this->cashlessPaymentFactory->create();
+            $atolPaymentCodes = $this->kkmHelper->getAtolPaymentMappingCode($storeId);
+            $cashlessPayment->setId((string) $transactionId)
+                ->setSum($request->getTotal())
+                ->setPaymentMethod($atolPaymentCodes[$order->getPayment()->getMethod()] ?? '');
+            $request->setCashlessPayment($cashlessPayment->jsonSerialize());
         }
 
         return $request;
@@ -251,7 +281,7 @@ class RequestBuilder extends AbstractRequestBuilder
         if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
             $item->setMarkingRequired(true);
             $item->setMarking(
-                $this->convertMarkingToHex($itemData[Discount::MARKING], $storeId)
+                $this->convertMarkingToHex($itemData[Discount::MARKING], $storeId),
             );
         }
 
@@ -275,7 +305,7 @@ class RequestBuilder extends AbstractRequestBuilder
 
         if ($reason) {
             throw new \Exception(
-                __('Can not send data to Atol. Reason: %1', $reason)
+                __('Can not send data to Atol. Reason: %1', $reason),
             );
         }
     }

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -58,7 +58,7 @@ class Update
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
         \Mygento\Kkm\Helper\Data $kkmHelper,
         TransactionHelper $transactionHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
     ) {
         $this->updateRequestFactory = $updateRequestFactory;
         $this->attemptHelper = $attemptHelper;

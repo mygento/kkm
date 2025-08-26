@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -35,7 +35,7 @@ class RequestFactory
     public function __construct(
         \Mygento\Kkm\Model\Atol\RequestForVersion3Factory $request3Factory,
         \Mygento\Kkm\Model\Atol\RequestForVersion4Factory $request4Factory,
-        \Mygento\Kkm\Helper\Data $kkmHelper
+        \Mygento\Kkm\Helper\Data $kkmHelper,
     ) {
         $this->request3Factory = $request3Factory;
         $this->request4Factory = $request4Factory;

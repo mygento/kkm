@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -78,7 +78,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
         \Mygento\Kkm\Helper\Request $requestHelper,
         \Mygento\Kkm\Helper\Error $errorHelper,
         \Mygento\Kkm\Helper\TransactionAttempt $attemptHelper,
-        \Mygento\Kkm\Helper\OrderComment $orderComment
+        \Mygento\Kkm\Helper\OrderComment $orderComment,
     ) {
         $this->vendor = $vendor;
         $this->helper = $helper;
@@ -99,7 +99,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = null;
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
-                $queueMessage->getOperationType()
+                $queueMessage->getOperationType(),
             );
 
             if ($queueMessage->getOperationType() === RequestInterface::RESELL_SELL_OPERATION_TYPE) {
@@ -131,7 +131,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request->setIgnoreTrialsNum(false);
             $this->publisher->publish(
                 SendInterface::TOPIC_NAME_SELL,
-                $this->requestHelper->getQueueMessage($request)
+                $this->requestHelper->getQueueMessage($request),
             );
         } catch (\Throwable $e) {
             if (!isset($request)) {
@@ -147,7 +147,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
                 $this->attemptHelper->scheduleNextAttempt(
                     $request,
                     SendInterface::TOPIC_NAME_SELL,
-                    (new \DateTime('+1 day'))->format('Y-m-d H:i:s')
+                    (new \DateTime('+1 day'))->format('Y-m-d H:i:s'),
                 );
             }
         }
@@ -163,7 +163,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = null;
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
-                $queueMessage->getOperationType()
+                $queueMessage->getOperationType(),
             );
 
             $request = $this->vendor->buildRequest($entity);
@@ -191,12 +191,12 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request->setIgnoreTrialsNum(false);
             $this->publisher->publish(
                 SendInterface::TOPIC_NAME_REFUND,
-                $this->requestHelper->getQueueMessage($request)
+                $this->requestHelper->getQueueMessage($request),
             );
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
-                $queueMessage->getOperationType()
+                $queueMessage->getOperationType(),
             );
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
@@ -213,7 +213,7 @@ class ConsumerProcessor implements ConsumerProcessorInterface
             $request = null;
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
-                $queueMessage->getOperationType()
+                $queueMessage->getOperationType(),
             );
             $request = $this->vendor->buildRequestForResellRefund($entity);
             $this->vendor->sendResellRequest($request);
@@ -235,14 +235,14 @@ class ConsumerProcessor implements ConsumerProcessorInterface
 
             $this->publisher->publish(
                 SendInterface::TOPIC_NAME_RESELL,
-                $this->requestHelper->getQueueMessage($request)
+                $this->requestHelper->getQueueMessage($request),
             );
         } catch (InputException $exc) {
             $this->helper->error($exc->getMessage());
         } catch (\Throwable $e) {
             $entity = $this->requestHelper->getEntityByIdAndOperationType(
                 $queueMessage->getEntityId(),
-                $queueMessage->getOperationType()
+                $queueMessage->getOperationType(),
             );
             $this->errorHelper->processKkmChequeRegistrationError($entity, $e);
         }
@@ -253,7 +253,5 @@ class ConsumerProcessor implements ConsumerProcessorInterface
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function processUpdate(UpdateRequestInterface $updateRequest): void
-    {
-    }
+    public function processUpdate(UpdateRequestInterface $updateRequest): void {}
 }

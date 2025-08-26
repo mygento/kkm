@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -77,7 +77,7 @@ interface VendorInterface
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface;
 
     /**

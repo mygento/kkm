@@ -49,7 +49,26 @@
                 <field id="callback_url" translate="label" type="text" sortOrder="150" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Callback URL</label>
                 </field>
-                <group id="error_codes" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+
+                <field id="timezone" translate="label" type="text" sortOrder="160" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Timezone Number</label>
+                    <validate>validate-number</validate>
+                </field>
+                <field id="internet_order" translate="label" type="select" sortOrder="170" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Add Internet order Field</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="cashless_payment" translate="label" type="select" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Add Cashless Payment Fields array</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="payment_method_mapping" translate="label" type="text" sortOrder="190" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cashless Payment Method Mapping</label>
+                    <comment>Map Magento payment methods to KKM cashless payment codes</comment>
+                    <frontend_model>Mygento\Kkm\Block\Adminhtml\Form\Field\Renderer\CashlessPaymentMapping</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                </field>
+                <group id="error_codes" translate="label" type="text" sortOrder="200" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Error Codes</label>
                     <field id="non_fatal_error_codes" translate="label" type="multiselect" sortOrder="10" showInDefault="1" showInWebsite="1"
                            showInStore="1">

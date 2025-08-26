@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -67,7 +67,7 @@ class Report
         TransactionAttemptRepositoryInterface $attemptRepository,
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
-        \Magento\Framework\Stdlib\DateTime\Timezone $timezone
+        \Magento\Framework\Stdlib\DateTime\Timezone $timezone,
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->searchCriteriaBuilder = $searchCriteriaBuilder;
@@ -154,7 +154,7 @@ class Report
         $transactions = $this->transactionRepo->getList(
             $searchCriteriaBuilder
                 ->addFilter('kkm_status', null, 'neq')
-                ->create()
+                ->create(),
         );
 
         if ($this->storeId !== null) {
@@ -163,14 +163,14 @@ class Report
                 'main_table.%s = %s.%s',
                 TransactionInterface::ORDER_ID,
                 $salesOrderAlias,
-                OrderInterface::ENTITY_ID
+                OrderInterface::ENTITY_ID,
             );
 
             $transactions->getSelect()
                 ->join(
                     [$salesOrderAlias => $transactions->getTable('sales_order')],
                     implode(' AND ', $orderTableConditions),
-                    [OrderInterface::STORE_ID]
+                    [OrderInterface::STORE_ID],
                 )
                 ->where(sprintf('%s.%s = %s', $salesOrderAlias, OrderInterface::STORE_ID, $this->storeId));
         }

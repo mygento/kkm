@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -43,7 +43,7 @@ class Resend extends \Magento\Backend\App\Action
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Api\ResenderInterface $resender,
         \Magento\Store\Model\App\Emulation $emulation,
-        \Magento\Backend\App\Action\Context $context
+        \Magento\Backend\App\Action\Context $context,
     ) {
         parent::__construct($context);
 
@@ -76,7 +76,7 @@ class Resend extends \Magento\Backend\App\Action
             $this->getMessageManager()->addSuccessMessage(__($comment));
         } catch (NoSuchEntityException $exc) {
             $this->getMessageManager()->addErrorMessage(
-                __(ucfirst($entityType)) . " {$id} " . __('not found')
+                __(ucfirst($entityType)) . " {$id} " . __('not found'),
             );
         } catch (\Exception $exc) {
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
@@ -86,7 +86,7 @@ class Resend extends \Magento\Backend\App\Action
             $this->emulation->stopEnvironmentEmulation();
 
             return $this->resultRedirectFactory->create()->setUrl(
-                $this->_redirect->getRefererUrl()
+                $this->_redirect->getRefererUrl(),
             );
         }
     }
@@ -102,7 +102,7 @@ class Resend extends \Magento\Backend\App\Action
         if (!$entityType || !$id || !in_array($entityType, ['invoice', 'creditmemo'])) {
             $this->kkmHelper->error(
                 'Invalid url. No id or invalid entity type.Params:',
-                $this->getRequest()->getParams()
+                $this->getRequest()->getParams(),
             );
 
             throw new ValidatorException(__('Invalid request. Check logs.'));

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -24,7 +24,7 @@ class CustomerAttributes implements OptionSourceInterface
      * @param CustomerResource $customerResource
      */
     public function __construct(
-        CustomerResource $customerResource
+        CustomerResource $customerResource,
     ) {
         $this->customerResource = $customerResource;
     }
@@ -60,7 +60,7 @@ class CustomerAttributes implements OptionSourceInterface
                 ];
             },
             array_keys($attributes),
-            $attributes
+            $attributes,
         );
 
         array_unshift($optionArray, [

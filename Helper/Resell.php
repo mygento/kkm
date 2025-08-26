@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -33,7 +33,7 @@ class Resell
      */
     public function __construct(
         Transaction $transactionHelper,
-        TransactionAttemptRepositoryInterface $attemptRepository
+        TransactionAttemptRepositoryInterface $attemptRepository,
     ) {
         $this->transactionHelper = $transactionHelper;
         $this->attemptRepository = $attemptRepository;

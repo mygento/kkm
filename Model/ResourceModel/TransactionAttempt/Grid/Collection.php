@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -42,7 +42,7 @@ class Collection extends ParentCollection implements SearchResultInterface
         string $resourceModel,
         string $model = \Magento\Framework\View\Element\UiComponent\DataProvider\Document::class,
         \Magento\Framework\DB\Adapter\AdapterInterface $connection = null,
-        \Magento\Framework\Model\ResourceModel\Db\AbstractDb $resource = null
+        \Magento\Framework\Model\ResourceModel\Db\AbstractDb $resource = null,
     ) {
         parent::__construct(
             $entityFactory,
@@ -50,7 +50,7 @@ class Collection extends ParentCollection implements SearchResultInterface
             $fetchStrategy,
             $eventManager,
             $connection,
-            $resource
+            $resource,
         );
         $this->_eventPrefix = $eventPrefix;
         $this->_eventObject = $eventObject;
@@ -142,9 +142,9 @@ class Collection extends ParentCollection implements SearchResultInterface
                         "main_table.operation = {$successfulKkmAttemptsAlias}.operation",
                         "main_table.sales_entity_id = {$successfulKkmAttemptsAlias}.sales_entity_id",
                         "{$successfulKkmAttemptsAlias}.status != 3",
-                    ]
+                    ],
                 ),
-                ['is_closed' => $isClosedExpression]
+                ['is_closed' => $isClosedExpression],
             );
 
         $this->addFilterToMap('is_closed', $isClosedExpression);

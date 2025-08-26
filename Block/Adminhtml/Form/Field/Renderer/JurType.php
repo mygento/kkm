@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -35,7 +35,7 @@ class JurType extends Select
     public function __construct(
         JurTypeSource $source,
         Context $context,
-        array $data = []
+        array $data = [],
     ) {
         $this->source = $source;
 

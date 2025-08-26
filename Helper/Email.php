@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -47,7 +47,7 @@ class Email
     public function __construct(
         \Magento\Framework\Translate\Inline\StateInterface $inlineTranslation,
         \Magento\Framework\Mail\Template\TransportBuilder $transportBuilder,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
     ) {
         $this->inlineTranslation = $inlineTranslation;
         $this->transportBuilder = $transportBuilder;
@@ -130,7 +130,7 @@ class Email
                 [
                     'area' => $this->area,
                     'store' => $this->storeManager->getStore()->getId(),
-                ]
+                ],
             )
             ->setTemplateVars(['data' => $postObject])
             ->setFrom($this->sender)

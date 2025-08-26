@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -77,7 +77,7 @@ class ProceedScheduledAttempt
         MessageEncoder $messageEncoder,
         SearchCriteriaBuilder $searchCriteriaBuilder,
         DateTime $dateTime,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
     ) {
         $this->attemptRepository = $attemptRepository;
         $this->kkmHelper = $kkmHelper;
@@ -111,7 +111,7 @@ class ProceedScheduledAttempt
                 ->addFilter(TransactionAttemptInterface::SCHEDULED_AT, $this->dateTime->gmtDate(), 'lteq')
                 ->addFilter(TransactionAttemptInterface::STORE_ID, $storeId)
                 ->setPageSize($this->kkmHelper->getConfig('general/retry_limit', $storeId))
-                ->create()
+                ->create(),
         )->getItems();
 
         /** @var TransactionAttemptInterface $attempt */

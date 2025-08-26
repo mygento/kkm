@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -80,7 +80,7 @@ class Send implements SendInterface
         TransactionHelper $transactionHelper,
         RequestHelper $requestHelper,
         TransactionAttemptRepositoryInterface $attemptRepository,
-        PublisherInterface $publisher
+        PublisherInterface $publisher,
     ) {
         $this->vendor = $vendor;
         $this->helper = $helper;
@@ -226,7 +226,7 @@ class Send implements SendInterface
         if (!$lastRefundTxn->hasChildTransaction()) {
             $attempt = $this->attemptRepository->getByEntityId(
                 RequestInterface::RESELL_SELL_OPERATION_TYPE,
-                $invoice->getEntityId()
+                $invoice->getEntityId(),
             );
 
             if ((int) $attempt->getStatus() === TransactionAttemptInterface::STATUS_ERROR) {

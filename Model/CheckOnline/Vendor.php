@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -77,7 +77,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         OrderComment $orderCommentHelper,
         TransactionHelper $transactionHelper,
         KkmHelper $kkmHelper,
-        ReceiptUrlBuilder $receiptUrlBuilder
+        ReceiptUrlBuilder $receiptUrlBuilder,
     ) {
         $this->requestBuilder = $requestBuilder;
         $this->apiClient = $apiClient;
@@ -119,8 +119,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
             throw new InputException(
                 __(
                     'Invoice %1 does not have transaction with status DONE.',
-                    $invoice->getIncrementId()
-                )
+                    $invoice->getIncrementId(),
+                ),
             );
         }
 
@@ -136,7 +136,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface {
         return $this->requestBuilder->buildRequest($salesEntity);
     }
@@ -216,7 +216,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
 
             throw new CreateDocumentFailedException(
                 __('%1 response from Checkonline with code %2.', $errorType, $response->getErrorCode()),
-                $response
+                $response,
             );
         }
 
@@ -227,8 +227,8 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface
                 __(
                     '%1 response from Checkonline with code %2. Need to resend.',
                     $errorType,
-                    $response->getErrorCode()
-                )
+                    $response->getErrorCode(),
+                ),
             );
         }
     }

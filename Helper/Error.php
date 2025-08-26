@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -38,7 +38,7 @@ class Error
     public function __construct(
         \Mygento\Kkm\Helper\Data $baseHelper,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Magento\Framework\Notification\NotifierInterface $adminNotifier
+        \Magento\Framework\Notification\NotifierInterface $adminNotifier,
     ) {
         $this->orderRepository = $orderRepository;
         $this->baseHelper = $baseHelper;
@@ -77,9 +77,9 @@ class Error
                 $this->adminNotifier->addMajor(
                     __(
                         'KKM Cheque sending error. Order: %1',
-                        $entity->getOrder()->getIncrementId()
+                        $entity->getOrder()->getIncrementId(),
                     ),
-                    $fullMessage
+                    $fullMessage,
                 );
             }
 
@@ -88,7 +88,7 @@ class Error
             $order = $entity->getOrder();
             $order->addStatusToHistory(
                 $failStatus ?: false,
-                $fullMessage
+                $fullMessage,
             );
             $this->orderRepository->save($order);
         } catch (\Throwable $e) {

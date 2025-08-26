@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -59,7 +59,7 @@ class Report extends Command
      */
     public function __construct(
         \Mygento\Kkm\Model\Report $report,
-        \Magento\Framework\App\State $state
+        \Magento\Framework\App\State $state,
     ) {
         parent::__construct();
 
@@ -113,20 +113,20 @@ class Report extends Command
         $this->addArgument(
             self::ARGUMENT,
             InputArgument::OPTIONAL,
-            self::ARGUMENT_DESCRIPTION
+            self::ARGUMENT_DESCRIPTION,
         );
         $this->addOption(
             self::STORE_ID_OPTION,
             self::STORE_ID_OPTION_SHORTCUT,
             InputOption::VALUE_REQUIRED,
-            self::STORE_ID_OPTION_DESCRIPTION
+            self::STORE_ID_OPTION_DESCRIPTION,
         );
         $this->setHelp(
             <<<HELP
 This command shows report of transactions.
       <comment>%command.full_name% yesterday</comment>
 Today by default.
-HELP
+HELP,
         );
         parent::configure();
     }
@@ -152,7 +152,7 @@ HELP
                 'Operation',
                 'Increment Id',
                 'Message',
-            ]
+            ],
         );
 
         /**
@@ -161,7 +161,7 @@ HELP
         $notDone = array_merge(
             $statistics->getFails(),
             $statistics->getUnknowns(),
-            $statistics->getWaits()
+            $statistics->getWaits(),
         );
 
         foreach ($notDone as $item) {
@@ -181,7 +181,7 @@ HELP
                     $item->getTxnType(),
                     $incrementId,
                     $message,
-                ]
+                ],
             );
             $detailedStat->addRow(new TableSeparator());
         }

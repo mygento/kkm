@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -39,7 +39,9 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $additionalUserProps = null;
     protected $additionalCheckProps = '';
     protected $entityStoreId;
-
+    protected bool $internet = true;
+    protected int|null $timezone = null;
+    protected array $cashlessPayment = [];
     // phpcs:enable
 
     /**
@@ -62,7 +64,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
      * @param \Magento\Framework\Stdlib\DateTime\Timezone $date
      */
     public function __construct(
-        \Magento\Framework\Stdlib\DateTime\Timezone $date
+        \Magento\Framework\Stdlib\DateTime\Timezone $date,
     ) {
         $this->date = $date;
     }
@@ -215,7 +217,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     {
         if (empty($this->getItems())) {
             throw new \Exception(
-                'Can not calculate totals. No items in the request'
+                'Can not calculate totals. No items in the request',
             );
         }
 
@@ -489,6 +491,63 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setAdditionalCheckProps($checkProps): RequestInterface
     {
         $this->additionalCheckProps = $checkProps;
+
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getTimezone(): ?int
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * @param int $timezone
+     * @return $this
+     */
+    public function setTimezone(int $timezone): self
+    {
+        $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInternetOrder(): bool
+    {
+        return $this->internet;
+    }
+
+    /**
+     * @param bool $isInterOrder
+     * @return $this
+     */
+    public function setIsInternetOrder(bool $isInterOrder = true): self
+    {
+        $this->internet = $isInterOrder;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCashlessPayment(): array
+    {
+        return $this->cashlessPayment;
+    }
+
+    /**
+     * @param array $cashlessPayment
+     * @return $this
+     */
+    public function setCashlessPayment(array $cashlessPayment): self
+    {
+        $this->cashlessPayment = $cashlessPayment;
 
         return $this;
     }

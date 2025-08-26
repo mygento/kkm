@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2025 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -63,7 +63,7 @@ class Client
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Atol\ResponseFactory $responseFactory,
         \Magento\Framework\HTTP\Client\CurlFactory $curlFactory,
-        \Magento\Framework\Serialize\Serializer\Json $jsonSerializer
+        \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->responseFactory = $responseFactory;
@@ -86,7 +86,7 @@ class Client
             [
                 'login' => $login,
                 'pass' => $password,
-            ]
+            ],
         );
 
         $url = $this->getBaseUrl($storeId) . self::GET_TOKEN_URL_APPNX;
@@ -102,7 +102,7 @@ class Client
             throw new AuthorizationException(
                 __('Response from Atol does not contain valid token value. Response: ') . (string) $response,
                 $decodedResult['error']['code'] ?? null,
-                $decodedResult['error']['type'] ?? null
+                $decodedResult['error']['type'] ?? null,
             );
         }
 
@@ -172,7 +172,7 @@ class Client
             throw new CreateDocumentFailedException(
                 $exc->getMessage(),
                 $response ?? null,
-                $debugData
+                $debugData,
             );
         }
 
@@ -215,7 +215,7 @@ class Client
             throw new CreateDocumentFailedException(
                 $exc->getMessage(),
                 $response,
-                $debugData
+                $debugData,
             );
         }
 
@@ -275,7 +275,7 @@ class Client
         if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
             throw new VendorBadServerAnswerException(
                 'Bad response from Atol. Status: ' . $curl->getStatus()
-                . ($response ? '. Response: ' . (string) $response : '')
+                . ($response ? '. Response: ' . (string) $response : ''),
             );
         }
 
@@ -306,7 +306,7 @@ class Client
         if (!in_array($curl->getStatus(), self::ALLOWED_HTTP_STATUSES)) {
             throw new VendorBadServerAnswerException(
                 'Bad response from Atol. Status: ' . $curl->getStatus()
-                . ($response ? '. Response: ' . (string) $response : '')
+                . ($response ? '. Response: ' . (string) $response : ''),
             );
         }
 
@@ -327,7 +327,7 @@ class Client
         $groupCode = $this->kkmHelper->getConfig('atol/group_code', $storeId);
         if (!$groupCode) {
             throw new \Exception(
-                'No groupCode. Please set up the module properly.'
+                'No groupCode. Please set up the module properly.',
             );
         }
 
