@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -62,13 +62,13 @@ class RequestBuilder extends AbstractRequestBuilder
         RequestFactory $requestFactory,
         ItemFactory $itemFactory,
         PaymentFactory $paymentFactory,
-        Url $urlHelper
+        Url $urlHelper,
     ) {
         parent::__construct(
             $productRepository,
             $kkmHelper,
             $getRecalculated,
-            $transactionHelper
+            $transactionHelper,
         );
 
         $this->requestFactory = $requestFactory;
@@ -95,7 +95,7 @@ class RequestBuilder extends AbstractRequestBuilder
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface {
         $order = $salesEntity->getOrder() ?? $salesEntity;
         $storeId = $order->getStoreId();
@@ -159,7 +159,7 @@ class RequestBuilder extends AbstractRequestBuilder
                 ->addPayment(
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
-                        ->setSum(round($giftCardsAmount, 2))
+                        ->setSum(round($giftCardsAmount, 2)),
                 );
         }
 
@@ -172,7 +172,7 @@ class RequestBuilder extends AbstractRequestBuilder
                 ->addPayment(
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_AVANS)
-                        ->setSum(round($customerBalanceAmount, 2))
+                        ->setSum(round($customerBalanceAmount, 2)),
                 );
         }
 
@@ -182,7 +182,7 @@ class RequestBuilder extends AbstractRequestBuilder
                 ->addPayment(
                     $this->paymentFactory->create()
                         ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
-                        ->setSum(round($salesEntity->getGrandTotal(), 2))
+                        ->setSum(round($salesEntity->getGrandTotal(), 2)),
                 );
         }
 
@@ -251,7 +251,7 @@ class RequestBuilder extends AbstractRequestBuilder
         if ($this->kkmHelper->isMarkingEnabled($storeId) && !empty($itemData[Discount::MARKING])) {
             $item->setMarkingRequired(true);
             $item->setMarking(
-                $this->convertMarkingToHex($itemData[Discount::MARKING], $storeId)
+                $this->convertMarkingToHex($itemData[Discount::MARKING], $storeId),
             );
         }
 
@@ -275,7 +275,7 @@ class RequestBuilder extends AbstractRequestBuilder
 
         if ($reason) {
             throw new \Exception(
-                __('Can not send data to Atol. Reason: %1', $reason)
+                __('Can not send data to Atol. Reason: %1', $reason),
             );
         }
     }

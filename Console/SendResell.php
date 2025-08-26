@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -61,7 +61,7 @@ class SendResell extends Command
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Framework\App\State $state,
-        \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory
+        \Magento\Sales\Model\Order\InvoiceFactory $invoiceFactory,
     ) {
         parent::__construct();
 
@@ -140,13 +140,13 @@ class SendResell extends Command
         $this->addArgument(
             self::ARGUMENT_ENTITY_ID,
             InputArgument::REQUIRED,
-            self::ARGUMENT_ENTITY_ID_DESCRIPTION
+            self::ARGUMENT_ENTITY_ID_DESCRIPTION,
         )
             ->addOption(
                 self::FORCE_INCREASE_EXT_ID,
                 'f',
                 InputOption::VALUE_NONE,
-                'Force increase external_id'
+                'Force increase external_id',
             );
 
         $this->setHelp(
@@ -157,7 +157,7 @@ This command makes resell operation.
 
 To send:
       <comment>%command.full_name% 100050324</comment>
-HELP
+HELP,
         );
         parent::configure();
     }

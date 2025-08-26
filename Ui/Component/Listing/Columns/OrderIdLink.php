@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -26,7 +26,7 @@ class OrderIdLink extends Column
                     $item[$fieldName] = sprintf(
                         "<a href='%s'>%s</a>",
                         $this->context->getUrl('sales/order/view', ['order_id' => $item[$fieldName]]),
-                        $item[$fieldName]
+                        $item[$fieldName],
                     );
                 }
             }

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -39,12 +39,12 @@ class UpdateTimeoutFilter implements CustomFilterInterface
 
         $conditions[] = $connection->prepareSqlCondition(
             $attemptTable . '.' . TransactionAttemptInterface::OPERATION,
-            UpdateRequestInterface::UPDATE_OPERATION_TYPE
+            UpdateRequestInterface::UPDATE_OPERATION_TYPE,
         );
 
         $conditions[] = $connection->prepareSqlCondition(
             $attemptTable . '.' . TransactionAttemptInterface::UPDATED_AT,
-            ['gt' => $timeout]
+            ['gt' => $timeout],
         );
 
         $collection->getSelect()
@@ -53,7 +53,7 @@ class UpdateTimeoutFilter implements CustomFilterInterface
             ->joinLeft(
                 $attemptTable,
                 implode(' AND ', $conditions),
-                []
+                [],
             )
             ->where($attemptTable . '.' . TransactionAttemptInterface::ID . ' IS NULL')
             ->group(TransactionInterface::TXN_ID);

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -28,7 +28,7 @@ class Index extends \Mygento\Kkm\Controller\Adminhtml\TransactionAttempt
         \Magento\Framework\View\Result\PageFactory $resultPageFactory,
         \Mygento\Kkm\Api\TransactionAttemptRepositoryInterface $repository,
         \Magento\Framework\Registry $coreRegistry,
-        \Magento\Backend\App\Action\Context $context
+        \Magento\Backend\App\Action\Context $context,
     ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->dataPersistor = $dataPersistor;

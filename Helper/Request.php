@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -60,7 +60,7 @@ class Request
         \Magento\Sales\Api\InvoiceRepositoryInterface $invoiceRepository,
         \Magento\Sales\Api\CreditmemoRepositoryInterface $creditmemoRepository,
         \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
-        \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory $queueMessageFactory
+        \Mygento\Kkm\Api\Queue\QueueMessageInterfaceFactory $queueMessageFactory,
     ) {
         $this->transactionHelper = $transactionHelper;
         $this->creditmemoRepository = $creditmemoRepository;

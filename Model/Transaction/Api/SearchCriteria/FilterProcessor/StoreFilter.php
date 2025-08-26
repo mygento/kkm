@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -33,12 +33,12 @@ class StoreFilter implements CustomFilterInterface
 
         $conditions[] = $connection->prepareSqlCondition(
             $attemptTable . '.' . TransactionAttemptInterface::STORE_ID,
-            $storeId
+            $storeId,
         );
 
         $conditions[] = $connection->prepareSqlCondition(
             $attemptTable . '.' . TransactionAttemptInterface::OPERATION,
-            ['in' => [Request::SELL_OPERATION_TYPE, Request::REFUND_OPERATION_TYPE]]
+            ['in' => [Request::SELL_OPERATION_TYPE, Request::REFUND_OPERATION_TYPE]],
         );
 
         $collection->getSelect()
@@ -48,7 +48,7 @@ class StoreFilter implements CustomFilterInterface
                 $attemptTable,
                 'main_table.' . TransactionInterface::ORDER_ID .
                 ' = ' . $attemptTable . '.' . TransactionAttemptInterface::ORDER_ID,
-                []
+                [],
             )
             ->where(implode(' AND ', $conditions))
             ->group(TransactionInterface::TXN_ID);

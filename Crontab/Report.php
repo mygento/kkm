@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -47,7 +47,7 @@ class Report
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Model\Report $report,
         \Mygento\Kkm\Helper\Email $emailHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        \Magento\Store\Model\StoreManagerInterface $storeManager,
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->report = $report;

@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -98,7 +98,7 @@ class Transaction
         InvoiceCollectionFactory $invoiceCollectionFactory,
         CreditmemoCollectionFactory $creditmemoCollectionFactory,
         \Magento\Framework\Serialize\Serializer\Json $jsonSerializer,
-        \Mygento\Kkm\Helper\Data $kkmHelper
+        \Mygento\Kkm\Helper\Data $kkmHelper,
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
@@ -148,14 +148,14 @@ class Transaction
     public function saveSellTransaction(
         InvoiceInterface $invoice,
         ResponseInterface $response,
-        RequestInterface $request = null
+        RequestInterface $request = null,
     ) {
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Invoice %2',
                 $response->getIdForTransaction(),
-                $invoice->getIncrementId()
-            )
+                $invoice->getIncrementId(),
+            ),
         );
         $type = TransactionBase::TYPE_FISCAL;
 
@@ -174,8 +174,8 @@ class Transaction
             __(
                 'start save transaction %1. Resell (refund) Invoice %2',
                 $response->getIdForTransaction(),
-                $invoice->getIncrementId()
-            )
+                $invoice->getIncrementId(),
+            ),
         );
         $type = TransactionBase::TYPE_FISCAL_REFUND;
 
@@ -196,8 +196,8 @@ class Transaction
             __(
                 'start save transaction %1. Resell (sell) Invoice %2',
                 $response->getIdForTransaction(),
-                $invoice->getIncrementId()
-            )
+                $invoice->getIncrementId(),
+            ),
         );
         $type = TransactionBase::TYPE_FISCAL;
 
@@ -233,7 +233,7 @@ class Transaction
                 $doneTransaction = $transaction->getKkmStatus() === Response::STATUS_DONE
                     ? $transaction
                     : $doneTransaction;
-            }
+            },
         );
 
         return $doneTransaction;
@@ -267,7 +267,7 @@ class Transaction
                     $transaction->getTxnType() === TransactionBase::TYPE_FISCAL_REFUND
                         ? $transaction
                         : $refundTransaction;
-            }
+            },
         );
 
         return $refundTransaction;
@@ -301,7 +301,7 @@ class Transaction
                     $transaction->getTxnType() === TransactionBase::TYPE_FISCAL && $transaction->getParentId()
                         ? $transaction
                         : $sellTransaction;
-            }
+            },
         );
 
         return $sellTransaction;
@@ -318,14 +318,14 @@ class Transaction
     public function saveRefundTransaction(
         CreditmemoInterface $creditmemo,
         ResponseInterface $response,
-        RequestInterface $request = null
+        RequestInterface $request = null,
     ) {
         $this->kkmHelper->info(
             __(
                 'start save transaction %1. Creditmemo %2',
                 $response->getIdForTransaction(),
-                $creditmemo->getIncrementId()
-            )
+                $creditmemo->getIncrementId(),
+            ),
         );
         $type = TransactionBase::TYPE_FISCAL_REFUND;
 
@@ -343,7 +343,7 @@ class Transaction
         return $transactionId && $this->transactionRepo->getByTransactionId(
             $transactionId,
             $paymentId,
-            $orderId
+            $orderId,
         );
     }
 
@@ -430,12 +430,12 @@ class Transaction
             $this->searchCriteriaBuilder->addFilter(
                 'txn_type',
                 $types,
-                'in'
+                'in',
             );
         } else {
             $this->searchCriteriaBuilder->addFilter(
                 'txn_type',
-                TransactionBase::TYPE_FISCAL_REFUND
+                TransactionBase::TYPE_FISCAL_REFUND,
             );
         }
 
@@ -621,7 +621,7 @@ class Transaction
                 $txnId,
                 $payment->getId(),
                 $order->getId(),
-                $additional
+                $additional,
             );
             $transaction
                 ->setIsClosed($isClosed)
@@ -643,7 +643,7 @@ class Transaction
             ->setKkmStatus($response->getStatus())
             ->setAdditionalInformation(
                 TransactionEntity::RAW_DETAILS,
-                $additional
+                $additional,
             );
 
         if ($parentTransaction) {
@@ -668,12 +668,12 @@ class Transaction
         $transaction = $this->transactionRepo->getByTransactionId(
             $transactionId,
             $paymentId,
-            $orderId
+            $orderId,
         );
 
         $transaction->setAdditionalInformation(
             TransactionEntity::RAW_DETAILS,
-            $transData
+            $transData,
         );
 
         return $transaction;

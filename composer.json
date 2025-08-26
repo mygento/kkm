@@ -8,7 +8,7 @@
         "atol"
     ],
     "require": {
-        "mygento/module-base": "~2.4.0",
+        "mygento/module-base": "~2.4.3",
         "magento/framework-message-queue": "100.4.*"
     },
     "require-dev": {

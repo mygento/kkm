@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -51,7 +51,7 @@ class GetRecalculated
         Data $kkmHelper,
         OrderInterfaceFactory $orderFactory,
         OrderItemInterfaceFactory $orderItemFactory,
-        RecalculatorFacade $recalculatorFacade
+        RecalculatorFacade $recalculatorFacade,
     ) {
         $this->configHelper = $kkmHelper;
         $this->orderFactory = $orderFactory;
@@ -80,7 +80,7 @@ class GetRecalculated
             //Magento Commerce Features
             + $giftCardsAmount
             + $customerBalanceAmount,
-            4
+            4,
         ));
 
         $storeId = $salesEntity->getStoreId();

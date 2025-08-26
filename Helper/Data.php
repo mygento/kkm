@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -37,7 +37,7 @@ class Data extends \Mygento\Base\Helper\Data
         \Mygento\Base\Model\LogManager $logManager,
         \Magento\Framework\Encryption\Encryptor $encryptor,
         \Magento\Framework\App\Helper\Context $context,
-        $statusUpdatableVendorCodes = []
+        $statusUpdatableVendorCodes = [],
     ) {
         $this->statusUpdatableVendorCodes = $statusUpdatableVendorCodes;
 

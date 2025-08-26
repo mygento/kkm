@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -42,7 +42,7 @@ class ExtraSalesViewToolbarButtons
         \Mygento\Kkm\Helper\Data $kkmHelper,
         \Mygento\Kkm\Helper\Transaction $transactionHelper,
         \Magento\Framework\AuthorizationInterface $authorization,
-        \Magento\Backend\Model\UrlInterface $urlBuilder
+        \Magento\Backend\Model\UrlInterface $urlBuilder,
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->authorization = $authorization;
@@ -61,7 +61,7 @@ class ExtraSalesViewToolbarButtons
         /** @phpstan-ignore-next-line */
         \Magento\Backend\Block\Widget\Button\Toolbar\Interceptor $subject,
         \Magento\Framework\View\Element\AbstractBlock $context,
-        \Magento\Backend\Block\Widget\Button\ButtonList $buttonList
+        \Magento\Backend\Block\Widget\Button\ButtonList $buttonList,
     ) {
         if (!$this->isProperPageForKkmButtons($context)) {
             return;
@@ -78,7 +78,7 @@ class ExtraSalesViewToolbarButtons
                     'entity' => $entity->getEntityType(),
                     'id' => $entity->getId(),
                     'store_id' => $entity->getStoreId(),
-                ]
+                ],
             );
             $data = [
                 'label' => __('Send to KKM'),
@@ -93,7 +93,7 @@ class ExtraSalesViewToolbarButtons
                 [
                     'uuid' => implode(',', $this->transactionHelper->getWaitUuid($entity)),
                     'store_id' => $entity->getStoreId(),
-                ]
+                ],
             );
             $data = [
                 'label' => __('Check status in KKM'),
@@ -106,7 +106,7 @@ class ExtraSalesViewToolbarButtons
                 'kkm/cheque/resell',
                 [
                     'id' => $entity->getId(),
-                ]
+                ],
             );
             $data = [
                 'label' => __('Send Resell to KKM'),
@@ -125,7 +125,7 @@ class ExtraSalesViewToolbarButtons
                     'id' => $entity->getId(),
                     'store_id' => $entity->getStoreId(),
                     'incr_ext_id' => true,
-                ]
+                ],
             );
             $data = [
                 'label' => __('Send to KKM with incr ext id'),

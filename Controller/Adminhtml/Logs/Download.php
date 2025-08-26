@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -31,7 +31,7 @@ class Download extends \Magento\Backend\App\Action
     public function __construct(
         \Magento\Backend\App\Action\Context $context,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList,
-        \Magento\Framework\App\Response\Http\FileFactory $fileFactory
+        \Magento\Framework\App\Response\Http\FileFactory $fileFactory,
     ) {
         $this->directoryList = $directoryList;
         $this->fileFactory = $fileFactory;
@@ -59,13 +59,13 @@ class Download extends \Magento\Backend\App\Action
                     'value' => $filepath,
                 ],
                 \Magento\Framework\App\Filesystem\DirectoryList::VAR_DIR,
-                'application/text'
+                'application/text',
             );
         } catch (\Exception $exc) {
             $this->getMessageManager()->addErrorMessage($exc->getMessage());
 
             return $this->resultRedirectFactory->create()->setUrl(
-                $this->_redirect->getRefererUrl()
+                $this->_redirect->getRefererUrl(),
             );
         }
     }

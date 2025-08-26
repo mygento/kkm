@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -56,7 +56,7 @@ abstract class AbstractRequestBuilder
         ProductRepositoryInterface $productRepository,
         KkmHelperData $kkmHelper,
         GetRecalculated $getRecalculated,
-        TransactionHelper $transactionHelper
+        TransactionHelper $transactionHelper,
     ) {
         $this->productRepository = $productRepository;
         $this->kkmHelper = $kkmHelper;
@@ -79,7 +79,7 @@ abstract class AbstractRequestBuilder
         $shippingPaymentObject = null,
         array $receiptData = [],
         $clientName = '',
-        $clientInn = ''
+        $clientInn = '',
     ): RequestInterface;
 
     /**
@@ -231,7 +231,7 @@ abstract class AbstractRequestBuilder
         $gtin = substr($marking, 2, $this->kkmHelper->getConfig('marking/gtin_length', $storeId));
         $serialNumber = substr(
             $marking,
-            2 + $this->kkmHelper->getConfig('marking/gtin_length', $storeId) + 2
+            2 + $this->kkmHelper->getConfig('marking/gtin_length', $storeId) + 2,
         );
         $gtinHex = $this->normalizeHex(dechex($gtin));
         $serialHex = $this->normalizeHex(bin2hex($serialNumber));

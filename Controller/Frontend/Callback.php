@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2020 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.ru)
  * @package Mygento_Kkm
  */
 
@@ -63,7 +63,7 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Mygento\Kkm\Helper\Resell $resellHelper,
         \Mygento\Kkm\Api\Processor\SendInterface $processor,
-        \Magento\Framework\App\Action\Context $context
+        \Magento\Framework\App\Action\Context $context,
     ) {
         parent::__construct($context);
 
@@ -97,8 +97,8 @@ class Callback extends \Magento\Framework\App\Action\Action implements CsrfAware
                 __(
                     'Callback received. Status: %1. Uuid: %2',
                     $response->getStatus(),
-                    $response->getIdForTransaction()
-                )
+                    $response->getIdForTransaction(),
+                ),
             );
             $this->kkmHelper->debug(__('Callback received: %1', (string) $response));
 
