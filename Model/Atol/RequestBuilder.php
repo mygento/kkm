@@ -119,7 +119,6 @@ class RequestBuilder extends AbstractRequestBuilder
 
         $recalculatedReceiptData = $this->getRecalculated->execute($salesEntity);
         $items = [];
-        //$itemPayments =
         foreach ($recalculatedReceiptData[Discount::ITEMS] as $key => $itemData) {
             //For orders without Shipping (Virtual products)
             if ($key == Discount::SHIPPING && $itemData[Discount::NAME] === null) {
@@ -157,9 +156,6 @@ class RequestBuilder extends AbstractRequestBuilder
             ->setCallbackUrl($this->getCallbackUrl($storeId))
             ->setItems($items);
 
-        //if ($internetOrder) {
-        //    $request->setIsInternetOrder();
-        //}
         //"GiftCard applied" payment
         if ($this->isGiftCardApplied($salesEntity)) {
             $giftCardsAmount = $salesEntity->getGiftCardsAmount()
@@ -201,7 +197,7 @@ class RequestBuilder extends AbstractRequestBuilder
             $request->setTimezone($timeZone);
         }
         if ($this->kkmHelper->getConfig('atol/internet_order', $storeId)) {
-            $request->setIsInternetOrder();
+            $request->setInternetOrder();
         }
         $transactionId = $order->getPayment()?->getLastTransId();
         $cahshlessPaymentEnabled = $this->kkmHelper->getConfig('atol/cashless_payment', $storeId);

@@ -286,10 +286,11 @@ interface RequestInterface
     public function isInternetOrder(): bool;
 
     /**
-     * @param bool $isInterOrder
+     * @param bool $isInternet
+     *
      * @return $this
      */
-    public function setIsInternetOrder(bool $isInterOrder = true): self;
+    public function setInternetOrder(bool $isInternet = true): self;
 
     /**
      * @return array

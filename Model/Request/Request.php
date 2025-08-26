@@ -523,12 +523,13 @@ abstract class Request implements \JsonSerializable, RequestInterface
     }
 
     /**
-     * @param bool $isInterOrder
+     * @param bool $isInternet
+     *
      * @return $this
      */
-    public function setIsInternetOrder(bool $isInterOrder = true): self
+    public function setInternetOrder(bool $isInternet = true): self
     {
-        $this->internet = $isInterOrder;
+        $this->internet = $isInternet;
 
         return $this;
     }

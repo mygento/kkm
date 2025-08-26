@@ -408,7 +408,7 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
         try {
             //Make Request to Vendor's API
             /** @var \Mygento\Kkm\Api\Data\ResponseInterface $response */
-            //$response = $this->apiClient->{$callback}($request);
+            $response = $this->apiClient->{$callback}($request);
 
             //Save transaction data
             $txn = $this->transactionHelper->registerTransaction($entity, $response, $request);

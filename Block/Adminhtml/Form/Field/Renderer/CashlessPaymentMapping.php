@@ -50,7 +50,7 @@ class CashlessPaymentMapping extends AbstractFieldArray
         ]);
 
         $this->addColumn('atol_cashless_payment', [
-            'label' => __('Cashless Payment Code'),
+            'label' => __('Atol Code'),
             'renderer' => $this->getCashlessCodeRenderer(),
         ]);
 
@@ -68,14 +68,14 @@ class CashlessPaymentMapping extends AbstractFieldArray
     {
         $options = [];
 
-        $magentoPaymentMethod = $row->getData('payment_method');
-        if ($magentoPaymentMethod) {
-            $options['option_' . $this->getPaymentMethodRenderer()->calcOptionHash($magentoPaymentMethod)] = 'selected="selected"';
+        $paymentMethod = $row->getData('payment_method');
+        if ($paymentMethod) {
+            $options['option_' . $this->getPaymentMethodRenderer()->calcOptionHash($paymentMethod)] = 'selected="selected"';
         }
 
-        $cashlessCode = $row->getData('atol_cashless_payment');
-        if ($cashlessCode) {
-            $options['option_' . $this->getCashlessCodeRenderer()->calcOptionHash($cashlessCode)] = 'selected="selected"';
+        $atolPaymentCode = $row->getData('atol_cashless_payment');
+        if ($atolPaymentCode) {
+            $options['option_' . $this->getCashlessCodeRenderer()->calcOptionHash($atolPaymentCode)] = 'selected="selected"';
         }
 
         $row->setData('option_extra_attrs', $options);
