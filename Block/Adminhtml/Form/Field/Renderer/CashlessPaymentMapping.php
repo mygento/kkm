@@ -28,7 +28,7 @@ class CashlessPaymentMapping extends AbstractFieldArray
     /**
      * @var BlockInterface
      */
-    private $cashlessCodeRenderer;
+    private $atolCodeRenderer;
 
     public function __construct(
         Context $context,
@@ -49,9 +49,9 @@ class CashlessPaymentMapping extends AbstractFieldArray
             'renderer' => $this->getPaymentMethodRenderer(),
         ]);
 
-        $this->addColumn('atol_cashless_payment', [
+        $this->addColumn('atol_cashless_payment_code', [
             'label' => __('Atol Code'),
-            'renderer' => $this->getCashlessCodeRenderer(),
+            'renderer' => $this->getAtolCodeRenderer(),
         ]);
 
         $this->_addAfter = false;
@@ -73,9 +73,9 @@ class CashlessPaymentMapping extends AbstractFieldArray
             $options['option_' . $this->getPaymentMethodRenderer()->calcOptionHash($paymentMethod)] = 'selected="selected"';
         }
 
-        $atolPaymentCode = $row->getData('atol_cashless_payment');
-        if ($atolPaymentCode) {
-            $options['option_' . $this->getCashlessCodeRenderer()->calcOptionHash($atolPaymentCode)] = 'selected="selected"';
+        $cashlessCode = $row->getData('atol_cashless_payment_code');
+        if ($cashlessCode) {
+            $options['option_' . $this->getAtolCodeRenderer()->calcOptionHash($cashlessCode)] = 'selected="selected"';
         }
 
         $row->setData('option_extra_attrs', $options);
@@ -103,17 +103,17 @@ class CashlessPaymentMapping extends AbstractFieldArray
      * @throws LocalizedException
      * @return BlockInterface
      */
-    protected function getCashlessCodeRenderer()
+    protected function getAtolCodeRenderer()
     {
-        if (!$this->cashlessCodeRenderer) {
-            $this->cashlessCodeRenderer = $this->getLayout()->createBlock(
+        if (!$this->atolCodeRenderer) {
+            $this->atolCodeRenderer = $this->getLayout()->createBlock(
                 CashlessColumn::class,
                 '',
                 ['data' => ['is_render_to_js_template' => true]],
             );
-            $this->cashlessCodeRenderer->setClass('cashless_payment_code_select');
+            $this->atolCodeRenderer->setClass('atol_cashless_payment_code_code_select');
         }
 
-        return $this->cashlessCodeRenderer;
+        return $this->atolCodeRenderer;
     }
 }

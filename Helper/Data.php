@@ -323,11 +323,11 @@ class Data extends \Mygento\Base\Helper\Data
 
         try {
             foreach ($this->serializer->unserialize($mappingRows) as $item) {
-                if (!$item['payment_method'] || !$item['atol_cashless_payment']) {
+                if (!$item['payment_method'] || !$item['atol_cashless_payment_code']) {
                     continue;
                 }
 
-                $mapping[$item['payment_method']] = $item['atol_cashless_payment'];
+                $mapping[$item['payment_method']] = $item['atol_cashless_payment_code'];
             }
         } catch (\Exception $e) {
             $this->logger->error(__('Could not map payment method'), ['exception' => $e]);
