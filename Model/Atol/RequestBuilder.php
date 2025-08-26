@@ -54,6 +54,8 @@ class RequestBuilder extends AbstractRequestBuilder
      */
     private $urlHelper;
 
+    private CashlessPaymentFactory $cashlessPaymentFactory;
+
     public function __construct(
         ProductRepositoryInterface $productRepository,
         Data $kkmHelper,
@@ -63,6 +65,7 @@ class RequestBuilder extends AbstractRequestBuilder
         ItemFactory $itemFactory,
         PaymentFactory $paymentFactory,
         Url $urlHelper,
+        CashlessPaymentFactory $cashlessPaymentFactory,
     ) {
         parent::__construct(
             $productRepository,
@@ -75,6 +78,7 @@ class RequestBuilder extends AbstractRequestBuilder
         $this->itemFactory = $itemFactory;
         $this->paymentFactory = $paymentFactory;
         $this->urlHelper = $urlHelper;
+        $this->cashlessPaymentFactory = $cashlessPaymentFactory;
     }
 
     /**
@@ -84,10 +88,13 @@ class RequestBuilder extends AbstractRequestBuilder
      * @param array $receiptData
      * @param string $clientName
      * @param string $clientInn
+     *
      * @throws \Exception
      * @return RequestInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function buildRequest(
         $salesEntity,
@@ -184,6 +191,26 @@ class RequestBuilder extends AbstractRequestBuilder
                         ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
                         ->setSum(round($salesEntity->getGrandTotal(), 2)),
                 );
+        }
+
+        $timeZone = $this->kkmHelper->getConfig('atol/timezone', $storeId);
+        if ($timeZone) {
+            $request->setTimezone($timeZone);
+        }
+        if ($this->kkmHelper->getConfig('atol/internet_order', $storeId)) {
+            $request->setInternetOrder();
+        }
+        $transactionId = $order->getPayment()?->getLastTransId();
+        $cahshlessPaymentEnabled = $this->kkmHelper->getConfig('atol/cashless_payment', $storeId);
+
+        if ($cahshlessPaymentEnabled && $transactionId) {
+            /** @var \Mygento\Kkm\Api\Data\CashlessPaymentInterface $cashlessPayment */
+            $cashlessPayment = $this->cashlessPaymentFactory->create();
+            $atolPaymentCodes = $this->kkmHelper->getAtolPaymentMappingCode($storeId);
+            $cashlessPayment->setId((string) $transactionId)
+                ->setSum($request->getTotal())
+                ->setPaymentMethod($atolPaymentCodes[$order->getPayment()->getMethod()] ?? '');
+            $request->setCashlessPayments($cashlessPayment->jsonSerialize());
         }
 
         return $request;
