@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2026 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.com)
  * @package Mygento_Kkm
  */
 
@@ -39,9 +39,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $additionalUserProps = null;
     protected $additionalCheckProps = '';
     protected $entityStoreId;
-    protected bool $internet = true;
-    protected int|null $timezone = null;
-    protected array $cashlessPayment = [];
+
     // phpcs:enable
 
     /**
@@ -491,64 +489,6 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setAdditionalCheckProps($checkProps): RequestInterface
     {
         $this->additionalCheckProps = $checkProps;
-
-        return $this;
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getTimezone(): ?int
-    {
-        return $this->timezone;
-    }
-
-    /**
-     * @param int $timezone
-     * @return $this
-     */
-    public function setTimezone(int $timezone): self
-    {
-        $this->timezone = $timezone;
-
-        return $this;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isInternetOrder(): bool
-    {
-        return $this->internet;
-    }
-
-    /**
-     * @param bool $isInternet
-     *
-     * @return $this
-     */
-    public function setInternetOrder(bool $isInternet = true): self
-    {
-        $this->internet = $isInternet;
-
-        return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getCashlessPayment(): array
-    {
-        return $this->cashlessPayment;
-    }
-
-    /**
-     * @param array $cashlessPayment
-     * @return $this
-     */
-    public function setCashlessPayment(array $cashlessPayment): self
-    {
-        $this->cashlessPayment = $cashlessPayment;
 
         return $this;
     }

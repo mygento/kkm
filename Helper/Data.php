@@ -2,14 +2,13 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2026 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.com)
  * @package Mygento_Kkm
  */
 
 namespace Mygento\Kkm\Helper;
 
 use Exception;
-use Magento\Store\Model\ScopeInterface;
 
 class Data extends \Mygento\Base\Helper\Data
 {
@@ -25,7 +24,6 @@ class Data extends \Mygento\Base\Helper\Data
     private const CONFIG_PATH_PROD_API_URL = 'checkonline/api_url';
     private const CONFIG_PATH_TEST_OFD_URL = 'checkonline/test_ofd_url';
     private const CONFIG_PATH_PROD_OFD_URL = 'checkonline/ofd_url';
-    private const CONFIG_PATH_ATOL_PAYMENT_METHOD_MAPPING = 'mygento_kkm/atol/payment_method_mapping';
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
@@ -35,17 +33,13 @@ class Data extends \Mygento\Base\Helper\Data
      */
     private $statusUpdatableVendorCodes;
 
-    private \Magento\Framework\Serialize\SerializerInterface $serializer;
-
     public function __construct(
         \Mygento\Base\Model\LogManager $logManager,
         \Magento\Framework\Encryption\Encryptor $encryptor,
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\Serialize\SerializerInterface $serializer,
         $statusUpdatableVendorCodes = [],
     ) {
         $this->statusUpdatableVendorCodes = $statusUpdatableVendorCodes;
-        $this->serializer = $serializer;
 
         parent::__construct($logManager, $encryptor, $context);
     }
@@ -307,32 +301,5 @@ class Data extends \Mygento\Base\Helper\Data
         }
 
         return (string) $this->getConfig(self::CONFIG_PATH_PROD_OFD_URL, $storeId);
-    }
-
-    public function getAtolPaymentMappingCode(int|string|null $scopeCode = null): array
-    {
-        $mappingRows = $this->scopeConfig->getValue(
-            self::CONFIG_PATH_ATOL_PAYMENT_METHOD_MAPPING,
-            ScopeInterface::SCOPE_WEBSITE,
-            $scopeCode,
-        );
-        if (!$mappingRows) {
-            return [];
-        }
-        $mapping = [];
-
-        try {
-            foreach ($this->serializer->unserialize($mappingRows) as $item) {
-                if (!$item['payment_method'] || !$item['atol_cashless_payment_code']) {
-                    continue;
-                }
-
-                $mapping[$item['payment_method']] = $item['atol_cashless_payment_code'];
-            }
-        } catch (\Exception $e) {
-            $this->logger->error(__('Could not map payment method'), ['exception' => $e]);
-        }
-
-        return $mapping;
     }
 }

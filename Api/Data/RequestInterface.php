@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2026 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.com)
  * @package Mygento_Kkm
  */
 
@@ -268,38 +268,4 @@ interface RequestInterface
      * @return $this
      */
     public function setAdditionalCheckProps($checkProps): self;
-
-    /**
-     * @return int|null
-     */
-    public function getTimezone(): ?int;
-
-    /**
-     * @param int $timezone
-     * @return $this
-     */
-    public function setTimezone(int $timezone): self;
-
-    /**
-     * @return bool
-     */
-    public function isInternetOrder(): bool;
-
-    /**
-     * @param bool $isInternet
-     *
-     * @return $this
-     */
-    public function setInternetOrder(bool $isInternet = true): self;
-
-    /**
-     * @return array
-     */
-    public function getCashlessPayment(): array;
-
-    /**
-     * @param array $cashlessPayment
-     * @return $this
-     */
-    public function setCashlessPayment(array $cashlessPayment): self;
 }

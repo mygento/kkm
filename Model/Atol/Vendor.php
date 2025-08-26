@@ -2,7 +2,7 @@
 
 /**
  * @author Mygento Team
- * @copyright 2017-2026 Mygento (https://www.mygento.ru)
+ * @copyright 2017-2026 Mygento (https://www.mygento.com)
  * @package Mygento_Kkm
  */
 
@@ -368,7 +368,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
      * @param RequestInterface $request
      * @param callable $callback
      * @param CreditmemoInterface|InvoiceInterface $entity
-     *
      * @throws VendorNonFatalErrorException
      * @throws \Magento\Framework\Exception\LocalizedException
      * @throws \Magento\Framework\Exception\NoSuchEntityException
@@ -376,7 +375,6 @@ class Vendor implements \Mygento\Kkm\Model\VendorInterface, \Mygento\Kkm\Model\S
      * @throws CreateDocumentFailedException
      * @return ResponseInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     private function sendRequest($request, $callback, $entity = null): ResponseInterface
     {
