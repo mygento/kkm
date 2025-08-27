@@ -15,7 +15,6 @@ use Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray;
 use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Element\BlockInterface;
-use Mygento\Kkm\Block\Adminhtml\Form\Field\CashlessColumn;
 use Mygento\Kkm\Block\Adminhtml\Form\Field\PaymentMethodColumn;
 
 class CashlessPaymentMapping extends AbstractFieldArray
@@ -51,7 +50,7 @@ class CashlessPaymentMapping extends AbstractFieldArray
 
         $this->addColumn('atol_cashless_payment_code', [
             'label' => __('Atol Code'),
-            'renderer' => $this->getAtolCodeRenderer(),
+            'style' => 'width: 100px;',
         ]);
 
         $this->_addAfter = false;
@@ -73,11 +72,6 @@ class CashlessPaymentMapping extends AbstractFieldArray
             $options['option_' . $this->getPaymentMethodRenderer()->calcOptionHash($paymentMethod)] = 'selected="selected"';
         }
 
-        $cashlessCode = $row->getData('atol_cashless_payment_code');
-        if ($cashlessCode) {
-            $options['option_' . $this->getAtolCodeRenderer()->calcOptionHash($cashlessCode)] = 'selected="selected"';
-        }
-
         $row->setData('option_extra_attrs', $options);
     }
 
@@ -85,7 +79,7 @@ class CashlessPaymentMapping extends AbstractFieldArray
      * @throws LocalizedException
      * @return BlockInterface
      */
-    protected function getPaymentMethodRenderer()
+    private function getPaymentMethodRenderer()
     {
         if (!$this->paymentMethodRenderer) {
             $this->paymentMethodRenderer = $this->getLayout()->createBlock(
@@ -97,23 +91,5 @@ class CashlessPaymentMapping extends AbstractFieldArray
         }
 
         return $this->paymentMethodRenderer;
-    }
-
-    /**
-     * @throws LocalizedException
-     * @return BlockInterface
-     */
-    protected function getAtolCodeRenderer()
-    {
-        if (!$this->atolCodeRenderer) {
-            $this->atolCodeRenderer = $this->getLayout()->createBlock(
-                CashlessColumn::class,
-                '',
-                ['data' => ['is_render_to_js_template' => true]],
-            );
-            $this->atolCodeRenderer->setClass('atol_cashless_payment_code_code_select');
-        }
-
-        return $this->atolCodeRenderer;
     }
 }
