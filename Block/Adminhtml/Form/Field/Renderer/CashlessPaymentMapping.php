@@ -24,11 +24,6 @@ class CashlessPaymentMapping extends AbstractFieldArray
      */
     private $paymentMethodRenderer;
 
-    /**
-     * @var BlockInterface
-     */
-    private $atolCodeRenderer;
-
     public function __construct(
         Context $context,
         array $data = [],
