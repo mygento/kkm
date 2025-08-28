@@ -9,7 +9,6 @@
 namespace Mygento\Kkm\Helper;
 
 use Exception;
-use Magento\Store\Model\ScopeInterface;
 
 class Data extends \Mygento\Base\Helper\Data
 {
@@ -313,7 +312,7 @@ class Data extends \Mygento\Base\Helper\Data
     {
         $mappingRows = $this->getConfig(
             self::CONFIG_PATH_ATOL_PAYMENT_METHOD_MAPPING,
-            $scopeCode
+            $scopeCode,
         );
         if (!$mappingRows) {
             return [];
