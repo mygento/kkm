@@ -25,7 +25,7 @@ class Data extends \Mygento\Base\Helper\Data
     private const CONFIG_PATH_PROD_API_URL = 'checkonline/api_url';
     private const CONFIG_PATH_TEST_OFD_URL = 'checkonline/test_ofd_url';
     private const CONFIG_PATH_PROD_OFD_URL = 'checkonline/ofd_url';
-    private const CONFIG_PATH_ATOL_PAYMENT_METHOD_MAPPING = 'mygento_kkm/atol/payment_method_mapping';
+    private const CONFIG_PATH_ATOL_PAYMENT_METHOD_MAPPING = 'atol/payment_method_mapping';
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
@@ -311,10 +311,9 @@ class Data extends \Mygento\Base\Helper\Data
 
     public function getAtolPaymentMappingCode(int|string|null $scopeCode = null): array
     {
-        $mappingRows = $this->scopeConfig->getValue(
+        $mappingRows = $this->getConfig(
             self::CONFIG_PATH_ATOL_PAYMENT_METHOD_MAPPING,
-            ScopeInterface::SCOPE_WEBSITE,
-            $scopeCode,
+            $scopeCode
         );
         if (!$mappingRows) {
             return [];
