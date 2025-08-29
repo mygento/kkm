@@ -93,7 +93,6 @@ class RequestBuilder extends AbstractRequestBuilder
      * @return RequestInterface
      * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      * @SuppressWarnings(PHPMD.NPathComplexity)
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
      */
     public function buildRequest(
