@@ -13,7 +13,7 @@ use Mygento\Kkm\Api\Data\CashlessPaymentInterface;
 class CashlessPayment implements \JsonSerializable, CashlessPaymentInterface
 {
     private float $sum = 0.00;
-    private string $paymentMethod;
+    private int $paymentMethod;
     private string $id;
     private string $additionalInfo = '';
 
