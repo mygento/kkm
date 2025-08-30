@@ -61,6 +61,17 @@ class RequestForVersion4 extends \Mygento\Kkm\Model\Request\Request
             $data['receipt']['additional_check_props'] = $this->getAdditionalCheckProps();
         }
 
+        if ($this->getTimezone()) {
+            $data['receipt']['timezone'] = $this->getTimezone();
+        }
+        if ($this->isInternetOrder()) {
+            $data['receipt']['internet'] = $this->isInternetOrder();
+        }
+
+        if ($this->getCashlessPayments()) {
+            $data['receipt']['cashless_payments'] = $this->getCashlessPayments();
+        }
+
         return $data;
     }
 }

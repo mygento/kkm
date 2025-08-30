@@ -21,6 +21,7 @@
     <preference for="Mygento\Kkm\Api\Data\UpdateRequestInterface" type="Mygento\Kkm\Model\Atol\UpdateRequest"/>
     <preference for="Mygento\Kkm\Api\Data\UserPropInterface" type="Mygento\Kkm\Model\Atol\UserProp"/>
     <preference for="Mygento\Kkm\Api\Data\PaymentInterface" type="Mygento\Kkm\Model\Atol\Payment"/>
+    <preference for="Mygento\Kkm\Api\Data\CashlessPaymentInterface" type="Mygento\Kkm\Model\Atol\CashlessPayment"/>
     <preference for="Mygento\Kkm\Api\ResenderInterface" type="Mygento\Kkm\Model\Resender"/>
     <type name="Mygento\Kkm\Model\Vendor">
         <arguments>

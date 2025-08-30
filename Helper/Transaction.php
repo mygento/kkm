@@ -8,12 +8,14 @@
 
 namespace Mygento\Kkm\Helper;
 
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\Framework\DB\Adapter\Pdo\Mysql;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\EntityInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\TransactionInterface;
+use Magento\Sales\Api\Data\TransactionSearchResultInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\Order\Payment\Transaction as TransactionEntity;
 use Magento\Sales\Model\ResourceModel\Order\Creditmemo\Collection as CreditmemoCollection;
@@ -55,9 +57,9 @@ class Transaction
     protected $kkmHelper;
 
     /**
-     * @var \Magento\Framework\Api\SearchCriteriaBuilder
+     * @var \Magento\Framework\Api\SearchCriteriaBuilderFactory
      */
-    private $searchCriteriaBuilder;
+    private $searchCriteriaBuilderFactory;
 
     /**
      * @var InvoiceCollectionFactory
@@ -83,7 +85,7 @@ class Transaction
      * Transaction constructor.
      * @param \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo
      * @param \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory
-     * @param \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder
+     * @param \Magento\Framework\Api\SearchCriteriaBuilderFactory $searchCriteriaBuilder
      * @param \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder
      * @param InvoiceCollectionFactory $invoiceCollectionFactory
      * @param CreditmemoCollectionFactory $creditmemoCollectionFactory
@@ -93,7 +95,7 @@ class Transaction
     public function __construct(
         \Magento\Sales\Api\TransactionRepositoryInterface $transactionRepo,
         \Magento\Sales\Model\Order\Payment\TransactionFactory $transactionFactory,
-        \Magento\Framework\Api\SearchCriteriaBuilder $searchCriteriaBuilder,
+        \Magento\Framework\Api\SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory,
         \Magento\Framework\Api\SortOrderBuilder $sortOrderBuilder,
         InvoiceCollectionFactory $invoiceCollectionFactory,
         CreditmemoCollectionFactory $creditmemoCollectionFactory,
@@ -102,7 +104,7 @@ class Transaction
     ) {
         $this->transactionRepo = $transactionRepo;
         $this->transactionFactory = $transactionFactory;
-        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
+        $this->searchCriteriaBuilderFactory = $searchCriteriaBuilderFactory;
         $this->invoiceCollectionFactory = $invoiceCollectionFactory;
         $this->creditmemoCollectionFactory = $creditmemoCollectionFactory;
         $this->kkmHelper = $kkmHelper;
@@ -407,16 +409,7 @@ class Transaction
     {
         /** @var Order $order */
         $order = $entity->getOrder();
-        $this->searchCriteriaBuilder->addFilter('order_id', $order->getId());
-
-        //Fetch the freshest entity
-        $sortOrder = $this->sortOrderBuilder
-            ->setField('created_at')
-            ->setDirection('DESC')
-            ->create();
-
-        $this->searchCriteriaBuilder->setSortOrders([$sortOrder]);
-
+        $searchCriteria = $this->searchCriteriaBuilderFactory->create();
         if ($entity->getEntityType() === 'invoice') {
             $types = [
                 TransactionBase::TYPE_FISCAL_PREPAYMENT,
@@ -427,19 +420,19 @@ class Transaction
                 $types[] = TransactionBase::TYPE_FISCAL_REFUND;
             }
 
-            $this->searchCriteriaBuilder->addFilter(
+            $searchCriteria->addFilter(
                 'txn_type',
                 $types,
                 'in',
             );
         } else {
-            $this->searchCriteriaBuilder->addFilter(
+            $searchCriteria->addFilter(
                 'txn_type',
                 TransactionBase::TYPE_FISCAL_REFUND,
             );
         }
 
-        $transactions = $this->transactionRepo->getList($this->searchCriteriaBuilder->create());
+        $transactions = $this->getTransactionsForOrder($order, $searchCriteria);
 
         //Order has several creditmemos or invoices
         foreach ($transactions->getItems() as $index => $item) {
@@ -462,13 +455,14 @@ class Transaction
      */
     public function getTransactionByTxnId($txnId, $kkmStatus = null)
     {
-        $this->searchCriteriaBuilder->addFilter(TransactionInterface::TXN_ID, $txnId);
+        $searchCriteria = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteria->addFilter(TransactionInterface::TXN_ID, $txnId);
         if ($kkmStatus) {
-            $this->searchCriteriaBuilder->addFilter('kkm_status', $kkmStatus);
+            $searchCriteria->addFilter('kkm_status', $kkmStatus);
         }
 
         /** @var TransactionCollection $transactions */
-        $transactions = $this->transactionRepo->getList($this->searchCriteriaBuilder->create());
+        $transactions = $this->transactionRepo->getList($searchCriteria->create());
 
         return $transactions->getFirstItem();
     }
@@ -530,8 +524,8 @@ class Transaction
      */
     public function getWaitUuidsByStore($storeId): array
     {
-        $storeCriteria = $this->searchCriteriaBuilder
-            ->addFilter('store', $storeId)
+        $storeCriteria = $this->searchCriteriaBuilderFactory->create();
+        $storeCriteria->addFilter('store', $storeId)
             ->addFilter('kkm_status', Response::STATUS_WAIT)
             ->create();
 
@@ -542,7 +536,7 @@ class Transaction
             return $storeUuids;
         }
 
-        $timeoutCriteria = $this->searchCriteriaBuilder
+        $timeoutCriteria = $this->searchCriteriaBuilderFactory
             ->addFilter('txn_id', $storeUuids, 'in')
             ->addFilter('updateTimeout', (new \DateTime('-1 hour'))->format(Mysql::TIMESTAMP_FORMAT))
             ->create();
@@ -593,6 +587,21 @@ class Transaction
     {
         $transaction->setKkmStatus($status);
         $this->transactionRepo->save($transaction);
+    }
+
+    public function getCaptureTransactions(InvoiceInterface $invoice): array
+    {
+        /** @var Order $order */
+        $order = $invoice->getOrder();
+
+        $searchCriteria = $this->searchCriteriaBuilderFactory->create();
+        $searchCriteria->addFilter(
+            'txn_type',
+            'capture',
+        );
+        $transactions = $this->getTransactionsForOrder($order, $searchCriteria);
+
+        return $transactions->getItems();
     }
 
     /**
@@ -677,5 +686,23 @@ class Transaction
         );
 
         return $transaction;
+    }
+
+    private function getTransactionsForOrder(Order $order, SearchCriteriaBuilder $searchCriteria = null): TransactionSearchResultInterface
+    {
+        if (!$searchCriteria) {
+            $searchCriteria = $this->searchCriteriaBuilderFactory->create();
+        }
+        $searchCriteria->addFilter('order_id', $order->getId());
+
+        //Fetch the freshest entity
+        $sortOrder = $this->sortOrderBuilder
+            ->setField('created_at')
+            ->setDirection('DESC')
+            ->create();
+
+        $searchCriteria->setSortOrders([$sortOrder]);
+
+        return $this->transactionRepo->getList($searchCriteria->create());
     }
 }

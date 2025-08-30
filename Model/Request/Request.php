@@ -39,7 +39,9 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $additionalUserProps = null;
     protected $additionalCheckProps = '';
     protected $entityStoreId;
-
+    protected bool $internet = true;
+    protected int|null $timezone = null;
+    protected array $cashlessPayments = [];
     // phpcs:enable
 
     /**
@@ -489,6 +491,65 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setAdditionalCheckProps($checkProps): RequestInterface
     {
         $this->additionalCheckProps = $checkProps;
+
+        return $this;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getTimezone(): ?int
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * @param int $timezone
+     * @return $this
+     */
+    public function setTimezone(int $timezone): self
+    {
+        $this->timezone = $timezone;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInternetOrder(): bool
+    {
+        return $this->internet;
+    }
+
+    /**
+     * @param bool $isInternet
+     *
+     * @return $this
+     */
+    public function setInternetOrder(bool $isInternet = true): self
+    {
+        $this->internet = $isInternet;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCashlessPayments(): array
+    {
+        return $this->cashlessPayments;
+    }
+
+    /**
+     * @param array $cashlessPayments
+     *
+     * @return $this
+     */
+    public function setCashlessPayments(array $cashlessPayments): self
+    {
+        $this->cashlessPayments = $cashlessPayments;
 
         return $this;
     }
