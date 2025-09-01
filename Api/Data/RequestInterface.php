@@ -268,4 +268,15 @@ interface RequestInterface
      * @return $this
      */
     public function setAdditionalCheckProps($checkProps): self;
+
+    /**
+     * @return int
+     */
+    public function getTimezone(): int;
+
+    /**
+     * @param int $timezone
+     * @return $this
+     */
+    public function setTimezone(int $timezone): self;
 }

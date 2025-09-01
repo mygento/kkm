@@ -43,6 +43,8 @@ class RequestForVersion4 extends \Mygento\Kkm\Model\Request\Request
                 'items' => $this->getItems(),
                 'payments' => $this->getPayments(),
                 'total' => $this->getTotal(),
+                'internet' => true,
+                'timezone' => $this->getTimezone(),
             ],
             'service' => [
                 'callback_url' => $this->getCallbackUrl(),
