@@ -39,7 +39,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $additionalUserProps = null;
     protected $additionalCheckProps = '';
     protected $entityStoreId;
-    protected $timezone = null;
+    protected $timezone = 1;
 
     // phpcs:enable
 
