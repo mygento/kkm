@@ -16,8 +16,8 @@ class Tax implements \Magento\Framework\Option\ArrayInterface
     public const TAX_VAT7 = 'vat7';
     public const TAX_VAT10 = 'vat10';
     public const TAX_VAT20 = 'vat20';
-    public const TAX_VAT105 = 'vat110';
-    public const TAX_VAT107 = 'vat110';
+    public const TAX_VAT105 = 'vat105';
+    public const TAX_VAT107 = 'vat107';
     public const TAX_VAT110 = 'vat110';
     public const TAX_VAT120 = 'vat120';
 
