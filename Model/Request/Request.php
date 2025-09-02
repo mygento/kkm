@@ -39,6 +39,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
     protected $additionalUserProps = null;
     protected $additionalCheckProps = '';
     protected $entityStoreId;
+    protected $timezone = 1;
 
     // phpcs:enable
 
@@ -489,6 +490,24 @@ abstract class Request implements \JsonSerializable, RequestInterface
     public function setAdditionalCheckProps($checkProps): RequestInterface
     {
         $this->additionalCheckProps = $checkProps;
+
+        return $this;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getTimezone(): int
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setTimezone(int $timezone): self
+    {
+        $this->timezone = $timezone;
 
         return $this;
     }

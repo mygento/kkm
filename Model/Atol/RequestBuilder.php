@@ -148,6 +148,7 @@ class RequestBuilder extends AbstractRequestBuilder
             ->setSno($this->kkmHelper->getConfig('atol/sno', $storeId))
             ->setInn($this->kkmHelper->getConfig('atol/inn', $storeId))
             ->setCallbackUrl($this->getCallbackUrl($storeId))
+            ->setTimezone((int) $this->kkmHelper->getConfig('atol/timezone', $storeId))
             ->setItems($items);
 
         //"GiftCard applied" payment
@@ -178,12 +179,11 @@ class RequestBuilder extends AbstractRequestBuilder
 
         //Basic payment
         if ($salesEntity->getGrandTotal() > 0.00 || $request->getPayments() === []) {
-            $request
-                ->addPayment(
-                    $this->paymentFactory->create()
-                        ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
-                        ->setSum(round($salesEntity->getGrandTotal(), 2)),
-                );
+            $request->addPayment(
+                $this->paymentFactory->create()
+                    ->setType(PaymentInterface::PAYMENT_TYPE_BASIC)
+                    ->setSum(round($salesEntity->getGrandTotal(), 2)),
+            );
         }
 
         return $request;
