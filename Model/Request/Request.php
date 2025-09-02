@@ -347,7 +347,7 @@ abstract class Request implements \JsonSerializable, RequestInterface
      */
     public function getTimestamp()
     {
-        return $this->date->date()->format('d-m-Y H:i:s');
+        return $this->date->date()->format('d.m.Y H:i:s');
     }
 
     /**
