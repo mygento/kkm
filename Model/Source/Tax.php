@@ -15,7 +15,6 @@ class Tax implements \Magento\Framework\Option\ArrayInterface
     public const TAX_VAT5 = 'vat5';
     public const TAX_VAT7 = 'vat7';
     public const TAX_VAT10 = 'vat10';
-    public const TAX_VAT16 = 'vat16';
     public const TAX_VAT20 = 'vat20';
     public const TAX_VAT22 = 'vat22';
     public const TAX_VAT105 = 'vat105';
@@ -50,10 +49,6 @@ class Tax implements \Magento\Framework\Option\ArrayInterface
             [
                 'value' => self::TAX_VAT10,
                 'label' => __('vat10'),
-            ],
-            [
-                'value' => self::TAX_VAT16,
-                'label' => __('vat16'),
             ],
             [
                 'value' => self::TAX_VAT20,
