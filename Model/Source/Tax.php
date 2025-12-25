@@ -21,6 +21,7 @@ class Tax implements \Magento\Framework\Option\ArrayInterface
     public const TAX_VAT107 = 'vat107';
     public const TAX_VAT110 = 'vat110';
     public const TAX_VAT120 = 'vat120';
+    public const TAX_VAT122 = 'vat122';
 
     /**
      * Get options
@@ -74,6 +75,10 @@ class Tax implements \Magento\Framework\Option\ArrayInterface
                 'value' => self::TAX_VAT120,
                 'label' => __('vat120'),
             ],
+            [
+                'value' => self::TAX_VAT122,
+                'label' => __('vat122'),
+            ],
         ];
     }
 
@@ -89,10 +94,12 @@ class Tax implements \Magento\Framework\Option\ArrayInterface
             self::TAX_VAT7,
             self::TAX_VAT10,
             self::TAX_VAT20,
+            self::TAX_VAT22,
             self::TAX_VAT105,
             self::TAX_VAT107,
             self::TAX_VAT110,
             self::TAX_VAT120,
+            self::TAX_VAT122,
         ];
     }
 }
