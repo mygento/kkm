@@ -99,3 +99,6 @@ Ability to split 1 item to 2 with different prices (if needed),Возможно�
 "Fill in if you have multiple sites. If there is only one site, leave it blank.","Заполните, если Чеконлайн используется на нескольких сайтах. Если сайт один, оставьте пустым."
 "Receive full response from Checkonline API","Получать полный ответ от API Чеконлайн"
 "Url for creating link to receipt.<br />Variables:<br />{{fnSerialNumber}} - FN serial number (fn)<br />{{fiscalDocNumber}} - Fiscal document number (fp)<br />{{fiscalSign}} - Fiscal Sign (fpd)<br />{{docNumber}} - Number of receipt<br />{{sum}} - Sum<br />{{dateTime}} - Date time","Url для создания ссылки на чек.<br />Переменные:<br />{{fnSerialNumber}} - Номер ФН (ФН)<br />{{fiscalDocNumber}} - Номер фискального документа (ФД)<br />{{fiscalSign}} - Фискальный признак документа (ФПД)<br />{{docNumber}} - Номер чека<br />{{sum}} - Сумма<br />{{dateTime}} - Дата, время"
+"Version %1","Версия %1"
+"Product attribute containing the measure of quantity of the subject of calculation","Атрибут товара, содержащий единицу измерения количества предмета расчета"
+"Measure Attribute","Атрибут единицы измерения количества"

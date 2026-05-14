@@ -361,6 +361,15 @@
                     </depends>
                 </field>
 
+                <field id="measure_attribute" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Measure Attribute</label>
+                    <source_model>Mygento\Base\Model\Source\Attributes</source_model>
+                    <can_be_empty>0</can_be_empty>
+                    <comment><![CDATA[Product attribute containing the measure of quantity of the subject of calculation]]></comment>
+                    <depends>
+                        <field id="is_enabled">1</field>
+                    </depends>
+                </field>
             </group>
 
             <!--REPORT HANDLING-->

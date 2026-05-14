@@ -9,12 +9,16 @@
 namespace Mygento\Kkm\Model\Atol;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Url;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
+use Mygento\Base\Helper\Product\Attribute;
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -54,6 +58,16 @@ class RequestBuilder extends AbstractRequestBuilder
      */
     private $urlHelper;
 
+    /**
+     * @var Attribute
+     */
+    private $attributeHelper;
+
+    /**
+     * @var array
+     */
+    private $entityItems = [];
+
     public function __construct(
         ProductRepositoryInterface $productRepository,
         Data $kkmHelper,
@@ -63,6 +77,7 @@ class RequestBuilder extends AbstractRequestBuilder
         ItemFactory $itemFactory,
         PaymentFactory $paymentFactory,
         Url $urlHelper,
+        Attribute $attributeHelper
     ) {
         parent::__construct(
             $productRepository,
@@ -75,6 +90,7 @@ class RequestBuilder extends AbstractRequestBuilder
         $this->itemFactory = $itemFactory;
         $this->paymentFactory = $paymentFactory;
         $this->urlHelper = $urlHelper;
+        $this->attributeHelper = $attributeHelper;
     }
 
     /**
@@ -121,17 +137,7 @@ class RequestBuilder extends AbstractRequestBuilder
 
             $this->validateItem($itemData);
 
-            //How to handle GiftCards - see Atol API documentation
-            $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
-                ? Item::PAYMENT_METHOD_ADVANCE
-                : ($paymentMethod ?: Item::PAYMENT_METHOD_FULL_PAYMENT);
-            $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
-                ? Item::PAYMENT_OBJECT_PAYMENT
-                : ($key == Discount::SHIPPING && $shippingPaymentObject
-                    ? $shippingPaymentObject
-                    : Item::PAYMENT_OBJECT_BASIC);
-
-            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId);
+            $items[] = $this->buildItem($key, $itemData, $salesEntity, $paymentMethod, $shippingPaymentObject, $storeId);
         }
 
         $telephone = $order->getBillingAddress() ? (string) $order->getBillingAddress()->getTelephone() : '';
@@ -227,21 +233,45 @@ class RequestBuilder extends AbstractRequestBuilder
     }
 
     /**
+     * @param int|string $key
      * @param RecalculateResultItemInterface $itemData
-     * @param string $itemPaymentMethod
-     * @param string $itemPaymentObject
-     * @param string|null $storeId
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param string $paymentMethod
+     * @param string $shippingPaymentObject
+     * @param null $storeId
      * @return ItemInterface
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
+    private function buildItem($key, $itemData, $salesEntity, $paymentMethod, $shippingPaymentObject, $storeId = null)
     {
-        /** @var ItemInterface $item */
-        $item = $this->itemFactory->create();
+        $item = $this->itemFactory->create($storeId);
+
+        //How to handle GiftCards - see Atol API documentation
+        $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            ? $item::PAYMENT_METHOD_ADVANCE
+            : ($paymentMethod ?: $item::PAYMENT_METHOD_FULL_PAYMENT);
+        $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            ? $item::PAYMENT_OBJECT_PAYMENT
+            : ($key == Discount::SHIPPING && $shippingPaymentObject
+                ? $shippingPaymentObject
+                : $item::PAYMENT_OBJECT_BASIC);
+
+        $measure = ItemForVersion5::MEASURE_DEFAULT;
+        if ($this->kkmHelper->isExtendedSettingsEnabled($storeId) && $key !== Discount::SHIPPING) {
+            $productId = $this->getProductId($salesEntity, $key);
+            $measureAttribute = $this->kkmHelper->getMeasureAttribute($storeId);
+            if ($measureAttribute && $productId !== null) {
+                $measure = (int)$this->attributeHelper->getAttrValue($measureAttribute, $productId);
+            }
+        }
+
         $item
             ->setName($itemData[Discount::NAME])
             ->setPrice($itemData[Discount::PRICE])
             ->setSum($itemData[Discount::SUM])
             ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
+            ->setMeasure($measure)
             ->setTax($itemData[Discount::TAX])
             ->setPaymentMethod($itemPaymentMethod)
             ->setPaymentObject($itemPaymentObject)
@@ -256,6 +286,36 @@ class RequestBuilder extends AbstractRequestBuilder
         }
 
         return $item;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param int|string $key
+     * @return int|null
+     */
+    private function getProductId($salesEntity, $key)
+    {
+        $entityItems = $this->getEntityItems($salesEntity);
+        $itemId = is_int($key) ? $key : strtok($key, '_');
+        return isset($entityItems[$itemId]) ? $entityItems[$itemId]->getProductId() : null;
+    }
+
+    /**
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @return AbstractModel[]
+     */
+    private function getEntityItems($salesEntity)
+    {
+        $entityId = $salesEntity->getId();
+        if (!isset($this->entityItems[$entityId])) {
+            $items = $salesEntity->getAllVisibleItems() ?: $salesEntity->getAllItems();
+            $this->entityItems[$entityId] = [];
+            foreach ($items as $item) {
+                $this->entityItems[$entityId][$item->getId()] = $item;
+            }
+        }
+
+        return $this->entityItems[$entityId];
     }
 
     /**

@@ -8,7 +8,9 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-class Item extends \Mygento\Kkm\Model\Request\Item
+use Mygento\Kkm\Model\Request\Item;
+
+class ItemForVersion4 extends Item
 {
     public const PAYMENT_METHOD_FULL_PAYMENT = 'full_payment';
     public const PAYMENT_METHOD_FULL_PREPAYMENT = 'full_prepayment';

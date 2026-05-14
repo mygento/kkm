@@ -24,6 +24,8 @@ class Data extends \Mygento\Base\Helper\Data
     private const CONFIG_PATH_PROD_API_URL = 'checkonline/api_url';
     private const CONFIG_PATH_TEST_OFD_URL = 'checkonline/test_ofd_url';
     private const CONFIG_PATH_PROD_OFD_URL = 'checkonline/ofd_url';
+    private const CONFIG_PATH_EXTENDED_SETTINGS = 'company/is_enabled';
+    private const CONFIG_PATH_MEASURE_ATTRIBUTE = 'company/measure_attribute';
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
@@ -301,5 +303,23 @@ class Data extends \Mygento\Base\Helper\Data
         }
 
         return (string) $this->getConfig(self::CONFIG_PATH_PROD_OFD_URL, $storeId);
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return bool
+     */
+    public function isExtendedSettingsEnabled(?string $storeId)
+    {
+        return (bool)$this->getConfig(self::CONFIG_PATH_EXTENDED_SETTINGS, $storeId);
+    }
+
+    /**
+     * @param string|null $storeId
+     * @return string
+     */
+    public function getMeasureAttribute(?string $storeId)
+    {
+        return $this->getConfig(self::CONFIG_PATH_MEASURE_ATTRIBUTE, $storeId);
     }
 }

@@ -8,9 +8,13 @@
 
 namespace Mygento\Kkm\Model\Source;
 
-class ApiVersion implements \Magento\Framework\Option\ArrayInterface
+use Magento\Framework\Option\ArrayInterface;
+
+class ApiVersion implements ArrayInterface
 {
     public const API_VERSION_4 = 4;
+
+    public const API_VERSION_5 = 5;
 
     /**
      * Get options
@@ -22,8 +26,12 @@ class ApiVersion implements \Magento\Framework\Option\ArrayInterface
         return [
             [
                 'value' => self::API_VERSION_4,
-                'label' => __('Версия 4'),
+                'label' => __('Version %1', 4),
             ],
+            [
+                'value' => self::API_VERSION_5,
+                'label' => __('Version %1', 5)
+            ]
         ];
     }
 
@@ -32,6 +40,9 @@ class ApiVersion implements \Magento\Framework\Option\ArrayInterface
      */
     public static function getAllVersions()
     {
-        return [self::API_VERSION_4];
+        return [
+            self::API_VERSION_4,
+            self::API_VERSION_5
+        ];
     }
 }

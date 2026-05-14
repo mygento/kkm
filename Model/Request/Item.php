@@ -16,6 +16,7 @@ abstract class Item implements \JsonSerializable, ItemInterface
     protected $name = '';
     protected $price = 1.0;
     protected $quantity = 1;
+    protected $measure = 0;
     protected $sum = 0.0;
     protected $tax = '';
     protected $taxSum = 0.0;
@@ -83,6 +84,24 @@ abstract class Item implements \JsonSerializable, ItemInterface
     public function setQuantity($quantity)
     {
         $this->quantity = (float) $quantity;
+
+        return $this;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getMeasure()
+    {
+        return $this->measure;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setMeasure($measure)
+    {
+        $this->measure = $measure;
 
         return $this;
     }
