@@ -171,7 +171,7 @@ class TransactionAttempt
     public function scheduleNextAttempt(
         RequestInterface $request,
         string $topic,
-        string $scheduledAt = null,
+        ?string $scheduledAt = null,
     ): TransactionAttemptInterface {
         /** @var CreditmemoInterface|InvoiceInterface|OrderInterface $entity */
         $entity = $this->requestHelper->getEntityByRequest($request);

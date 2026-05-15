@@ -117,7 +117,7 @@ class Transaction
      * @throws \Magento\Framework\Exception\LocalizedException
      * @return \Magento\Sales\Api\Data\TransactionInterface
      */
-    public function registerTransaction($entity, ResponseInterface $response, RequestInterface $request = null)
+    public function registerTransaction($entity, ResponseInterface $response, ?RequestInterface $request = null)
     {
         $isResellRefund = $request && $request->getOperationType() === RequestInterface::RESELL_REFUND_OPERATION_TYPE;
         $isResellSell = $request && $request->getOperationType() === RequestInterface::RESELL_SELL_OPERATION_TYPE;
@@ -148,7 +148,7 @@ class Transaction
     public function saveSellTransaction(
         InvoiceInterface $invoice,
         ResponseInterface $response,
-        RequestInterface $request = null,
+        ?RequestInterface $request = null,
     ) {
         $this->kkmHelper->info(
             __(
@@ -318,7 +318,7 @@ class Transaction
     public function saveRefundTransaction(
         CreditmemoInterface $creditmemo,
         ResponseInterface $response,
-        RequestInterface $request = null,
+        ?RequestInterface $request = null,
     ) {
         $this->kkmHelper->info(
             __(

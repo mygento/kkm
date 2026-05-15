@@ -50,7 +50,7 @@ class Error
      * @param \Magento\Sales\Api\Data\EntityInterface $entity
      * @param \Throwable|null $exception
      */
-    public function processKkmChequeRegistrationError($entity, \Throwable $exception = null)
+    public function processKkmChequeRegistrationError($entity, ?\Throwable $exception = null)
     {
         try {
             $entityType = ucfirst($entity->getEntityType());

@@ -22,7 +22,7 @@ class CreateDocumentFailedException extends ResponseValidationException
      * @param ResponseInterface|null $response
      * @param array $debugData
      */
-    public function __construct($message, ResponseInterface $response = null, $debugData = [])
+    public function __construct($message, ?ResponseInterface $response = null, $debugData = [])
     {
         parent::__construct($message, $response);
 

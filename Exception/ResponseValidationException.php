@@ -21,7 +21,7 @@ class ResponseValidationException extends \Exception
      * @param string $message
      * @param ResponseInterface|null $response
      */
-    public function __construct($message = '', ResponseInterface $response = null)
+    public function __construct($message = '', ?ResponseInterface $response = null)
     {
         parent::__construct($message, 0, null);
 
