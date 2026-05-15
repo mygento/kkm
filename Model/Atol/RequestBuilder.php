@@ -15,6 +15,7 @@ use Magento\Framework\Url;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\ItemInterface;
@@ -123,7 +124,15 @@ class RequestBuilder extends AbstractRequestBuilder
 
             $this->validateItem($itemData);
 
-            $items[] = $this->buildItem($key, $itemData, $salesEntity, $paymentMethod, $shippingPaymentObject, $storeId);
+            $items[] = $this->buildItem(
+                $key,
+                $itemData,
+                $salesEntity,
+                $order,
+                $paymentMethod,
+                $shippingPaymentObject,
+                $storeId
+            );
         }
 
         $telephone = $order->getBillingAddress() ? (string) $order->getBillingAddress()->getTelephone() : '';
@@ -222,6 +231,7 @@ class RequestBuilder extends AbstractRequestBuilder
      * @param int|string $key
      * @param RecalculateResultItemInterface $itemData
      * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param Order $order
      * @param string $paymentMethod
      * @param string $shippingPaymentObject
      * @param null $storeId
@@ -229,8 +239,15 @@ class RequestBuilder extends AbstractRequestBuilder
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    private function buildItem($key, $itemData, $salesEntity, $paymentMethod, $shippingPaymentObject, $storeId = null)
-    {
+    private function buildItem(
+        $key,
+        $itemData,
+        $salesEntity,
+        $order,
+        $paymentMethod,
+        $shippingPaymentObject,
+        $storeId = null
+    ) {
         $item = $this->itemFactory->create($storeId);
 
         //How to handle GiftCards - see Atol API documentation
@@ -246,9 +263,9 @@ class RequestBuilder extends AbstractRequestBuilder
         $measure = $this->kkmHelper->getMeasureDefaultValue($storeId);
         if ($this->kkmHelper->isMeasureMappingEnabled($storeId) && $key !== Discount::SHIPPING) {
             $itemId = is_int($key) ? $key : strtok($key, '_');
-            $entityItem = $salesEntity->getItemById($itemId);
+            $orderItem = $order->getItemById($itemId);
             $measureField = $this->kkmHelper->getMeasureField($storeId);
-            $measure = (int)$entityItem->getData($measureField);
+            $measure = (int)$orderItem->getData($measureField);
         }
 
         $item
