@@ -11,14 +11,12 @@ namespace Mygento\Kkm\Model\Atol;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Model\AbstractModel;
 use Magento\Framework\Url;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
-use Mygento\Base\Helper\Product\Attribute;
 use Mygento\Kkm\Api\Data\ItemInterface;
 use Mygento\Kkm\Api\Data\PaymentInterface;
 use Mygento\Kkm\Api\Data\RequestInterface;
@@ -58,16 +56,6 @@ class RequestBuilder extends AbstractRequestBuilder
      */
     private $urlHelper;
 
-    /**
-     * @var Attribute
-     */
-    private $attributeHelper;
-
-    /**
-     * @var array
-     */
-    private $entityItems = [];
-
     public function __construct(
         ProductRepositoryInterface $productRepository,
         Data $kkmHelper,
@@ -76,8 +64,7 @@ class RequestBuilder extends AbstractRequestBuilder
         RequestFactory $requestFactory,
         ItemFactory $itemFactory,
         PaymentFactory $paymentFactory,
-        Url $urlHelper,
-        Attribute $attributeHelper
+        Url $urlHelper
     ) {
         parent::__construct(
             $productRepository,
@@ -90,7 +77,6 @@ class RequestBuilder extends AbstractRequestBuilder
         $this->itemFactory = $itemFactory;
         $this->paymentFactory = $paymentFactory;
         $this->urlHelper = $urlHelper;
-        $this->attributeHelper = $attributeHelper;
     }
 
     /**
@@ -257,13 +243,12 @@ class RequestBuilder extends AbstractRequestBuilder
                 ? $shippingPaymentObject
                 : $item::PAYMENT_OBJECT_BASIC);
 
-        $measure = ItemForVersion5::MEASURE_DEFAULT;
-        if ($this->kkmHelper->isExtendedSettingsEnabled($storeId) && $key !== Discount::SHIPPING) {
-            $productId = $this->getProductId($salesEntity, $key);
-            $measureAttribute = $this->kkmHelper->getMeasureAttribute($storeId);
-            if ($measureAttribute && $productId !== null) {
-                $measure = (int)$this->attributeHelper->getAttrValue($measureAttribute, $productId);
-            }
+        $measure = $this->kkmHelper->getMeasureDefaultValue($storeId);
+        if ($this->kkmHelper->isMeasureMappingEnabled($storeId) && $key !== Discount::SHIPPING) {
+            $itemId = is_int($key) ? $key : strtok($key, '_');
+            $entityItem = $salesEntity->getItemById($itemId);
+            $measureField = $this->kkmHelper->getMeasureField($storeId);
+            $measure = (int)$entityItem->getData($measureField);
         }
 
         $item
@@ -286,36 +271,6 @@ class RequestBuilder extends AbstractRequestBuilder
         }
 
         return $item;
-    }
-
-    /**
-     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
-     * @param int|string $key
-     * @return int|null
-     */
-    private function getProductId($salesEntity, $key)
-    {
-        $entityItems = $this->getEntityItems($salesEntity);
-        $itemId = is_int($key) ? $key : strtok($key, '_');
-        return isset($entityItems[$itemId]) ? $entityItems[$itemId]->getProductId() : null;
-    }
-
-    /**
-     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
-     * @return AbstractModel[]
-     */
-    private function getEntityItems($salesEntity)
-    {
-        $entityId = $salesEntity->getId();
-        if (!isset($this->entityItems[$entityId])) {
-            $items = $salesEntity->getAllVisibleItems() ?: $salesEntity->getAllItems();
-            $this->entityItems[$entityId] = [];
-            foreach ($items as $item) {
-                $this->entityItems[$entityId][$item->getId()] = $item;
-            }
-        }
-
-        return $this->entityItems[$entityId];
     }
 
     /**

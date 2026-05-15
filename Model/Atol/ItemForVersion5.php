@@ -14,7 +14,6 @@ class ItemForVersion5 extends ItemForVersion4
     public const PAYMENT_OBJECT_SERVICE = 4;
     public const PAYMENT_OBJECT_PAYMENT = 10;
     public const PAYMENT_OBJECT_ANOTHER = 13;
-    public const MEASURE_DEFAULT = 0;
 
     public function jsonSerialize(): array
     {

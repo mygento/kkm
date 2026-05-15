@@ -63,6 +63,24 @@
                         <comment>Attempts with these error codes will be sent with new external_id</comment>
                     </field>
                 </group>
+                <group id="measure" translate="label" type="text" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Unit of measurement of the quantity of the subject of calculation</label>
+                    <field id="default" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Default Measure Value</label>
+                        <source_model>Mygento\Kkm\Model\Source\Measure</source_model>
+                    </field>
+                    <field id="mapping_enabled" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Measure Mapping Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    </field>
+                    <field id="field" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Measure Field</label>
+                        <source_model>Mygento\Base\Model\Source\OrderItem</source_model>
+                        <depends>
+                            <field id="mapping_enabled">1</field>
+                        </depends>
+                    </field>
+                </group>
             </group>
 
             <group id="checkonline" translate="label" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -356,16 +374,6 @@
 
                 <field id="default_custom_declaration" translate="label" type="text" sortOrder="81" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Custom Declaration</label>
-                    <depends>
-                        <field id="is_enabled">1</field>
-                    </depends>
-                </field>
-
-                <field id="measure_attribute" translate="label" type="select" sortOrder="90" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Measure Attribute</label>
-                    <source_model>Mygento\Base\Model\Source\Attributes</source_model>
-                    <can_be_empty>0</can_be_empty>
-                    <comment><![CDATA[Product attribute containing the measure of quantity of the subject of calculation]]></comment>
                     <depends>
                         <field id="is_enabled">1</field>
                     </depends>

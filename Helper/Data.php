@@ -24,8 +24,9 @@ class Data extends \Mygento\Base\Helper\Data
     private const CONFIG_PATH_PROD_API_URL = 'checkonline/api_url';
     private const CONFIG_PATH_TEST_OFD_URL = 'checkonline/test_ofd_url';
     private const CONFIG_PATH_PROD_OFD_URL = 'checkonline/ofd_url';
-    private const CONFIG_PATH_EXTENDED_SETTINGS = 'company/is_enabled';
-    private const CONFIG_PATH_MEASURE_ATTRIBUTE = 'company/measure_attribute';
+    private const CONFIG_PATH_MEASURE_DEFAULT = 'atol/measure/default';
+    private const CONFIG_PATH_MEASURE_MAPPING_ENABLED = 'atol/measure/mapping_enabled';
+    private const CONFIG_PATH_MEASURE_FIELD = 'atol/measure/field';
 
     /** @var string */
     protected $code = self::CONFIG_CODE;
@@ -307,19 +308,28 @@ class Data extends \Mygento\Base\Helper\Data
 
     /**
      * @param string|null $storeId
+     * @return int
+     */
+    public function getMeasureDefaultValue(?string $storeId): int
+    {
+        return (int)$this->getConfig(self::CONFIG_PATH_MEASURE_DEFAULT, $storeId);
+    }
+
+    /**
+     * @param string|null $storeId
      * @return bool
      */
-    public function isExtendedSettingsEnabled(?string $storeId)
+    public function isMeasureMappingEnabled(?string $storeId): bool
     {
-        return (bool)$this->getConfig(self::CONFIG_PATH_EXTENDED_SETTINGS, $storeId);
+        return (bool)$this->getConfig(self::CONFIG_PATH_MEASURE_MAPPING_ENABLED, $storeId);
     }
 
     /**
      * @param string|null $storeId
      * @return string
      */
-    public function getMeasureAttribute(?string $storeId)
+    public function getMeasureField(?string $storeId)
     {
-        return $this->getConfig(self::CONFIG_PATH_MEASURE_ATTRIBUTE, $storeId);
+        return $this->getConfig(self::CONFIG_PATH_MEASURE_FIELD, $storeId);
     }
 }
