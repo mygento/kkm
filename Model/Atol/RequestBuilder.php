@@ -263,7 +263,9 @@ class RequestBuilder extends AbstractRequestBuilder
         $measure = $this->kkmHelper->getMeasureDefaultValue($storeId);
         if ($this->kkmHelper->isMeasureMappingEnabled($storeId) && $key !== Discount::SHIPPING) {
             $itemId = is_int($key) ? $key : strtok($key, '_');
-            $orderItem = $order->getItemById($itemId);
+            $entityItem = $salesEntity->getItemById($itemId);
+            $orderItemId = $entityItem->getOrderItemId();
+            $orderItem = $order->getItemById($orderItemId);
             $measureField = $this->kkmHelper->getMeasureField($storeId);
             $measure = (int)$orderItem->getData($measureField);
         }
