@@ -8,6 +8,4 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
-class RequestForVersion5 extends RequestForVersion4
-{
-}
+class RequestForVersion5 extends RequestForVersion4 {}

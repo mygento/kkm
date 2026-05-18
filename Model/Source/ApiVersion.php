@@ -13,7 +13,6 @@ use Magento\Framework\Option\ArrayInterface;
 class ApiVersion implements ArrayInterface
 {
     public const API_VERSION_4 = 4;
-
     public const API_VERSION_5 = 5;
 
     /**
@@ -30,8 +29,8 @@ class ApiVersion implements ArrayInterface
             ],
             [
                 'value' => self::API_VERSION_5,
-                'label' => __('Version %1', 5)
-            ]
+                'label' => __('Version %1', 5),
+            ],
         ];
     }
 
@@ -42,7 +41,7 @@ class ApiVersion implements ArrayInterface
     {
         return [
             self::API_VERSION_4,
-            self::API_VERSION_5
+            self::API_VERSION_5,
         ];
     }
 }

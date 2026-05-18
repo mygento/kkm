@@ -46,7 +46,7 @@ class Measure implements OptionSourceInterface
         foreach ($this->toHashArray() as $value => $label) {
             $result[] = [
                 'value' => $value,
-                'label' => $label
+                'label' => $label,
             ];
         }
 
@@ -82,7 +82,7 @@ class Measure implements OptionSourceInterface
             self::MEASURE_MEGABYTE => __('Megabyte'),
             self::MEASURE_GIGABYTE => __('Gigabyte'),
             self::MEASURE_TERABYTE => __('Terabyte'),
-            self::MEASURE_OTHER => __('Applies when using other units of measurement')
+            self::MEASURE_OTHER => __('Applies when using other units of measurement'),
         ];
     }
 }

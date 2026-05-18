@@ -30,7 +30,7 @@ class ItemFactory
      */
     public function __construct(
         Data $kkmHelper,
-        array $itemFactories = []
+        array $itemFactories = [],
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->itemFactories = $itemFactories;
@@ -38,15 +38,15 @@ class ItemFactory
 
     /**
      * @param $storeId
-     * @return Item
      * @throws LocalizedException
+     * @return Item
      */
     public function create($storeId)
     {
         $version = $this->kkmHelper->getConfig('atol/api_version', $storeId);
 
         if (!isset($this->itemFactories[$version])) {
-            throw new \InvalidArgumentException("Invalid version $version");
+            throw new \InvalidArgumentException("Invalid version {$version}");
         }
 
         $itemFactory = $this->itemFactories[$version];

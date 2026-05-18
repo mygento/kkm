@@ -66,7 +66,7 @@ class RequestBuilder extends AbstractRequestBuilder
         RequestFactory $requestFactory,
         ItemFactory $itemFactory,
         PaymentFactory $paymentFactory,
-        Url $urlHelper
+        Url $urlHelper,
     ) {
         parent::__construct(
             $productRepository,
@@ -132,7 +132,7 @@ class RequestBuilder extends AbstractRequestBuilder
                 $order,
                 $paymentMethod,
                 $shippingPaymentObject,
-                $storeId
+                $storeId,
             );
         }
 
@@ -236,9 +236,9 @@ class RequestBuilder extends AbstractRequestBuilder
      * @param string $paymentMethod
      * @param string $shippingPaymentObject
      * @param null $storeId
-     * @return ItemInterface
      * @throws LocalizedException
      * @throws NoSuchEntityException
+     * @return ItemInterface
      */
     private function buildItem(
         $key,
@@ -247,7 +247,7 @@ class RequestBuilder extends AbstractRequestBuilder
         $order,
         $paymentMethod,
         $shippingPaymentObject,
-        $storeId = null
+        $storeId = null,
     ) {
         $item = $this->itemFactory->create($storeId);
 
@@ -265,7 +265,7 @@ class RequestBuilder extends AbstractRequestBuilder
         if ($this->kkmHelper->isMeasureMappingEnabled($storeId) && $key !== Discount::SHIPPING) {
             $orderItem = $this->getOrderItem($key, $salesEntity, $order);
             $measureField = $this->kkmHelper->getMeasureField($storeId);
-            $measure = $orderItem && $measureField ? (int)$orderItem->getData($measureField) : $measure;
+            $measure = $orderItem && $measureField ? (int) $orderItem->getData($measureField) : $measure;
         }
 
         $item
@@ -298,12 +298,13 @@ class RequestBuilder extends AbstractRequestBuilder
      */
     private function getOrderItem($key, $salesEntity, $order)
     {
-        $itemId = strtok((string)$key, '_');
+        $itemId = strtok((string) $key, '_');
         if ($salesEntity instanceof OrderInterface) {
             return $order->getItemById($itemId);
         }
 
         $entityItem = $salesEntity->getItemById($itemId);
+
         return $entityItem->getOrderItem();
     }
 

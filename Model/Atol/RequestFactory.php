@@ -31,7 +31,7 @@ class RequestFactory
      */
     public function __construct(
         Data $kkmHelper,
-        array $requestFactories = []
+        array $requestFactories = [],
     ) {
         $this->kkmHelper = $kkmHelper;
         $this->requestFactories = $requestFactories;
@@ -49,7 +49,7 @@ class RequestFactory
         $version = $this->kkmHelper->getConfig('atol/api_version', $storeId);
 
         if (!isset($this->requestFactories[$version])) {
-            throw new \InvalidArgumentException("Invalid version $version");
+            throw new \InvalidArgumentException("Invalid version {$version}");
         }
 
         $requestFactory = $this->requestFactories[$version];
