@@ -9,6 +9,7 @@
 namespace Mygento\Kkm\Model\Atol;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\DataObject;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Url;
@@ -262,12 +263,9 @@ class RequestBuilder extends AbstractRequestBuilder
 
         $measure = $this->kkmHelper->getMeasureDefaultValue($storeId);
         if ($this->kkmHelper->isMeasureMappingEnabled($storeId) && $key !== Discount::SHIPPING) {
-            $itemId = is_int($key) ? $key : strtok($key, '_');
-            $entityItem = $salesEntity->getItemById($itemId);
-            $orderItemId = $entityItem->getOrderItemId();
-            $orderItem = $order->getItemById($orderItemId);
+            $orderItem = $this->getOrderItem($key, $salesEntity, $order);
             $measureField = $this->kkmHelper->getMeasureField($storeId);
-            $measure = (int)$orderItem->getData($measureField);
+            $measure = $orderItem ? (int)$orderItem->getData($measureField) : $measure;
         }
 
         $item
@@ -290,6 +288,25 @@ class RequestBuilder extends AbstractRequestBuilder
         }
 
         return $item;
+    }
+
+    /**
+     * @param int|string $key
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param Order $order
+     * @return DataObject|null
+     */
+    private function getOrderItem($key, $salesEntity, $order)
+    {
+        $itemId = strtok((string)$key, '_');
+        if ($salesEntity instanceof OrderInterface) {
+            $orderItemId = $itemId;
+        } else {
+            $entityItem = $salesEntity->getItemById($itemId);
+            $orderItemId = $entityItem->getOrderItemId();
+        }
+
+        return $order->getItemById($orderItemId);
     }
 
     /**
