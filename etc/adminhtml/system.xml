@@ -63,17 +63,17 @@
                         <comment>Attempts with these error codes will be sent with new external_id</comment>
                     </field>
                 </group>
-                <group id="measure" translate="label" type="text" sortOrder="180" showInDefault="1" showInWebsite="1" showInStore="1">
+                <group id="measure" translate="label" type="text" sortOrder="180" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Unit of measurement of the quantity of the subject of calculation</label>
-                    <field id="default" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="default" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
                         <label>Default Measure Value</label>
                         <source_model>Mygento\Kkm\Model\Source\Measure</source_model>
                     </field>
-                    <field id="mapping_enabled" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="mapping_enabled" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
                         <label>Measure Mapping Enabled</label>
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     </field>
-                    <field id="field" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <field id="field" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="0" showInStore="0">
                         <label>Measure Field</label>
                         <source_model>Mygento\Base\Model\Source\OrderItem</source_model>
                         <depends>
