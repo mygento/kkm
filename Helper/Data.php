@@ -316,12 +316,8 @@ class Data extends \Mygento\Base\Helper\Data
         return (bool)$this->getConfig(self::CONFIG_PATH_MEASURE_MAPPING_ENABLED, $storeId);
     }
 
-    /**
-     * @param string|null $storeId
-     * @return string
-     */
-    public function getMeasureField(?string $storeId)
+    public function getMeasureField(?string $storeId): string
     {
-        return $this->getConfig(self::CONFIG_PATH_MEASURE_FIELD, $storeId);
+        return (string)$this->getConfig(self::CONFIG_PATH_MEASURE_FIELD, $storeId);
     }
 }

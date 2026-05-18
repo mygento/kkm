@@ -265,7 +265,7 @@ class RequestBuilder extends AbstractRequestBuilder
         if ($this->kkmHelper->isMeasureMappingEnabled($storeId) && $key !== Discount::SHIPPING) {
             $orderItem = $this->getOrderItem($key, $salesEntity, $order);
             $measureField = $this->kkmHelper->getMeasureField($storeId);
-            $measure = $orderItem ? (int)$orderItem->getData($measureField) : $measure;
+            $measure = $orderItem && $measureField ? (int)$orderItem->getData($measureField) : $measure;
         }
 
         $item
@@ -301,10 +301,10 @@ class RequestBuilder extends AbstractRequestBuilder
         $itemId = strtok((string)$key, '_');
         if ($salesEntity instanceof OrderInterface) {
             return $order->getItemById($itemId);
-        } else {
-            $entityItem = $salesEntity->getItemById($itemId);
-            return $entityItem->getOrderItem();
         }
+
+        $entityItem = $salesEntity->getItemById($itemId);
+        return $entityItem->getOrderItem();
     }
 
     /**
