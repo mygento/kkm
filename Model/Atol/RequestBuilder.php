@@ -300,13 +300,11 @@ class RequestBuilder extends AbstractRequestBuilder
     {
         $itemId = strtok((string)$key, '_');
         if ($salesEntity instanceof OrderInterface) {
-            $orderItemId = $itemId;
+            return $order->getItemById($itemId);
         } else {
             $entityItem = $salesEntity->getItemById($itemId);
-            $orderItemId = $entityItem->getOrderItemId();
+            return $entityItem->getOrderItem();
         }
-
-        return $order->getItemById($orderItemId);
     }
 
     /**

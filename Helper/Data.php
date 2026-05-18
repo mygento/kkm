@@ -306,19 +306,11 @@ class Data extends \Mygento\Base\Helper\Data
         return (string) $this->getConfig(self::CONFIG_PATH_PROD_OFD_URL, $storeId);
     }
 
-    /**
-     * @param string|null $storeId
-     * @return int
-     */
     public function getMeasureDefaultValue(?string $storeId): int
     {
         return (int)$this->getConfig(self::CONFIG_PATH_MEASURE_DEFAULT, $storeId);
     }
 
-    /**
-     * @param string|null $storeId
-     * @return bool
-     */
     public function isMeasureMappingEnabled(?string $storeId): bool
     {
         return (bool)$this->getConfig(self::CONFIG_PATH_MEASURE_MAPPING_ENABLED, $storeId);
