@@ -239,6 +239,8 @@ class RequestBuilder extends AbstractRequestBuilder
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @return ItemInterface
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
+     * @SuppressWarnings(PHPMD.NPathComplexity)
      */
     private function buildItem(
         $key,
