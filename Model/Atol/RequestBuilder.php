@@ -9,10 +9,14 @@
 namespace Mygento\Kkm\Model\Atol;
 
 use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\DataObject;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Url;
 use Magento\Sales\Api\Data\CreditmemoInterface;
 use Magento\Sales\Api\Data\InvoiceInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Model\Order;
 use Mygento\Base\Api\Data\RecalculateResultItemInterface;
 use Mygento\Base\Helper\Discount;
 use Mygento\Kkm\Api\Data\ItemInterface;
@@ -121,17 +125,15 @@ class RequestBuilder extends AbstractRequestBuilder
 
             $this->validateItem($itemData);
 
-            //How to handle GiftCards - see Atol API documentation
-            $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
-                ? Item::PAYMENT_METHOD_ADVANCE
-                : ($paymentMethod ?: Item::PAYMENT_METHOD_FULL_PAYMENT);
-            $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
-                ? Item::PAYMENT_OBJECT_PAYMENT
-                : ($key == Discount::SHIPPING && $shippingPaymentObject
-                    ? $shippingPaymentObject
-                    : Item::PAYMENT_OBJECT_BASIC);
-
-            $items[] = $this->buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId);
+            $items[] = $this->buildItem(
+                $key,
+                $itemData,
+                $salesEntity,
+                $order,
+                $paymentMethod,
+                $shippingPaymentObject,
+                $storeId,
+            );
         }
 
         $telephone = $order->getBillingAddress() ? (string) $order->getBillingAddress()->getTelephone() : '';
@@ -227,21 +229,51 @@ class RequestBuilder extends AbstractRequestBuilder
     }
 
     /**
+     * @param int|string $key
      * @param RecalculateResultItemInterface $itemData
-     * @param string $itemPaymentMethod
-     * @param string $itemPaymentObject
-     * @param string|null $storeId
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param Order $order
+     * @param string $paymentMethod
+     * @param string $shippingPaymentObject
+     * @param null $storeId
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      * @return ItemInterface
      */
-    private function buildItem($itemData, $itemPaymentMethod, $itemPaymentObject, $storeId = null)
-    {
-        /** @var ItemInterface $item */
-        $item = $this->itemFactory->create();
+    private function buildItem(
+        $key,
+        $itemData,
+        $salesEntity,
+        $order,
+        $paymentMethod,
+        $shippingPaymentObject,
+        $storeId = null,
+    ) {
+        $item = $this->itemFactory->create($storeId);
+
+        //How to handle GiftCards - see Atol API documentation
+        $itemPaymentMethod = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            ? $item::PAYMENT_METHOD_ADVANCE
+            : ($paymentMethod ?: $item::PAYMENT_METHOD_FULL_PAYMENT);
+        $itemPaymentObject = $this->isGiftCard($salesEntity, $itemData[Discount::NAME])
+            ? $item::PAYMENT_OBJECT_PAYMENT
+            : ($key == Discount::SHIPPING && $shippingPaymentObject
+                ? $shippingPaymentObject
+                : $item::PAYMENT_OBJECT_BASIC);
+
+        $measure = $this->kkmHelper->getMeasureDefaultValue($storeId);
+        if ($this->kkmHelper->isMeasureMappingEnabled($storeId) && $key !== Discount::SHIPPING) {
+            $orderItem = $this->getOrderItem($key, $salesEntity, $order);
+            $measureField = $this->kkmHelper->getMeasureField($storeId);
+            $measure = $orderItem && $measureField ? (int) $orderItem->getData($measureField) : $measure;
+        }
+
         $item
             ->setName($itemData[Discount::NAME])
             ->setPrice($itemData[Discount::PRICE])
             ->setSum($itemData[Discount::SUM])
             ->setQuantity($itemData[Discount::QUANTITY] ?? 1)
+            ->setMeasure($measure)
             ->setTax($itemData[Discount::TAX])
             ->setPaymentMethod($itemPaymentMethod)
             ->setPaymentObject($itemPaymentObject)
@@ -256,6 +288,24 @@ class RequestBuilder extends AbstractRequestBuilder
         }
 
         return $item;
+    }
+
+    /**
+     * @param int|string $key
+     * @param CreditmemoInterface|InvoiceInterface|OrderInterface $salesEntity
+     * @param Order $order
+     * @return DataObject|null
+     */
+    private function getOrderItem($key, $salesEntity, $order)
+    {
+        $itemId = strtok((string) $key, '_');
+        if ($salesEntity instanceof OrderInterface) {
+            return $order->getItemById($itemId);
+        }
+
+        $entityItem = $salesEntity->getItemById($itemId);
+
+        return $entityItem->getOrderItem();
     }
 
     /**

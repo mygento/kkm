@@ -8,38 +8,33 @@
 
 namespace Mygento\Kkm\Model\Atol;
 
+use Magento\Framework\Exception\LocalizedException;
+use Mygento\Kkm\Api\Data\RequestInterface;
+use Mygento\Kkm\Helper\Data;
+
 class RequestFactory
 {
     /**
-     * @var \Mygento\Kkm\Model\Atol\RequestForVersion3Factory
-     * @deprecated
-     */
-    private $request3Factory;
-
-    /**
-     * @var \Mygento\Kkm\Model\Atol\RequestForVersion4Factory
-     */
-    private $request4Factory;
-
-    /**
-     * @var \Mygento\Kkm\Helper\Data
+     * @var Data
      */
     private $kkmHelper;
 
     /**
+     * @var array
+     */
+    private $requestFactories;
+
+    /**
      * RequestFactory constructor.
-     * @param \Mygento\Kkm\Model\Atol\RequestForVersion3Factory $request3Factory
-     * @param \Mygento\Kkm\Model\Atol\RequestForVersion4Factory $request4Factory
-     * @param \Mygento\Kkm\Helper\Data $kkmHelper
+     * @param Data $kkmHelper
+     * @param array $requestFactories
      */
     public function __construct(
-        \Mygento\Kkm\Model\Atol\RequestForVersion3Factory $request3Factory,
-        \Mygento\Kkm\Model\Atol\RequestForVersion4Factory $request4Factory,
-        \Mygento\Kkm\Helper\Data $kkmHelper,
+        Data $kkmHelper,
+        array $requestFactories = [],
     ) {
-        $this->request3Factory = $request3Factory;
-        $this->request4Factory = $request4Factory;
         $this->kkmHelper = $kkmHelper;
+        $this->requestFactories = $requestFactories;
     }
 
     /**
@@ -47,14 +42,21 @@ class RequestFactory
      *
      * @param string|null
      * @param mixed|null $storeId
-     * @return \Mygento\Kkm\Api\Data\RequestInterface
+     * @return RequestInterface
      */
     public function create($storeId = null)
     {
         $version = $this->kkmHelper->getConfig('atol/api_version', $storeId);
 
-        return $version == 3
-            ? $this->request3Factory->create()
-            : $this->request4Factory->create();
+        if (!isset($this->requestFactories[$version])) {
+            throw new \InvalidArgumentException("Invalid version {$version}");
+        }
+
+        $requestFactory = $this->requestFactories[$version];
+        if (!is_object($requestFactory) || !method_exists($requestFactory, 'create')) {
+            throw new LocalizedException(__('Invalid request factory object provided.'));
+        }
+
+        return $requestFactory->create();
     }
 }

@@ -176,4 +176,21 @@
             </argument>
         </arguments>
     </type>
+
+    <type name="Mygento\Kkm\Model\Atol\RequestFactory">
+        <arguments>
+            <argument name="requestFactories" xsi:type="array">
+                <item name="4" xsi:type="object">Mygento\Kkm\Model\Atol\RequestForVersion4Factory</item>
+                <item name="5" xsi:type="object">Mygento\Kkm\Model\Atol\RequestForVersion5Factory</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Mygento\Kkm\Model\Atol\ItemFactory">
+        <arguments>
+            <argument name="itemFactories" xsi:type="array">
+                <item name="4" xsi:type="object">Mygento\Kkm\Model\Atol\ItemForVersion4Factory</item>
+                <item name="5" xsi:type="object">Mygento\Kkm\Model\Atol\ItemForVersion5Factory</item>
+            </argument>
+        </arguments>
+    </type>
 </config>

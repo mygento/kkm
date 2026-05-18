@@ -44,6 +44,17 @@ interface ItemInterface
     public function setQuantity($quantity);
 
     /**
+     * @return int
+     */
+    public function getMeasure();
+
+    /**
+     * @param int $measure
+     * @return $this
+     */
+    public function setMeasure($measure);
+
+    /**
      * @return float|int
      */
     public function getSum();
